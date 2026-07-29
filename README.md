@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HydroDesk — WTP / WWTP Process Studio
 
-## Getting Started
+Flowsheet simulation for water treatment, wastewater, desalination and demineralisation, built
+to support **pre-approval feasibility studies**: build the train, get a closed water and salt
+balance, and export a report draft.
 
-First, run the development server:
+## What it does
+
+- **Drag-and-drop flowsheet** — 33 unit operations across intake, pre-treatment, membrane, ion
+  exchange, biological, thermal/ZLD, sludge, storage and transport.
+- **Every parameter is editable** — recovery, flux, HRT, SRT, MLSS, filtration rate, dose rate,
+  rejection, pump head and efficiency, redundancy. The calculation follows what you set.
+- **Full component tracking** — Na, K, Ca, Mg, NH₄, Cl, SO₄, HCO₃, CO₃, NO₃, F, SiO₂, Fe, Mn, Ba,
+  Sr plus TDS, TSS, BOD, COD, TOC, TN, TP and oil, carried stream by stream. This is what makes a
+  *salt* balance possible, not just a water balance.
+- **Recycle loops** — solved by fixed-point iteration with damping, so backwash returns, reject
+  recycles and thickener supernatant all converge.
+- **Results** — water balance, salt/ion balance, biological balance, stream table, specific energy
+  (SEC), power per unit, chemical balance in kg/h and t/y, dry solids, preliminary equipment sizing
+  and indicative CAPEX/OPEX.
+- **Optimiser** — pulls the flowsheet into an operating envelope that can be guaranteed rather than
+  the theoretical optimum: parameters inside proven ranges, redundancy on plant-stopping units,
+  recovery lifted using the cheapest levers first.
+- **Project tracker** — every run stored with its flowsheet and results, searchable by client,
+  location and status.
+- **Report export** — pre-approval study as `.docx`, stream table as `.csv`.
+
+## Running locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open <http://localhost:3000>.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Engine self-test
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+curl http://localhost:3000/api/selftest
+```
 
-## Learn More
+Runs every built-in template through the solver and reports convergence and balance closure.
+Use it as a regression check after touching anything in `src/lib/engine`.
 
-To learn more about Next.js, take a look at the following resources:
+## Where the data lives
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Projects and runs are stored in the browser with IndexedDB — no account, no server, no environment
+variable. Use **Export all** on the Projects page to back up or move between machines.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The persistence layer in `src/lib/store/db.ts` is deliberately narrow (list / get / save / delete /
+export / import). To move to a shared cloud database later, implement those same functions against
+an API route and swap the import; nothing in the UI needs to change.
 
-## Deploy on Vercel
+## Calibration notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+NF and RO ion rejections are calibrated against the CCEPC Indonesia Gresik Salt Plant *Water and
+Salt Balance Diagram* (Attached Drawing 2-001): at 77 % recovery the NF model reproduces the
+reported permeate composition for Na, Ca, Mg, Cl and SO₄. Biological defaults follow the CCEPC
+municipal references (Zuoling and Baoxie WWTP, Wuhan) and the Jinshenglan coking wastewater plant.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Limitations
+
+This is a **screening tool**, not a design tool. Equipment sizing uses standard design loading
+rates and has not been checked against vendor performance software; membrane projections must be
+re-run in the supplier's own program before any commitment. Costs come from capacity cost curves
+and generic unit rates — they are for ranking options, not for quoting a client.
+
+## Stack
+
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · @xyflow/react · Zustand ·
+idb-keyval · docx
