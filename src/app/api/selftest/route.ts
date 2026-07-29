@@ -1,7 +1,25 @@
 import { NextResponse } from "next/server";
-import { TEMPLATES } from "@/lib/engine/templates";
+import { FEED_PRESETS, TEMPLATES } from "@/lib/engine/templates";
 import { simulate } from "@/lib/engine/solver";
 import { optimise, reliabilityScore, DEFAULT_GOALS } from "@/lib/engine/optimizer";
+import { adviseProcess, validateFeed } from "@/lib/engine/diagnostics";
+import { FeedSpec } from "@/lib/engine/types";
+
+/**
+ * The raw water analysis from the South Sumatra methanol project, entered
+ * exactly as the laboratory reported it. It contains three known defects, so it
+ * makes a good regression fixture: the validator must find all three.
+ */
+const KNOWN_BAD_FEED: FeedSpec = {
+  name: "South Sumatra river (2007 lab sheet, as reported)",
+  flow: 215, T: 28, pH: 6.5,
+  c: {
+    Ca: 48.04, Mg: 11.07, NH4: 0.011, Fe: 0.014,
+    HCO3: 22.7, CO3: 24.9, SO4: 5.8, NO3: 3.2,
+    TDS: 12.1, TSS: 18.9, SiO2: 0.022, BOD: 3.1, COD: 7.3,
+  },
+  turbidityNTU: 0, coliform: 400, conductivityUScm: 169,
+};
 
 /**
  * Self-test endpoint. Runs every built-in template through the solver and
@@ -51,8 +69,43 @@ export async function GET() {
   const allClosed = out.every((o) => Math.abs(o.waterClosure_pct) < 0.5);
   const allConverged = out.every((o) => o.converged);
 
+  /* --- diagnostics regression against a fixture with known defects --- */
+  const findings = validateFeed(KNOWN_BAD_FEED);
+  const titles = findings.map((f) => f.title);
+  const mustCatch = [
+    "Ionic balance error outside tolerance",
+    "Chloride not analysed",
+    "Entered TDS contradicts the sum of ions",
+    "Carbonate reported below pH 8.3",
+    "Silica implausibly low",
+  ];
+  const caught = mustCatch.filter((t) => titles.includes(t));
+  const diagnosticsOk = caught.length === mustCatch.length;
+
+  const advice = adviseProcess(FEED_PRESETS[1].spec, "demin");
+
   return NextResponse.json(
-    { ok: allClosed && allConverged, allConverged, allClosed, results: out },
+    {
+      ok: allClosed && allConverged && diagnosticsOk,
+      allConverged, allClosed, diagnosticsOk,
+      diagnostics: {
+        fixture: KNOWN_BAD_FEED.name,
+        expected: mustCatch,
+        caught,
+        missed: mustCatch.filter((t) => !titles.includes(t)),
+        bySeverity: findings.reduce<Record<string, number>>((a, f) => {
+          a[f.severity] = (a[f.severity] ?? 0) + 1;
+          return a;
+        }, {}),
+        allFindings: findings.map((f) => ({ severity: f.severity, title: f.title, detail: f.detail })),
+      },
+      advisor: {
+        target: advice.target,
+        steps: advice.train.map((t) => t.step),
+        cautions: advice.cautions,
+      },
+      results: out,
+    },
     { headers: { "cache-control": "no-store" } },
   );
 }

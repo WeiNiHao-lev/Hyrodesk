@@ -153,6 +153,12 @@ export interface FeedSpec {
   c: Partial<Record<Component, number>>;
   turbidityNTU: number;
   coliform: number;
+  /**
+   * Measured conductivity, if the laboratory reported it. Optional, but it is
+   * the quickest independent cross-check on the TDS figure — see
+   * diagnostics.validateFeed.
+   */
+  conductivityUScm?: number;
 }
 
 export interface DesignBasis {

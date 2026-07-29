@@ -1,18 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Flowsheet, SimulationResult, Component } from "@/lib/engine/types";
 import { alkalinityAsCaCO3, hardnessAsCaCO3, tdsFromIons } from "@/lib/engine/stream";
 import { downloadText, downloadBlob } from "@/lib/store/db";
 import { buildReport } from "@/lib/report/docx";
+import { checkCompliance, STANDARD_LIMITS } from "@/lib/engine/diagnostics";
+import { STANDARDS } from "@/lib/engine/templates";
+import { sweep, sweepCandidates, SweepResult } from "@/lib/engine/sensitivity";
 import {
   Droplets, Zap, FlaskConical, Recycle, AlertTriangle, Download, FileText, Sigma, Boxes,
+  CheckCircle2, XCircle, TrendingUp,
 } from "lucide-react";
 
 const ION_COLS: Component[] = ["TDS", "Na", "Ca", "Mg", "Cl", "SO4", "HCO3", "SiO2"];
 const BIO_COLS: Component[] = ["TSS", "BOD", "COD", "TOC", "TN", "TP", "NH4"];
 
-type Tab = "overview" | "streams" | "salt" | "bio" | "energy" | "equipment";
+type Tab = "overview" | "streams" | "salt" | "bio" | "energy" | "equipment" | "compliance" | "sensitivity";
 
 export function ResultsView({
   flowsheet, result, studyName,
@@ -97,11 +101,13 @@ export function ResultsView({
           {(
             [
               ["overview", "Water balance"],
+              ["compliance", "Compliance"],
               ["streams", "Stream table"],
               ["salt", "Salt / ion balance"],
               ["bio", "Biological balance"],
               ["energy", "Energy & chemicals"],
               ["equipment", "Equipment & sizing"],
+              ["sensitivity", "Sensitivity"],
             ] as [Tab, string][]
           ).map(([k, lbl]) => (
             <button
@@ -118,6 +124,8 @@ export function ResultsView({
 
         <div className="max-h-[560px] overflow-auto p-4">
           {tab === "overview" && <Overview result={result} />}
+          {tab === "compliance" && <Compliance result={result} flowsheet={flowsheet} />}
+          {tab === "sensitivity" && <Sensitivity flowsheet={flowsheet} />}
           {tab === "streams" && <StreamTable result={result} />}
           {tab === "salt" && <BalanceTable rows={s.saltBalance} title="Dissolved salt load" unit="kg/h" />}
           {tab === "bio" && <BalanceTable rows={s.biologicalBalance} title="Organic and nutrient load" unit="kg/h" />}
@@ -395,6 +403,218 @@ function Energy({ result, flowsheet }: { result: SimulationResult; flowsheet: Fl
           They are for ranking options against each other, not for quoting a client.
         </p>
       </div>
+    </div>
+  );
+}
+
+function Compliance({ result, flowsheet }: { result: SimulationResult; flowsheet: Flowsheet }) {
+  const products = result.productStreams;
+  const [sel, setSel] = useState(0);
+  const [std, setStd] = useState(flowsheet.basis.standard);
+  const stream = products[sel]?.stream;
+  const rows = stream ? checkCompliance(stream, std) : [];
+  const stdInfo = STANDARDS.find((s) => s.key === std);
+  const inScope = rows.filter((r) => !r.outsideScope);
+  const failed = inScope.filter((r) => !r.pass).length;
+
+  if (products.length === 0) {
+    return <p className="py-8 text-center text-[0.8rem] text-ink-300">No product outlet connected.</p>;
+  }
+  if (!STANDARD_LIMITS[std]) {
+    return (
+      <div>
+        <StdPicker std={std} setStd={setStd} />
+        <p className="mt-4 rounded-lg bg-ink-900/[0.03] px-3 py-6 text-center text-[0.8rem] text-ink-500">
+          No machine-checkable limits are defined for this standard. Declare the limits on the
+          Design basis tab and check them by hand.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="mb-3 flex flex-wrap items-end gap-3">
+        <div>
+          <label className="label">Product stream</label>
+          <select className="field mt-1 !w-auto" value={sel} onChange={(e) => setSel(Number(e.target.value))}>
+            {products.map((p, i) => (
+              <option key={p.id} value={i}>{p.label} — {p.stream.flow.toFixed(2)} m³/h</option>
+            ))}
+          </select>
+        </div>
+        <StdPicker std={std} setStd={setStd} />
+        <div className={`ml-auto chip ${failed === 0 ? "bg-mint-100 text-mint-700" : "bg-coral-100 text-coral-700"}`}>
+          {failed === 0 ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+          {failed === 0 ? "All in-scope parameters met" : `${failed} parameter${failed > 1 ? "s" : ""} not met`}
+        </div>
+      </div>
+
+      {stdInfo && <p className="mb-2 text-[0.7rem] text-ink-500">{stdInfo.scope}</p>}
+
+      <table className="data">
+        <thead>
+          <tr>
+            <th>Parameter</th><th>Limit</th><th className="num">This design</th>
+            <th className="num">Margin</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.label}>
+              <td className="font-semibold">{r.label}</td>
+              <td>{r.limitText}</td>
+              <td className="num">{r.actualText}</td>
+              <td className="num text-ink-500">{r.marginText}</td>
+              <td>
+                {r.outsideScope ? (
+                  <span className="chip bg-sun-100 text-sun-700">Outside WTP scope</span>
+                ) : r.pass ? (
+                  <span className="chip bg-mint-100 text-mint-700">Pass</span>
+                ) : (
+                  <span className="chip bg-coral-100 text-coral-700">Fail</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {rows.some((r) => r.outsideScope) && (
+        <div className="mt-3 rounded-lg bg-sun-100/70 px-3 py-2.5 text-[0.72rem] leading-relaxed text-sun-700">
+          <strong>Read the amber rows carefully.</strong> Those parameters are not met by this plant
+          and are not meant to be — dissolved oxygen is removed by the deaerator and pH is set by
+          conditioning dosing, both in the boiler island. If your proposal implies the WTP alone
+          delivers a compliant boiler feed water, that is a scope gap waiting to become a dispute.
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StdPicker({ std, setStd }: { std: string; setStd: (s: string) => void }) {
+  return (
+    <div>
+      <label className="label">Check against</label>
+      <select className="field mt-1 !w-auto" value={std} onChange={(e) => setStd(e.target.value)}>
+        {STANDARDS.map((s) => <option key={s.key} value={s.key}>{s.name}</option>)}
+      </select>
+    </div>
+  );
+}
+
+function Sensitivity({ flowsheet }: { flowsheet: Flowsheet }) {
+  const candidates = useMemo(() => sweepCandidates(flowsheet), [flowsheet]);
+  const [idx, setIdx] = useState(0);
+  const [res, setRes] = useState<SweepResult | null>(null);
+  const [busy, setBusy] = useState(false);
+  const c = candidates[idx];
+
+  const run = () => {
+    if (!c) return;
+    setBusy(true);
+    setTimeout(() => {
+      setRes(sweep(flowsheet, c.nodeId, c.paramKey, c.min, c.max, 9));
+      setBusy(false);
+    }, 10);
+  };
+
+  if (candidates.length === 0) {
+    return <p className="py-8 text-center text-[0.8rem] text-ink-300">No sweepable parameters on this flowsheet.</p>;
+  }
+
+  const maxRec = res ? Math.max(...res.points.map((p) => p.recoveryPct), 1) : 1;
+
+  return (
+    <div>
+      <p className="mb-3 text-[0.75rem] leading-relaxed text-ink-700">
+        Sweeps one parameter across its range and re-solves the whole flowsheet at each step. Use it
+        to answer <em>&ldquo;how wrong can this assumption be before the design stops working?&rdquo;</em> — the
+        question a design review will ask you.
+      </p>
+      <div className="mb-4 flex flex-wrap items-end gap-2">
+        <div className="min-w-[280px] flex-1">
+          <label className="label">Parameter to sweep</label>
+          <select className="field mt-1" value={idx} onChange={(e) => { setIdx(Number(e.target.value)); setRes(null); }}>
+            {candidates.map((x, i) => (
+              <option key={`${x.nodeId}-${x.paramKey}`} value={i}>
+                {x.nodeLabel} — {x.paramLabel} (now {x.current}{x.unit && ` ${x.unit}`})
+              </option>
+            ))}
+          </select>
+        </div>
+        <button className="btn btn-primary" onClick={run} disabled={busy}>
+          <TrendingUp className="h-3.5 w-3.5" /> {busy ? "Running…" : "Run sweep"}
+        </button>
+      </div>
+
+      {res && (
+        <>
+          <div className="mb-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <MiniStat label="Range" value={`${res.points[0].value.toFixed(1)} – ${res.points[res.points.length - 1].value.toFixed(1)}`} unit={res.unit} />
+            <MiniStat label="Recovery span" value={`${(Math.max(...res.points.map(p => p.recoveryPct)) - Math.min(...res.points.map(p => p.recoveryPct))).toFixed(2)}`} unit="points" />
+            <MiniStat label="d(Recovery)" value={res.dRecovery.toFixed(3)} unit={`%/${res.unit || "unit"}`} />
+            <MiniStat label="d(SEC)" value={res.dSec.toFixed(4)} unit={`kWh/m³ per ${res.unit || "unit"}`} />
+          </div>
+
+          <table className="data">
+            <thead>
+              <tr>
+                <th className="num">{res.paramLabel} {res.unit && `(${res.unit})`}</th>
+                <th>Recovery</th>
+                <th className="num">Recovery %</th>
+                <th className="num">Product m³/h</th>
+                <th className="num">SEC kWh/m³</th>
+                <th className="num">OPEX USD/m³</th>
+                <th className="num">Reliability</th>
+                <th className="num">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {res.points.map((p, i) => {
+                const isBase = Math.abs(p.value - res.baseValue) < 1e-9;
+                return (
+                  <tr key={i} style={isBase ? { background: "rgba(214,242,254,0.6)" } : undefined}>
+                    <td className="num font-semibold">
+                      {p.value.toFixed(2)}{isBase && <span className="ml-1 text-[0.6rem] text-aqua-700">current</span>}
+                    </td>
+                    <td>
+                      <div className="h-2.5 w-24 overflow-hidden rounded-full bg-ink-900/5">
+                        <div className={`h-full rounded-full ${p.recoveryPct >= 90 ? "bg-mint-500" : p.recoveryPct >= 75 ? "bg-sun-500" : "bg-coral-500"}`}
+                          style={{ width: `${(p.recoveryPct / maxRec) * 100}%` }} />
+                      </div>
+                    </td>
+                    <td className="num font-semibold">{p.recoveryPct.toFixed(2)}</td>
+                    <td className="num">{p.productFlow.toFixed(2)}</td>
+                    <td className="num">{p.secKWhPerM3.toFixed(3)}</td>
+                    <td className="num">{p.opexUSDPerM3.toFixed(3)}</td>
+                    <td className="num">{p.reliability.toFixed(0)}</td>
+                    <td className="num">{p.warnings > 0 ? <span className="chip bg-sun-100 text-sun-700">{p.warnings}</span> : "—"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+
+          {res.notes.length > 0 && (
+            <div className="mt-3 space-y-1.5">
+              {res.notes.map((nt, i) => (
+                <p key={i} className="rounded-lg bg-sun-100/70 px-3 py-2 text-[0.72rem] leading-snug text-sun-700">{nt}</p>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
+function MiniStat({ label, value, unit }: { label: string; value: string; unit: string }) {
+  return (
+    <div className="card-flat p-2.5">
+      <div className="text-[0.55rem] font-bold uppercase tracking-wider text-ink-300">{label}</div>
+      <div className="stat mt-1 text-[0.95rem] font-bold text-ink-900">{value}</div>
+      <div className="text-[0.58rem] text-ink-500">{unit}</div>
     </div>
   );
 }

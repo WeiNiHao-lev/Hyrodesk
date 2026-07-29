@@ -6,13 +6,14 @@ import { Canvas } from "@/components/flow/Canvas";
 import { Palette } from "@/components/flow/Palette";
 import { ParamPanel } from "@/components/flow/ParamPanel";
 import { FeedPanel, BasisPanel } from "@/components/flow/ConfigPanels";
+import { LearnPanel } from "@/components/flow/LearnPanel";
 import { OptimizerDialog } from "@/components/OptimizerDialog";
 import { SaveStudyDialog } from "@/components/SaveStudyDialog";
 import { useStudy } from "@/lib/store/useStudy";
 import { TEMPLATES } from "@/lib/engine/templates";
 import { Play, Sparkles, Save, LayoutTemplate, AlertTriangle, CheckCircle2 } from "lucide-react";
 
-type Tab = "block" | "feed" | "basis";
+type Tab = "block" | "learn" | "feed" | "basis";
 
 export default function SimulatePage() {
   return (
@@ -133,8 +134,9 @@ function SimulateInner() {
             {(
               [
                 ["block", "Block"],
-                ["feed", "Feed water"],
-                ["basis", "Design basis"],
+                ["learn", "Learn"],
+                ["feed", "Feed"],
+                ["basis", "Basis"],
               ] as [Tab, string][]
             ).map(([k, lbl]) => (
               <button
@@ -152,6 +154,7 @@ function SimulateInner() {
           </div>
           <div className="min-h-0 flex-1">
             {tab === "block" && <ParamPanel />}
+            {tab === "learn" && <LearnPanel />}
             {tab === "feed" && <FeedPanel />}
             {tab === "basis" && <BasisPanel />}
           </div>

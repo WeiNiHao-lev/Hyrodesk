@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Droplets, FolderKanban, Workflow, BarChart3, BookOpen } from "lucide-react";
+import { Droplets, FolderKanban, Workflow, BarChart3, BookOpen, Compass } from "lucide-react";
 
 const LINKS = [
   { href: "/", label: "Overview", icon: Droplets },
   { href: "/projects", label: "Projects", icon: FolderKanban },
+  { href: "/advisor", label: "Advisor", icon: Compass },
   { href: "/simulate", label: "Simulate", icon: Workflow },
   { href: "/results", label: "Results", icon: BarChart3 },
   { href: "/library", label: "Library", icon: BookOpen },
