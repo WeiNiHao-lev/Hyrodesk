@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Flowsheet, SimulationResult, Component } from "@/lib/engine/types";
-import { alkalinityAsCaCO3, hardnessAsCaCO3, tdsFromIons } from "@/lib/engine/stream";
+import { alkalinityAsCaCO3, hardnessAsCaCO3 } from "@/lib/engine/stream";
 import { downloadText, downloadBlob } from "@/lib/store/db";
 import { buildReport } from "@/lib/report/docx";
 import { checkCompliance, STANDARD_LIMITS } from "@/lib/engine/diagnostics";

@@ -1,9 +1,7 @@
-import {
-  Component, ParamDef, Params, SolveResult, Stream, UnitAux, UnitModel,
-} from "./types";
+import { Component, ParamDef, Params, UnitAux, UnitModel } from "./types";
 import {
   alkalinityAsCaCO3, clamp, cloneStream, emptyStream, hardnessAsCaCO3,
-  osmoticPressureBar, removeToSideStream, splitByRejection, tdsFromIons,
+  osmoticPressureBar, removeToSideStream, splitByRejection,
 } from "./stream";
 
 const n = (v: Params, k: string, d = 0): number => {
@@ -1207,7 +1205,7 @@ const product: UnitModel = {
       ] },
   ],
   defaults: { name: "process" },
-  solve: (inlet) => ({ outlets: {}, aux: aux() }),
+  solve: () => ({ outlets: {}, aux: aux() }),
 };
 
 const waste: UnitModel = {
@@ -1226,7 +1224,7 @@ const waste: UnitModel = {
       ] },
   ],
   defaults: { name: "reject" },
-  solve: (inlet) => ({ outlets: {}, aux: aux() }),
+  solve: () => ({ outlets: {}, aux: aux() }),
 };
 
 /* ================================================================= REGISTRY */

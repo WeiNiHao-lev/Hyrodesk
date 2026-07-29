@@ -335,7 +335,9 @@ function buildSummary(
   const productM3PerY = productFlow * hours;
   const opexUSDPerM3 = productM3PerY > 0 ? opexUSDPerY / productM3PerY : 0;
 
-  const warnings: string[] = [];
+  // Solver-level messages (non-convergence, unconnected feed) belong with the
+  // engineering notes: they are exactly the things the reader must not miss.
+  const warnings: string[] = [...messages];
   for (const r of nodes) for (const nt of r.aux.notes || []) warnings.push(`${r.label}: ${nt}`);
   if (products.length === 0) warnings.push("No product outlet is connected, so recovery cannot be computed. Add a Product Outlet block.");
   if (wastes.length === 0 && products.length > 0) warnings.push("No waste outlet is connected. Reject and backwash streams are unaccounted for and the balance will not close.");

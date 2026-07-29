@@ -90,6 +90,22 @@ export const DEFAULT_BASIS: DesignBasis = {
   designMode: "product-driven",
 };
 
+/**
+ * A blank feed. A new study must start from nothing — a preset silently
+ * carrying another project's water into a fresh study is worse than an empty
+ * form, because the numbers look deliberate.
+ */
+export function emptyFeed(): FeedSpec {
+  return {
+    name: "",
+    sourceType: "river",
+    flow: 0,
+    T: 25,
+    pH: 7,
+    c: {},
+  };
+}
+
 /* --------------------------------------------------------------- feed presets */
 
 export interface FeedPreset {
@@ -227,7 +243,7 @@ export const TEMPLATES: Template[] = [
     category: "General",
     description: "Start from nothing. Drag units in from the palette.",
     make: () =>
-      build([], [], FEED_PRESETS[1].spec),
+      build([], [], emptyFeed()),
   },
   {
     key: "demin-ro-edi",

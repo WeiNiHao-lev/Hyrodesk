@@ -11,7 +11,10 @@ import { OptimizerDialog } from "@/components/OptimizerDialog";
 import { SaveStudyDialog } from "@/components/SaveStudyDialog";
 import { useStudy } from "@/lib/store/useStudy";
 import { TEMPLATES } from "@/lib/engine/templates";
-import { Play, Sparkles, Save, LayoutTemplate, AlertTriangle, CheckCircle2 } from "lucide-react";
+import {
+  Play, Sparkles, Save, LayoutTemplate, AlertTriangle, CheckCircle2,
+  FilePlus, RotateCcw, Eraser,
+} from "lucide-react";
 
 type Tab = "block" | "learn" | "feed" | "basis";
 
@@ -32,12 +35,18 @@ export default function SimulatePage() {
 function SimulateInner() {
   const router = useRouter();
   const params = useSearchParams();
-  const { flowsheet, result, reliability, dirty, run, addNode, loadTemplate, setProjectId } = useStudy();
+  const {
+    flowsheet, result, reliability, dirty, run, addNode, loadTemplate, setProjectId,
+    newStudy, resetAllParams, clearCanvas,
+  } = useStudy();
   const [tab, setTab] = useState<Tab>("block");
   const [showOpt, setShowOpt] = useState(false);
   const [showSave, setShowSave] = useState(false);
 
   useEffect(() => {
+    // A study started from a project must begin blank, not inherit whatever was
+    // left in the editor from the last one.
+    if (params.get("new") === "1") newStudy();
     const t = params.get("template");
     if (t) loadTemplate(t);
     const pid = params.get("project");
@@ -46,7 +55,7 @@ function SimulateInner() {
   }, []);
 
   useEffect(() => {
-    if (!result) run();
+    if (!result && flowsheet.nodes.length > 0) run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -70,6 +79,39 @@ function SimulateInner() {
             ))}
           </select>
         </div>
+
+        <button
+          className="btn btn-ghost !px-2 !text-[0.72rem]"
+          title="Start a completely blank study — no blocks, no feed data"
+          onClick={() => {
+            if (confirm("Start a new blank study? Any unsaved work is lost.")) newStudy();
+          }}
+        >
+          <FilePlus className="h-3.5 w-3.5" /> New
+        </button>
+
+        <div className="h-5 w-px bg-ink-900/10" />
+
+        <button
+          className="btn btn-ghost !px-2 !text-[0.72rem]"
+          title="Restore every block to its default parameters, keeping the flowsheet"
+          onClick={() => {
+            if (confirm("Restore every block to its default parameters? The flowsheet layout is kept.")) resetAllParams();
+          }}
+          disabled={flowsheet.nodes.length === 0}
+        >
+          <RotateCcw className="h-3.5 w-3.5" /> Reset params
+        </button>
+        <button
+          className="btn btn-ghost !px-2 !text-[0.72rem]"
+          title="Remove every block and connection, keeping the feed and design basis"
+          onClick={() => {
+            if (confirm("Remove every block and connection? The feed water and design basis are kept.")) clearCanvas();
+          }}
+          disabled={flowsheet.nodes.length === 0}
+        >
+          <Eraser className="h-3.5 w-3.5" /> Clear canvas
+        </button>
 
         <div className="h-5 w-px bg-ink-900/10" />
 

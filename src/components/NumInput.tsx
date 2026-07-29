@@ -1,15 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 /**
  * Numeric input that can genuinely be empty.
  *
  * A plain <input type="number" value={x ?? 0}> forces a zero into every unset
  * field, which then cannot be cleared and — worse — makes "not analysed" look
- * identical to "measured as zero" in the balance. This keeps a string buffer so
+ * identical to "measured as zero" in the balance. This keeps an edit buffer so
  * the field can be blank, can hold a partial entry like "0." or "-", and only
  * reports a number when there is one.
+ *
+ * The buffer is null whenever the user is not editing, so the displayed value
+ * is derived straight from the prop. That way a preset load, a reset or the
+ * optimiser is reflected immediately without an effect synchronising state.
  *
  * Empty reports `undefined`, not 0.
  */
@@ -28,14 +32,9 @@ export function NumInput({
   id?: string;
   ariaLabel?: string;
 }) {
-  const [buf, setBuf] = useState<string>(value == null ? "" : String(value));
-  const [focused, setFocused] = useState(false);
-
-  // Track external changes (preset load, reset, optimiser) unless the user is typing.
-  useEffect(() => {
-    if (focused) return;
-    setBuf(value == null ? "" : String(value));
-  }, [value, focused]);
+  /** null when not editing: the prop is the source of truth. */
+  const [buf, setBuf] = useState<string | null>(null);
+  const shown = buf ?? (value == null ? "" : String(value));
 
   return (
     <input
@@ -44,28 +43,27 @@ export function NumInput({
       type="text"
       inputMode="decimal"
       className={`field ${className}`}
-      value={buf}
+      value={shown}
       placeholder={placeholder}
       disabled={disabled}
       step={step}
-      onFocus={() => setFocused(true)}
+      onFocus={() => setBuf(shown)}
       onBlur={() => {
-        setFocused(false);
-        const t = buf.trim();
-        if (t === "" || t === "-" || t === ".") {
-          setBuf("");
+        const t = (buf ?? "").trim();
+        if (t === "" || t === "-" || t === "." || t === "-.") {
+          setBuf(null);
           onChange(undefined);
           return;
         }
         const n = Number(t.replace(",", "."));
         if (!Number.isFinite(n)) {
-          setBuf(value == null ? "" : String(value));
+          setBuf(null); // discard nonsense, fall back to the prop
           return;
         }
         let clamped = n;
         if (min != null && clamped < min) clamped = min;
         if (max != null && clamped > max) clamped = max;
-        setBuf(String(clamped));
+        setBuf(null);
         onChange(clamped);
       }}
       onChange={(e) => {
@@ -76,7 +74,7 @@ export function NumInput({
           onChange(undefined);
           return;
         }
-        // Let partial entries stand without reporting a bogus number.
+        // Let a partial entry stand without reporting a bogus number.
         if (s === "-" || s === "." || s === "-." || s.endsWith(".")) return;
         const n = Number(s.replace(",", "."));
         if (Number.isFinite(n)) onChange(n);
@@ -85,7 +83,7 @@ export function NumInput({
   );
 }
 
-/** Same behaviour, but for a value that must always exist (unit parameters). */
+/** Same behaviour, for a value that must always exist (unit parameters). */
 export function NumInputRequired({
   value, onChange, className = "", step, min, max,
 }: {

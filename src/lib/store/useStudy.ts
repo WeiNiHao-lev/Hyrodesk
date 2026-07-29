@@ -24,6 +24,12 @@ interface StudyState {
   loadTemplate: (key: string) => void;
   setStudyName: (s: string) => void;
   setProjectId: (id: string | null) => void;
+  /** Blank slate: no blocks, no feed data, no results. */
+  newStudy: () => void;
+  /** Keep the flowsheet, restore every block to its model defaults. */
+  resetAllParams: () => void;
+  /** Remove every block and connection, keep the feed and design basis. */
+  clearCanvas: () => void;
 
   addNode: (type: string, position: { x: number; y: number }) => void;
   removeNode: (id: string) => void;
@@ -44,10 +50,11 @@ interface StudyState {
   runOptimizer: (goals?: OptimizerGoals) => void;
 }
 
-const initial = TEMPLATES.find((t) => t.key === "demin-ro-edi")!.make();
+/** A study opens blank. Templates are loaded deliberately, never by default. */
+const blank = () => TEMPLATES.find((t) => t.key === "blank")!.make();
 
 export const useStudy = create<StudyState>((set, get) => ({
-  flowsheet: initial,
+  flowsheet: blank(),
   selectedId: null,
   result: null,
   optimizerReport: null,
@@ -73,6 +80,41 @@ export const useStudy = create<StudyState>((set, get) => ({
 
   setStudyName: (s) => set({ studyName: s }),
   setProjectId: (id) => set({ projectId: id }),
+
+  newStudy: () =>
+    set({
+      flowsheet: blank(),
+      selectedId: null,
+      result: null,
+      optimizerReport: null,
+      reliability: 0,
+      studyName: "Untitled study",
+      dirty: true,
+    }),
+
+  resetAllParams: () => {
+    const fs = get().flowsheet;
+    set({
+      flowsheet: {
+        ...fs,
+        nodes: fs.nodes.map((nd) => ({ ...nd, params: defaultParams(nd.type) })),
+      },
+      result: null,
+      optimizerReport: null,
+      dirty: true,
+    });
+  },
+
+  clearCanvas: () => {
+    const fs = get().flowsheet;
+    set({
+      flowsheet: { ...fs, nodes: [], edges: [] },
+      selectedId: null,
+      result: null,
+      optimizerReport: null,
+      dirty: true,
+    });
+  },
 
   addNode: (type, position) => {
     const model = UNIT_BY_TYPE[type];

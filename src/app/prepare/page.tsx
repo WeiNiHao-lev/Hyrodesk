@@ -30,6 +30,10 @@ export default function PreparePage() {
   const [loaded, setLoaded] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  // Reading localStorage has to happen after mount: it does not exist during
+  // server rendering, and seeding state from it directly would desynchronise
+  // hydration. This is the one legitimate case for setting state in an effect.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -43,6 +47,7 @@ export default function PreparePage() {
     } catch { /* ignore corrupt state */ }
     setLoaded(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (!loaded) return;

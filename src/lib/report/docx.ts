@@ -5,11 +5,11 @@ import {
   Table, TableCell, TableRow, TextRun, VerticalAlign, WidthType,
 } from "docx";
 import { Component, Flowsheet, SimulationResult } from "../engine/types";
-import { alkalinityAsCaCO3, hardnessAsCaCO3, ionicBalanceErrorPct, makeStream } from "../engine/stream";
+import { alkalinityAsCaCO3, hardnessAsCaCO3, ionicBalanceErrorPct } from "../engine/stream";
+import { feedStream } from "../engine/solver";
 import { UNIT_BY_TYPE } from "../engine/units";
 import { STANDARDS } from "../engine/templates";
 
-const W = 9360;
 const NAVY = "0F2942";
 const GREY = "4A7694";
 const HDR = "0F2942";
@@ -93,7 +93,9 @@ export async function buildReport(
 ): Promise<Blob> {
   const s = result.summary;
   const std = STANDARDS.find((x) => x.key === fs.basis.standard);
-  const feedProbe = makeStream(fs.feed.flow, fs.feed.c, { T: fs.feed.T, pH: fs.feed.pH });
+  // Use the same conversion the solver uses, so alkalinity and hardness entered
+  // as CaCO3 are reflected in the report exactly as they are in the balance.
+  const feedProbe = feedStream(fs.feed);
   const ionErr = ionicBalanceErrorPct(feedProbe);
   const hard = hardnessAsCaCO3(feedProbe);
   const alk = alkalinityAsCaCO3(feedProbe);

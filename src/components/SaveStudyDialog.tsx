@@ -16,7 +16,14 @@ export function SaveStudyDialog({ onClose }: { onClose: () => void }) {
   const { flowsheet, result, optimizerReport, studyName, projectId, setProjectId } = useStudy();
   const [projects, setProjects] = useState<Project[]>([]);
   const [target, setTarget] = useState<string>(projectId ?? "__new__");
-  const [verdict, setVerdict] = useState<"feasible" | "conditional" | "not-feasible">("feasible");
+  // Suggest a verdict from the result at mount. Derived once, then the engineer
+  // owns it — the tool proposes, it does not decide.
+  const [verdict, setVerdict] = useState<"feasible" | "conditional" | "not-feasible">(() => {
+    if (!result) return "conditional";
+    const r = result.summary.recoveryPct;
+    const w = result.summary.warnings.length;
+    return w === 0 && r >= 85 ? "feasible" : w > 3 || r < 60 ? "not-feasible" : "conditional";
+  });
   const [note, setNote] = useState("");
   const [draft, setDraft] = useState<Project>(emptyProject());
   const [busy, setBusy] = useState(false);
@@ -24,13 +31,6 @@ export function SaveStudyDialog({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     listProjects().then(setProjects);
   }, []);
-
-  useEffect(() => {
-    if (!result) return;
-    const r = result.summary.recoveryPct;
-    const w = result.summary.warnings.length;
-    setVerdict(w === 0 && r >= 85 ? "feasible" : w > 3 || r < 60 ? "not-feasible" : "conditional");
-  }, [result]);
 
   const submit = async () => {
     if (!result) return;

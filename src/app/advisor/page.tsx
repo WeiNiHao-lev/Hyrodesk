@@ -1,13 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useStudy } from "@/lib/store/useStudy";
 import { validateFeed, adviseProcess, ADVISOR_TARGETS, Finding, Severity } from "@/lib/engine/diagnostics";
-import { FEED_PRESETS } from "@/lib/engine/templates";
+import { emptyFeed, FEED_PRESETS } from "@/lib/engine/templates";
+import { listProjects, Project } from "@/lib/store/db";
+import { FeedPanel } from "@/components/flow/ConfigPanels";
+import { Modal } from "@/components/Modal";
 import {
   ShieldCheck, XCircle, AlertTriangle, Info, CheckCircle2, Route, ClipboardList,
-  ArrowRight, Workflow, Lightbulb,
+  ArrowRight, Workflow, Lightbulb, FlaskConical, FolderInput, Plus, PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 
 const CHECKLIST: { group: string; items: { q: string; why: string }[] }[] = [
@@ -46,6 +50,20 @@ export default function AdvisorPage() {
   const { flowsheet, setFeed, applyFeedPreset } = useStudy();
   const [target, setTarget] = useState<string>("demin");
   const [tab, setTab] = useState<"validate" | "select" | "checklist">("validate");
+  const [editorOpen, setEditorOpen] = useState(true);
+  const [importOpen, setImportOpen] = useState(false);
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    if (importOpen && projects.length === 0) listProjects().then(setProjects);
+  }, [importOpen, projects.length]);
+
+  const importFeed = (p: Project, runId: string) => {
+    const run = p.runs.find((r) => r.id === runId);
+    if (!run) return;
+    setFeed({ ...JSON.parse(JSON.stringify(run.flowsheet.feed)) });
+    setImportOpen(false);
+  };
 
   const findings = useMemo(() => validateFeed(flowsheet.feed), [flowsheet.feed]);
   const advice = useMemo(() => adviseProcess(flowsheet.feed, target), [flowsheet.feed, target]);
@@ -86,20 +104,56 @@ export default function AdvisorPage() {
             </button>
           ))}
         </div>
+        <button
+          className="btn btn-ghost"
+          onClick={() => {
+            if (confirm("Start a blank water analysis? Anything entered here is cleared.")) {
+              setFeed({ ...emptyFeed() });
+              setEditorOpen(true);
+            }
+          }}
+        >
+          <Plus className="h-3.5 w-3.5" /> New analysis
+        </button>
+        <button className="btn btn-ghost" onClick={() => setImportOpen(true)}>
+          <FolderInput className="h-3.5 w-3.5" /> Import from project
+        </button>
         <select
           className="field !w-auto"
           value=""
           onChange={(e) => e.target.value && applyFeedPreset(e.target.value)}
         >
-          <option value="">Load a feed preset…</option>
+          <option value="">Reference preset…</option>
           {FEED_PRESETS.map((p) => (
             <option key={p.key} value={p.key}>{p.label}</option>
           ))}
         </select>
-        <Link href="/simulate" className="btn btn-ghost ml-auto">
-          <Workflow className="h-3.5 w-3.5" /> Edit feed on the canvas
+        <button className="btn btn-ghost ml-auto" onClick={() => setEditorOpen((o) => !o)}>
+          {editorOpen ? <PanelLeftClose className="h-3.5 w-3.5" /> : <PanelLeftOpen className="h-3.5 w-3.5" />}
+          {editorOpen ? "Hide editor" : "Show editor"}
+        </button>
+        <Link href="/simulate" className="btn btn-ghost">
+          <Workflow className="h-3.5 w-3.5" /> Canvas
         </Link>
       </div>
+
+      <div className={editorOpen ? "grid gap-4 lg:grid-cols-[330px_1fr]" : ""}>
+        {editorOpen && (
+          <aside className="card h-fit overflow-hidden lg:sticky lg:top-[4.5rem]">
+            <div className="flex items-center gap-1.5 border-b border-ink-900/8 px-3 py-2.5">
+              <FlaskConical className="h-3.5 w-3.5 text-aqua-600" />
+              <h2 className="text-[0.82rem] font-bold text-ink-900">Water analysis</h2>
+            </div>
+            <p className="border-b border-ink-900/8 px-3 py-2 text-[0.68rem] leading-snug text-ink-500">
+              Type a new analysis here and the checks update as you go. Choose the source first —
+              it decides which parameters a laboratory would actually report.
+            </p>
+            <div className="max-h-[68vh] overflow-y-auto">
+              <FeedPanel />
+            </div>
+          </aside>
+        )}
+        <div className="min-w-0">
 
       {/* ---------------------------------------------------------- validate */}
       {tab === "validate" && (
@@ -117,25 +171,6 @@ export default function AdvisorPage() {
               <Tally n={counts.info ?? 0} label="note" tone="aqua" />
               <Tally n={counts.pass ?? 0} label="passed" tone="mint" />
             </div>
-          </div>
-
-          <div className="mb-4">
-            <label className="label">Measured conductivity (optional but recommended)</label>
-            <div className="mt-1 flex max-w-md items-center gap-2">
-              <input
-                type="number"
-                className="field"
-                placeholder="µS/cm"
-                value={flowsheet.feed.conductivityUScm ?? ""}
-                onChange={(e) =>
-                  setFeed({ conductivityUScm: e.target.value === "" ? undefined : Number(e.target.value) })
-                }
-              />
-              <span className="shrink-0 text-[0.72rem] text-ink-500">µS/cm</span>
-            </div>
-            <p className="mt-1 text-[0.68rem] text-ink-500">
-              The fastest independent cross-check on a reported TDS figure.
-            </p>
           </div>
 
           <div className="space-y-2.5">
@@ -250,6 +285,56 @@ export default function AdvisorPage() {
             </div>
           ))}
         </div>
+      )}
+        </div>
+      </div>
+
+      {importOpen && (
+        <Modal
+          title="Import a water analysis from a project"
+          subtitle="Pull the feed from any saved study, so an analysis entered once can be re-examined without retyping it."
+          onClose={() => setImportOpen(false)}
+          footer={<button className="btn btn-ghost" onClick={() => setImportOpen(false)}>Cancel</button>}
+        >
+          {projects.length === 0 ? (
+            <p className="py-6 text-center text-[0.8rem] text-ink-500">
+              No saved projects yet. Save a study to a project first, then its feed can be imported here.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {projects.map((p) => (
+                <div key={p.id}>
+                  <h3 className="text-[0.82rem] font-bold text-ink-900">{p.name || "Untitled"}</h3>
+                  <p className="text-[0.68rem] text-ink-500">
+                    {[p.client, p.location].filter(Boolean).join(" · ") || "No client recorded"}
+                  </p>
+                  {p.runs.length === 0 ? (
+                    <p className="mt-1 text-[0.7rem] text-ink-300">No saved runs.</p>
+                  ) : (
+                    <div className="mt-1.5 space-y-1">
+                      {p.runs.map((r) => (
+                        <button
+                          key={r.id}
+                          onClick={() => importFeed(p, r.id)}
+                          className="flex w-full items-center gap-2 rounded-lg border border-ink-900/8 bg-white px-2.5 py-2 text-left transition hover:border-aqua-400 hover:bg-aqua-50"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-[0.76rem] font-semibold text-ink-900">{r.name}</p>
+                            <p className="truncate text-[0.66rem] text-ink-500">
+                              {r.flowsheet.feed.name || "unnamed source"} ·{" "}
+                              {new Date(r.createdAt).toLocaleDateString("en-GB")}
+                            </p>
+                          </div>
+                          <ArrowRight className="h-3.5 w-3.5 shrink-0 text-aqua-600" />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </Modal>
       )}
     </div>
   );

@@ -139,7 +139,7 @@ export default function ProjectDetail() {
                   {shareUrl ? "Revoke link" : "Share link"}
                 </button>
               )}
-              <Link href={`/simulate?project=${project.id}`} className="btn btn-primary">
+              <Link href={`/simulate?project=${project.id}&new=1`} className="btn btn-primary">
                 <Workflow className="h-3.5 w-3.5" /> New study
               </Link>
             </div>
@@ -267,7 +267,7 @@ export default function ProjectDetail() {
               <p className="max-w-sm text-[0.8rem] text-ink-500">
                 Run a simulation and save it to this project, or select an existing run on the left.
               </p>
-              <Link href={`/simulate?project=${project.id}`} className="btn btn-primary mt-2">
+              <Link href={`/simulate?project=${project.id}&new=1`} className="btn btn-primary mt-2">
                 <Workflow className="h-4 w-4" /> Start a study
               </Link>
             </div>
