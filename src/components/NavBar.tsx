@@ -2,12 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Droplets, FolderKanban, Workflow, BarChart3, BookOpen, Compass } from "lucide-react";
+import {
+  Droplets, FolderKanban, Workflow, BarChart3, BookOpen, Compass, ClipboardList,
+} from "lucide-react";
 import { StorageBadge } from "./StorageBadge";
 
 const LINKS = [
   { href: "/", label: "Overview", icon: Droplets },
   { href: "/projects", label: "Projects", icon: FolderKanban },
+  { href: "/prepare", label: "Prepare", icon: ClipboardList },
   { href: "/advisor", label: "Advisor", icon: Compass },
   { href: "/simulate", label: "Simulate", icon: Workflow },
   { href: "/results", label: "Results", icon: BarChart3 },
