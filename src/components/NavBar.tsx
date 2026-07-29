@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Droplets, FolderKanban, Workflow, BarChart3, BookOpen, Compass } from "lucide-react";
+import { StorageBadge } from "./StorageBadge";
 
 const LINKS = [
   { href: "/", label: "Overview", icon: Droplets },
@@ -53,7 +54,7 @@ export function NavBar() {
         </nav>
 
         <div className="ml-auto hidden shrink-0 items-center gap-2 sm:flex">
-          <span className="chip bg-mint-100 text-mint-700">Local database</span>
+          <StorageBadge />
         </div>
       </div>
     </header>

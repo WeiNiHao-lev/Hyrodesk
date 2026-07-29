@@ -7,6 +7,7 @@ import {
   ProjectKind, ProjectStatus, saveProject, STATUS_LABEL, STATUS_TONE, downloadText,
 } from "@/lib/store/db";
 import { Modal } from "@/components/Modal";
+import { StorageBadge } from "@/components/StorageBadge";
 import {
   Plus, Download, Upload, Trash2, Search, FolderKanban, ArrowRight,
 } from "lucide-react";
@@ -84,6 +85,10 @@ export default function ProjectsPage() {
             }}
           />
         </div>
+      </div>
+
+      <div className="mb-4">
+        <StorageBadge full />
       </div>
 
       <div className="card mb-4 flex flex-wrap items-center gap-2 p-2.5">

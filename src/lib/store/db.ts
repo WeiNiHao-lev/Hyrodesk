@@ -1,88 +1,61 @@
 "use client";
 
 import { get, set, del, keys } from "idb-keyval";
-import { Flowsheet, SimulationResult } from "../engine/types";
-import { OptimizerReport } from "../engine/optimizer";
+import {
+  emptyProject, HealthReport, newId, Project, StorageMode,
+} from "./types";
+
+export * from "./types";
 
 /**
- * Persistence layer.
+ * Persistence layer with two interchangeable backends.
  *
- * v1 stores everything in the browser via IndexedDB, which needs no account,
- * no environment variable and no server. The interface below is deliberately
- * narrow so a Postgres adapter can be dropped in later without touching the UI:
- * implement the same five functions against an API route and swap the import.
+ * If the deployment has DATABASE_URL set, everything goes to Postgres through
+ * the API routes, so projects are visible from any device and can be shared
+ * read-only with a link. If it is not set, everything falls back to IndexedDB
+ * in this browser and the app keeps working with no configuration at all.
+ *
+ * The mode is decided once, by asking the server, and cached for the session.
  */
 
-export type ProjectStatus =
-  | "lead"
-  | "data-collection"
-  | "simulation"
-  | "pre-approval"
-  | "approved"
-  | "rejected"
-  | "on-hold";
-
-export const STATUS_LABEL: Record<ProjectStatus, string> = {
-  lead: "Lead",
-  "data-collection": "Data collection",
-  simulation: "Simulation",
-  "pre-approval": "Pre-approval review",
-  approved: "Approved",
-  rejected: "Not feasible",
-  "on-hold": "On hold",
-};
-
-export const STATUS_TONE: Record<ProjectStatus, string> = {
-  lead: "bg-slate-100 text-slate-700 ring-slate-200",
-  "data-collection": "bg-amber-100 text-amber-800 ring-amber-200",
-  simulation: "bg-sky-100 text-sky-800 ring-sky-200",
-  "pre-approval": "bg-violet-100 text-violet-800 ring-violet-200",
-  approved: "bg-emerald-100 text-emerald-800 ring-emerald-200",
-  rejected: "bg-rose-100 text-rose-800 ring-rose-200",
-  "on-hold": "bg-stone-100 text-stone-700 ring-stone-200",
-};
-
-export type ProjectKind =
-  | "WTP"
-  | "WWTP"
-  | "Desalination"
-  | "Demineralisation"
-  | "ZLD / MLD"
-  | "Reuse";
-
-export interface StudyRun {
-  id: string;
-  name: string;
-  createdAt: string;
-  flowsheet: Flowsheet;
-  result: SimulationResult;
-  optimizerReport?: OptimizerReport;
-  verdict?: "feasible" | "conditional" | "not-feasible";
-  engineerNote?: string;
-}
-
-export interface Project {
-  id: string;
-  name: string;
-  client: string;
-  location: string;
-  kind: ProjectKind;
-  status: ProjectStatus;
-  capacityNote: string;
-  marketingContact: string;
-  createdAt: string;
-  updatedAt: string;
-  notes: string;
-  runs: StudyRun[];
-}
-
 const PREFIX = "wtpsim:project:";
+let modePromise: Promise<StorageMode> | null = null;
+let cachedHealth: HealthReport | null = null;
 
-export function newId(): string {
-  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+export async function health(): Promise<HealthReport> {
+  if (cachedHealth) return cachedHealth;
+  try {
+    const r = await fetch("/api/health", { cache: "no-store" });
+    cachedHealth = (await r.json()) as HealthReport;
+  } catch {
+    cachedHealth = { storage: "local", configured: false, ok: true, error: "Health endpoint unreachable" };
+  }
+  return cachedHealth;
 }
 
-export async function listProjects(): Promise<Project[]> {
+export function resetHealthCache() {
+  cachedHealth = null;
+  modePromise = null;
+}
+
+async function mode(): Promise<StorageMode> {
+  if (!modePromise) modePromise = health().then((h) => (h.storage === "cloud" && h.ok ? "cloud" : "local"));
+  return modePromise;
+}
+
+async function api<T>(path: string, init?: RequestInit): Promise<T> {
+  const r = await fetch(path, {
+    ...init,
+    cache: "no-store",
+    headers: { "content-type": "application/json", ...(init?.headers ?? {}) },
+  });
+  if (!r.ok) throw new Error(`${init?.method ?? "GET"} ${path} failed: ${r.status}`);
+  return (await r.json()) as T;
+}
+
+/* ------------------------------------------------------------------ local */
+
+async function listLocal(): Promise<Project[]> {
   const all = await keys();
   const ids = all.filter((k): k is string => typeof k === "string" && k.startsWith(PREFIX));
   const rows = await Promise.all(ids.map((k) => get<Project>(k)));
@@ -91,35 +64,57 @@ export async function listProjects(): Promise<Project[]> {
     .sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
 }
 
+/* ------------------------------------------------------------------ public */
+
+export async function listProjects(): Promise<Project[]> {
+  if ((await mode()) === "cloud") {
+    try {
+      return await api<Project[]>("/api/projects");
+    } catch {
+      return listLocal();
+    }
+  }
+  return listLocal();
+}
+
 export async function getProject(id: string): Promise<Project | undefined> {
+  if ((await mode()) === "cloud") {
+    try {
+      return await api<Project>(`/api/projects/${encodeURIComponent(id)}`);
+    } catch {
+      return get<Project>(PREFIX + id);
+    }
+  }
   return get<Project>(PREFIX + id);
 }
 
 export async function saveProject(p: Project): Promise<void> {
   p.updatedAt = new Date().toISOString();
+  if ((await mode()) === "cloud") {
+    await api<Project>("/api/projects", { method: "POST", body: JSON.stringify(p) });
+    return;
+  }
   await set(PREFIX + p.id, p);
 }
 
 export async function deleteProject(id: string): Promise<void> {
+  if ((await mode()) === "cloud") {
+    await api<{ ok: boolean }>(`/api/projects/${encodeURIComponent(id)}`, { method: "DELETE" });
+    return;
+  }
   await del(PREFIX + id);
 }
 
-export function emptyProject(): Project {
-  const now = new Date().toISOString();
-  return {
-    id: newId(),
-    name: "",
-    client: "",
-    location: "",
-    kind: "WTP",
-    status: "data-collection",
-    capacityNote: "",
-    marketingContact: "",
-    createdAt: now,
-    updatedAt: now,
-    notes: "",
-    runs: [],
-  };
+/** Creates (or returns) a read-only share link. Cloud storage only. */
+export async function createShareLink(id: string): Promise<string> {
+  const { token } = await api<{ token: string }>(
+    `/api/projects/${encodeURIComponent(id)}/share`, { method: "POST" },
+  );
+  return token;
+}
+
+export async function revokeShareLink(id: string): Promise<void> {
+  await api<{ ok: boolean }>(`/api/projects/${encodeURIComponent(id)}/share`, { method: "DELETE" });
 }
 
 /* ------------------------------------------------------------ export / import */
@@ -136,9 +131,20 @@ export async function importAll(json: string): Promise<number> {
   }
   for (const p of data.projects) {
     if (!p.id) p.id = newId();
-    await set(PREFIX + p.id, p);
+    await saveProject(p);
   }
   return data.projects.length;
+}
+
+/** Copies everything in this browser up to the cloud database. */
+export async function migrateLocalToCloud(): Promise<number> {
+  const h = await health();
+  if (h.storage !== "cloud" || !h.ok) throw new Error("Cloud storage is not available.");
+  const local = await listLocal();
+  for (const p of local) {
+    await api<Project>("/api/projects", { method: "POST", body: JSON.stringify(p) });
+  }
+  return local.length;
 }
 
 export function downloadText(filename: string, text: string, mime = "application/json") {
@@ -159,3 +165,5 @@ export function downloadBlob(filename: string, blob: Blob) {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+export { emptyProject };

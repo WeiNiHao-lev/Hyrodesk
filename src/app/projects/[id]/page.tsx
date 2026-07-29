@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  getProject, Project, ProjectStatus, saveProject, STATUS_LABEL, STATUS_TONE, StudyRun,
+  createShareLink, getProject, health, Project, ProjectStatus, revokeShareLink,
+  saveProject, STATUS_LABEL, STATUS_TONE, StudyRun,
 } from "@/lib/store/db";
 import { useStudy } from "@/lib/store/useStudy";
 import { ResultsView } from "@/components/ResultsView";
-import { ArrowLeft, Workflow, Trash2, Save, ChevronRight } from "lucide-react";
+import {
+  ArrowLeft, Workflow, Trash2, Save, ChevronRight, Share2, Copy, Check, XCircle,
+} from "lucide-react";
 
 const VERDICT_TONE: Record<string, string> = {
   feasible: "bg-mint-100 text-mint-700",
@@ -27,6 +30,10 @@ export default function ProjectDetail() {
   const [project, setProject] = useState<Project | null>(null);
   const [activeRun, setActiveRun] = useState<StudyRun | null>(null);
   const [saving, setSaving] = useState(false);
+  const [cloud, setCloud] = useState(false);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const { setFlowsheet, setStudyName, setProjectId, run } = useStudy();
 
   useEffect(() => {
@@ -34,7 +41,9 @@ export default function ProjectDetail() {
       if (!p) return;
       setProject(p);
       setActiveRun(p.runs[0] ?? null);
+      if (p.shareToken) setShareUrl(`${window.location.origin}/share/${p.shareToken}`);
     });
+    health().then((h) => setCloud(h.storage === "cloud" && h.ok));
   }, [id]);
 
   if (!project) {
@@ -105,11 +114,66 @@ export default function ProjectDetail() {
             <span className="text-[0.65rem] text-ink-300">
               {saving ? "Saving…" : `Updated ${new Date(project.updatedAt).toLocaleString("en-GB")}`}
             </span>
-            <Link href={`/simulate?project=${project.id}`} className="btn btn-primary">
-              <Workflow className="h-3.5 w-3.5" /> New study
-            </Link>
+            <div className="flex gap-2">
+              {cloud && (
+                <button
+                  className="btn btn-ghost"
+                  disabled={sharing}
+                  onClick={async () => {
+                    setSharing(true);
+                    try {
+                      if (shareUrl) {
+                        await revokeShareLink(project.id);
+                        setShareUrl(null);
+                      } else {
+                        const t = await createShareLink(project.id);
+                        setShareUrl(`${window.location.origin}/share/${t}`);
+                      }
+                    } catch (e) {
+                      alert((e as Error).message);
+                    }
+                    setSharing(false);
+                  }}
+                >
+                  {shareUrl ? <XCircle className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
+                  {shareUrl ? "Revoke link" : "Share link"}
+                </button>
+              )}
+              <Link href={`/simulate?project=${project.id}`} className="btn btn-primary">
+                <Workflow className="h-3.5 w-3.5" /> New study
+              </Link>
+            </div>
           </div>
         </div>
+
+        {shareUrl && (
+          <div className="mt-3 rounded-xl bg-mint-100/60 p-3">
+            <div className="flex items-center gap-1.5">
+              <Share2 className="h-3.5 w-3.5 text-mint-700" />
+              <span className="text-[0.62rem] font-bold uppercase tracking-wider text-mint-700">
+                Read-only link — anyone with it can view this project
+              </span>
+            </div>
+            <div className="mt-1.5 flex gap-2">
+              <input className="field font-mono !text-[0.72rem]" value={shareUrl} readOnly onFocus={(e) => e.currentTarget.select()} />
+              <button
+                className="btn btn-ghost shrink-0"
+                onClick={() => {
+                  navigator.clipboard.writeText(shareUrl);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 1800);
+                }}
+              >
+                {copied ? <Check className="h-3.5 w-3.5 text-mint-700" /> : <Copy className="h-3.5 w-3.5" />}
+                {copied ? "Copied" : "Copy"}
+              </button>
+            </div>
+            <p className="mt-1.5 text-[0.66rem] leading-snug text-ink-500">
+              Send this to the engineering director — no account needed, and the link cannot be used
+              to change anything. Revoke it at any time and it stops working immediately.
+            </p>
+          </div>
+        )}
 
         <div className="mt-3">
           <label className="label">Notes</label>
