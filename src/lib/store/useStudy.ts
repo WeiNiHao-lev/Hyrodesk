@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { Flowsheet, FlowNode, Params, SimulationResult } from "../engine/types";
-import { simulate } from "../engine/solver";
+import { simulate, simulateForProduct } from "../engine/solver";
 import { defaultParams, UNIT_BY_TYPE } from "../engine/units";
 import { DEFAULT_GOALS, optimise, OptimizerGoals, OptimizerReport, reliabilityScore } from "../engine/optimizer";
 import { FEED_PRESETS, TEMPLATES } from "../engine/templates";
@@ -37,6 +37,7 @@ interface StudyState {
 
   setFeed: (patch: Partial<Flowsheet["feed"]>) => void;
   applyFeedPreset: (key: string) => void;
+  resetFeed: () => void;
   setBasis: (patch: Partial<Flowsheet["basis"]>) => void;
 
   run: () => void;
@@ -185,6 +186,31 @@ export const useStudy = create<StudyState>((set, get) => ({
     set({ flowsheet: { ...fs, feed: JSON.parse(JSON.stringify(p.spec)) }, dirty: true });
   },
 
+  resetFeed: () => {
+    const fs = get().flowsheet;
+    // Clear every analysis value but keep what identifies the water, so the
+    // engineer does not have to re-select the source after clearing a preset.
+    set({
+      flowsheet: {
+        ...fs,
+        feed: {
+          name: fs.feed.name,
+          sourceType: fs.feed.sourceType,
+          flow: fs.feed.flow,
+          T: 25,
+          pH: 7,
+          c: {},
+          turbidityNTU: undefined,
+          coliform: undefined,
+          conductivityUScm: undefined,
+          alkalinityAsCaCO3: undefined,
+          hardnessAsCaCO3: undefined,
+        },
+      },
+      dirty: true,
+    });
+  },
+
   setBasis: (patch) => {
     const fs = get().flowsheet;
     set({ flowsheet: { ...fs, basis: { ...fs.basis, ...patch } }, dirty: true });
@@ -192,6 +218,20 @@ export const useStudy = create<StudyState>((set, get) => ({
 
   run: () => {
     const fs = get().flowsheet;
+    const mode = fs.basis.designMode ?? "product-driven";
+    const target = fs.basis.targetProductFlow;
+
+    if (mode === "product-driven" && target != null && target > 0) {
+      // Size backwards from the demand: the intake is the answer, not the input.
+      const solved = simulateForProduct(fs, target);
+      set({
+        flowsheet: solved.flowsheet,
+        result: solved.result,
+        reliability: reliabilityScore(solved.flowsheet, solved.result),
+        dirty: false,
+      });
+      return;
+    }
     const result = simulate(fs);
     set({ result, reliability: reliabilityScore(fs, result), dirty: false });
   },

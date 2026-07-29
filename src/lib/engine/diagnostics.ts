@@ -1,7 +1,9 @@
 import { Component, FeedSpec, Stream } from "./types";
 import {
-  alkalinityAsCaCO3, hardnessAsCaCO3, ionicBalanceErrorPct, makeStream, tdsFromIons,
+  alkalinityAsCaCO3, hardnessAsCaCO3, ionicBalanceErrorPct, tdsFromIons,
 } from "./stream";
+import { feedStream } from "./solver";
+import { profileFor } from "./feedprofiles";
 
 /* ================================================================ FEED VALIDATION */
 
@@ -28,7 +30,7 @@ const TONE: Record<Severity, number> = { fail: 0, warn: 1, info: 2, pass: 3 };
  */
 export function validateFeed(feed: FeedSpec): Finding[] {
   const f: Finding[] = [];
-  const s = makeStream(feed.flow, feed.c, { T: feed.T, pH: feed.pH });
+  const s = feedStream({ ...feed, flow: 1 });
   const tdsIons = tdsFromIons(s);
   const tdsEntered = feed.c.TDS ?? 0;
   const hard = hardnessAsCaCO3(s);
@@ -167,7 +169,9 @@ export function validateFeed(feed: FeedSpec): Finding[] {
 
   /* --- 8. missing parameters -------------------------------------------- */
   const missing: string[] = [];
-  if (feed.turbidityNTU === 0) missing.push("turbidity (NTU)");
+  const prof = profileFor(feed.sourceType);
+  // Only ask for turbidity where a laboratory would normally report it.
+  if (prof.showTurbidity && !feed.turbidityNTU) missing.push("turbidity (NTU)");
   if ((feed.c.TOC ?? 0) === 0) missing.push("TOC");
   if ((feed.c.TSS ?? 0) === 0) missing.push("TSS");
   if (missing.length > 0) {
@@ -357,12 +361,12 @@ export const ADVISOR_TARGETS = [
  * that force me to do — and shows the reasoning, not just the answer.
  */
 export function adviseProcess(feed: FeedSpec, target: string): AdvisorResult {
-  const s = makeStream(feed.flow, feed.c, { T: feed.T, pH: feed.pH });
+  const s = feedStream({ ...feed, flow: 1 });
   const hard = hardnessAsCaCO3(s);
   const alk = alkalinityAsCaCO3(s);
   const nonCarb = Math.max(0, hard - alk);
   const tds = Math.max(feed.c.TDS ?? 0, tdsFromIons(s));
-  const turb = feed.turbidityNTU;
+  const turb = feed.turbidityNTU ?? 0;
   const tss = feed.c.TSS ?? 0;
   const bod = feed.c.BOD ?? 0;
   const cod = feed.c.COD ?? 0;

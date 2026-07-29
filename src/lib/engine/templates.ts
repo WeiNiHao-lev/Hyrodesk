@@ -86,6 +86,8 @@ export const DEFAULT_BASIS: DesignBasis = {
   designMarginPct: 10,
   electricityUSDPerKWh: 0.09,
   extra: [],
+  // Design normally works backwards from the demand; the intake is the answer.
+  designMode: "product-driven",
 };
 
 /* --------------------------------------------------------------- feed presets */
@@ -102,6 +104,7 @@ export const FEED_PRESETS: FeedPreset[] = [
     label: "Seawater — Gresik (CCEPC project data)",
     spec: {
       name: "Seawater (Gresik)",
+      sourceType: "seawater",
       flow: 4618, T: 30, pH: 8.0,
       c: {
         Na: 9079, Ca: 520, Mg: 1109, K: 350,
@@ -116,6 +119,7 @@ export const FEED_PRESETS: FeedPreset[] = [
     label: "River — South Sumatra (methanol project)",
     spec: {
       name: "River water (South Sumatra)",
+      sourceType: "river",
       flow: 215, T: 28, pH: 6.5,
       c: {
         Na: 5, Ca: 48.04, Mg: 11.07, K: 2,
@@ -130,6 +134,7 @@ export const FEED_PRESETS: FeedPreset[] = [
     label: "Municipal sewage",
     spec: {
       name: "Municipal sewage",
+      sourceType: "ww-domestic",
       flow: 300, T: 27, pH: 7.2,
       c: {
         Na: 80, Ca: 60, Mg: 15, Cl: 120, SO4: 40, HCO3: 250,
@@ -144,6 +149,7 @@ export const FEED_PRESETS: FeedPreset[] = [
     label: "Coking wastewater (CCEPC Jinshenglan)",
     spec: {
       name: "Coking wastewater",
+      sourceType: "ww-industrial",
       flow: 120, T: 35, pH: 8.5,
       c: {
         Na: 900, Ca: 80, Mg: 25, Cl: 800, SO4: 300, HCO3: 400,
@@ -158,6 +164,7 @@ export const FEED_PRESETS: FeedPreset[] = [
     label: "Landfill leachate",
     spec: {
       name: "Landfill leachate",
+      sourceType: "leachate",
       flow: 40, T: 30, pH: 8.0,
       c: {
         Na: 1800, Ca: 300, Mg: 200, Cl: 2500, SO4: 400, HCO3: 3000,

@@ -145,21 +145,53 @@ export interface FlowEdge {
   targetHandle: string; // "in"
 }
 
+/** Water source, which decides what a laboratory would actually report. */
+export type SourceType =
+  | "seawater"
+  | "brackish"
+  | "river"
+  | "groundwater"
+  | "municipal"
+  | "ww-domestic"
+  | "ww-industrial"
+  | "leachate";
+
 export interface FeedSpec {
   name: string;
+  /**
+   * Feed flow, m3/h.
+   *
+   * In product-driven design mode this is an OUTPUT: the solver scales it until
+   * the connected product outlets deliver the target. Treat it as a result, not
+   * an input, unless the intake is genuinely fixed.
+   */
   flow: number;
   T: number;
   pH: number;
+  /** Concentrations in mg/L. Absent means not analysed, which is not the same as zero. */
   c: Partial<Record<Component, number>>;
-  turbidityNTU: number;
-  coliform: number;
-  /**
-   * Measured conductivity, if the laboratory reported it. Optional, but it is
-   * the quickest independent cross-check on the TDS figure — see
-   * diagnostics.validateFeed.
-   */
+  turbidityNTU?: number;
+  coliform?: number;
+  /** Measured conductivity — the quickest cross-check on a reported TDS. */
   conductivityUScm?: number;
+  /** What kind of water this is; drives which parameters are shown and expected. */
+  sourceType?: SourceType;
+  /**
+   * Total alkalinity as mg/L CaCO3, as Indonesian laboratories normally report
+   * it. Converted to bicarbonate for the balance — below pH 8.3 essentially all
+   * alkalinity is bicarbonate, so the conversion is exact enough.
+   */
+  alkalinityAsCaCO3?: number;
+  /**
+   * Total hardness as mg/L CaCO3. Where calcium is also given, magnesium is
+   * derived by difference; where it is not, a typical split is assumed and the
+   * assumption is flagged.
+   */
+  hardnessAsCaCO3?: number;
 }
+
+/** Design mode: fix the intake, or fix the product and solve for the intake. */
+export type DesignMode = "feed-driven" | "product-driven";
 
 export interface DesignBasis {
   standard: string;
@@ -169,6 +201,13 @@ export interface DesignBasis {
   electricityUSDPerKWh: number;
   /** Additional free-form design parameters the engineer wants recorded. */
   extra: { key: string; value: string }[];
+  /**
+   * How the plant is sized. Product-driven is how design actually works: you
+   * know the demand and solve backwards for the intake.
+   */
+  designMode?: DesignMode;
+  /** Target total product flow, m3/h, used in product-driven mode. */
+  targetProductFlow?: number;
 }
 
 export interface Flowsheet {

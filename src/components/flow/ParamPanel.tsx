@@ -5,6 +5,7 @@ import { useStudy } from "@/lib/store/useStudy";
 import { UNIT_BY_TYPE } from "@/lib/engine/units";
 import { ParamDef } from "@/lib/engine/types";
 import { Trash2, Info, RotateCcw } from "lucide-react";
+import { NumInputRequired } from "@/components/NumInput";
 
 export function ParamPanel() {
   const { flowsheet, selectedId, updateNodeParams, renameNode, removeNode, result } = useStudy();
@@ -102,14 +103,12 @@ export function ParamPanel() {
                     </div>
                     {p.type === "number" && (
                       <div className="flex items-center gap-2">
-                        <input
-                          type="number"
-                          className="field"
+                        <NumInputRequired
                           value={typeof v === "number" ? v : 0}
                           min={p.min}
                           max={p.max}
                           step={p.step ?? 1}
-                          onChange={(e) => setParam(p.key, Number(e.target.value))}
+                          onChange={(n) => setParam(p.key, n)}
                         />
                         {p.min != null && p.max != null && (
                           <input

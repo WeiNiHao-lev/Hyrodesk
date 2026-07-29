@@ -172,7 +172,7 @@ export async function buildReport(
 
   /* ---------------------------------------------------------- 2 feed */
   body.push(H1("2  Feed Water Quality"));
-  body.push(P(`Source: ${fs.feed.name}. Flow ${num(fs.feed.flow, 2)} m³/h, temperature ${num(fs.feed.T, 1)} °C, pH ${num(fs.feed.pH, 2)}, turbidity ${num(fs.feed.turbidityNTU, 1)} NTU.`));
+  body.push(P(`Source: ${fs.feed.name}. Flow ${num(fs.feed.flow, 2)} m³/h, temperature ${num(fs.feed.T, 1)} °C, pH ${num(fs.feed.pH, 2)}${fs.feed.turbidityNTU != null ? `, turbidity ${num(fs.feed.turbidityNTU, 1)} NTU` : ""}.`));
 
   const ionRows: (string | { v: string; bg?: string })[][] = [];
   const shown: Component[] = ["Na", "K", "Ca", "Mg", "NH4", "Cl", "SO4", "HCO3", "CO3", "NO3", "SiO2", "Fe", "Mn", "TDS", "TSS", "BOD", "COD", "TOC", "TN", "TP", "Oil"];

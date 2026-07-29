@@ -6,6 +6,7 @@ import { UNIT_BY_TYPE } from "./units";
 import {
   blendStream, cloneStream, emptyStream, makeStream, mixStreams, streamResidual,
 } from "./stream";
+import { alkToBicarbonate, hardnessToCaMg } from "./feedprofiles";
 
 const MAX_ITER = 300;
 const TOL = 1e-5;
@@ -54,12 +55,69 @@ function computeOrder(nodeIds: string[], edges: EdgeKey[]): string[] {
 }
 
 export function feedStream(f: Flowsheet["feed"]): Stream {
-  return makeStream(f.flow, f.c, {
+  const c = { ...f.c };
+  // Indonesian laboratories normally report alkalinity as CaCO3 rather than as
+  // bicarbonate, and hardness as CaCO3 rather than as calcium and magnesium.
+  // Convert here so the balance always works from ions, whichever way it was entered.
+  if (f.alkalinityAsCaCO3 != null && f.alkalinityAsCaCO3 > 0 && !c.HCO3) {
+    c.HCO3 = alkToBicarbonate(f.alkalinityAsCaCO3);
+  }
+  if (f.hardnessAsCaCO3 != null && f.hardnessAsCaCO3 > 0 && !c.Mg) {
+    const split = hardnessToCaMg(f.hardnessAsCaCO3, c.Ca);
+    c.Ca = split.Ca;
+    c.Mg = split.Mg;
+  }
+  return makeStream(f.flow, c, {
     T: f.T, pH: f.pH,
-    turbidityNTU: f.turbidityNTU,
-    coliform: f.coliform,
+    turbidityNTU: f.turbidityNTU ?? 0,
+    coliform: f.coliform ?? 0,
     sdi15: 6,
   });
+}
+
+/**
+ * Product-driven design: scale the intake until the connected product outlets
+ * deliver the requested flow.
+ *
+ * This is how design actually works — you know the demand and solve backwards
+ * for the intake, rather than guessing an intake and seeing what comes out.
+ *
+ * Every unit model is multiplicative in flow (recovery fractions, split
+ * fractions, backwash percentages), so overall product is linear in feed and a
+ * single scaling step normally lands exactly. A short iteration is retained to
+ * absorb any non-linearity a future model might introduce.
+ */
+export function simulateForProduct(
+  fs: Flowsheet,
+  targetProductFlow: number,
+  maxIter = 6,
+): { flowsheet: Flowsheet; result: SimulationResult; feedFlow: number; achieved: number; converged: boolean } {
+  const target = Math.max(targetProductFlow, 1e-6);
+  let feed = fs.feed.flow > 0 ? fs.feed.flow : target;
+  let trial: Flowsheet = { ...fs, feed: { ...fs.feed, flow: feed } };
+  let result = simulate(trial);
+
+  for (let i = 0; i < maxIter; i++) {
+    const achieved = result.summary.productFlow;
+    if (achieved <= 1e-9) break; // no product outlet connected; nothing to scale toward
+    if (Math.abs(achieved - target) / target < 1e-6) break;
+    feed = feed * (target / achieved);
+    trial = { ...fs, feed: { ...fs.feed, flow: feed } };
+    result = simulate(trial);
+  }
+
+  const achieved = result.summary.productFlow;
+  const converged = achieved > 0 && Math.abs(achieved - target) / target < 1e-4;
+  if (achieved <= 1e-9) {
+    result.messages.push(
+      "Product-driven sizing could not run: no product outlet is connected, so there is nothing to size toward. Add a Product Outlet block and connect it.",
+    );
+  } else if (!converged) {
+    result.messages.push(
+      `Product-driven sizing reached ${achieved.toFixed(3)} m³/h against a target of ${target.toFixed(3)} m³/h.`,
+    );
+  }
+  return { flowsheet: trial, result, feedFlow: feed, achieved, converged };
 }
 
 export function simulate(fs: Flowsheet): SimulationResult {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { FEED_PRESETS, TEMPLATES } from "@/lib/engine/templates";
-import { simulate } from "@/lib/engine/solver";
+import { simulate, simulateForProduct } from "@/lib/engine/solver";
 import { optimise, reliabilityScore, DEFAULT_GOALS } from "@/lib/engine/optimizer";
 import { adviseProcess, validateFeed } from "@/lib/engine/diagnostics";
 import { FeedSpec } from "@/lib/engine/types";
@@ -84,10 +84,34 @@ export async function GET() {
 
   const advice = adviseProcess(FEED_PRESETS[1].spec, "demin");
 
+  /* --- product-driven sizing: the intake must be solved, not guessed --- */
+  const pdTests = TEMPLATES.filter((t) => t.key !== "blank").map((t) => {
+    const fs = t.make();
+    const target = 100; // ask every template for the same product flow
+    const solved = simulateForProduct(fs, target);
+    const fwd = simulate(fs);
+    return {
+      template: t.key,
+      target_product: target,
+      achieved_product: round(solved.achieved, 6),
+      solved_intake: round(solved.feedFlow, 4),
+      converged: solved.converged,
+      error_pct: round(Math.abs(solved.achieved - target) / target * 100, 8),
+      // Overall recovery must be identical either way: scaling a linear system
+      // cannot change the ratio of product to feed.
+      recovery_forward: round(fwd.summary.recoveryPct, 6),
+      recovery_reverse: round(solved.result.summary.recoveryPct, 6),
+      recovery_matches:
+        Math.abs(fwd.summary.recoveryPct - solved.result.summary.recoveryPct) < 1e-6,
+    };
+  });
+  const productDrivenOk = pdTests.every((t) => t.converged && t.recovery_matches);
+
   return NextResponse.json(
     {
-      ok: allClosed && allConverged && diagnosticsOk,
-      allConverged, allClosed, diagnosticsOk,
+      ok: allClosed && allConverged && diagnosticsOk && productDrivenOk,
+      allConverged, allClosed, diagnosticsOk, productDrivenOk,
+      productDriven: pdTests,
       diagnostics: {
         fixture: KNOWN_BAD_FEED.name,
         expected: mustCatch,

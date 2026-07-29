@@ -1,43 +1,77 @@
 "use client";
 
+import { useState } from "react";
 import { useStudy } from "@/lib/store/useStudy";
-import { COMPONENTS, Component } from "@/lib/engine/types";
+import { Component, FeedSpec, SourceType } from "@/lib/engine/types";
 import { FEED_PRESETS, STANDARDS } from "@/lib/engine/templates";
-import { alkalinityAsCaCO3, hardnessAsCaCO3, ionicBalanceErrorPct, makeStream, tdsFromIons } from "@/lib/engine/stream";
-import { Plus, X, AlertTriangle } from "lucide-react";
-
-const GROUPS: { title: string; keys: Component[] }[] = [
-  { title: "Cations", keys: ["Na", "K", "Ca", "Mg", "NH4", "Fe", "Mn", "Ba", "Sr"] },
-  { title: "Anions", keys: ["Cl", "SO4", "HCO3", "CO3", "NO3", "F"] },
-  { title: "Aggregates", keys: ["TDS", "TSS", "SiO2", "BOD", "COD", "TOC", "TN", "TP", "Oil"] },
-];
+import {
+  caMgToHardness, FieldSpec, profileFor, SOURCE_PROFILES,
+} from "@/lib/engine/feedprofiles";
+import { alkalinityAsCaCO3, hardnessAsCaCO3, ionicBalanceErrorPct, tdsFromIons } from "@/lib/engine/stream";
+import { feedStream } from "@/lib/engine/solver";
+import { NumInput } from "@/components/NumInput";
+import { Plus, X, AlertTriangle, RotateCcw, Info, Beaker } from "lucide-react";
 
 export function FeedPanel() {
-  const { flowsheet, setFeed, applyFeedPreset } = useStudy();
+  const { flowsheet, setFeed, applyFeedPreset, resetFeed } = useStudy();
   const f = flowsheet.feed;
-  const probe = makeStream(f.flow, f.c, { T: f.T, pH: f.pH });
+  const prof = profileFor(f.sourceType);
+  const [onlyCommon, setOnlyCommon] = useState(false);
+
+  // Derived values are computed from the same conversion the solver uses, so
+  // what is shown here is exactly what the balance will see.
+  const probe = feedStream({ ...f, flow: 1 });
   const ionErr = ionicBalanceErrorPct(probe);
   const hard = hardnessAsCaCO3(probe);
   const alk = alkalinityAsCaCO3(probe);
   const tdsIons = tdsFromIons(probe);
 
-  const set = (k: Component, v: number) =>
-    setFeed({ c: { ...f.c, [k]: v } });
+  const set = (k: Component, v: number | undefined) => {
+    const c = { ...f.c };
+    if (v == null) delete c[k];
+    else c[k] = v;
+    setFeed({ c });
+  };
+
+  const visible = (list: FieldSpec[]) => (onlyCommon ? list.filter((x) => x.common) : list);
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-ink-900/8 p-3">
-        <label className="label">Feed preset</label>
-        <select
-          className="field mt-1"
-          value=""
-          onChange={(e) => e.target.value && applyFeedPreset(e.target.value)}
-        >
-          <option value="">Load a preset…</option>
-          {FEED_PRESETS.map((p) => (
-            <option key={p.key} value={p.key}>{p.label}</option>
-          ))}
-        </select>
+      <div className="space-y-2 border-b border-ink-900/8 p-3">
+        <div>
+          <label className="label">Water source</label>
+          <select
+            className="field mt-1"
+            value={f.sourceType ?? "river"}
+            onChange={(e) => setFeed({ sourceType: e.target.value as SourceType })}
+          >
+            {SOURCE_PROFILES.map((p) => (
+              <option key={p.key} value={p.key}>{p.label}</option>
+            ))}
+          </select>
+          <p className="mt-1.5 text-[0.66rem] leading-snug text-ink-500">{prof.blurb}</p>
+        </div>
+        <div className="flex gap-2">
+          <select
+            className="field !text-[0.75rem]"
+            value=""
+            onChange={(e) => e.target.value && applyFeedPreset(e.target.value)}
+          >
+            <option value="">Load preset…</option>
+            {FEED_PRESETS.map((p) => (
+              <option key={p.key} value={p.key}>{p.label}</option>
+            ))}
+          </select>
+          <button
+            className="btn btn-ghost shrink-0 !px-2 !text-[0.7rem]"
+            title="Clear every analysis value, keeping the source type"
+            onClick={() => {
+              if (confirm("Clear every water quality value? The source type and name are kept.")) resetFeed();
+            }}
+          >
+            <RotateCcw className="h-3 w-3" /> Reset all
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-3">
@@ -47,66 +81,111 @@ export function FeedPanel() {
             <input
               className="field mt-1"
               value={f.name}
+              placeholder="e.g. Poto Island seawater"
               onChange={(e) => setFeed({ name: e.target.value })}
             />
           </div>
           <div className="grid grid-cols-3 gap-2">
-            <NumField label="Flow" unit="m³/h" value={f.flow} onChange={(v) => setFeed({ flow: v })} />
-            <NumField label="Temp." unit="°C" value={f.T} onChange={(v) => setFeed({ T: v })} />
-            <NumField label="pH" unit="-" value={f.pH} step={0.1} onChange={(v) => setFeed({ pH: v })} />
+            <Num label="Temp." unit="°C" value={f.T} onChange={(v) => setFeed({ T: v ?? 25 })} />
+            <Num label="pH" unit="-" value={f.pH} onChange={(v) => setFeed({ pH: v ?? 7 })} />
+            <Num label="Cond." unit="µS/cm" value={f.conductivityUScm}
+              onChange={(v) => setFeed({ conductivityUScm: v })} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <NumField label="Turbidity" unit="NTU" value={f.turbidityNTU} onChange={(v) => setFeed({ turbidityNTU: v })} />
-            <NumField label="Coliform" unit="/100mL" value={f.coliform} onChange={(v) => setFeed({ coliform: v })} />
+            {prof.showTurbidity && (
+              <Num label="Turbidity" unit="NTU" value={f.turbidityNTU}
+                onChange={(v) => setFeed({ turbidityNTU: v })} />
+            )}
+            {prof.showColiform && (
+              <Num label="Coliform" unit="/100mL" value={f.coliform}
+                onChange={(v) => setFeed({ coliform: v })} />
+            )}
           </div>
-        </div>
-
-        {GROUPS.map((g) => (
-          <div key={g.title} className="mt-4">
-            <div className="mb-1.5 text-[0.6rem] font-bold uppercase tracking-wider text-ink-500">
-              {g.title} <span className="font-medium normal-case text-ink-300">mg/L</span>
-            </div>
-            <div className="grid grid-cols-3 gap-1.5">
-              {g.keys.map((k) => (
-                <div key={k}>
-                  <label className="text-[0.62rem] font-semibold text-ink-700">{k}</label>
-                  <input
-                    type="number"
-                    className="field !px-1.5 !py-1 !text-[0.72rem]"
-                    value={f.c[k] ?? 0}
-                    step="any"
-                    onChange={(e) => set(k, Number(e.target.value))}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-
-        <div className="mt-4 rounded-xl bg-aqua-50 p-3">
-          <div className="mb-2 text-[0.6rem] font-bold uppercase tracking-wider text-aqua-700">
-            Derived & checks
-          </div>
-          <dl className="space-y-1 text-[0.7rem]">
-            <Row k="Total hardness" v={`${hard.toFixed(1)} mg/L CaCO₃`} />
-            <Row k="Alkalinity" v={`${alk.toFixed(1)} mg/L CaCO₃`} />
-            <Row k="Non-carbonate hardness" v={`${Math.max(0, hard - alk).toFixed(1)} mg/L CaCO₃`} />
-            <Row k="TDS from ions" v={`${tdsIons.toFixed(0)} mg/L`} />
-            <Row k="TDS entered" v={`${(f.c.TDS ?? 0).toFixed(0)} mg/L`} />
-            <Row k="Ionic balance error" v={`${ionErr >= 0 ? "+" : ""}${ionErr.toFixed(1)} %`} />
-          </dl>
-          {Math.abs(ionErr) > 5 && (
-            <p className="mt-2 flex gap-1.5 rounded-lg bg-sun-100 px-2 py-1.5 text-[0.65rem] leading-snug text-sun-700">
-              <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
-              Ionic balance error exceeds ±5 %. A major ion is probably missing or misreported — check
-              chloride first, it is the one most often left out of a lab sheet.
+          {!prof.showTurbidity && (
+            <p className="rounded-lg bg-ink-900/[0.03] px-2 py-1.5 text-[0.64rem] leading-snug text-ink-500">
+              Turbidity is not normally reported for this source, so it is hidden. Suspended solids
+              carry the equivalent information here.
             </p>
           )}
-          {hard > 0 && Math.max(0, hard - alk) / hard > 0.6 && (
-            <p className="mt-2 rounded-lg bg-aqua-100 px-2 py-1.5 text-[0.65rem] leading-snug text-aqua-700">
-              {((Math.max(0, hard - alk) / hard) * 100).toFixed(0)} % of the hardness is
-              non-carbonate. Lime softening cannot remove that fraction; membrane or ion exchange
-              treatment is required.
+        </div>
+
+        {/* --- as reported in Indonesia: CaCO3 entry --- */}
+        {prof.useCaCO3Entry && (
+          <div className="mt-4 rounded-xl border border-aqua-200 bg-aqua-50/60 p-2.5">
+            <div className="mb-1.5 flex items-center gap-1.5">
+              <Beaker className="h-3.5 w-3.5 text-aqua-700" />
+              <span className="text-[0.6rem] font-bold uppercase tracking-wider text-aqua-700">
+                As reported by the laboratory
+              </span>
+            </div>
+            <p className="mb-2 text-[0.64rem] leading-snug text-ink-500">
+              Indonesian laboratories normally give total alkalinity and total hardness directly as
+              CaCO₃ rather than splitting them into ions. Enter them here and the conversion is done
+              for you.
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <Num label="Total alkalinity" unit="mg/L CaCO₃" value={f.alkalinityAsCaCO3}
+                onChange={(v) => setFeed({ alkalinityAsCaCO3: v })} />
+              <Num label="Total hardness" unit="mg/L CaCO₃" value={f.hardnessAsCaCO3}
+                onChange={(v) => setFeed({ hardnessAsCaCO3: v })} />
+            </div>
+            {f.hardnessAsCaCO3 != null && f.hardnessAsCaCO3 > 0 && !f.c.Ca && (
+              <p className="mt-1.5 rounded-md bg-sun-100 px-2 py-1 text-[0.62rem] leading-snug text-sun-700">
+                Calcium not given, so a typical 70:30 calcium to magnesium split is assumed. Enter
+                calcium if you have it — magnesium will then follow by difference.
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* --- parameter groups --- */}
+        <div className="mt-4 flex items-center justify-between">
+          <span className="text-[0.6rem] font-bold uppercase tracking-wider text-ink-500">
+            Analysis
+          </span>
+          <label className="flex cursor-pointer items-center gap-1.5">
+            <input type="checkbox" className="h-3 w-3 accent-aqua-500"
+              checked={onlyCommon} onChange={(e) => setOnlyCommon(e.target.checked)} />
+            <span className="text-[0.64rem] text-ink-500">Common only</span>
+          </label>
+        </div>
+
+        <Group title="Cations" fields={visible(prof.cations)} f={f} set={set} />
+        <Group title="Anions" fields={visible(prof.anions)} f={f} set={set} />
+        <Group title="Aggregates" fields={visible(prof.aggregates)} f={f} set={set} />
+
+        {/* --- what Indonesian labs typically return --- */}
+        <div className="mt-4 rounded-xl bg-sun-100/50 p-2.5">
+          <div className="mb-1 flex items-center gap-1.5">
+            <Info className="h-3.5 w-3.5 text-sun-700" />
+            <span className="text-[0.6rem] font-bold uppercase tracking-wider text-sun-700">
+              Typical Indonesian standard set
+            </span>
+          </div>
+          <p className="text-[0.66rem] leading-snug text-ink-700">
+            {prof.typicalIndonesianSet.join(" · ")}
+          </p>
+          <p className="mt-1.5 text-[0.64rem] leading-relaxed text-ink-500">{prof.gapWarning}</p>
+        </div>
+
+        {/* --- derived --- */}
+        <div className="mt-3 rounded-xl bg-aqua-50 p-3">
+          <div className="mb-2 text-[0.6rem] font-bold uppercase tracking-wider text-aqua-700">
+            Derived from what you entered
+          </div>
+          <dl className="space-y-1 text-[0.7rem]">
+            <Row k="Total hardness" v={hard > 0 ? `${hard.toFixed(1)} mg/L CaCO₃` : "—"} />
+            <Row k="Alkalinity" v={alk > 0 ? `${alk.toFixed(1)} mg/L CaCO₃` : "—"} />
+            <Row k="Non-carbonate hardness" v={hard > 0 ? `${Math.max(0, hard - alk).toFixed(1)} mg/L CaCO₃` : "—"} />
+            <Row k="Ca + Mg as CaCO₃" v={f.c.Ca || f.c.Mg ? `${caMgToHardness(f.c.Ca ?? 0, f.c.Mg ?? 0).toFixed(1)}` : "—"} />
+            <Row k="TDS from ions" v={tdsIons > 0 ? `${tdsIons.toFixed(0)} mg/L` : "—"} />
+            <Row k="TDS entered" v={f.c.TDS != null ? `${f.c.TDS.toFixed(0)} mg/L` : "not entered"} />
+            <Row k="Ionic balance" v={tdsIons > 0 ? `${ionErr >= 0 ? "+" : ""}${ionErr.toFixed(1)} %` : "—"} />
+          </dl>
+          {tdsIons > 0 && Math.abs(ionErr) > 5 && (
+            <p className="mt-2 flex gap-1.5 rounded-lg bg-sun-100 px-2 py-1.5 text-[0.64rem] leading-snug text-sun-700">
+              <AlertTriangle className="mt-0.5 h-3 w-3 shrink-0" />
+              Ionic balance outside ±5 %. Check the Advisor for the full diagnosis.
             </p>
           )}
         </div>
@@ -115,10 +194,42 @@ export function FeedPanel() {
   );
 }
 
+function Group({
+  title, fields, f, set,
+}: {
+  title: string;
+  fields: FieldSpec[];
+  f: FeedSpec;
+  set: (k: Component, v: number | undefined) => void;
+}) {
+  if (fields.length === 0) return null;
+  return (
+    <div className="mt-3">
+      <div className="mb-1.5 text-[0.6rem] font-bold uppercase tracking-wider text-ink-500">
+        {title} <span className="font-medium normal-case text-ink-300">mg/L</span>
+      </div>
+      <div className="grid grid-cols-3 gap-1.5">
+        {fields.map((fs) => (
+          <div key={fs.key}>
+            <label className="text-[0.62rem] font-semibold text-ink-700">{fs.label ?? fs.key}</label>
+            <NumInput
+              className="!px-1.5 !py-1 !text-[0.72rem]"
+              value={f.c[fs.key]}
+              onChange={(v) => set(fs.key, v)}
+              ariaLabel={fs.key}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function BasisPanel() {
-  const { flowsheet, setBasis, studyName, setStudyName } = useStudy();
+  const { flowsheet, setBasis, setFeed, studyName, setStudyName } = useStudy();
   const bs = flowsheet.basis;
   const std = STANDARDS.find((s) => s.key === bs.standard);
+  const productDriven = (bs.designMode ?? "product-driven") === "product-driven";
 
   return (
     <div className="flex h-full flex-col overflow-y-auto p-3">
@@ -127,26 +238,86 @@ export function BasisPanel() {
           <label className="label">Study name</label>
           <input className="field mt-1" value={studyName} onChange={(e) => setStudyName(e.target.value)} />
         </div>
+
+        {/* --- design mode --- */}
+        <div className="rounded-xl border border-aqua-200 bg-aqua-50/60 p-2.5">
+          <div className="mb-1.5 text-[0.6rem] font-bold uppercase tracking-wider text-aqua-700">
+            How the plant is sized
+          </div>
+          <div className="grid grid-cols-2 gap-1.5">
+            <button
+              onClick={() => setBasis({ designMode: "product-driven" })}
+              className={`rounded-lg border px-2 py-1.5 text-[0.7rem] font-semibold transition ${
+                productDriven ? "border-aqua-500 bg-white text-aqua-700" : "border-ink-900/10 bg-white/60 text-ink-500"
+              }`}
+            >
+              From product
+            </button>
+            <button
+              onClick={() => setBasis({ designMode: "feed-driven" })}
+              className={`rounded-lg border px-2 py-1.5 text-[0.7rem] font-semibold transition ${
+                !productDriven ? "border-aqua-500 bg-white text-aqua-700" : "border-ink-900/10 bg-white/60 text-ink-500"
+              }`}
+            >
+              From intake
+            </button>
+          </div>
+          {productDriven ? (
+            <>
+              <div className="mt-2">
+                <label className="text-[0.66rem] font-semibold text-ink-700">
+                  Target product flow
+                  <span className="ml-1 text-[0.58rem] font-medium text-ink-300">m³/h</span>
+                </label>
+                <NumInput
+                  className="mt-0.5 !py-1 !text-[0.78rem]"
+                  value={bs.targetProductFlow}
+                  onChange={(v) => setBasis({ targetProductFlow: v })}
+                  placeholder="e.g. 187.2"
+                />
+              </div>
+              <p className="mt-1.5 text-[0.63rem] leading-relaxed text-ink-500">
+                The intake is solved backwards from this, through every recovery, backwash and reject
+                on the flowsheet. This is how design actually works — the intake is a consequence, not
+                a choice. The feed flow shown on the Feed tab becomes a result.
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="mt-2">
+                <label className="text-[0.66rem] font-semibold text-ink-700">
+                  Fixed intake flow
+                  <span className="ml-1 text-[0.58rem] font-medium text-ink-300">m³/h</span>
+                </label>
+                <NumInput
+                  className="mt-0.5 !py-1 !text-[0.78rem]"
+                  value={flowsheet.feed.flow > 0 ? flowsheet.feed.flow : undefined}
+                  onChange={(v) => setFeed({ flow: v ?? 0 })}
+                />
+              </div>
+              <p className="mt-1.5 text-[0.63rem] leading-relaxed text-ink-500">
+                Use this only when the intake is genuinely fixed — an existing pump station, or a
+                licensed abstraction limit. Otherwise size from the product.
+              </p>
+            </>
+          )}
+        </div>
+
         <div>
           <label className="label">Design standard</label>
-          <select
-            className="field mt-1"
-            value={bs.standard}
-            onChange={(e) => setBasis({ standard: e.target.value })}
-          >
-            {STANDARDS.map((s) => (
-              <option key={s.key} value={s.key}>{s.name}</option>
-            ))}
+          <select className="field mt-1" value={bs.standard}
+            onChange={(e) => setBasis({ standard: e.target.value })}>
+            {STANDARDS.map((s) => <option key={s.key} value={s.key}>{s.name}</option>)}
           </select>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <NumField label="Operating hours" unit="h/y" value={bs.operatingHoursPerYear}
-            onChange={(v) => setBasis({ operatingHoursPerYear: v })} />
-          <NumField label="Design margin" unit="%" value={bs.designMarginPct}
-            onChange={(v) => setBasis({ designMarginPct: v })} />
+          <Num label="Operating hours" unit="h/y" value={bs.operatingHoursPerYear}
+            onChange={(v) => setBasis({ operatingHoursPerYear: v ?? 8000 })} />
+          <Num label="Design margin" unit="%" value={bs.designMarginPct}
+            onChange={(v) => setBasis({ designMarginPct: v ?? 10 })} />
         </div>
-        <NumField label="Electricity price" unit="USD/kWh" step={0.005}
-          value={bs.electricityUSDPerKWh} onChange={(v) => setBasis({ electricityUSDPerKWh: v })} />
+        <Num label="Electricity price" unit="USD/kWh" value={bs.electricityUSDPerKWh}
+          onChange={(v) => setBasis({ electricityUSDPerKWh: v ?? 0.09 })} />
       </div>
 
       {std && std.limits.length > 0 && (
@@ -156,9 +327,7 @@ export function BasisPanel() {
           </div>
           <p className="mb-2 text-[0.65rem] leading-snug text-ink-500">{std.scope}</p>
           <dl className="space-y-1 text-[0.7rem]">
-            {std.limits.map((l) => (
-              <Row key={l.param} k={l.param} v={l.limit} />
-            ))}
+            {std.limits.map((l) => <Row key={l.param} k={l.param} v={l.limit} />)}
           </dl>
         </div>
       )}
@@ -174,36 +343,26 @@ export function BasisPanel() {
           </button>
         </div>
         <p className="mb-2 text-[0.62rem] leading-snug text-ink-500">
-          Anything the study depends on that is not a block parameter — site elevation, intake depth,
-          seasonal turbidity, permit limits, client-specified product quality.
+          Anything the study depends on that is not a block parameter — intake depth, seasonal
+          turbidity, permit limits, client-specified product quality.
         </p>
         <div className="space-y-1.5">
           {bs.extra.map((row, i) => (
             <div key={i} className="flex gap-1.5">
-              <input
-                className="field !py-1 !text-[0.72rem]"
-                placeholder="Parameter"
-                value={row.key}
+              <input className="field !py-1 !text-[0.72rem]" placeholder="Parameter" value={row.key}
                 onChange={(e) => {
                   const next = [...bs.extra];
                   next[i] = { ...next[i], key: e.target.value };
                   setBasis({ extra: next });
-                }}
-              />
-              <input
-                className="field !py-1 !text-[0.72rem]"
-                placeholder="Value"
-                value={row.value}
+                }} />
+              <input className="field !py-1 !text-[0.72rem]" placeholder="Value" value={row.value}
                 onChange={(e) => {
                   const next = [...bs.extra];
                   next[i] = { ...next[i], value: e.target.value };
                   setBasis({ extra: next });
-                }}
-              />
-              <button
-                className="btn btn-ghost !px-1.5 !py-1"
-                onClick={() => setBasis({ extra: bs.extra.filter((_, j) => j !== i) })}
-              >
+                }} />
+              <button className="btn btn-ghost !px-1.5 !py-1"
+                onClick={() => setBasis({ extra: bs.extra.filter((_, j) => j !== i) })}>
                 <X className="h-3 w-3" />
               </button>
             </div>
@@ -219,22 +378,16 @@ export function BasisPanel() {
   );
 }
 
-function NumField({
-  label, unit, value, onChange, step = 1,
-}: { label: string; unit?: string; value: number; onChange: (v: number) => void; step?: number }) {
+function Num({
+  label, unit, value, onChange,
+}: { label: string; unit?: string; value: number | undefined; onChange: (v: number | undefined) => void }) {
   return (
     <div>
       <div className="flex items-baseline justify-between gap-1">
         <label className="text-[0.66rem] font-semibold text-ink-700">{label}</label>
         {unit && <span className="text-[0.58rem] text-ink-300">{unit}</span>}
       </div>
-      <input
-        type="number"
-        className="field mt-0.5 !py-1 !text-[0.75rem]"
-        value={value}
-        step={step}
-        onChange={(e) => onChange(Number(e.target.value))}
-      />
+      <NumInput className="mt-0.5 !py-1 !text-[0.75rem]" value={value} onChange={onChange} />
     </div>
   );
 }
@@ -247,5 +400,3 @@ function Row({ k, v }: { k: string; v: string }) {
     </div>
   );
 }
-
-export { COMPONENTS };
