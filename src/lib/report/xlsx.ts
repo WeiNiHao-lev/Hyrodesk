@@ -5,6 +5,7 @@ import { feedStream } from "../engine/solver";
 import { UNIT_BY_TYPE } from "../engine/units";
 import { STANDARDS } from "../engine/templates";
 import { calcRowsFor, CalcRow } from "./calcsheets";
+import { ArrowSpec, injectArrows } from "./xlsxArrows";
 
 /**
  * Excel export.
@@ -15,12 +16,11 @@ import { calcRowsFor, CalcRow } from "./calcsheets";
  * moves. That is how the Wankai design sheets work, and it is the only form in
  * which a calculation can actually be checked.
  *
- * mode "standard" gives the working sheets. mode "learn" adds the theory: where
- * each equation comes from, why the typical values are typical, and how to read
- * the workbook.
+ * Every sheet is included every time. The reading guide, the "where the equation
+ * comes from" column and the glossary are what make a figure traceable, which is
+ * the whole point of the export; the extended theory lives in the companion
+ * "Export for me" document, where prose belongs.
  */
-
-export type XlsxMode = "standard" | "learn";
 
 const NAVY = "FF0F2942";
 const HDRBG = "FF0F2942";
@@ -70,7 +70,6 @@ export async function buildWorkbook(
   fs: Flowsheet,
   result: SimulationResult,
   studyName: string,
-  mode: XlsxMode = "standard",
 ): Promise<Blob> {
   const wb = new ExcelJS.Workbook();
   wb.creator = "HydroDesk";
@@ -78,18 +77,23 @@ export async function buildWorkbook(
   // Recycle loops make the balance genuinely circular; let Excel iterate.
   wb.calcProperties.fullCalcOnLoad = true;
 
-  if (mode === "learn") sheetHowToRead(wb, fs, result, studyName);
-  const inputRefs = sheetInputs(wb, fs, result, mode);
-  sheetBalanceDiagram(wb, fs, result, inputRefs);
+  sheetHowToRead(wb, fs, result, studyName);
+  const inputRefs = sheetInputs(wb, fs, result);
+  const arrows = sheetBalanceDiagram(wb, fs, result, inputRefs);
   sheetStreamTable(wb, fs, result);
-  sheetCalcs(wb, fs, result, mode);
+  sheetCalcs(wb, fs, result);
   sheetEnergyChem(wb, fs, result, inputRefs);
-  if (mode === "learn") {
-    sheetTheory(wb);
-    sheetGlossary(wb);
-  }
+  // A short derivations sheet stays in the workbook as quick reference while you
+  // are in the numbers; the full treatment is in the companion document.
+  sheetTheory(wb);
+  sheetGlossary(wb);
 
-  const buf = await wb.xlsx.writeBuffer();
+  let buf = (await wb.xlsx.writeBuffer()) as ArrayBuffer;
+  // ExcelJS cannot write shapes, so the diagram arrows are injected into the
+  // finished package. Failure here must not lose the workbook.
+  try {
+    buf = await injectArrows(buf, DIAGRAM_SHEET, arrows);
+  } catch { /* keep the workbook without arrows */ }
   return new Blob([buf], {
     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   });
@@ -167,7 +171,7 @@ interface InputRefs {
 }
 
 function sheetInputs(
-  wb: ExcelJS.Workbook, fs: Flowsheet, result: SimulationResult, mode: XlsxMode,
+  wb: ExcelJS.Workbook, fs: Flowsheet, result: SimulationResult,
 ): InputRefs {
   const ws = wb.addWorksheet("1. Inputs", { properties: { tabColor: { argb: "FFF2A516" } } });
   ws.columns = [
@@ -275,7 +279,7 @@ function sheetInputs(
       : "Within ±5 %.",
     Math.abs(ionErr) > 5);
 
-  if (mode === "learn") {
+  {
     r++;
     sec("Why this sheet exists");
     ws.mergeCells(r, 2, r, 5);
@@ -293,10 +297,13 @@ function sheetInputs(
 
 /* ---------------------------------------------------- 2. water balance diagram */
 
+const DIAGRAM_SHEET = "2. Water Balance Diagram";
+
 function sheetBalanceDiagram(
   wb: ExcelJS.Workbook, fs: Flowsheet, result: SimulationResult, refs: InputRefs,
-) {
-  const ws = wb.addWorksheet("2. Water Balance Diagram", { properties: { tabColor: { argb: "FF08A5E0" } } });
+): ArrowSpec[] {
+  const arrows: ArrowSpec[] = [];
+  const ws = wb.addWorksheet(DIAGRAM_SHEET, { properties: { tabColor: { argb: "FF08A5E0" } } });
   title(ws, "Water balance diagram",
     "Laid out in the order the water flows. Flow and quality at every stage, with each cell a formula referring to the stage before it — follow them backwards from the product to see where the intake comes from.", 10);
 
@@ -325,6 +332,7 @@ function sheetBalanceDiagram(
   }
 
   const cellRefOf = new Map<string, string>(); // `${nodeId}:${port}` -> flow cell
+  const colOfNode = new Map<string, number>();
   let col = 2;
   const inbound = new Map<string, { source: string; port: string }[]>();
   for (const e of fs.edges) {
@@ -335,6 +343,7 @@ function sheetBalanceDiagram(
 
   for (const nd of nodes) {
     const model = UNIT_BY_TYPE[nd.type];
+    colOfNode.set(nd.id, col);
     ws.getColumn(col).width = 17;
 
     const nameCell = ws.getCell(R_NAME, col);
@@ -430,7 +439,37 @@ function sheetBalanceDiagram(
   ws.getCell(rr, 1).alignment = { wrapText: true };
   ws.getCell(rr, 1).font = { size: 9, italic: true, color: { argb: "FF4A7694" }, name: "Calibri" };
 
+  /* ---- connector arrows, in the manner of the reference sheets ---- */
+  // A column is 17 characters wide, roughly 1,133,000 EMU. Anchoring near the
+  // right edge of one column and the left edge of the next draws an arrow that
+  // visibly joins the two stage boxes and moves with the columns.
+  const COL_EMU = 1133000;
+  const NEAR_RIGHT = Math.round(COL_EMU * 0.93);
+  const ROW_MID = 95000;
+  for (const e of fs.edges) {
+    const a = colOfNode.get(e.source);
+    const bcol = colOfNode.get(e.target);
+    if (a == null || bcol == null) continue;
+    const forward = bcol > a;
+    if (forward && bcol - a === 1) {
+      // Main path: horizontal arrow on the inlet-flow row.
+      arrows.push({
+        fromCol: a - 1, fromColOff: NEAR_RIGHT, fromRow: R_QIN - 1, fromRowOff: ROW_MID,
+        toCol: bcol - 1, toColOff: 40000, toRow: R_QIN - 1, toRowOff: ROW_MID,
+        color: "1A3A5C", widthEmu: 12700,
+      });
+    } else {
+      // Recycle or a jump over several stages: dashed, routed below the block.
+      arrows.push({
+        fromCol: a - 1, fromColOff: Math.round(COL_EMU * 0.5), fromRow: R_OUT0 + 3, fromRowOff: 0,
+        toCol: bcol - 1, toColOff: Math.round(COL_EMU * 0.5), toRow: R_OUT0 + 3, toRowOff: 0,
+        color: "1E7A5C", widthEmu: 12700, dashed: true,
+      });
+    }
+  }
+
   ws.views = [{ state: "frozen", xSplit: 1, ySplit: 3 }];
+  return arrows;
 }
 
 /* -------------------------------------------------------- 3. stream table */
@@ -484,7 +523,7 @@ function sheetStreamTable(wb: ExcelJS.Workbook, fs: Flowsheet, result: Simulatio
 /* ------------------------------------------------------ 4. design calcs */
 
 function sheetCalcs(
-  wb: ExcelJS.Workbook, fs: Flowsheet, result: SimulationResult, mode: XlsxMode,
+  wb: ExcelJS.Workbook, fs: Flowsheet, result: SimulationResult,
 ) {
   let idx = 1;
   for (const nd of result.nodes) {
@@ -497,7 +536,9 @@ function sheetCalcs(
     const name = `4.${idx} ${slug(nd.label)}`.slice(0, 31);
     const ws = wb.addWorksheet(name, { properties: { tabColor: { argb: "FFB0E7FD" } } });
     const model = UNIT_BY_TYPE[nd.type];
-    const learn = mode === "learn";
+    // The derivation column is always shown: a figure you cannot trace is a
+    // figure you cannot defend.
+    const learn = true;
     ws.columns = learn
       ? [{ width: 6 }, { width: 42 }, { width: 13 }, { width: 14 }, { width: 12 }, { width: 30 }, { width: 40 }, { width: 62 }]
       : [{ width: 6 }, { width: 42 }, { width: 13 }, { width: 14 }, { width: 12 }, { width: 30 }, { width: 44 }];

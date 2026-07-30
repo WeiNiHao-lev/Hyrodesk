@@ -53,15 +53,21 @@ export function ResultsView({
     } finally { setBusy(null); }
   };
 
-  const exportXlsx = async (mode: "standard" | "learn") => {
-    setBusy(mode === "learn" ? "learn" : "xlsx");
+  const exportXlsx = async () => {
+    setBusy("xlsx");
     try {
       const { buildWorkbook } = await import("@/lib/report/xlsx");
-      const blob = await buildWorkbook(flowsheet, result, studyName, mode);
-      downloadBlob(
-        `${slug(studyName)}-${mode === "learn" ? "calculations-explained" : "design-calculations"}.xlsx`,
-        blob,
-      );
+      const blob = await buildWorkbook(flowsheet, result, studyName);
+      downloadBlob(`${slug(studyName)}-design-calculations.xlsx`, blob);
+    } finally { setBusy(null); }
+  };
+
+  const exportForMe = async () => {
+    setBusy("learn");
+    try {
+      const { buildLearnReport } = await import("@/lib/report/learnreport");
+      const blob = await buildLearnReport(flowsheet, result, studyName);
+      downloadBlob(`${slug(studyName)}-process-design-explained.docx`, blob);
     } finally { setBusy(null); }
   };
 
@@ -80,15 +86,15 @@ export function ResultsView({
 
       {/* actions */}
       <div className="flex flex-wrap items-center gap-2">
-        <button className="btn btn-mint" onClick={() => exportXlsx("learn")} disabled={!!busy}
-          title="Everything, with the theory: how to read the workbook, where each equation comes from, why the typical values are typical, plus a glossary">
+        <button className="btn btn-mint" onClick={exportForMe} disabled={!!busy}
+          title="A full written explanation of every process: what it is, why it is here, when it is the right or wrong choice, which parameters govern it and why, and the sizing calculation walked through with the real numbers substituted">
           <GraduationCap className="h-3.5 w-3.5" />
-          {busy === "learn" ? "Building…" : "Export for me (.xlsx + theory)"}
+          {busy === "learn" ? "Writing…" : "Export for me (.docx)"}
         </button>
-        <button className="btn btn-primary" onClick={() => exportXlsx("standard")} disabled={!!busy}
-          title="Working calculation sheets with live Excel formulas — no theory columns">
+        <button className="btn btn-primary" onClick={exportXlsx} disabled={!!busy}
+          title="Calculation workbook where every derived cell is a live Excel formula, plus a water balance diagram with flow arrows, a derivations column and a glossary — change an input and the whole workbook answers">
           <Table2 className="h-3.5 w-3.5" />
-          {busy === "xlsx" ? "Building…" : "Design calculations (.xlsx)"}
+          {busy === "xlsx" ? "Building…" : "Calculations (.xlsx)"}
         </button>
         <button className="btn btn-ghost" onClick={exportDocx} disabled={!!busy}>
           <FileText className="h-3.5 w-3.5" />
