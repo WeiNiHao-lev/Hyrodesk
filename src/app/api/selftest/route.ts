@@ -26,7 +26,26 @@ const KNOWN_BAD_FEED: FeedSpec = {
  * reports whether the balances close. Useful for a quick regression check
  * after touching the engine: GET /api/selftest
  */
-export async function GET() {
+export async function GET(req: Request) {
+  // ?xlsx=learn|standard returns the generated workbook itself, so the export
+  // can be opened and checked rather than only counted.
+  const mode = new URL(req.url).searchParams.get("xlsx");
+  if (mode === "learn" || mode === "standard") {
+    const { buildWorkbook } = await import("@/lib/report/xlsx");
+    const fsDemo = TEMPLATES.find((t) => t.key === "demin-ro-edi")!.make();
+    const blob = await buildWorkbook(fsDemo, simulate(fsDemo), "Self test", mode);
+    return new NextResponse(await blob.arrayBuffer(), {
+      headers: {
+        "content-type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "content-disposition": `attachment; filename="selftest-${mode}.xlsx"`,
+        "cache-control": "no-store",
+      },
+    });
+  }
+  return runChecks();
+}
+
+async function runChecks() {
   const out = TEMPLATES.filter((t) => t.key !== "blank").map((t) => {
     const fs = t.make();
     const r = simulate(fs);
@@ -107,10 +126,42 @@ export async function GET() {
   });
   const productDrivenOk = pdTests.every((t) => t.converged && t.recovery_matches);
 
+  /* --- Excel export: assert the workbook is built from live formulas --- */
+  let xlsx: Record<string, unknown> = { ok: false };
+  try {
+    const { buildWorkbook } = await import("@/lib/report/xlsx");
+    const fsDemo = TEMPLATES.find((t) => t.key === "demin-ro-edi")!.make();
+    const resDemo = simulate(fsDemo);
+    const blob = await buildWorkbook(fsDemo, resDemo, "Self test", "learn");
+    const buf = Buffer.from(await blob.arrayBuffer());
+    // Count formula cells directly in the sheet XML: a workbook of dead numbers
+    // would have none, which is precisely the failure we are guarding against.
+    const { default: JSZip } = await import("jszip");
+    const zip = await JSZip.loadAsync(buf);
+    const sheetNames = Object.keys(zip.files).filter((f) => /^xl\/worksheets\/sheet\d+\.xml$/.test(f));
+    let formulas = 0;
+    for (const sn of sheetNames) {
+      const xml = await zip.file(sn)!.async("string");
+      formulas += (xml.match(/<f>/g) ?? []).length;
+    }
+    const wbXml = await zip.file("xl/workbook.xml")!.async("string");
+    const sheetTitles = [...wbXml.matchAll(/name="([^"]+)"/g)].map((m) => m[1]);
+    xlsx = {
+      ok: formulas > 100 && sheetNames.length >= 8,
+      bytes: buf.length,
+      sheets: sheetNames.length,
+      sheetTitles,
+      formulaCells: formulas,
+    };
+  } catch (e) {
+    xlsx = { ok: false, error: (e as Error).message };
+  }
+
   return NextResponse.json(
     {
-      ok: allClosed && allConverged && diagnosticsOk && productDrivenOk,
+      ok: allClosed && allConverged && diagnosticsOk && productDrivenOk && xlsx.ok === true,
       allConverged, allClosed, diagnosticsOk, productDrivenOk,
+      xlsx,
       productDriven: pdTests,
       diagnostics: {
         fixture: KNOWN_BAD_FEED.name,

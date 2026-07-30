@@ -10,7 +10,7 @@ import { STANDARDS } from "@/lib/engine/templates";
 import { sweep, sweepCandidates, SweepResult } from "@/lib/engine/sensitivity";
 import {
   Droplets, Zap, FlaskConical, Recycle, AlertTriangle, Download, FileText, Sigma, Boxes,
-  CheckCircle2, XCircle, TrendingUp,
+  CheckCircle2, XCircle, TrendingUp, GraduationCap, Table2,
 } from "lucide-react";
 
 const ION_COLS: Component[] = ["TDS", "Na", "Ca", "Mg", "Cl", "SO4", "HCO3", "SiO2"];
@@ -22,6 +22,7 @@ export function ResultsView({
   flowsheet, result, studyName,
 }: { flowsheet: Flowsheet; result: SimulationResult; studyName: string }) {
   const [tab, setTab] = useState<Tab>("overview");
+  const [busy, setBusy] = useState<string | null>(null);
   const s = result.summary;
 
   const exportCsv = () => {
@@ -45,8 +46,23 @@ export function ResultsView({
   };
 
   const exportDocx = async () => {
-    const blob = await buildReport(flowsheet, result, studyName);
-    downloadBlob(`${slug(studyName)}-pre-approval-report.docx`, blob);
+    setBusy("docx");
+    try {
+      const blob = await buildReport(flowsheet, result, studyName);
+      downloadBlob(`${slug(studyName)}-pre-approval-report.docx`, blob);
+    } finally { setBusy(null); }
+  };
+
+  const exportXlsx = async (mode: "standard" | "learn") => {
+    setBusy(mode === "learn" ? "learn" : "xlsx");
+    try {
+      const { buildWorkbook } = await import("@/lib/report/xlsx");
+      const blob = await buildWorkbook(flowsheet, result, studyName, mode);
+      downloadBlob(
+        `${slug(studyName)}-${mode === "learn" ? "calculations-explained" : "design-calculations"}.xlsx`,
+        blob,
+      );
+    } finally { setBusy(null); }
   };
 
   return (
@@ -64,10 +80,21 @@ export function ResultsView({
 
       {/* actions */}
       <div className="flex flex-wrap items-center gap-2">
-        <button className="btn btn-primary" onClick={exportDocx}>
-          <FileText className="h-3.5 w-3.5" /> Pre-approval report (.docx)
+        <button className="btn btn-mint" onClick={() => exportXlsx("learn")} disabled={!!busy}
+          title="Everything, with the theory: how to read the workbook, where each equation comes from, why the typical values are typical, plus a glossary">
+          <GraduationCap className="h-3.5 w-3.5" />
+          {busy === "learn" ? "Building…" : "Export for me (.xlsx + theory)"}
         </button>
-        <button className="btn btn-ghost" onClick={exportCsv}>
+        <button className="btn btn-primary" onClick={() => exportXlsx("standard")} disabled={!!busy}
+          title="Working calculation sheets with live Excel formulas — no theory columns">
+          <Table2 className="h-3.5 w-3.5" />
+          {busy === "xlsx" ? "Building…" : "Design calculations (.xlsx)"}
+        </button>
+        <button className="btn btn-ghost" onClick={exportDocx} disabled={!!busy}>
+          <FileText className="h-3.5 w-3.5" />
+          {busy === "docx" ? "Building…" : "Report (.docx)"}
+        </button>
+        <button className="btn btn-ghost" onClick={exportCsv} disabled={!!busy}>
           <Download className="h-3.5 w-3.5" /> Stream table (.csv)
         </button>
         <div className="ml-auto flex items-center gap-2 text-[0.7rem] text-ink-500">
