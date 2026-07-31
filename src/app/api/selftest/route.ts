@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { FEED_PRESETS, TEMPLATES } from "@/lib/engine/templates";
-import { simulate, simulateForProduct } from "@/lib/engine/solver";
+import { feedStream, simulate, simulateForProduct } from "@/lib/engine/solver";
+import { UNIT_BY_TYPE, UNIT_MODELS } from "@/lib/engine/units";
+import { knowledgeFor } from "@/lib/engine/knowledge";
+import { calcRowsFor } from "@/lib/report/calcsheets";
 import { optimise, reliabilityScore, DEFAULT_GOALS } from "@/lib/engine/optimizer";
 import { adviseProcess, validateFeed } from "@/lib/engine/diagnostics";
-import { FeedSpec } from "@/lib/engine/types";
+import { FeedSpec, Params, Stream } from "@/lib/engine/types";
 
 /**
  * The raw water analysis from the South Sumatra methanol project, entered
@@ -152,6 +155,12 @@ async function runChecks() {
     };
   });
   const productDrivenOk = pdTests.every((t) => t.converged && t.recovery_matches);
+
+  /* --- the advanced units, against the Bantargebang stage table --- */
+  const leachate = checkLeachateTrain();
+
+  /* --- a unit nobody can learn from or export is only half-added --- */
+  const coverage = checkUnitCoverage();
 
   /* --- Excel export: assert the workbook is built from live formulas --- */
   let xlsx: Record<string, unknown> = { ok: false };
@@ -332,9 +341,10 @@ async function runChecks() {
   return NextResponse.json(
     {
       ok: allClosed && allConverged && diagnosticsOk && productDrivenOk
-        && xlsx.ok === true && docx.ok === true && diagrams.ok === true,
+        && xlsx.ok === true && docx.ok === true && diagrams.ok === true
+        && leachate.ok && coverage.ok,
       allConverged, allClosed, diagnosticsOk, productDrivenOk,
-      xlsx, docx, diagrams,
+      coverage, leachate, xlsx, docx, diagrams,
       productDriven: pdTests,
       diagnostics: {
         fixture: KNOWN_BAD_FEED.name,
@@ -356,6 +366,216 @@ async function runChecks() {
     },
     { headers: { "cache-control": "no-store" } },
   );
+}
+
+/**
+ * Every unit on the palette has to be learnable and exportable, not merely
+ * solvable. A model with no knowledge entry cannot be clicked and studied, and
+ * one with no calculation recipe falls back to a bare flow line in the Excel
+ * and the report. Both are silent gaps, so they are asserted rather than
+ * assumed.
+ */
+function checkUnitCoverage() {
+  const skip = new Set(["splitter", "product", "waste", "pump"]);
+  const rows = UNIT_MODELS.filter((m) => !skip.has(m.type)).map((m) => {
+    const k = knowledgeFor(m.type);
+    // Exercise the recipe on a plausible stream so a broken expression shows up
+    // here rather than the first time the engineer presses export.
+    const probe = feedStream({
+      name: "probe", flow: 100, T: 30, pH: 7.5,
+      c: {
+        Na: 2000, K: 500, Ca: 200, Mg: 100, NH4: 800, Cl: 3000, SO4: 500,
+        HCO3: 2000, NO3: 20, SiO2: 20, Fe: 2, Mn: 1,
+        TDS: 9000, TSS: 300, COD: 2000, BOD: 400, TOC: 700, TN: 700, TP: 20, Oil: 30,
+      },
+    });
+    const solved = m.solve(probe, m.defaults);
+    const node = {
+      id: "probe", type: m.type, label: m.label, params: m.defaults,
+      inlet: probe, outlets: solved.outlets, aux: solved.aux,
+    } as unknown as Parameters<typeof calcRowsFor>[0];
+    let calcRows = 0;
+    let calcError: string | null = null;
+    try {
+      calcRows = calcRowsFor(node, m.defaults).filter((x) => x.item).length;
+    } catch (e) {
+      calcError = (e as Error).message;
+    }
+    // A unit that consumes or creates water without saying so is a balance bug.
+    const inFlow = probe.flow;
+    const outFlow = Object.values(solved.outlets).reduce((a, s) => a + s.flow, 0);
+    const closurePct = ((outFlow - inFlow) / inFlow) * 100;
+    return {
+      type: m.type,
+      category: m.category,
+      hasKnowledge: !!k,
+      designRules: k?.designRules.length ?? 0,
+      keyNumbers: k?.keyNumbers.length ?? 0,
+      failureModes: k?.failureModes.length ?? 0,
+      calcRows,
+      calcError,
+      waterClosure_pct: round(closurePct, 4),
+      notes: solved.aux.notes.length,
+    };
+  });
+  const missingKnowledge = rows.filter((x) => !x.hasKnowledge).map((x) => x.type);
+  const noCalcRecipe = rows.filter((x) => x.calcRows < 5).map((x) => x.type);
+  const calcErrors = rows.filter((x) => x.calcError).map((x) => `${x.type}: ${x.calcError}`);
+  // Units that predate the calculation-recipe layer. They still solve and still
+  // appear in the balance, but their sheet in the Excel and their section in the
+  // report fall back to a bare flow line, so a reader cannot follow the sizing.
+  // Listed rather than tolerated silently; anything newly added must not join it.
+  const KNOWN_NO_RECIPE = new Set([
+    "intake", "daf", "cartridge", "ceramicmf", "mixedbed", "softener", "degasser",
+    "chemsoft", "msbr", "mbbr", "coke-ao", "denitrifilter", "disinfection", "crystalliser",
+  ]);
+  const missingCalcs = noCalcRecipe.filter((t) => !KNOWN_NO_RECIPE.has(t));
+  // Evaporators and crystallisers legitimately remove water as vapour; the rest
+  // must close on flow.
+  const balanceExempt = new Set(["mvr", "crystalliser"]);
+  const balanceBroken = rows
+    .filter((x) => !balanceExempt.has(x.type) && Math.abs(x.waterClosure_pct) > 0.01)
+    .map((x) => `${x.type}: ${x.waterClosure_pct} %`);
+  return {
+    ok: missingKnowledge.length === 0 && missingCalcs.length === 0
+      && calcErrors.length === 0 && balanceBroken.length === 0,
+    unitsChecked: rows.length,
+    missingKnowledge, missingCalcs, calcErrors, balanceBroken,
+    // Pre-existing gap, reported every run so it does not become invisible.
+    knownGapsNoCalcRecipe: noCalcRecipe,
+    perUnit: rows,
+  };
+}
+
+/**
+ * Runs the Bantargebang IPAS 2 train through the new advanced units and reports
+ * each stage, so the models can be compared against the stage table in the
+ * engineering analysis rather than trusted. The reference figures are that
+ * analysis's own, and any disagreement is information — either the model is
+ * wrong or the hand calculation was.
+ */
+function checkLeachateTrain() {
+  const feed: FeedSpec = {
+    name: "Bantargebang IPAS 2 leachate (field data, unverified)",
+    flow: 50, // 1200 m3/d
+    T: 30,
+    pH: 8.6,
+    c: {
+      // NH4-N 5000 mg/L expressed as the ammonium ion.
+      NH4: 5000 * (18.039 / 14.007),
+      Na: 3000, K: 1500, Ca: 300, Mg: 200,
+      Cl: 4500, SO4: 600, HCO3: 6000,
+      COD: 11000, BOD: 350, TN: 5400, TSS: 1200, TDS: 18000,
+      TOC: 3500, TP: 25, Oil: 20,
+    },
+  };
+
+  const st = (label: string, s: Stream) => ({
+    stage: label,
+    flow: round(s.flow, 2),
+    COD: round(s.c.COD),
+    BOD: round(s.c.BOD, 1),
+    TN: round(s.c.TN),
+    TSS: round(s.c.TSS, 1),
+    pH: round(s.pH, 1),
+    NH4_N: round(s.c.NH4 * (14.007 / 18.039)),
+  });
+
+  const run = (type: string, inlet: Stream, over: Params = {}) => {
+    const m = UNIT_BY_TYPE[type];
+    return m.solve(inlet, { ...m.defaults, ...over });
+  };
+
+  const raw = feedStream(feed);
+  const stages: ReturnType<typeof st>[] = [st("0. Raw leachate", raw)];
+  const chem: Record<string, number> = {};
+  let power = 0;
+  const addAux = (a: { powerKW: number; chemicals: Record<string, number> }) => {
+    power += a.powerKW;
+    for (const [k, v] of Object.entries(a.chemicals)) chem[k] = (chem[k] ?? 0) + v;
+  };
+
+  const r1 = run("phadjust", raw, { targetPH: 11 });
+  addAux(r1.aux);
+  stages.push(st("1. Alkali dosing to pH 11", r1.outlets.out));
+
+  const r2 = run("nh3strip", r1.outlets.out, { airRatio: 3000 });
+  addAux(r2.aux);
+  stages.push(st("2. Ammonia stripping", r2.outlets.out));
+
+  const r3 = run("phadjust", r2.outlets.out, { targetPH: 7 });
+  addAux(r3.aux);
+  stages.push(st("3. Neutralisation to pH 7", r3.outlets.out));
+
+  const r4 = run("mbr", r3.outlets.out, { codRemoval: 15, bodRemoval: 95, tnRemoval: 25 });
+  addAux(r4.aux);
+  stages.push(st("4. MBR", r4.outlets.out));
+
+  const r5 = run("dtro", r4.outlets.out, { recovery: 85, stages: 2 });
+  addAux(r5.aux);
+  stages.push(st("5. DTRO permeate", r5.outlets.permeate));
+
+  const r6 = run("aop", r5.outlets.permeate, { codRemoval: 60, bodIncrease: 0 });
+  addAux(r6.aux);
+  stages.push(st("6. AOP polishing", r6.outlets.out));
+
+  // Reverse osmosis permeate is acidic: the carbon dioxide passes the membrane
+  // and the alkalinity that would buffer it does not. Neither the membrane nor
+  // the ozone puts it back, so a final trim is needed to hold pH 6-9. This is
+  // the one place the model disagrees with the hand analysis, which assumed the
+  // AOP would leave the water at pH 7.
+  const r7 = run("phadjust", r6.outlets.out, { targetPH: 7, codCoPrecipPct: 0 });
+  addAux(r7.aux);
+  stages.push(st("7. Final pH trim", r7.outlets.out));
+
+  // The reference stage table from the Bantargebang analysis.
+  const reference = [
+    { stage: "1. Alkali dosing to pH 11", COD: 10450, TN: 5400, pH: 11 },
+    { stage: "2. Ammonia stripping", COD: 9900, TN: 1000, pH: 11 },
+    { stage: "4. MBR", COD: 8400, TN: 750, pH: 7.2 },
+    { stage: "5. DTRO permeate", COD: 126, TN: 23, pH: 6.8 },
+    { stage: "6. AOP polishing", COD: 50, TN: 23, pH: 7 },
+  ];
+  const comparison = reference.map((ref) => {
+    const got = stages.find((x) => x.stage === ref.stage)!;
+    const dev = (a: number, b: number) => (b === 0 ? 0 : round(((a - b) / b) * 100, 1));
+    return {
+      stage: ref.stage,
+      COD_model: got.COD, COD_ref: ref.COD, COD_dev_pct: dev(got.COD, ref.COD),
+      TN_model: got.TN, TN_ref: ref.TN, TN_dev_pct: dev(got.TN, ref.TN),
+    };
+  });
+
+  const final = stages[stages.length - 1];
+  // Permen LHK P.59/2016 for landfill leachate.
+  const compliance = {
+    pH: { value: final.pH, limit: "6-9", pass: final.pH >= 6 && final.pH <= 9 },
+    BOD: { value: final.BOD, limit: 150, pass: final.BOD <= 150 },
+    COD: { value: final.COD, limit: 300, pass: final.COD <= 300 },
+    TSS: { value: final.TSS, limit: 100, pass: final.TSS <= 100 },
+    TN: { value: final.TN, limit: 60, pass: final.TN <= 60 },
+  };
+
+  return {
+    // The models are calibrated, not fitted: 25 % is the deviation the analysis
+    // itself declares for its engineering assumptions.
+    ok: comparison.every((c) => Math.abs(c.COD_dev_pct) <= 25 && Math.abs(c.TN_dev_pct) <= 25)
+      && Object.values(compliance).every((c) => c.pass),
+    stages,
+    comparison,
+    compliance,
+    totalPowerKW: round(power, 1),
+    specificEnergy_kWh_m3: round(power / 50, 2),
+    chemicals_t_per_day: Object.fromEntries(
+      Object.entries(chem).map(([k, v]) => [k, round((v * 24) / 1000, 2)]),
+    ),
+    ammoniumSulphate_t_per_day: round(
+      (Number(
+        r2.aux.sizing.find((x) => x.label === "Ammonium sulphate produced")?.value.split(" ")[0] ?? 0,
+      ) * 24) / 1000, 2),
+    notes: [...r1.aux.notes, ...r2.aux.notes, ...r3.aux.notes, ...r4.aux.notes,
+      ...r5.aux.notes, ...r6.aux.notes, ...r7.aux.notes],
+  };
 }
 
 function round(v: number, dp = 2): number {

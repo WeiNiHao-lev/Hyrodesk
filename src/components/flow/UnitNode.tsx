@@ -10,6 +10,7 @@ export const CATEGORY_STYLE: Record<UnitCategory, { bg: string; ring: string; te
   membrane:     { bg: "bg-amber-50",   ring: "ring-amber-200",   text: "text-amber-800",   dot: "bg-amber-400" },
   ionexchange:  { bg: "bg-violet-50",  ring: "ring-violet-200",  text: "text-violet-800",  dot: "bg-violet-400" },
   biological:   { bg: "bg-emerald-50", ring: "ring-emerald-200", text: "text-emerald-800", dot: "bg-emerald-400" },
+  oxidation:    { bg: "bg-fuchsia-50", ring: "ring-fuchsia-200", text: "text-fuchsia-800", dot: "bg-fuchsia-400" },
   thermal:      { bg: "bg-orange-50",  ring: "ring-orange-200",  text: "text-orange-800",  dot: "bg-orange-400" },
   sludge:       { bg: "bg-stone-100",  ring: "ring-stone-300",   text: "text-stone-700",   dot: "bg-stone-400" },
   storage:      { bg: "bg-teal-50",    ring: "ring-teal-200",    text: "text-teal-800",    dot: "bg-teal-400" },

@@ -8,6 +8,8 @@
  * thumb you cannot justify is a rule you cannot defend in a design review.
  */
 
+import { ADVANCED_KNOWLEDGE } from "./knowledge-advanced";
+
 export interface DesignRule {
   rule: string;
   why: string;
@@ -1212,5 +1214,10 @@ export const KNOWLEDGE: Record<string, UnitKnowledge> = {
 };
 
 export function knowledgeFor(type: string): UnitKnowledge | undefined {
-  return KNOWLEDGE[type];
+  return KNOWLEDGE[type] ?? ADVANCED_KNOWLEDGE[type];
 }
+
+/** Every entry, base and advanced, for the library page. */
+export const ALL_KNOWLEDGE: Record<string, UnitKnowledge> = {
+  ...KNOWLEDGE, ...ADVANCED_KNOWLEDGE,
+};

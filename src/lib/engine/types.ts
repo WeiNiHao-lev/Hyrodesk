@@ -100,6 +100,7 @@ export type UnitCategory =
   | "membrane"
   | "ionexchange"
   | "biological"
+  | "oxidation"
   | "thermal"
   | "sludge"
   | "storage"

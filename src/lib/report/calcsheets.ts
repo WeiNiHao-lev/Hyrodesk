@@ -1,5 +1,6 @@
 import { NodeResult, Params, Stream } from "../engine/types";
 import { hardnessAsCaCO3 } from "../engine/stream";
+import { ADVANCED_BUILDERS } from "./calcsheets-advanced";
 
 /**
  * Design calculation recipes.
@@ -371,7 +372,7 @@ function roBuilder(defRec: number, defFlux: number, label: string): Builder {
 }
 
 export function calcRowsFor(r: NodeResult, p: Params): CalcRow[] {
-  const b = BUILDERS[r.type];
+  const b = BUILDERS[r.type] ?? ADVANCED_BUILDERS[r.type];
   if (b) return b(r, p);
   // Generic fallback: at minimum document the hydraulic duty and what leaves.
   const rows: CalcRow[] = [...feedRows(r)];

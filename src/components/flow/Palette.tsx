@@ -8,7 +8,7 @@ import { Search, GripVertical } from "lucide-react";
 
 const ORDER: UnitCategory[] = [
   "intake", "pretreatment", "membrane", "ionexchange",
-  "biological", "thermal", "sludge", "storage", "transport", "network",
+  "biological", "oxidation", "thermal", "sludge", "storage", "transport", "network",
 ];
 
 export function Palette({ onAdd }: { onAdd: (type: string) => void }) {

@@ -1,36 +1,11 @@
-import { Component, ParamDef, Params, UnitAux, UnitModel } from "./types";
+import { Component, ParamDef, Params, UnitModel } from "./types";
 import {
   alkalinityAsCaCO3, clamp, cloneStream, emptyStream, hardnessAsCaCO3,
   osmoticPressureBar, removeToSideStream, splitByRejection,
 } from "./stream";
+import { aux, b, costCurve, n, pumpKW, s } from "./unitkit";
+import { ADVANCED_MODELS } from "./units-advanced";
 
-const n = (v: Params, k: string, d = 0): number => {
-  const x = v[k];
-  return typeof x === "number" && Number.isFinite(x) ? x : d;
-};
-const s = (v: Params, k: string, d = ""): string =>
-  typeof v[k] === "string" ? (v[k] as string) : d;
-const b = (v: Params, k: string, d = false): boolean =>
-  typeof v[k] === "boolean" ? (v[k] as boolean) : d;
-
-function aux(partial: Partial<UnitAux> = {}): UnitAux {
-  return {
-    powerKW: 0, chemicals: {}, drySolidsKgH: 0, sizing: [], capexUSD: 0,
-    notes: [], ...partial,
-  };
-}
-
-/** Pump shaft power, kW. */
-function pumpKW(flow: number, headM: number, eff = 0.72): number {
-  if (flow <= 0) return 0;
-  return (1000 * 9.81 * (flow / 3600) * headM) / eff / 1000;
-}
-
-/** Indicative installed cost from a capacity power-law. */
-function costCurve(capacity: number, a: number, exp = 0.7): number {
-  if (capacity <= 0) return 0;
-  return a * Math.pow(capacity, exp);
-}
 
 const PARAM_FLOWMARGIN: ParamDef = {
   key: "designMarginPct", label: "Design margin", type: "number", unit: "%",
@@ -1239,6 +1214,7 @@ export const UNIT_MODELS: UnitModel[] = [
   edi, mixedBed, softener, degasser, chemSoftening,
   aao, msbr, mbbr, anaerobicAO, denitriFilter, disinfection,
   thickener, dewatering, mvr, crystalliser,
+  ...ADVANCED_MODELS,
   splitter, pump, product, waste,
 ];
 
@@ -1252,6 +1228,7 @@ export const CATEGORY_LABELS: Record<UnitModel["category"], string> = {
   membrane: "Membrane",
   ionexchange: "Ion exchange / polishing",
   biological: "Biological",
+  oxidation: "Oxidation / AOP",
   thermal: "Thermal / ZLD",
   sludge: "Sludge",
   storage: "Storage",
