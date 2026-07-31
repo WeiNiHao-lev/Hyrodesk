@@ -178,6 +178,13 @@ export interface FeedSpec {
   /** What kind of water this is; drives which parameters are shown and expected. */
   sourceType?: SourceType;
   /**
+   * Compliance markers: heavy metals and micropollutants, in the units declared
+   * by TRACE_PARAMETERS. Deliberately kept out of `c` because they are not part
+   * of the mass balance — they decide whether an effluent is lawful and whether
+   * a biological step will work, not how large a pump has to be.
+   */
+  trace?: Record<string, number>;
+  /**
    * Total alkalinity as mg/L CaCO3, as Indonesian laboratories normally report
    * it. Converted to bicarbonate for the balance — below pH 8.3 essentially all
    * alkalinity is bicarbonate, so the conversion is exact enough.

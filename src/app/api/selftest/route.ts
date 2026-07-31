@@ -4,6 +4,7 @@ import { feedStream, simulate, simulateForProduct } from "@/lib/engine/solver";
 import { UNIT_BY_TYPE, UNIT_MODELS } from "@/lib/engine/units";
 import { knowledgeFor } from "@/lib/engine/knowledge";
 import { calcRowsFor } from "@/lib/report/calcsheets";
+import { inhibitionFindings, traceBalance } from "@/lib/engine/compliance";
 import { optimise, reliabilityScore, DEFAULT_GOALS } from "@/lib/engine/optimizer";
 import { adviseProcess, validateFeed } from "@/lib/engine/diagnostics";
 import { FeedSpec, Params, Stream } from "@/lib/engine/types";
@@ -161,6 +162,9 @@ async function runChecks() {
 
   /* --- a unit nobody can learn from or export is only half-added --- */
   const coverage = checkUnitCoverage();
+
+  /* --- compliance markers, on the leachate characterisation as reported --- */
+  const markers = checkComplianceMarkers();
 
   /* --- Excel export: assert the workbook is built from live formulas --- */
   let xlsx: Record<string, unknown> = { ok: false };
@@ -342,9 +346,9 @@ async function runChecks() {
     {
       ok: allClosed && allConverged && diagnosticsOk && productDrivenOk
         && xlsx.ok === true && docx.ok === true && diagrams.ok === true
-        && leachate.ok && coverage.ok,
+        && leachate.ok && coverage.ok && markers.ok,
       allConverged, allClosed, diagnosticsOk, productDrivenOk,
-      coverage, leachate, xlsx, docx, diagrams,
+      coverage, leachate, markers, xlsx, docx, diagrams,
       productDriven: pdTests,
       diagnostics: {
         fixture: KNOWN_BAD_FEED.name,
@@ -366,6 +370,73 @@ async function runChecks() {
     },
     { headers: { "cache-control": "no-store" } },
   );
+}
+
+/**
+ * Compliance markers, using the literature characterisation of landfill
+ * leachate that the project folder carries (Gautam et al. 2020-2022, Pavelka
+ * et al. 1993, Singa et al. 2017). Mercury and cadmium are two of the seven
+ * parameters Permen LHK P.59/2016 regulates, so a plant that reports itself
+ * compliant without ever looking at them is reporting on five of seven.
+ */
+function checkComplianceMarkers() {
+  const TRACE = {
+    Hg: 0.0008, Cd: 0.43, Pb: 3.363, As: 13.8, Cr: 0.902,
+    Ni: 4.254, Zn: 0.475, Cu: 0.27, Se: 0.03, Co: 1.172,
+    CN: 6.1, S2: 28.5, Phenol: 22.4,
+  };
+
+  // A membrane train and a coagulation-only train, so the barrier logic is
+  // exercised in both directions rather than only where it succeeds.
+  const withMembrane = TEMPLATES.find((t) => t.key === "leachate-mld")!.make();
+  withMembrane.feed = { ...withMembrane.feed, trace: TRACE };
+  const noMembrane = TEMPLATES.find((t) => t.key === "municipal-wwtp")!.make();
+  noMembrane.feed = { ...noMembrane.feed, trace: TRACE };
+
+  const m = traceBalance(withMembrane, "permenlhk");
+  const c = traceBalance(noMembrane, "permenlhk");
+  const inhibitions = inhibitionFindings(withMembrane);
+
+  const row = (rows: typeof m, key: string) => rows.find((r) => r.key === key);
+  const hgM = row(m, "Hg")!;
+  const hgC = row(c, "Hg")!;
+
+  return {
+    // The membrane train must do better than the biological one on every
+    // parameter, every entered marker must be carried, and the two regulated
+    // metals must actually be checked against a limit rather than silently
+    // passed over.
+    // Heavy metals cannot be destroyed, only separated, so a membrane train must
+    // beat a coagulation-only one on every one of them. Cyanide, sulphide and
+    // phenol are excluded from that comparison on purpose: an oxidation stage
+    // destroys them outright and legitimately outperforms a membrane, which only
+    // moves them into the concentrate.
+    ok: m.length === Object.keys(TRACE).length
+      && m.filter((r) => r.group === "Heavy metals").every((r) => {
+        const other = row(c, r.key);
+        return other != null && r.outlet <= other.outlet + 1e-12;
+      })
+      && hgM.limit === 0.005 && hgC.limit === 0.005
+      && inhibitions.length > 0,
+    parametersCarried: m.length,
+    membraneTrain: m.map((r) => ({
+      key: r.key, group: r.group, in: round(r.inlet, 4), removal_pct: round(r.removalPct, 1),
+      out: round(r.outlet, 5), basis: r.basis, limit: r.limit, pass: r.pass,
+    })),
+    biologicalTrainComparison: c.map((r) => ({
+      key: r.key, group: r.group, out: round(r.outlet, 5), basis: r.basis, pass: r.pass,
+    })),
+    // The point of the whole feature: two of the seven regulated parameters
+    // were previously invisible to the model.
+    regulatedAndNowChecked: m.filter((r) => r.limit != null).map((r) => r.key),
+    failuresOnMembraneTrain: m.filter((r) => r.pass === false).map((r) => r.key),
+    failuresOnBiologicalTrain: c.filter((r) => r.pass === false).map((r) => r.key),
+    inhibitions: inhibitions.map((f) => ({
+      parameter: f.parameter, value: f.value, threshold: f.threshold,
+      process: f.process, relevantToThisTrain: f.present,
+    })),
+    notes: m.filter((r) => r.note).map((r) => `${r.label}: ${r.note}`),
+  };
 }
 
 /**

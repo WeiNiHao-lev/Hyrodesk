@@ -9,6 +9,7 @@ import { alkalinityAsCaCO3, hardnessAsCaCO3, ionicBalanceErrorPct } from "../eng
 import { feedStream } from "../engine/solver";
 import { UNIT_BY_TYPE } from "../engine/units";
 import { STANDARDS } from "../engine/templates";
+import { inhibitionFindings, traceBalance } from "../engine/compliance";
 
 const NAVY = "0F2942";
 const GREY = "4A7694";
@@ -16,6 +17,7 @@ const HDR = "0F2942";
 const ALT = "EEF6FB";
 const WARN = "FEF3D4";
 const OK = "D8F7E9";
+const BAD = "FBDDD8";
 
 const P = (t: string, o: { bold?: boolean; size?: number; color?: string; italics?: boolean; align?: (typeof AlignmentType)[keyof typeof AlignmentType]; after?: number } = {}) =>
   new Paragraph({
@@ -247,6 +249,65 @@ export async function buildReport(
     if (rows.length === 0) continue;
     body.push(P(`${nd.label} — ${model.label}`, { bold: true, size: 19, after: 60 }));
     body.push(table(["Parameter", "Value", "Unit"], rows, [4200, 2600, 2560], [1]));
+    body.push(new Paragraph({ spacing: { after: 120 }, children: [] }));
+  }
+
+  /* ------------------------------------------------ 3.3 compliance markers */
+  {
+    const trace = traceBalance(fs, fs.basis.standard);
+    const inhib = inhibitionFindings(fs);
+    body.push(H2("3.3  Compliance markers"));
+    if (trace.length === 0) {
+      body.push(P(
+        "No heavy metals or micropollutants were entered for this water. That is a gap, not a "
+        + "result: mercury and cadmium are two of the seven parameters Permen LHK P.59/2016 "
+        + "regulates for leachate, and cyanide, sulphide and phenol decide whether a biological "
+        + "stage can work at all. None of them affect the water balance, so the compliance table "
+        + "in this report can read as met without any of them ever having been looked at. Before "
+        + "this design is presented, ask the laboratory for them.",
+      ));
+    } else {
+      body.push(P(
+        "These parameters do not enter the mass balance — at a few mg/L they change no flow, no "
+        + "pressure and no recovery. They are carried from the intake to the final effluent using "
+        + "removals published for whole treatment chains, credited to the strongest barrier the "
+        + "train provides, and are reported here because they decide whether the effluent is "
+        + "lawful. They are indicative and not a guarantee: how much of a given metal a barrier "
+        + "retains depends on its speciation, and where a limit is close the answer is a pilot "
+        + "rather than a more confident calculation.",
+      ));
+      body.push(table(
+        ["Parameter", "Raw water", "Removal %", "Credited to", "Effluent", "Limit", "Status"],
+        trace.map((t) => {
+          const bg = t.pass === false ? BAD : t.pass === true ? OK : undefined;
+          const cell = (v: string) => (bg ? { v, bg } : v);
+          return [
+            cell(`${t.label} (${t.unit})`),
+            cell(num(t.inlet, 4)),
+            cell(num(t.removalPct, 0)),
+            cell(t.basis === "none" ? "no barrier" : t.basis),
+            cell(num(t.outlet, 5)),
+            cell(t.limit != null ? num(t.limit, 4) : "not limited"),
+            cell(t.pass == null ? "—" : t.pass ? "Pass" : "FAIL"),
+          ];
+        }),
+        [2300, 1500, 1200, 1900, 1400, 1200, 1060], [1, 2, 4, 5],
+      ));
+      for (const t of trace.filter((x) => x.note)) {
+        body.push(P(`${t.label}: ${t.note}`, { size: 17, after: 60 }));
+      }
+      if (inhib.length > 0) {
+        body.push(P("Concentrations that change the process decision", { bold: true, size: 19, after: 60 }));
+        for (const f of inhib) {
+          body.push(P(
+            `${f.parameter} at ${num(f.value, 3)} is above the ${num(f.threshold, 3)} at which `
+            + `${f.process} is inhibited. ${f.why}`
+            + (f.present ? "" : " This train contains no such step, so it is a constraint on what may be added rather than a fault in what is drawn."),
+            { size: 18, after: 60 },
+          ));
+        }
+      }
+    }
     body.push(new Paragraph({ spacing: { after: 120 }, children: [] }));
   }
 

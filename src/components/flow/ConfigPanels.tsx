@@ -10,7 +10,8 @@ import {
 import { alkalinityAsCaCO3, hardnessAsCaCO3, ionicBalanceErrorPct, tdsFromIons } from "@/lib/engine/stream";
 import { feedStream } from "@/lib/engine/solver";
 import { NumInput } from "@/components/NumInput";
-import { Plus, X, AlertTriangle, RotateCcw, Info, Beaker } from "lucide-react";
+import { Plus, X, AlertTriangle, RotateCcw, Info, Beaker, ShieldCheck } from "lucide-react";
+import { TRACE_PARAMETERS } from "@/lib/engine/compliance";
 
 export function FeedPanel() {
   const { flowsheet, setFeed, applyFeedPreset, resetFeed } = useStudy();
@@ -154,6 +155,8 @@ export function FeedPanel() {
         <Group title="Anions" fields={visible(prof.anions)} f={f} set={set} />
         <Group title="Aggregates" fields={visible(prof.aggregates)} f={f} set={set} />
 
+        <TraceGroup f={f} setFeed={setFeed} />
+
         {/* --- what Indonesian labs typically return --- */}
         <div className="mt-4 rounded-xl bg-sun-100/50 p-2.5">
           <div className="mb-1 flex items-center gap-1.5">
@@ -190,6 +193,86 @@ export function FeedPanel() {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Compliance markers. Kept visually separate from the analysis groups above
+ * because they are a different kind of number: they never enter the water
+ * balance, they decide whether the effluent is lawful and whether a biological
+ * stage will work. Collapsed by default so a drinking-water study is not asked
+ * about dioxins.
+ */
+function TraceGroup({
+  f, setFeed,
+}: { f: FeedSpec; setFeed: (p: Partial<FeedSpec>) => void }) {
+  const entered = Object.keys(f.trace ?? {}).length;
+  const [open, setOpen] = useState(entered > 0);
+
+  const set = (key: string, v: number | undefined) => {
+    const trace = { ...(f.trace ?? {}) };
+    if (v == null) delete trace[key];
+    else trace[key] = v;
+    setFeed({ trace });
+  };
+
+  const groups = ["Heavy metals", "Inorganic", "Organic micropollutants"] as const;
+
+  return (
+    <div className="mt-4 rounded-xl border border-violet-200 bg-violet-50/50 p-2.5">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center gap-1.5 text-left"
+      >
+        <ShieldCheck className="h-3.5 w-3.5 text-violet-700" />
+        <span className="text-[0.6rem] font-bold uppercase tracking-wider text-violet-700">
+          Compliance markers
+        </span>
+        {entered > 0 && (
+          <span className="chip bg-violet-100 text-[0.6rem] text-violet-700">{entered} entered</span>
+        )}
+        <span className="ml-auto text-[0.64rem] text-ink-500">{open ? "Hide" : "Show"}</span>
+      </button>
+
+      {open && (
+        <>
+          <p className="mb-2 mt-1.5 text-[0.64rem] leading-snug text-ink-500">
+            These do not enter the water balance — at a few mg/L they change no flow and no
+            pressure. They are here because mercury and cadmium are two of the seven parameters
+            Permen LHK P.59/2016 regulates, and because cyanide, sulphide and phenol decide whether
+            a biological stage works at all. Carried end to end using train-level removals, then
+            checked against the standard on the Results page.
+          </p>
+          {groups.map((g) => {
+            const items = TRACE_PARAMETERS.filter((t) => t.group === g);
+            if (items.length === 0) return null;
+            return (
+              <div key={g} className="mt-2">
+                <div className="mb-1 text-[0.6rem] font-semibold uppercase tracking-wide text-ink-500">
+                  {g}
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {items.map((t) => (
+                    <Num
+                      key={t.key}
+                      label={t.label}
+                      unit={t.unit}
+                      value={f.trace?.[t.key]}
+                      onChange={(v) => set(t.key, v)}
+                      title={t.why}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+          <p className="mt-2 text-[0.62rem] leading-snug text-ink-300">
+            Leave blank what was not measured. Blank means not analysed, which is not the same as
+            zero, and the Results page says so rather than assuming compliance.
+          </p>
+        </>
+      )}
     </div>
   );
 }
@@ -379,12 +462,15 @@ export function BasisPanel() {
 }
 
 function Num({
-  label, unit, value, onChange,
-}: { label: string; unit?: string; value: number | undefined; onChange: (v: number | undefined) => void }) {
+  label, unit, value, onChange, title,
+}: {
+  label: string; unit?: string; value: number | undefined;
+  onChange: (v: number | undefined) => void; title?: string;
+}) {
   return (
     <div>
       <div className="flex items-baseline justify-between gap-1">
-        <label className="text-[0.66rem] font-semibold text-ink-700">{label}</label>
+        <label className="text-[0.66rem] font-semibold text-ink-700" title={title}>{label}</label>
         {unit && <span className="text-[0.58rem] text-ink-300">{unit}</span>}
       </div>
       <NumInput className="mt-0.5 !py-1 !text-[0.75rem]" value={value} onChange={onChange} />

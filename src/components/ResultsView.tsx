@@ -6,6 +6,7 @@ import { alkalinityAsCaCO3, hardnessAsCaCO3 } from "@/lib/engine/stream";
 import { downloadText, downloadBlob } from "@/lib/store/db";
 import { buildReport } from "@/lib/report/docx";
 import { checkCompliance, STANDARD_LIMITS } from "@/lib/engine/diagnostics";
+import { inhibitionFindings, traceBalance } from "@/lib/engine/compliance";
 import { STANDARDS } from "@/lib/engine/templates";
 import { sweep, sweepCandidates, SweepResult } from "@/lib/engine/sensitivity";
 import {
@@ -521,8 +522,135 @@ function Compliance({ result, flowsheet }: { result: SimulationResult; flowsheet
           delivers a compliant boiler feed water, that is a scope gap waiting to become a dispute.
         </div>
       )}
+
+      <TraceMarkers flowsheet={flowsheet} std={std} />
     </div>
   );
+}
+
+/**
+ * Heavy metals and micropollutants. Carried end to end rather than through each
+ * unit, because a per-unit removal for mercury would be invented rather than
+ * cited — see the note in compliance.ts.
+ */
+function TraceMarkers({ flowsheet, std }: { flowsheet: Flowsheet; std: string }) {
+  const rows = useMemo(() => traceBalance(flowsheet, std), [flowsheet, std]);
+  const inhibitions = useMemo(() => inhibitionFindings(flowsheet), [flowsheet]);
+  const entered = Object.keys(flowsheet.feed.trace ?? {}).length;
+
+  if (entered === 0) {
+    return (
+      <div className="mt-5 rounded-lg border border-dashed border-ink-900/15 px-3 py-4 text-[0.72rem] leading-relaxed text-ink-500">
+        <strong className="text-ink-900">No compliance markers entered.</strong> Mercury and cadmium
+        are two of the seven parameters Permen LHK P.59/2016 regulates for leachate, and cyanide,
+        sulphide and phenol decide whether a biological stage works at all. None of them change the
+        water balance, so the table above can read &ldquo;all met&rdquo; without ever having looked
+        at them. Enter what the laboratory reported on the Feed panel.
+      </div>
+    );
+  }
+
+  const failed = rows.filter((r) => r.pass === false);
+
+  return (
+    <div className="mt-6">
+      <div className="mb-2 flex flex-wrap items-baseline gap-2">
+        <h4 className="text-[0.82rem] font-semibold text-ink-900">Compliance markers</h4>
+        <span className="text-[0.68rem] text-ink-500">
+          trace parameters — checked, not balanced
+        </span>
+        {failed.length > 0 && (
+          <span className="chip ml-auto bg-coral-100 text-coral-700">
+            <XCircle className="h-3 w-3" />{failed.length} above limit
+          </span>
+        )}
+      </div>
+
+      <table className="data">
+        <thead>
+          <tr>
+            <th>Parameter</th><th className="num">Raw water</th><th className="num">Removal</th>
+            <th>Credited to</th><th className="num">Effluent</th><th className="num">Limit</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.key}>
+              <td className="font-semibold">{r.label}<span className="ml-1 font-normal text-ink-300">{r.unit}</span></td>
+              <td className="num">{fmtTrace(r.inlet)}</td>
+              <td className="num text-ink-500">{r.removalPct.toFixed(0)} %</td>
+              <td className="text-[0.7rem] text-ink-500">{BARRIER_LABEL[r.basis] ?? r.basis}</td>
+              <td className="num">{fmtTrace(r.outlet)}</td>
+              <td className="num text-ink-500">{r.limit != null ? fmtTrace(r.limit) : "—"}</td>
+              <td>
+                {r.pass == null ? (
+                  <span className="chip bg-ink-900/[0.05] text-ink-500">Not limited</span>
+                ) : r.pass ? (
+                  <span className="chip bg-mint-100 text-mint-700">Pass</span>
+                ) : (
+                  <span className="chip bg-coral-100 text-coral-700">Fail</span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {rows.some((r) => r.note) && (
+        <ul className="mt-2 space-y-1">
+          {rows.filter((r) => r.note).map((r) => (
+            <li key={r.key} className="text-[0.7rem] leading-relaxed text-ink-500">
+              <strong className="text-ink-900">{r.label}:</strong> {r.note}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {inhibitions.length > 0 && (
+        <div className="mt-3 rounded-lg bg-sun-100/70 px-3 py-2.5">
+          <p className="mb-1 text-[0.74rem] font-semibold text-sun-700">
+            Concentrations that change the process decision
+          </p>
+          <ul className="space-y-1.5">
+            {inhibitions.map((f, i) => (
+              <li key={i} className="text-[0.71rem] leading-relaxed text-sun-700">
+                <strong>{f.parameter} at {fmtTrace(f.value)}</strong> is above the {fmtTrace(f.threshold)} at
+                which {f.process} is inhibited. {f.why}
+                {!f.present && " This train has no such step, so it is a warning about what you cannot add rather than about what is there."}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <p className="mt-3 text-[0.68rem] leading-relaxed text-ink-300">
+        Removals are train-level figures from published performance of whole treatment chains, taken
+        from the strongest barrier present rather than multiplied step by step. They are good enough
+        to decide whether a limit is reachable and not good enough to guarantee a number — how much
+        mercury a biological stage retains depends on speciation and sludge age, and no defensible
+        per-unit figure exists. Where a limit is close, the answer is a pilot.
+      </p>
+    </div>
+  );
+}
+
+const BARRIER_LABEL: Record<string, string> = {
+  coagulation: "Coagulation / precipitation",
+  filtration: "Media filtration",
+  carbon: "Activated carbon",
+  biological: "Biological stage",
+  membraneLoose: "UF / MF",
+  membraneTight: "NF / RO / DTRO",
+  oxidation: "Oxidation",
+  evaporation: "Evaporation",
+  none: "No barrier",
+};
+
+function fmtTrace(v: number): string {
+  if (v === 0) return "0";
+  if (v < 0.001) return v.toExponential(1);
+  if (v < 1) return v.toPrecision(2);
+  return v.toFixed(v < 100 ? 2 : 0);
 }
 
 function StdPicker({ std, setStd }: { std: string; setStd: (s: string) => void }) {
