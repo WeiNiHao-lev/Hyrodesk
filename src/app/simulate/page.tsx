@@ -37,8 +37,14 @@ function SimulateInner() {
   const params = useSearchParams();
   const {
     flowsheet, result, reliability, dirty, run, addNode, loadTemplate, setProjectId,
-    newStudy, resetAllParams, clearCanvas,
+    newStudy, resetAllParams, clearCanvas, selectedId,
   } = useStudy();
+  // Clicking the Raw Water Feed block edits the water, not a set of unit
+  // parameters. The feed is a property of the plant rather than of a machine,
+  // but it belongs on the drawing where the water actually enters.
+  const selectedIsFeed =
+    flowsheet.nodes.find((nd) => nd.id === selectedId)?.type === "feedsource";
+  const hasFeedBlock = flowsheet.nodes.some((nd) => nd.type === "feedsource");
   const [tab, setTab] = useState<Tab>("block");
   const [showOpt, setShowOpt] = useState(false);
   const [showSave, setShowSave] = useState(false);
@@ -58,6 +64,11 @@ function SimulateInner() {
     if (!result && flowsheet.nodes.length > 0) run();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+
+  // Selecting the feed on the canvas shows it whichever tab was open. Derived
+  // rather than pushed into state, so there is no render cascade to reason about.
+  const activeTab: Tab = selectedIsFeed ? "block" : tab;
 
   const s = result?.summary;
   const warn = s?.warnings.length ?? 0;
@@ -175,9 +186,9 @@ function SimulateInner() {
           <div className="flex shrink-0 border-b border-ink-900/8">
             {(
               [
-                ["block", "Block"],
+                ["block", selectedIsFeed ? "Feed" : "Block"],
                 ["learn", "Learn"],
-                ["feed", "Feed"],
+                ...(hasFeedBlock ? [] : [["feed", "Feed"] as [Tab, string]]),
                 ["basis", "Basis"],
               ] as [Tab, string][]
             ).map(([k, lbl]) => (
@@ -185,7 +196,7 @@ function SimulateInner() {
                 key={k}
                 onClick={() => setTab(k)}
                 className={`flex-1 px-2 py-2 text-[0.72rem] font-semibold transition ${
-                  tab === k
+                  activeTab === k
                     ? "border-b-2 border-aqua-500 text-aqua-700"
                     : "text-ink-500 hover:text-ink-900"
                 }`}
@@ -195,10 +206,10 @@ function SimulateInner() {
             ))}
           </div>
           <div className="min-h-0 flex-1">
-            {tab === "block" && <ParamPanel />}
-            {tab === "learn" && <LearnPanel />}
-            {tab === "feed" && <FeedPanel />}
-            {tab === "basis" && <BasisPanel />}
+            {activeTab === "block" && (selectedIsFeed ? <FeedPanel /> : <ParamPanel />)}
+            {activeTab === "learn" && <LearnPanel />}
+            {activeTab === "feed" && <FeedPanel />}
+            {activeTab === "basis" && <BasisPanel />}
           </div>
         </aside>
       </div>

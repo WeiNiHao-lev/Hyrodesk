@@ -1,18 +1,36 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Ask, AskGroup, BRING_LIST, DIRECTOR_PREP, DOCUMENTS, PRESENTATION_STRUCTURE,
   SITE_CONDITIONS, TYPE_GUIDES, UNIVERSAL,
 } from "@/lib/engine/sitevisit";
-import { downloadText } from "@/lib/store/db";
+import { analysePrepare } from "@/lib/engine/prepareAnalysis";
+import { downloadText, getProject, Project, saveProject } from "@/lib/store/db";
+import { useProject } from "@/lib/store/useProject";
+import { FindingsTab } from "@/components/PrepareFindings";
 import {
   ClipboardList, Backpack, HelpCircle, Eye, FileText, Scale, Presentation,
-  Check, Copy, Download, AlertTriangle, ChevronDown, RotateCcw,
+  Check, Copy, Download, AlertTriangle, ChevronDown, RotateCcw, Stethoscope,
+  FolderKanban,
 } from "lucide-react";
 
-type Tab = "bring" | "ask" | "observe" | "docs" | "regs" | "director";
+type Tab = "bring" | "ask" | "observe" | "docs" | "regs" | "director" | "findings";
 const STORAGE_KEY = "wtpsim:prepare:v1";
+
+/** Sensible starting guide for a project whose type is already known. */
+function kindToGuide(kind: string): string {
+  switch (kind) {
+    case "Desalination": return "desalination";
+    case "Demineralisation": return "demin";
+    case "WWTP": return "wwtp-industrial";
+    case "ZLD / MLD": return "zld";
+    case "WTP": return "wtp-surface";
+    default: return "wwtp-industrial";
+  }
+}
 
 interface Saved {
   checked: Record<string, boolean>;
@@ -22,6 +40,20 @@ interface Saved {
 }
 
 export default function PreparePage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center text-[0.85rem] text-ink-500">Loading the checklist…</div>}>
+      <PrepareInner />
+    </Suspense>
+  );
+}
+
+function PrepareInner() {
+  const params = useSearchParams();
+  const activeProject = useProject((s) => s.active);
+  const hydrateProject = useProject((s) => s.hydrate);
+  const setFromProject = useProject((s) => s.setFromProject);
+  const [project, setProject] = useState<Project | null>(null);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [condition, setCondition] = useState("brownfield");
   const [type, setType] = useState("wwtp-industrial");
   const [checked, setChecked] = useState<Record<string, boolean>>({});
@@ -30,28 +62,72 @@ export default function PreparePage() {
   const [loaded, setLoaded] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Reading localStorage has to happen after mount: it does not exist during
-  // server rendering, and seeding state from it directly would desynchronise
-  // hydration. This is the one legitimate case for setting state in an effect.
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const s = JSON.parse(raw) as Saved;
-        setChecked(s.checked ?? {});
-        setNotes(s.notes ?? {});
-        if (s.condition) setCondition(s.condition);
-        if (s.type) setType(s.type);
-      }
-    } catch { /* ignore corrupt state */ }
-    setLoaded(true);
-  }, []);
-  /* eslint-enable react-hooks/set-state-in-effect */
+  useEffect(() => { hydrateProject(); }, [hydrateProject]);
+
+  // A checklist belongs to the site it was filled in at. When a project is
+  // active the answers live in the project record; with no project the page is
+  // still usable as a scratch pad, backed by localStorage as before.
+  const projectId = params.get("project") ?? activeProject?.id ?? null;
 
   useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      if (projectId) {
+        const p = await getProject(projectId);
+        if (cancelled) return;
+        if (p) {
+          setProject(p);
+          if (!activeProject || activeProject.id !== p.id) setFromProject(p);
+          const rec = p.prepare;
+          setChecked(rec?.checked ?? {});
+          setNotes(rec?.notes ?? {});
+          setCondition(rec?.condition ?? "brownfield");
+          setType(rec?.type ?? kindToGuide(p.kind));
+          setLoaded(true);
+          return;
+        }
+      }
+      // No project: fall back to the browser-local scratch checklist.
+      setProject(null);
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const st = JSON.parse(raw) as Saved;
+          setChecked(st.checked ?? {});
+          setNotes(st.notes ?? {});
+          if (st.condition) setCondition(st.condition);
+          if (st.type) setType(st.type);
+        }
+      } catch { /* ignore corrupt state */ }
+      setLoaded(true);
+    };
+    load();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
+
+  // Persist, debounced, so typing a note does not write on every keystroke.
+  useEffect(() => {
     if (!loaded) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ checked, notes, condition, type } as Saved));
+    const payload = { checked, notes, condition, type };
+    if (!project) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload as Saved));
+      return;
+    }
+    const t = setTimeout(async () => {
+      setSaveState("saving");
+      const next: Project = {
+        ...project,
+        prepare: { ...payload, updatedAt: new Date().toISOString() },
+        updatedAt: new Date().toISOString(),
+      };
+      await saveProject(next);
+      setProject(next);
+      setSaveState("saved");
+      setTimeout(() => setSaveState("idle"), 1600);
+    }, 700);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checked, notes, condition, type, loaded]);
 
   const cond = SITE_CONDITIONS.find((c) => c.key === condition)!;
@@ -62,6 +138,10 @@ export default function PreparePage() {
     [cond, guide],
   );
   const allAsks = useMemo(() => allGroups.flatMap((g) => g.items), [allGroups]);
+  const askById = useMemo(
+    () => Object.fromEntries(allAsks.map((a) => [a.id, a])),
+    [allAsks],
+  );
   const observations = cond.observations;
 
   const total = allAsks.length + observations.length + DOCUMENTS.length;
@@ -72,6 +152,13 @@ export default function PreparePage() {
   const pct = total > 0 ? (done / total) * 100 : 0;
 
   const criticalMissing = allAsks.filter((a) => a.critical && !checked[a.id]);
+
+  // Deterministic: same answers in, same findings out. Nothing is inferred that
+  // cannot be traced to an arithmetic check or a missing field.
+  const analysis = useMemo(
+    () => analysePrepare(allGroups, DOCUMENTS, checked, notes),
+    [allGroups, checked, notes],
+  );
 
   const toggle = (id: string) => setChecked((c) => ({ ...c, [id]: !c[id] }));
 
@@ -102,6 +189,25 @@ export default function PreparePage() {
   return (
     <div className="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6">
       <div className="mb-4">
+        {project ? (
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <Link href={`/projects/${project.id}`} className="chip bg-violet-100 text-violet-800 hover:bg-violet-200">
+              <FolderKanban className="h-3 w-3" /> {project.name || "Untitled project"}
+            </Link>
+            {project.client && <span className="text-[0.72rem] text-ink-500">{project.client}</span>}
+            <span className="text-[0.68rem] text-ink-300">
+              {saveState === "saving" ? "Saving…" : saveState === "saved" ? "Saved to project" : "Answers are stored with this project"}
+            </span>
+          </div>
+        ) : (
+          <div className="mb-2 flex flex-wrap items-center gap-2 rounded-lg bg-sun-100/60 px-3 py-2">
+            <AlertTriangle className="h-3.5 w-3.5 text-sun-700" />
+            <span className="text-[0.72rem] font-semibold text-sun-700">Scratch checklist — not filed against any project</span>
+            <Link href="/projects" className="text-[0.72rem] font-semibold text-aqua-700 hover:underline">
+              Pick a project →
+            </Link>
+          </div>
+        )}
         <h1 className="text-[1.4rem] font-bold tracking-tight text-ink-900">Site visit & pre-approval preparation</h1>
         <p className="text-[0.8rem] text-ink-500">
           What to understand before you go, what to ask and measure while you are there, and what
@@ -189,6 +295,7 @@ export default function PreparePage() {
             ["regs", "Regulations", Scale, guide.regulations.length],
             ["bring", "What to bring", Backpack, BRING_LIST.length],
             ["director", "Present to director", Presentation, DIRECTOR_PREP.length],
+            ["findings", "Findings & follow-up", Stethoscope, analysis.findings.length],
           ] as [Tab, string, React.ComponentType<{ className?: string }>, number][]
         ).map(([k, lbl, Icon, n]) => (
           <button
@@ -204,6 +311,15 @@ export default function PreparePage() {
           </button>
         ))}
       </div>
+
+      {tab === "findings" && (
+        <FindingsTab
+          analysis={analysis}
+          askById={askById}
+          projectName={project?.name}
+          onJumpToAsk={() => setTab("ask")}
+        />
+      )}
 
       {/* ------------------------------------------------------------- ask */}
       {tab === "ask" && (

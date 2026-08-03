@@ -237,7 +237,9 @@ export function simulate(fs: Flowsheet): SimulationResult {
   const productStreams: StreamRow[] = [];
   const wasteStreams: StreamRow[] = [];
   for (const r of nodeResults) {
-    if (r.type !== "product" && r.type !== "waste") continue;
+    // The outfall is a zero-configuration product terminal: treated water
+    // leaving the works is the works' output, so recovery includes it.
+    if (r.type !== "product" && r.type !== "waste" && r.type !== "outfall") continue;
     const row: StreamRow = {
       id: `sink-${r.id}`,
       label: r.label,
@@ -245,7 +247,7 @@ export function simulate(fs: Flowsheet): SimulationResult {
       to: r.label,
       stream: r.inlet,
     };
-    if (r.type === "product") productStreams.push(row);
+    if (r.type === "product" || r.type === "outfall") productStreams.push(row);
     else wasteStreams.push(row);
   }
 

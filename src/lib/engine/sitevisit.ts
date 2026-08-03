@@ -490,6 +490,57 @@ export interface TypeGuide {
 
 export const TYPE_GUIDES: TypeGuide[] = [
   {
+    key: "wtp-surface",
+    label: "WTP — surface water for drinking or process supply",
+    summary:
+      "The turbidity is rarely the problem. What catches people out is the dissolved fraction, which conventional treatment does not touch, and the seasonal swing that a single sample hides.",
+    groups: [
+      {
+        id: "w-1",
+        title: "The source, over a year",
+        intro:
+          "A reservoir or river is not one water. It stratifies, it turns over, it floods and it dries, and a design built on one sample is a design built on one day.",
+        items: [
+          { id: "w-1a", critical: true, q: "Raw water analysis with the sampling date, depth and point — not just the numbers", why: "A figure without a date cannot be placed in the year. Reservoir water in the dry season and after the first rains are different waters, and the plant has to handle both.", good: "Full ion set with dates: Ca, Mg, Na, K, HCO3, Cl, SO4, NO3, SiO2, Fe, Mn, plus TDS, turbidity, pH, TOC.", redFlag: "Three parameters and no date. That is a specification, not an analysis.", unlocks: "Whether the dissolved solids need a membrane at all, and if so how much of the flow." },
+          { id: "w-1b", critical: true, q: "At what raw TDS must the plant still meet its product limit?", why: "The product limit is a guarantee; the raw TDS is a variable. What sizes a membrane is the worst case you must still meet, not the average you were shown. Between a raw TDS of 350 and 450 the membrane can double.", good: "A design maximum agreed in writing, or twelve months of monthly TDS.", unlocks: "The blend fraction, and therefore most of the membrane cost." },
+          { id: "w-1c", critical: true, q: "Turbidity range across the year, and the peak after heavy rain", why: "The average tells you nothing about the clarifier. A source that runs at 15 NTU and spikes to 300 needs a completely different front end from one that stays at 15.", redFlag: "A single figure offered as the design value." },
+          { id: "w-1d", q: "Algae: bloom history, chlorophyll-a, taste and odour complaints", why: "A pH above about 8 in a reservoir usually means algae are stripping carbon dioxide out of the water. Algae blind filters, cause taste and odour, and are precursors for disinfection by-products. If they are present, flotation may beat sedimentation.", unlocks: "DAF versus clarifier, and whether powdered carbon dosing is needed." },
+          { id: "w-1e", critical: true, q: "Iron and manganese, and the depth of the intake", why: "The bottom of a reservoir goes anoxic in the dry season and iron and manganese dissolve out of the sediment. A deep intake then draws water that a surface sample never showed. Both are regulated and both stain.", redFlag: "Neither parameter appears in the analysis at all." },
+          { id: "w-1f", q: "Organic carbon: TOC or UV254", why: "Sets the coagulant demand, and with chlorination it sets the trihalomethane risk, which is a regulated parameter people discover late." },
+          { id: "w-1g", q: "Is the source shared, and is there an abstraction permit or quota?", why: "Abstraction rights are a legal constraint on intake flow, and they are often lower than the physical capacity." },
+        ],
+      },
+      {
+        id: "w-2",
+        title: "What the water has to become",
+        intro:
+          "A two-line product specification usually hides a twenty-parameter standard behind it.",
+        items: [
+          { id: "w-2a", critical: true, q: "Which standard applies in full, and which edition?", why: "For drinking water in Indonesia this is Permenkes; the specific edition matters because the older one is still widely quoted. The client's two or three stated parameters are a subset of it, and you are contractually held to all of it.", unlocks: "Disinfection, residual chlorine, and whether the parameters nobody mentioned are already met." },
+          { id: "w-2b", critical: true, q: "Is the product for potable supply, and is there a distribution network?", why: "A potable product needs disinfection with a residual that survives to the far end of the network, contact time in a clear water tank, and stability so the water does not corrode the pipes it is sent through.", unlocks: "Clear water tank volume, which is a large item on a tight site." },
+          { id: "w-2c", q: "Is the stated flow the plant output or the raw water intake?", why: "The difference is every loss in the plant. On a train with a membrane slipstream it is roughly ten percent, and quoting the wrong one either undersizes the plant or oversizes the intake." },
+          { id: "w-2d", q: "Daily peaking factor, and is there storage downstream?", why: "A plant that must follow demand directly is sized on the peak hour. One with a reservoir downstream is sized on the daily average, which can be a third smaller." },
+        ],
+      },
+      {
+        id: "w-3",
+        title: "Site and residuals",
+        intro: "The two things most often left until after the process is fixed, and the two that most often break it.",
+        items: [
+          { id: "w-3a", critical: true, q: "Is the quoted land area the gross plot or the net process area?", why: "Below roughly 0.3 square metres per cubic metre per day, a conventional layout with horizontal-flow sedimentation will not fit and the answer is lamella or flotation. Whether you are at that threshold depends entirely on what the quoted area includes.", good: "A plot plan with the boundary, existing structures, access road and any easements marked.", unlocks: "Clarifier type, filter type, and whether expansion is possible at all." },
+          { id: "w-3b", critical: true, q: "Where do the sludge and any membrane reject go?", why: "Coagulation sludge and membrane concentrate both have to leave the site. Returning either to the source is normally not permitted, and a discharge permit can take longer to obtain than the plant takes to build.", redFlag: "\"We will discharge it back to the reservoir.\"" },
+          { id: "w-3c", q: "Power supply available, in kVA, and its reliability", why: "A membrane stage changes the electrical load materially. If the answer is a diesel generator, the operating cost calculation changes completely." },
+          { id: "w-3d", q: "Available head between the intake, the plant and the delivery point", why: "Gravity is free. A plant that can be laid out to flow downhill saves a pumping stage and its whole-life cost." },
+        ],
+      },
+    ],
+    regulations: [
+      { name: "Permenkes — drinking water quality", governs: "Product quality for potable supply", note: "Confirm the edition in force with the client and read the full annex rather than the two or three parameters quoted in the enquiry. The list is long and the enquiry is not." },
+      { name: "PP No. 22/2021", governs: "Environmental approval and discharge of sludge supernatant or membrane concentrate", note: "The receiving water class determines the limits. Establish the class before assuming any discharge route." },
+      { name: "Abstraction permit (izin pengambilan air)", governs: "How much may legally be taken from the source", note: "Often lower than the physical intake capacity, and issued by a different authority from the discharge permit." },
+    ],
+  },
+  {
     key: "desal",
     label: "Desalination — seawater or brackish",
     summary:

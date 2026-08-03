@@ -31,6 +31,27 @@ function duty(r: NodeResult): CalcRow[] {
 }
 
 export const ADVANCED_BUILDERS: Record<string, Builder> = {
+  /* ------------------------------------------------- intake, no screening */
+  "intake-plain": (r, p) => [
+    ...duty(r),
+    { section: "Pumping" },
+    { key: "H", no: "2", item: "Static + friction head", symbol: "H", unit: "m", val: n(p, "headM", 25), input: true,
+      note: "Take the static lift from the lowest recorded water level, not the level on the day of the visit.",
+      theory: "Total head is the vertical lift plus the friction the pipework adds. The lift is fixed by geography; the friction is a design choice, and on a long intake main it is often the larger of the two." },
+    { key: "eff", no: "3", item: "Pump efficiency", symbol: "eta", unit: "-", val: n(p, "pumpEff", 0.72), input: true,
+      note: "0.70-0.80 for a well-selected pump at its duty point." },
+    { key: "kw", no: "4", item: "Shaft power", symbol: "P", unit: "kW",
+      expr: "1000*9.81*(${Qin}/3600)*${H}/${eff}/1000", formula: "P = rho g Q H / eta",
+      theory: "Hydraulic power is the weight of water lifted per second times the height. Dividing by efficiency gives the shaft power, and it is why halving the head halves the running cost of the intake for the life of the plant." },
+    { key: "sb", no: "5", item: "Standby pumps", symbol: "N_s", unit: "-", val: n(p, "standby", 1), input: true,
+      note: "An intake that stops stops the plant." },
+    { key: "sec", no: "6", item: "Specific energy", symbol: "SEC", unit: "kWh/m3",
+      expr: "${kw}/${Qin}", formula: "SEC = P / Q_in" },
+    { section: "Scope boundary" },
+    { key: "scr", no: "7", item: "Screening provided here", symbol: "-", unit: "-", val: 0, input: true,
+      note: "Zero by design. This block models abstraction only — say in the proposal who provides the screen." },
+  ],
+
   /* ------------------------------------------------------ pH adjustment */
   phadjust: (r, p) => [
     ...duty(r),

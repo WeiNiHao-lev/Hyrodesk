@@ -9,6 +9,99 @@ import { UnitKnowledge } from "./knowledge";
  * where it is a textbook figure it says that instead.
  */
 export const ADVANCED_KNOWLEDGE: Record<string, UnitKnowledge> = {
+  feedsource: {
+    principle:
+      "Not a machine. It is the drawing's statement of what water you are treating, placed where the water enters so that the flowsheet reads the way the plant runs. Everything downstream is sized from what is written here, which makes it the single most consequential block on the canvas and the one with no moving parts.",
+    whenToUse: [
+      "On every flowsheet. A drawing that does not say what it is treating is a drawing of nothing in particular.",
+    ],
+    whenNotToUse: [
+      "As a way to model two different waters. There is one feed specification per study; blending two sources is a design question that deserves its own study, not a second block.",
+    ],
+    designRules: [
+      {
+        rule: "Enter what the laboratory reported, not what you wish it had reported.",
+        why: "Every assumption you make here propagates silently through the whole balance. Entering a guessed value is not neutral — it looks exactly like a measurement to everyone who reads the output afterwards, including you in three months.",
+      },
+      {
+        rule: "Leave unmeasured parameters blank rather than zero.",
+        why: "Blank means not analysed. Zero means analysed and found absent. The two lead to completely different conversations with the client, and only one of them is honest.",
+      },
+      {
+        rule: "Check the ionic balance before trusting anything downstream.",
+        why: "Water is electrically neutral. If the cations and anions do not agree within a few percent, the analysis is not internally valid and every figure derived from it inherits the error.",
+      },
+    ],
+    keyNumbers: [
+      { param: "Ionic balance error", typical: "within ±5 %", why: "Beyond that a major ion is missing or misreported — chloride most often, because it falls outside the standard Indonesian sampling set." },
+      { param: "TDS to conductivity", typical: "0.55–0.90 mg/L per µS/cm", why: "A cheap cross-check on a reported TDS, and the fastest way to catch a transcription error." },
+    ],
+    failureModes: [
+      { mode: "Single sample used as the design basis", symptom: "Plant meets its guarantee in the month it was commissioned and fails in the dry season", prevention: "Ask for the seasonal range, and if it does not exist, state the design basis explicitly in the report." },
+      { mode: "Assumption entered as data", symptom: "Nobody downstream can tell which figures were measured", prevention: "Leave it blank and let the validator flag it, rather than filling the gap with something plausible." },
+    ],
+    downstream: "Whatever the water meets first — an intake, a screen, or an equalisation basin.",
+  },
+
+  "intake-plain": {
+    principle:
+      "Abstraction and lifting, nothing else. A pump takes water from the source and delivers it to the plant at the head the process needs. Nothing is removed, and that is the point of having this block rather than the screened one: it does not credit you with a removal you are not providing.",
+    whenToUse: [
+      "Where the screening structure belongs to the client, or already exists, or sits in a separate contract.",
+      "Where the source is already treated or protected — a municipal supply, a settled reservoir draw-off, an existing balancing tank.",
+      "Where you are pumping between stages rather than abstracting from the environment.",
+    ],
+    whenNotToUse: [
+      "On an open, unprotected surface abstraction. Debris will reach the pumps, and a screen that is nobody's scope is a screen that does not get built.",
+    ],
+    designRules: [
+      {
+        rule: "State in the proposal who provides the screening.",
+        why: "A boundary that is obvious to you while drawing it is invisible in a tender document. This is one of the most common scope disputes on a water project, and it is settled with one sentence written early.",
+      },
+      {
+        rule: "Size the head on the worst case, not the normal case.",
+        why: "The static lift is set by the lowest water level in the source, which occurs in the same season as the highest demand.",
+      },
+    ],
+    keyNumbers: [
+      { param: "Pump efficiency", typical: "0.70–0.80", why: "Below 0.65 either the duty point is wrong or the pump is worn." },
+      { param: "Standby", typical: "1 x 100 %", why: "An intake that stops stops the plant. This is the one duty where a standby is rarely questioned." },
+    ],
+    failureModes: [
+      { mode: "Debris at the pumps", symptom: "Blocked suction, tripped motors, damaged impellers", prevention: "Confirm that someone is screening upstream, and confirm it in writing." },
+      { mode: "Low water level", symptom: "Cavitation and loss of duty in the dry season", prevention: "Design the suction on the recorded minimum level, not the level on the day you visited." },
+    ],
+    downstream: "Equalisation, coagulation, or directly into treatment.",
+  },
+
+  outfall: {
+    principle:
+      "The point where treated water leaves the plant. It has no settings because there is nothing to decide: it counts as product in the water balance, so recovery includes whatever passes through it.",
+    whenToUse: [
+      "Treated effluent to a river, sea or drain.",
+      "Product to a distribution network or a client's battery limit, where naming the product type adds nothing.",
+    ],
+    whenNotToUse: [
+      "For reject, backwash, sludge or regeneration effluent. Those are waste, and routing them here would count them as product and inflate the recovery — the one number everybody reads.",
+    ],
+    designRules: [
+      {
+        rule: "One outfall per discharge consent, not one per pipe.",
+        why: "The consent is what is monitored and what is enforced. Drawing the flowsheet the way the permit is written makes the compliance check match the obligation.",
+      },
+      {
+        rule: "Check what the receiving water requires before assuming the effluent is acceptable.",
+        why: "Meeting a discharge standard is not the same as meeting the river's class limits under PP 22/2021. Which applies depends on where the pipe ends.",
+      },
+    ],
+    keyNumbers: [],
+    failureModes: [
+      { mode: "Waste routed to an outfall", symptom: "Recovery looks excellent and the balance still closes", prevention: "Use the Waste Outlet block for anything that is not the plant's product. The balance cannot tell you what you meant." },
+    ],
+    upstream: "The last treatment step, and normally a monitoring point.",
+  },
+
   phadjust: {
     principle:
       "A stirred tank with a reagent pump and a pH controller. Nothing is removed; the chemistry of what is already dissolved is changed. That sounds trivial and it is not, because pH decides the form a substance takes, and the form decides whether the next unit can remove it. Ammonia at pH 11 is a dissolved gas that a stripping tower can blow out; the same ammonia at pH 7 is an ion that a membrane can reject. The same nitrogen, two completely different removal routes, chosen with a dosing pump.",

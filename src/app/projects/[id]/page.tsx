@@ -8,9 +8,11 @@ import {
   saveProject, STATUS_LABEL, STATUS_TONE, StudyRun,
 } from "@/lib/store/db";
 import { useStudy } from "@/lib/store/useStudy";
+import { useProject } from "@/lib/store/useProject";
 import { ResultsView } from "@/components/ResultsView";
 import {
   ArrowLeft, Workflow, Trash2, Save, ChevronRight, Share2, Copy, Check, XCircle,
+  ClipboardList,
 } from "lucide-react";
 
 const VERDICT_TONE: Record<string, string> = {
@@ -35,16 +37,20 @@ export default function ProjectDetail() {
   const [copied, setCopied] = useState(false);
   const [sharing, setSharing] = useState(false);
   const { setFlowsheet, setStudyName, setProjectId, run } = useStudy();
+  const setActiveProject = useProject((s) => s.setFromProject);
 
   useEffect(() => {
     getProject(id).then((p) => {
       if (!p) return;
       setProject(p);
       setActiveRun(p.runs[0] ?? null);
+      // Opening a project is what puts you inside it. Every other page then
+      // says so in the header, and anything saved lands here.
+      setActiveProject(p);
       if (p.shareToken) setShareUrl(`${window.location.origin}/share/${p.shareToken}`);
     });
     health().then((h) => setCloud(h.storage === "cloud" && h.ok));
-  }, [id]);
+  }, [id, setActiveProject]);
 
   if (!project) {
     return (
@@ -139,6 +145,9 @@ export default function ProjectDetail() {
                   {shareUrl ? "Revoke link" : "Share link"}
                 </button>
               )}
+              <Link href={`/prepare?project=${project.id}`} className="btn btn-ghost">
+                <ClipboardList className="h-3.5 w-3.5" /> Site visit
+              </Link>
               <Link href={`/simulate?project=${project.id}&new=1`} className="btn btn-primary">
                 <Workflow className="h-3.5 w-3.5" /> New study
               </Link>

@@ -54,6 +54,25 @@ export interface StudyRun {
   engineerNote?: string;
 }
 
+/**
+ * A site visit's answers, held with the project rather than in the browser.
+ *
+ * Previously the Prepare checklist wrote to one localStorage key shared by
+ * every project, so opening a second project silently showed the first one's
+ * answers. Answers belong to the site they were collected at.
+ */
+export interface PrepareRecord {
+  /** Greenfield / brownfield / expansion, as chosen on the Prepare page. */
+  condition: string;
+  /** Which type guide is in use: WTP, WWTP, desalination, ... */
+  type: string;
+  checked: Record<string, boolean>;
+  notes: Record<string, string>;
+  updatedAt: string;
+  /** Free text: who was met, when, and anything the checklist did not ask. */
+  visitLog?: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -67,6 +86,8 @@ export interface Project {
   updatedAt: string;
   notes: string;
   runs: StudyRun[];
+  /** Site visit preparation and the answers collected there. */
+  prepare?: PrepareRecord;
   /** Present when the project has a read-only share link. */
   shareToken?: string;
 }

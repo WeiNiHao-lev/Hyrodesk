@@ -5,6 +5,8 @@ import { UNIT_BY_TYPE, UNIT_MODELS } from "@/lib/engine/units";
 import { knowledgeFor } from "@/lib/engine/knowledge";
 import { calcRowsFor } from "@/lib/report/calcsheets";
 import { inhibitionFindings, traceBalance } from "@/lib/engine/compliance";
+import { analysePrepare, numbersIn } from "@/lib/engine/prepareAnalysis";
+import { DOCUMENTS, TYPE_GUIDES, SITE_CONDITIONS, UNIVERSAL } from "@/lib/engine/sitevisit";
 import { optimise, reliabilityScore, DEFAULT_GOALS } from "@/lib/engine/optimizer";
 import { adviseProcess, validateFeed } from "@/lib/engine/diagnostics";
 import { FeedSpec, Params, Stream } from "@/lib/engine/types";
@@ -165,6 +167,12 @@ async function runChecks() {
 
   /* --- compliance markers, on the leachate characterisation as reported --- */
   const markers = checkComplianceMarkers();
+
+  /* --- the site-visit analyser, against answers with known defects --- */
+  const prepare = checkPrepareAnalysis();
+
+  /* --- the canvas terminals: feed in, outfall out, balance closed --- */
+  const canvas = checkCanvasTerminals();
 
   /* --- Excel export: assert the workbook is built from live formulas --- */
   let xlsx: Record<string, unknown> = { ok: false };
@@ -346,9 +354,9 @@ async function runChecks() {
     {
       ok: allClosed && allConverged && diagnosticsOk && productDrivenOk
         && xlsx.ok === true && docx.ok === true && diagrams.ok === true
-        && leachate.ok && coverage.ok && markers.ok,
+        && leachate.ok && coverage.ok && markers.ok && prepare.ok && canvas.ok,
       allConverged, allClosed, diagnosticsOk, productDrivenOk,
-      coverage, leachate, markers, xlsx, docx, diagrams,
+      coverage, leachate, markers, prepare, canvas, xlsx, docx, diagrams,
       productDriven: pdTests,
       diagnostics: {
         fixture: KNOWN_BAD_FEED.name,
@@ -370,6 +378,117 @@ async function runChecks() {
     },
     { headers: { "cache-control": "no-store" } },
   );
+}
+
+/**
+ * The site-visit analyser, run over an answer set built to contain known
+ * defects. Each defect names the rule that must catch it; a rule that stops
+ * firing is a rule that has silently stopped protecting anyone.
+ */
+function checkPrepareAnalysis() {
+  const cond = SITE_CONDITIONS.find((c) => c.key === "brownfield")!;
+  const guide = TYPE_GUIDES.find((t) => t.key === "wtp-surface")!;
+  const groups = [...UNIVERSAL, ...cond.groups, ...guide.groups];
+  const asks = groups.flatMap((g) => g.items);
+
+  // Tick everything so the coverage rules stay quiet and the quality and
+  // consistency rules are what gets exercised.
+  const checked: Record<string, boolean> = {};
+  for (const a of asks) checked[a.id] = true;
+  for (const d of DOCUMENTS) checked[d.id] = true;
+
+  const notes: Record<string, string> = {};
+  // A plausible answer everywhere, so only the planted defects stand out.
+  for (const a of asks) notes[a.id] = "Confirmed verbally with the plant manager.";
+
+  // Planted defects, each aimed at one rule.
+  const find = (re: RegExp) => asks.find((a) => re.test(a.q))?.id;
+  const planted: { id?: string; note: string; rule: string }[] = [
+    { id: find(/raw water analysis/i), note: "TDS 365 mg/L, conductivity 1200 uS/cm", rule: "tds-conductivity" },
+    { id: find(/turbidity range/i), note: "kira-kira 15 NTU", rule: "vague-answer" },
+    { id: find(/land area/i), note: "", rule: "ticked-no-note" },
+  ];
+  for (const pl of planted) if (pl.id) notes[pl.id] = pl.note;
+
+  const a = analysePrepare(groups, DOCUMENTS, checked, notes);
+  const rules = new Set(a.findings.map((f) => f.rule));
+  const expect = ["tds-conductivity", "vague-answer", "ticked-no-note", "no-number"];
+
+  // The Indonesian thousands convention has to survive the parser, or every
+  // consistency check built on it reads a number a thousand times too small.
+  const parse = {
+    "1.200": numbersIn("1.200")[0],
+    "1.200,5": numbersIn("1.200,5")[0],
+    "1.2": numbersIn("1.2")[0],
+    "365 mg/L": numbersIn("365 mg/L")[0],
+  };
+  const parseOk = parse["1.200"] === 1200 && parse["1.200,5"] === 1200.5
+    && parse["1.2"] === 1.2 && parse["365 mg/L"] === 365;
+
+  return {
+    ok: expect.every((r) => rules.has(r)) && parseOk && a.readiness > 0 && a.readiness <= 100,
+    guide: guide.key,
+    questions: asks.length,
+    expectedRules: expect,
+    firedRules: [...rules],
+    missedRules: expect.filter((r) => !rules.has(r)),
+    numberParsing: parse,
+    numberParsingOk: parseOk,
+    readiness: a.readiness,
+    verdictTone: a.verdictTone,
+    findingsBySeverity: a.findings.reduce<Record<string, number>>((acc, f) => {
+      acc[f.severity] = (acc[f.severity] ?? 0) + 1; return acc;
+    }, {}),
+    extracted: a.extracted.length,
+  };
+}
+
+/**
+ * The three canvas blocks that carry no process: the feed enters where it is
+ * drawn, the unscreened intake removes nothing, and the outfall counts as
+ * product so recovery includes it.
+ */
+function checkCanvasTerminals() {
+  const feed: FeedSpec = {
+    name: "Reservoir", flow: 100, T: 28, pH: 8.5,
+    c: { Na: 40, Ca: 45, Mg: 12, Cl: 55, SO4: 30, HCO3: 130, TDS: 365, TSS: 20 },
+    turbidityNTU: 15,
+  };
+  const fs = {
+    id: "canvas-check", name: "Canvas terminals",
+    nodes: [
+      { id: "f", type: "feedsource", label: "Raw Water Feed", position: { x: 0, y: 0 }, params: {} },
+      { id: "i", type: "intake-plain", label: "Intake", position: { x: 200, y: 0 }, params: UNIT_BY_TYPE["intake-plain"].defaults },
+      { id: "o", type: "outfall", label: "Outfall", position: { x: 400, y: 0 }, params: {} },
+    ],
+    edges: [
+      { id: "e1", source: "f", sourceHandle: "out", target: "i", targetHandle: "in" },
+      { id: "e2", source: "i", sourceHandle: "out", target: "o", targetHandle: "in" },
+    ],
+    feed,
+    basis: { standard: "permenkes", productSpecKey: "potable", designMode: "feed-driven" as const },
+  };
+  const r = simulate(fs as unknown as Parameters<typeof simulate>[0]);
+  const s = r.summary;
+  const tds = r.productStreams[0]?.stream.c.TDS ?? 0;
+  return {
+    // Nothing is removed, so the outfall must carry the whole intake at the
+    // same quality, and recovery must be exactly 100 %.
+    ok: Math.abs(s.recoveryPct - 100) < 1e-6
+      && Math.abs(s.productFlow - 100) < 1e-6
+      && Math.abs(tds - 365) < 1e-6
+      && r.productStreams.length === 1
+      && s.totalPowerKW > 0,
+    feedFlow: round(s.feedFlow, 4),
+    productFlow: round(s.productFlow, 4),
+    wasteFlow: round(s.wasteFlow, 4),
+    recovery_pct: round(s.recoveryPct, 6),
+    outfallCountedAsProduct: r.productStreams.length === 1,
+    productTDS: round(tds, 4),
+    intakePower_kW: round(s.totalPowerKW, 2),
+    waterClosure_pct: round(s.waterBalance[0]?.errorPct ?? 0, 6),
+    warnings: s.warnings,
+  };
 }
 
 /**
@@ -447,7 +566,9 @@ function checkComplianceMarkers() {
  * assumed.
  */
 function checkUnitCoverage() {
-  const skip = new Set(["splitter", "product", "waste", "pump"]);
+  // Terminals and markers carry no sizing: they exist to make the drawing say
+  // what the plant does, not to be dimensioned.
+  const skip = new Set(["splitter", "product", "waste", "outfall", "pump", "feedsource"]);
   const rows = UNIT_MODELS.filter((m) => !skip.has(m.type)).map((m) => {
     const k = knowledgeFor(m.type);
     // Exercise the recipe on a plausible stream so a broken expression shows up

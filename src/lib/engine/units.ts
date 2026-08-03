@@ -1162,6 +1162,83 @@ const pump: UnitModel = {
   },
 };
 
+/**
+ * The raw water itself, as a block you can place and click.
+ *
+ * The analysis still lives in one place on the flowsheet — there is a single
+ * feed specification, not one per node — but putting it on the canvas means the
+ * water enters the drawing where it enters the plant, and is edited by clicking
+ * the thing it describes rather than by finding a tab. The solver needs no
+ * special case: a node with nothing connected to its inlet already receives the
+ * plant feed, and this block simply has no inlet at all.
+ */
+const feedSource: UnitModel = {
+  type: "feedsource", label: "Raw Water Feed", short: "FEED",
+  category: "intake", inlets: 0, outlets: ["out"],
+  description:
+    "Where the raw water enters the flowsheet. Click it to edit the water analysis. It removes nothing and costs nothing — it is the drawing's statement of what you are treating.",
+  ccepcMaturity: 5,
+  params: [],
+  defaults: {},
+  solve: (inlet) => ({ outlets: { out: cloneStream(inlet) }, aux: aux() }),
+};
+
+/**
+ * A terminal that needs no configuration.
+ *
+ * Product and Waste both ask what kind of stream they are, which is the right
+ * question on a plant with several products. On a plant with one it is friction.
+ * The outfall counts as product in the balance — treated water leaving the works
+ * is the works' output, and recovery should include it — and that is stated here
+ * rather than left to be discovered.
+ */
+const outfall: UnitModel = {
+  type: "outfall", label: "Outfall / Discharge", short: "OUTFALL",
+  category: "network", inlets: 1, outlets: [],
+  description:
+    "Marks where treated water leaves the plant. No settings: it counts as product in the water balance, so recovery includes it. Use the Waste Outlet block for reject, sludge and backwash instead.",
+  ccepcMaturity: 5,
+  params: [],
+  defaults: {},
+  solve: () => ({ outlets: {}, aux: aux() }),
+};
+
+/**
+ * Abstraction with no screening structure — because on many sites the screen is
+ * a separate civil work under someone else's scope, or the source is already
+ * screened, and modelling one that is not there overstates the solids removal.
+ */
+const intakePlain: UnitModel = {
+  type: "intake-plain", label: "Intake (no screen)", short: "INTAKE",
+  category: "intake", inlets: 1, outlets: ["out"],
+  description:
+    "Abstraction and lifting only. Nothing is removed. Use this where screening is a separate structure, outside your scope, or already provided — modelling a screen that is not in your scope quietly credits you with solids removal you are not delivering.",
+  ccepcMaturity: 5,
+  params: [
+    { key: "headM", label: "Static + friction head", type: "number", unit: "m", min: 2, max: 200, step: 1, group: "Hydraulics" },
+    { key: "pumpEff", label: "Pump efficiency", type: "number", unit: "-", min: 0.4, max: 0.9, step: 0.01, group: "Hydraulics" },
+    { key: "standby", label: "Standby pumps", type: "number", unit: "-", min: 0, max: 3, step: 1, group: "Sizing" },
+  ],
+  defaults: { headM: 25, pumpEff: 0.72, standby: 1 },
+  solve: (inlet, p) => {
+    const out = cloneStream(inlet);
+    const kw = pumpKW(inlet.flow, n(p, "headM", 25), n(p, "pumpEff", 0.72));
+    return {
+      outlets: { out },
+      aux: aux({
+        powerKW: kw,
+        sizing: [
+          { label: "Duty", value: `${inlet.flow.toFixed(1)} m3/h @ ${n(p, "headM", 25)} m` },
+          { label: "Configuration", value: `${1 + n(p, "standby", 1)} x 100 %` },
+          { label: "Shaft power", value: `${kw.toFixed(1)} kW` },
+        ],
+        capexUSD: costCurve(Math.max(inlet.flow, 1), 900, 0.7),
+        notes: ["No screening is modelled here. If debris can reach the intake, a screen belongs in the scope — and if it belongs to someone else, say so in the proposal."],
+      }),
+    };
+  },
+};
+
 const product: UnitModel = {
   type: "product", label: "Product Outlet", short: "PROD",
   category: "network", inlets: 1, outlets: [],
@@ -1205,7 +1282,7 @@ const waste: UnitModel = {
 /* ================================================================= REGISTRY */
 
 export const UNIT_MODELS: UnitModel[] = [
-  intake,
+  feedSource, intake, intakePlain,
   tankModel("rawtank", "Raw Water Pond / Tank", "TANK", 12, "storage"),
   tankModel("eqtank", "Equalisation Tank", "EQ", 8, "storage"),
   tankModel("producttank", "Product Storage Tank", "PTANK", 8, "storage"),
@@ -1215,7 +1292,7 @@ export const UNIT_MODELS: UnitModel[] = [
   aao, msbr, mbbr, anaerobicAO, denitriFilter, disinfection,
   thickener, dewatering, mvr, crystalliser,
   ...ADVANCED_MODELS,
-  splitter, pump, product, waste,
+  splitter, pump, product, outfall, waste,
 ];
 
 export const UNIT_BY_TYPE: Record<string, UnitModel> = Object.fromEntries(

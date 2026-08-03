@@ -6,6 +6,7 @@ import {
   Droplets, FolderKanban, Workflow, BarChart3, BookOpen, Compass, ClipboardList,
 } from "lucide-react";
 import { StorageBadge } from "./StorageBadge";
+import { ProjectBadge } from "./ProjectBadge";
 
 const LINKS = [
   { href: "/", label: "Overview", icon: Droplets },
@@ -56,8 +57,9 @@ export function NavBar() {
           })}
         </nav>
 
-        <div className="ml-auto hidden shrink-0 items-center gap-2 sm:flex">
-          <StorageBadge />
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          <ProjectBadge />
+          <span className="hidden sm:flex"><StorageBadge /></span>
         </div>
       </div>
     </header>
