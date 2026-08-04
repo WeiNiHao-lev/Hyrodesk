@@ -10,10 +10,11 @@ import { LearnPanel } from "@/components/flow/LearnPanel";
 import { OptimizerDialog } from "@/components/OptimizerDialog";
 import { SaveStudyDialog } from "@/components/SaveStudyDialog";
 import { useStudy } from "@/lib/store/useStudy";
+import { useDraftStatus } from "@/lib/store/draft";
 import { TEMPLATES } from "@/lib/engine/templates";
 import {
   Play, Sparkles, Save, LayoutTemplate, AlertTriangle, CheckCircle2,
-  FilePlus, RotateCcw, Eraser,
+  FilePlus, RotateCcw, Eraser, Cloud,
 } from "lucide-react";
 
 type Tab = "block" | "learn" | "feed" | "basis";
@@ -77,6 +78,7 @@ function SimulateInner() {
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
       {/* toolbar */}
       <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-ink-900/8 bg-white/70 px-4 py-2 backdrop-blur">
+        <DraftIndicator />
         <div className="flex items-center gap-1.5">
           <LayoutTemplate className="h-3.5 w-3.5 text-ink-300" />
           <select
@@ -217,6 +219,23 @@ function SimulateInner() {
       {showOpt && <OptimizerDialog onClose={() => setShowOpt(false)} />}
       {showSave && <SaveStudyDialog onClose={() => setShowSave(false)} />}
     </div>
+  );
+}
+
+/** Says, in the editor, that the work is being kept. */
+function DraftIndicator() {
+  const { savedAt, saving } = useDraftStatus();
+  if (!savedAt && !saving) return null;
+  return (
+    <span
+      className="flex shrink-0 items-center gap-1 text-[0.66rem] font-medium text-ink-300"
+      title="The working study is kept in this browser automatically. Use Save to project to file it as a run."
+    >
+      <Cloud className="h-3 w-3" />
+      {saving
+        ? "Saving draft…"
+        : `Draft saved ${new Date(savedAt!).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`}
+    </span>
   );
 }
 

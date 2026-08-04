@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -51,6 +51,7 @@ function PrepareInner() {
   const params = useSearchParams();
   const activeProject = useProject((s) => s.active);
   const hydrateProject = useProject((s) => s.hydrate);
+  const projectHydrated = useProject((s) => s.hydrated);
   const setFromProject = useProject((s) => s.setFromProject);
   const [project, setProject] = useState<Project | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
@@ -70,6 +71,10 @@ function PrepareInner() {
   const projectId = params.get("project") ?? activeProject?.id ?? null;
 
   useEffect(() => {
+    // Wait for the project context to hydrate. Loading the scratch checklist
+    // first and the project's a moment later made the answers appear and then
+    // vanish, which looks exactly like data loss even though nothing was lost.
+    if (!projectHydrated) return;
     let cancelled = false;
     const load = async () => {
       if (projectId) {
@@ -104,31 +109,60 @@ function PrepareInner() {
     load();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectId]);
+  }, [projectId, projectHydrated]);
 
   // Persist, debounced, so typing a note does not write on every keystroke.
-  useEffect(() => {
-    if (!loaded) return;
-    const payload = { checked, notes, condition, type };
-    if (!project) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload as Saved));
+  // The pending payload is held in a ref as well, so it can be forced out when
+  // the tab closes — a debounce that never fires is the loss it was meant to
+  // prevent.
+  const pending = useRef<{ checked: Record<string, boolean>; notes: Record<string, string>; condition: string; type: string } | null>(null);
+  const projectRef = useRef<Project | null>(null);
+  useEffect(() => { projectRef.current = project; }, [project]);
+
+  const persist = useCallback(async () => {
+    const payload = pending.current;
+    if (!payload) return;
+    const p = projectRef.current;
+    if (!p) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload as Saved)); } catch { /* full */ }
       return;
     }
-    const t = setTimeout(async () => {
-      setSaveState("saving");
-      const next: Project = {
-        ...project,
-        prepare: { ...payload, updatedAt: new Date().toISOString() },
-        updatedAt: new Date().toISOString(),
-      };
-      await saveProject(next);
-      setProject(next);
-      setSaveState("saved");
-      setTimeout(() => setSaveState("idle"), 1600);
-    }, 700);
+    setSaveState("saving");
+    // Re-read the project rather than trusting a closure: it may have been
+    // renamed or had a run added on another page since this one loaded.
+    const fresh = (await getProject(p.id)) ?? p;
+    const next: Project = {
+      ...fresh,
+      prepare: { ...payload, updatedAt: new Date().toISOString() },
+      updatedAt: new Date().toISOString(),
+    };
+    await saveProject(next);
+    projectRef.current = next;
+    setProject(next);
+    setSaveState("saved");
+    setTimeout(() => setSaveState("idle"), 1600);
+  }, []);
+
+  useEffect(() => {
+    if (!loaded) return;
+    pending.current = { checked, notes, condition, type };
+    const t = setTimeout(() => { void persist(); }, 700);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checked, notes, condition, type, loaded]);
+  }, [checked, notes, condition, type, loaded, persist]);
+
+  useEffect(() => {
+    const flush = () => { void persist(); };
+    const onVisibility = () => { if (document.visibilityState === "hidden") flush(); };
+    window.addEventListener("pagehide", flush);
+    window.addEventListener("beforeunload", flush);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      window.removeEventListener("beforeunload", flush);
+      document.removeEventListener("visibilitychange", onVisibility);
+      flush();
+    };
+  }, [persist]);
 
   const cond = SITE_CONDITIONS.find((c) => c.key === condition)!;
   const guide = TYPE_GUIDES.find((t) => t.key === type)!;

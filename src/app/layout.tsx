@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import "@xyflow/react/dist/style.css";
 import { NavBar } from "@/components/NavBar";
+import { StudyAutosave } from "@/components/StudyAutosave";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -18,6 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
+        <StudyAutosave />
         <NavBar />
         <main className="flex-1 flex flex-col">{children}</main>
       </body>
