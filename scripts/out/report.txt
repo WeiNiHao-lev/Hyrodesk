@@ -1,0 +1,615 @@
+BASIS OF DESIGN
+Leachate Treatment Plant — IPAS 2, TPST Bantargebang
+1,200 m³/day · 2 ha site · new facility replacing the existing works
+Item
+Detail
+Prepared by
+PT CCEPC Environment Protection and Energy Comprehensive Utilization Indonesia
+Date
+4 August 2026
+Design capacity
+1,200 m³/day (50 m³/h)
+Site area available
+20,000 m² (2 ha)
+Scope
+New plant. The existing facility is to be removed, not upgraded.
+Effluent standard
+Permen LHK P.59/2016 — landfill leachate
+Status
+Basis of design. Not for construction. Laboratory verification outstanding.
+Read this first
+This report is built on a water analysis that cannot be used as a design basis. It is a composite of five different published studies of five different landfills between 1993 and 2022, and two of its figures are physically impossible.
+The plant that analysis describes cannot be built by any membrane process at any cost. Section 2 shows why, with the arithmetic.
+Everything from Section 3 onward therefore runs on a substituted design basis. Every substitution is listed, with the reason. None of it is a substitute for sampling this site.
+1  Executive Summary
+1.1  Three findings, in order of consequence
+First: the characterisation cannot be used, and the plant it describes cannot be built
+Entered exactly as tabulated, the leachate carries 280,000 mg/L of dissolved solids. That is eight times seawater. At that salinity the osmotic pressure of the feed alone is 228 bar, and the model calls for a membrane feed pressure of 877 bar against a module rating of 120. A membrane cannot produce water below its own osmotic pressure, so this is not a matter of specifying a stronger pump. There is no membrane route to this water as described.
+The specific energy that follows — 43.6 kWh/m³ against 8.6 for the same train on a defensible salinity — is the arithmetic consequence, not a design choice. Five times the energy for the same effluent is what an unusable input looks like once it reaches a model.
+Second: land is not the constraint on this site
+Scenario
+Flow, m³/d
+Process area, m²
+Share of the 2 ha site
+B — 1,200 m³/d, concentrate to disposal
+1,200
+2,022
+10.1 %
+C — 1,200 m³/d with ZLD
+1,200
+2,327
+11.6 %
+E — 2028 target after capping, 2,100 m³/d
+2,100
+3,451
+17.3 %
+D — 2028 target unmitigated, 7,000 m³/d
+7,000
+9,571
+47.9 %
+At the design capacity the process occupies about 11.6 % of the site. Even the unmitigated 2028 target of 7,000 m³/day fits inside half of it. A multi-storey building saves land, and on this site there is no land to save.
+Third: the constraint is the waste slope, and it argues against building upward
+The site adjoins a very high waste pile, and the retaining wall between them has failed more than once through waste movement. That is the governing risk on this project, and it is a geotechnical problem rather than a process one.
+A multi-storey structure is close to the worst available response to ground that moves. It concentrates load onto a small footprint, it turns a lateral ground displacement into a moment at the base, and it makes differential settlement — which water-retaining structures tolerate very badly — a whole-building problem rather than a single-tank one. If a wall fails again, a low-rise plant loses the units nearest the wall; a multi-storey plant loses the building.
+The recommendation this leads to
+Build low-rise, spread out, and spend the spare land on distance from the toe of the slope rather than on packing the plant tighter.
+Found each unit independently rather than on one common raft, and connect them with flexible couplings, so that ground movement damages one structure instead of all of them.
+Put the replaceable things nearest the slope and the irreplaceable things — MBR, DTRO, electrical room, control room — furthest from it.
+Cap the waste surface. It is reported to cut leachate generation by about 70 %, and it reduces infiltration into the waste mass, which is what drives the pore pressure behind the retaining wall. One intervention addresses the flow, the land and the slope at once.
+1.2  What the plant achieves
+Parameter
+P.59/2016 limit
+This design
+Margin
+pH
+6 – 9
+7
+mid-range
+BOD₅
+≤ 150 mg/L
+2.14
+70.1×
+COD
+≤ 300 mg/L
+11.4
+26.3×
+TSS
+≤ 100 mg/L
+&lt; 1
+&gt; 100×
+Total nitrogen
+≤ 60 mg/L
+4.6
+13×
+Total nitrogen is highlighted because it is the parameter with the least protection against being wrong. The analysis gives ammonia but no total nitrogen, so the organic fraction is unknown — and organic nitrogen cannot be stripped at any air rate. If it turns out to be a significant share of the total, this is the number that moves first.
+2  The Data, and Why It Cannot Be Used As It Stands
+2.1  What the sheet is
+The characterisation supplied lists 35 parameters against five separate literature sources — Gautam et al. (2020, 2021, 2022), Pavelka et al. (1993) and Singa et al. (2017). It is not an analysis of one water. It is a table of what several different landfills, on three continents and across thirty years, have been reported to contain.
+That distinction matters more than it sounds. An ionic balance, the standard test of whether an analysis is internally valid, is meaningless across a composite: there is no single water whose charges have to sum to zero. Every cross-check that would normally catch an error is unavailable.
+2.2  What the automated validation found
+Severity
+Finding
+FAIL
+Ionic balance error outside tolerance
+FAIL
+Entered TDS contradicts the sum of ions
+WARN
+Silica not analysed
+WARN
+Parameters missing from the analysis
+INFO
+Conductivity not entered
+INFO
+Seasonal variation
+2.3  Two figures that cannot be right
+Dissolved solids at 280,000 mg/L
+Mature landfill leachate is normally reported between 5,000 and 30,000 mg/L. The tabulated figure is roughly ten times the upper end and eight times seawater. Case A below runs the design at that salinity so the consequence is visible rather than asserted.
+Free chlorine at 130,000 mg/L
+Free chlorine cannot exist at any appreciable concentration in a water containing 35,000 mg/L of COD; it would be consumed within seconds of contact. The value is almost certainly chloride under the wrong label. Even read as chloride it is close to seven times seawater, and it is the origin of the impossible TDS.
+2.4  Case A — the design run at the tabulated salinity
+The train in Section 3 was run unchanged, with only the salinity as tabulated. The reverse osmosis stage reports:
+Quantity
+Value
+Stages
+2 in series at 85 % overall
+Membrane area
+2261 m2
+Modules
+252 x 9 m2
+Feed pressure
+877 bar (estimated)
+Feed / concentrate osmotic
+228 / 1498 bar
+Concentrate TDS
+1920.1 g/L
+Specific energy
+38.23 kWh/m3 permeate
+What the model says about Case A
+Estimated feed pressure 877 bar exceeds the 120 bar module rating. Either the recovery is too high for this salinity or the water is too concentrated for DTRO at all — check the feed TDS before anything else.
+Feed osmotic pressure alone is 228 bar. A membrane cannot work below its own osmotic pressure, so at this salinity the answer is evaporation, not more pressure.
+The plant still produces a compliant effluent on paper, because the membrane is asked to do the impossible rather than told it cannot. What changes is the energy: 43.55 kWh/m³ against 8.59 for the identical train on a credible salinity, and 42,533 kWh/day against 8,388. A design carried forward on this basis would be priced at five times its true energy and would still not work.
+2.5  Substitutions made for the design basis
+Parameter
+As reported
+Used here
+Reason
+TDS
+280 000 mg/L
+20 000 mg/L
+At 280 000 mg/L the osmotic pressure is about 218 bar, which is above the pressure rating of every leachate membrane made. The plant the sheet describes cannot be built by any membrane route. 20 000 mg/L is the middle of the published range for mature landfill leachate.
+Chloride
+130 000 mg/L, labelled free chlorine (Cl2)
+6 000 mg/L
+Free chlorine cannot coexist with 35 000 mg/L of COD — it would be consumed in seconds. The figure is a mislabelled chloride, and even as chloride it is nearly seven times seawater.
+Na, K, Ca, Mg, SO4, HCO3
+not analysed
+assumed, balanced against the chloride
+None of the major cations appear in the sheet, so no ionic balance can be computed from it. The set used here is typical of mature leachate and is internally neutral; it is an assumption, not a measurement.
+Total nitrogen
+not analysed; free ammonia 2 200 mg/L
+TN = 2 200 mg/L as N
+The sheet gives ammonia but no total nitrogen, so organic nitrogen is unknown. Taking TN equal to the ammonia is the optimistic case: any organic nitrogen present is not strippable and would raise the final effluent nitrogen.
+This is an assumption, not a correction
+Substituting a plausible number for an implausible one does not make the design basis correct. It makes it arguable.
+Nothing in this report should be quoted to a client as the characterisation of Bantargebang leachate. It is what a mature landfill leachate typically looks like, used so that the process logic can be worked through while the real sampling is arranged.
+The sampling campaign in Section 9 is not a formality. It is the difference between this being a study and being a design.
+3  Process Design
+3.1  The train, and why each step is there
+Step
+Why it is in the train
+Intake & coarse screen
+Leachate carries plastic fragments, fibre and grit from the waste mass. Screening protects the pumps; it removes almost none of the suspended solids, and is not intended to.
+Equalisation, 12 h
+Leachate flow and strength swing with rainfall. Everything downstream is dosed or aerated against a measured load, and a load that moves faster than the controllers cannot be dosed against.
+Coagulation and lamella clarifier
+Takes the suspended solids out before anything expensive sees them, and removes part of the colloidal organic load. Lamella rather than horizontal-flow because the plate area is what makes it small.
+Anaerobic reactor (UASB)
+At 35,000 mg/L of COD this is where the bulk of the organic load should be removed, because it needs no aeration and returns methane instead of consuming power. It appears in thirteen of the seventeen leachate plants CCEPC has delivered, always in this position.
+Alkali dosing to pH 11
+Converts ammonium into free ammonia, which is the only form that can be stripped. Without this step the stripping tower moves air and nothing else.
+Ammonia stripping
+Removes the nitrogen that biology cannot, because the carbon needed to denitrify it is not present. The off-gas is captured in a sulphuric acid scrubber and leaves as ammonium sulphate.
+Neutralisation to pH 7
+Mandatory before the membrane. At high pH ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is an ion and is rejected above 95 %.
+MBR
+Polishes the remaining biodegradable load and delivers a permeate with no suspended solids, which is the best feed a biological process can give a membrane.
+DTRO, two stages
+The open-channel module is what allows reverse osmosis on a liquid that would block a spiral element within hours. Two stages reach 85 % recovery with each stage inside its own pressure and scaling envelope.
+Catalytic advanced oxidation
+Removes the residual refractory colour that nothing upstream touches. Positioned after the membranes deliberately: the oxidant demand follows the mass of organic matter destroyed, so the same unit ahead of the membranes would cost roughly a hundred times more to run.
+Final pH trim
+Reverse osmosis permeate is acidic — carbon dioxide passes the membrane and the alkalinity that would buffer it does not. Neither the membrane nor the ozone puts it back, and the discharge limit is pH 6 to 9.
+3.2  Stage by stage
+Concentrations are at the inlet to each named stage, so the effect of a unit is the difference between its row and the row below.
+Stage
+m³/d
+COD
+BOD
+TN
+NH₄-N
+TSS
+TDS
+pH
+Raw Leachate
+1,200
+35,000
+11,000
+2,200
+2,200
+1,000
+20,000
+7.4
+Intake & Screen
+1,200
+35,000
+11,000
+2,200
+2,200
+1,000
+20,000
+7.4
+Equalisation
+1,200
+35,000
+11,000
+2,200
+2,200
+970
+20,000
+7.4
+Coagulation
+1,200
+35,000
+11,000
+2,200
+2,200
+970
+20,000
+7.4
+Lamella Clarifier
+1,200
+35,000
+11,000
+2,200
+2,200
+1,083
+20,000
+7
+UASB
+1,164
+27,062
+9,356
+2,268
+2,268
+133.9
+20,619
+7
+Alkali Dosing pH 11
+1,161
+5,972
+750.7
+2,268
+2,268
+40.3
+20,681
+7.3
+Ammonia Stripping
+1,161
+5,673
+728.2
+2,268
+2,268
+598.6
+20,681
+11
+Neutralisation pH 7
+1,161
+5,389
+706.3
+270.7
+270.7
+598.6
+20,681
+11
+MBR
+1,161
+5,389
+706.3
+270.7
+270.7
+598.6
+20,681
+7
+DTRO 2-stage
+1,149
+1,905
+21.4
+150.4
+21.9
+0.6
+20,889
+7
+Catalytic AOP
+976.6
+28.5
+0.4
+4.6
+2
+0
+373
+5.8
+Final pH Trim
+976.6
+11.4
+2.1
+4.6
+2
+0
+373
+5.8
+Outfall to SPARING
+976.6
+11.4
+2.1
+4.6
+2
+0
+373
+7
+All concentrations mg/L except pH. Figures are model output, not measurements.
+3.3  Compliance markers — what the seven regulated parameters do not cover
+Mercury and cadmium are two of the seven parameters P.59/2016 regulates, and neither affects the water balance. They are carried here end to end using removals published for whole treatment chains, credited to the strongest barrier in the train.
+Parameter
+Raw
+Removal
+Effluent
+Limit
+Status
+Mercury (mg/L)
+0.0008
+97 %
+0.00002
+0.005
+Pass
+Cadmium (mg/L)
+0.43
+99 %
+0.00645
+0.1
+Pass
+Lead (mg/L)
+3.363
+99 %
+0.03363
+not limited
+—
+Arsenic (mg/L)
+13.8
+96 %
+0.552
+not limited
+—
+Chromium, total (mg/L)
+0.902
+98 %
+0.01804
+not limited
+—
+Nickel (mg/L)
+4.254
+98 %
+0.08508
+not limited
+—
+Zinc (mg/L)
+0.475
+98 %
+0.0095
+not limited
+—
+Copper (mg/L)
+0.0003
+98 %
+0.00001
+not limited
+—
+Selenium (mg/L)
+0.03
+93 %
+0.0021
+not limited
+—
+Cobalt (mg/L)
+1.172
+97 %
+0.03516
+not limited
+—
+Two concentrations that decide whether the biology works at all
+Cyanide at 6.1 mg/L is above the 2 at which nitrification is inhibited.
+Sulphide at 28.5 mg/L is above the 20 at which aerobic biology is inhibited.
+Cyanide inhibits nitrifying bacteria at very low concentrations, and sulphide is directly toxic to aerobic biomass while exerting an oxygen demand of its own. Both figures come from the literature composite, so both may be wrong — but if either is right, the MBR will not perform as modelled and the ammonia limit will be missed while the carbon removal still looks healthy.
+These two determinands must be measured on the actual leachate before the biological stages are sized. They are cheap tests and they carry more design consequence than most of the parameters that were analysed.
+4  Balances, Energy and Consumables
+4.1  Water balance
+Case
+Feed, m³/d
+Product, m³/d
+Waste, m³/d
+Recovery
+Closure error
+B — concentrate to disposal
+1,200
+976.6
+223.4
+81.38 %
+0 %
+C — with MVR and crystalliser
+1,200
+1,118
+82.1
+93.16 %
+0 %
+Adding evaporation and crystallisation lifts recovery from 81.4 % to 93.2 % and eliminates the liquid concentrate. It costs 6,086 kWh/day, which is 72.6 % more energy than the plant without it. Whether that trade is worth taking depends entirely on whether the concentrate has anywhere to go, and on a landfill the honest answer is usually that it does not — returning it to the waste mass simply recirculates the load and, on this site, adds water to the slope that is already failing.
+4.2  Energy
+Case
+Total, kW
+kWh/day
+Specific, kWh/m³
+A — at the tabulated salinity
+1,772
+42,533
+43.55
+B — design basis
+349.5
+8,388
+8.59
+C — design basis with ZLD
+603.1
+14,474
+12.95
+There is no plan to build a waste-to-energy plant on this site and no plan to draw from PLN, which leaves diesel generation. At that tariff the difference between Case B and Case C is not a rounding item, and it is a further argument for capping the waste surface before sizing anything: less leachate is less of every operating cost simultaneously.
+4.3  Chemicals and residues
+Consumable
+t/day
+Hydrated lime Ca(OH)2
+13.099
+Sulphuric acid H2SO4
+12.27
+Oxygen (LOX or PSA)
+0.501
+Poly-aluminium chloride
+0.3
+Citric acid (CIP)
+0.073
+Caustic soda NaOH
+0.065
+Caustic soda (CIP)
+0.045
+Antiscalant
+0.007
+Polymer (dewatering)
+0.007
+Sodium hypochlorite (CIP)
+0.022
+Polymer flocculant
+0.004
+Sodium hypochlorite (as Cl2)
+0.002
+The chemical bill is the operating cost, not the energy
+Hydrated lime at 13.1 t/day and sulphuric acid at 12.3 t/day dominate everything else in the plant.
+Both come from the ammonia. Every mole of ammonium that has to become free ammonia consumes a mole of hydroxide, and every two moles captured in the scrubber consume a mole of sulphuric acid. At this ammonia concentration that term is an order of magnitude larger than the carbonate system, and a caustic dose sized from alkalinity alone would be short by several times.
+The client has been described as unable to sustain a high operating cost. This is the number that decides that, and it is another reason capping — which reduces the volume and therefore the mass of everything dosed — is worth more than any process optimisation available downstream.
+Dewatered sludge leaves at 5.77 t/day of dry solids, which needs a disposal route and a truck.
+5  The Site: an Adjacent Waste Slope
+5.1  What has been reported
+The plant boundary adjoins a very high waste pile.
+The retaining wall between them has failed more than once, through movement of the waste mass.
+Two of the four original IPAS were destroyed by that movement, and only IPAS 2 is confirmed operating.
+The intention is to remove the existing facility and build a new one, rather than upgrade what is there.
+A wall that has failed repeatedly has not failed by accident. Either it was never designed for the load it carries, or the load has grown as the pile has grown, or the water behind it was never drained. Usually it is the third: a retaining structure against a saturated waste mass fails from pore water pressure at least as often as from the weight of the material itself, and drainage behind the wall is the cheapest thing to leave out of a design.
+5.2  Why a multi-storey plant is the wrong response here
+Effect of building upward
+Consequence on ground that moves
+Load concentrated on a small footprint
+Higher bearing pressure, deeper and more expensive foundations, and a structure whose settlement behaviour depends on a soil profile nobody has yet investigated.
+Height above the base
+A lateral ground displacement becomes a moment at the base. A low, spread structure absorbs the same displacement as a small rotation with no such amplification.
+One structural frame
+Differential settlement is transmitted through the whole building. Water-retaining structures crack and leak under differential movement, and a cracked tank in a stacked plant cannot be isolated from the units below it.
+All processes in one building
+A single failure event is a total loss. Spread low-rise, the same event takes out the units nearest the wall and leaves the rest running.
+Land saved
+None that is needed. The process occupies 11.6 % of the site at design capacity.
+5.3  What to do instead
+Spend the land on distance
+The process needs about 2,327 m². Allowing generously for access roads, chemical storage, the sludge yard, the electrical and control building and drainage, the built envelope is on the order of 4,000 m² — a fifth of the site. On a roughly square 2 ha plot that leaves something like 70 m of clear ground between the plant and the boundary nearest the waste, if the layout is set out deliberately to achieve it.
+Set-back is the only mitigation that is free, needs no maintenance, cannot be value-engineered out during construction, and works even if every other measure fails. On this site it is available in abundance and should be treated as the primary design decision, not as leftover space.
+Found each unit independently
+Separate foundations per structure, with flexible couplings on every pipe crossing between them, mean that ground movement damages one unit rather than propagating through a common raft. It is a small cost at design stage and it is not retrofittable.
+Order the plant by what you can afford to lose
+The membrane skids, the MBR, the electrical room and the control room are the expensive, long-lead and least replaceable items. They belong at the far edge. The equalisation basin, the sludge yard and the coagulation stage are civil works that can be rebuilt relatively quickly, and they can take the near edge.
+Consider a modular plant rather than a monolithic one
+The membrane stages are naturally skid-mounted, and the pretreatment can be built as bolted steel or GRP tanks above ground rather than buried concrete. Above-ground tanks can be re-levelled after settlement, replaced individually, and moved if the boundary has to be pulled back. Buried concrete can do none of those things. This is the compact-plant idea worth taking from IPAL Krukut — modularity and prefabrication — separated from the stacking, which is the part that does not suit this site.
+5.4  Capping: one intervention, three problems
+What capping does
+Why it matters here
+Cuts leachate generation by roughly 70 %
+The 2028 target falls from 7,000 to about 2,100 m³/day. Process area falls from 9,571 m² to 3,451 m², from 47.9 % of the site to 17.3 %, which is what preserves the set-back through the expansion.
+Cuts every consumption proportionally
+Energy falls from 82,717 to 25,064 kWh/day. Chemical mass falls in the same ratio, and chemicals are the dominant operating cost.
+Reduces infiltration into the waste mass
+Less infiltration is less pore water pressure behind the retaining wall, which is one of the two things that makes such walls fail. It is the only measure on this list that improves the stability of the slope itself.
+Reduces the volume of water in the waste body
+A drier waste mass is a lighter and more stable one.
+Capping is normally presented as a landfill operations matter and treated as outside the water contractor&apos;s scope. On this site it is the single highest-leverage engineering decision available, and it is worth raising precisely because no one selling water treatment equipment has any incentive to raise it.
+5.5  What must be established before any of this is designed
+What to establish
+Why the design depends on it
+Height, slope angle and setback of the waste pile at the boundary
+Sets the lateral load and the run-out distance if the face fails. Without it no set-back can be justified numerically.
+Slope stability analysis with a stated factor of safety, wet season
+The existing wall failures are evidence that this has either never been done or was done on dry-season assumptions.
+Whether the pile is still receiving waste at this face, and to what final height
+A design against today&apos;s geometry is a design against a load that is still growing.
+Groundwater and leachate level behind the retaining structure, and whether any drainage exists
+Pore pressure is the usual cause of failure and the cheapest to remedy.
+Records of the previous wall failures — when, how far, what season
+Failures clustered in the wet season point to water; failures following tipping campaigns point to load.
+Settlement records or survey monuments on the existing structures
+The existing IPAS is an instrumented experiment that has already been running for years; the data may exist.
+Ground investigation on the plant footprint itself
+Foundation design cannot proceed without it, and on a site adjoining a waste mass the profile is unlikely to be uniform.
+Whether a capping programme exists or is planned, and over what area
+Determines whether the 2028 flow is 7,000 or 2,100 m³/day, which changes the plant, the land take and the operating cost.
+6  The Multi-Storey Question, and IPAL Krukut
+IPAL Krukut in Setia Budi, South Jakarta, is the reference usually cited for a vertical treatment plant in Indonesia, and correctly so: it is the first multi-storey IPAL in the country, it has been operating since August 2021, it treats 8,600 m³/day of domestic wastewater by MBBR, and it does so on 1,200 m² with an education space and a rooftop cafe above the process.
+IPAL Krukut
+IPAS 2 Bantargebang
+Capacity
+8,600 m³/day
+1,200 m³/day
+Site area
+1,200 m²
+20,000 m²
+Land available per m³/day
+0.14 m²
+16.7 m²
+Water
+Domestic sewage
+Mature landfill leachate
+Process
+MBBR, single biological stage
+Eleven stages including anaerobic, stripping, membrane and oxidation
+Governing constraint
+Land, absolutely
+Slope stability
+The right reference for the wrong problem
+Krukut had 0.14 m² of land for every m³/day it treats. Bantargebang has 16.7 m² — roughly 119 times as much per unit of capacity.
+Krukut went vertical because there was no alternative on a 1,200 m² pump station site in central Jakarta. It is an excellent solution to a problem this site does not have.
+What is worth taking from it is the compactness of the equipment and the willingness to prefabricate — not the stacking. Stacking is what a site adjoining an unstable slope can least afford.
+7  Construction Sequencing and Scalability
+7.1  The plant cannot stop while it is replaced
+A TPST without a functioning leachate plant is not permitted to operate. The intention is to remove the existing facility and build a new one, which means the new plant must be commissioned before the old one is demolished, or a temporary plant must be provided for the interval.
+The spare land is what makes the first option possible. Building the new works on the unoccupied part of the site, commissioning it, transferring the flow and only then demolishing the old basins avoids the interim entirely. This is a second reason not to design a compact plant on the existing footprint: doing so would force either a shutdown or a temporary installation, and both cost more than the land that was being saved.
+7.2  Scaling to the 2028 target
+Scenario
+Flow, m³/d
+Process area
+Share of site
+Energy, kWh/d
+Recovery
+Now — Case C
+1,200
+2,327 m²
+11.6 %
+14,474
+93.2 %
+2028 with capping — Case E
+2,100
+3,451 m²
+17.3 %
+25,064
+93.2 %
+2028 without capping — Case D
+7,000
+9,571 m²
+47.9 %
+82,717
+93.2 %
+Even unmitigated, the 2028 target fits: 9,571 m² of process on a 20,000 m² site. But at that point the built envelope with roads and buildings approaches three-quarters of the plot, and the set-back from the slope — the one mitigation that costs nothing today — is what gets consumed. That is the trade-off to state now, while the layout can still be fixed, rather than in 2028 when it cannot.
+8  Recommendations
+#
+Recommendation
+1
+Do not design a multi-storey plant. The land it saves is not needed, and the geotechnical risk it adds is the governing risk on the site.
+2
+Fix the set-back from the waste boundary as a design constraint before the layout is drawn, and protect it through the 2028 expansion.
+3
+Found each unit independently, connect with flexible couplings, and place the irreplaceable equipment at the far edge.
+4
+Build the new plant on the unoccupied ground and commission it before demolishing the old one. The TPST cannot stop.
+5
+Sample the leachate properly. The present characterisation cannot support a design, and two of its figures are impossible.
+6
+Measure cyanide and sulphide specifically. Either could stop the biological stages working, and neither is in the seven mandatory parameters.
+7
+Raise capping with the client. It reduces the flow by about 70 %, reduces every operating cost in proportion, and is the only measure that also improves the stability of the slope.
+8
+Commission a slope stability analysis for the wet season before committing to a boundary. The repeated wall failures are the evidence that this is outstanding.
+9
+Treat the concentrate route as a decision, not a detail. Evaporation adds a third to the energy; returning concentrate to the waste mass adds water to a slope that is already failing.
+9  Limitations
+The water analysis is a literature composite of five studies of five different landfills between 1993 and 2022. It is not a characterisation of Bantargebang leachate and must not be quoted as one.
+Dissolved solids and chloride have been substituted, as set out in Section 2.5. Both substitutions are assumptions.
+Total nitrogen has been taken equal to the reported ammonia, which is the optimistic case. Organic nitrogen cannot be stripped, so if it is present the effluent nitrogen will be higher than modelled.
+Cyanide, sulphide and phenol are carried as compliance markers using train-level removals published for whole treatment chains, not per-unit rejections. They are indicative and are not a guarantee.
+Process areas are derived from the sized volumes divided by a working depth, with a 45 % allowance for access and pipework. They answer whether the plant fits; they do not replace a layout drawing.
+Capital costs are order-of-magnitude power-law estimates and have not been tested against any vendor quotation.
+Membrane performance has not been re-run in a supplier&apos;s projection software, which must be done before any commitment.
+No geotechnical information was available. Every statement about the slope is engineering judgement from what was described verbally, and Section 5.5 lists what has to be established before it can be anything more.
+The existing facility has not been surveyed. Demolition scope, buried services and the condition of the existing retaining structure are all unknown.
+Nothing here has been verified by pilot testing. On a refractory leachate a pilot is normally the difference between a proposal and a commitment.
+Status
+This is a basis of design produced to structure the engineering conversation, not a design. It is issued so that the questions in Sections 5.5 and 9 can be put to the client with the reasons attached.
+Figures are generated directly by the HydroDesk simulation engine from the stated basis. The water balance closes to within 0.0001 % on every case presented.

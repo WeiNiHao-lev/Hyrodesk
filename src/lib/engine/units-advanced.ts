@@ -475,6 +475,11 @@ const anaerobic: UnitModel = {
     // why an anaerobic step ahead of stripping helps and ahead of a membrane hurts.
     const orgN = Math.max(inlet.c.TN - inlet.c.NH4 * (MW.N / MW.NH4), 0);
     product.c.NH4 = inlet.c.NH4 + orgN * 0.4 * (MW.NH4 / MW.N);
+    // Ammonification moves nitrogen between forms without destroying it, so the
+    // total can never fall below the ammonia it contains. Removing a little TN
+    // with the sludge while leaving NH4 untouched used to produce exactly that
+    // impossible state, and it understates the load the stripper has to carry.
+    product.c.TN = Math.max(product.c.TN, product.c.NH4 * (MW.N / MW.NH4));
     product.pH = clamp(inlet.pH + 0.3, 4, 9);
 
     const codRemovedKgH = (inlet.flow * inlet.c.COD * codRem) / 1000;

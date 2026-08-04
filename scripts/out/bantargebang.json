@@ -1,0 +1,4684 @@
+{
+  "generated": "2026-08-04T07:52:34.067Z",
+  "site": {
+    "landAvailable_m2": 20000,
+    "capacity_m3d": 1200,
+    "capacity_m3h": 50
+  },
+  "benchmark": {
+    "name": "IPAL Krukut, Setia Budi, South Jakarta",
+    "capacity_m3d": 8600,
+    "land_m2": 1200,
+    "intensity_m2_per_m3d": 0.14,
+    "technology": "MBBR, multi-storey",
+    "note": "First multi-storey IPAL in Indonesia; operating since August 2021; rooftop cafe and an education space above the process."
+  },
+  "dataDefects": [
+    {
+      "severity": "fail",
+      "title": "Ionic balance error outside tolerance",
+      "detail": "Balance error is -91.8 % against an acceptable ±5 %."
+    },
+    {
+      "severity": "fail",
+      "title": "Entered TDS contradicts the sum of ions",
+      "detail": "TDS entered 280000.0 mg/L, but the listed ions already sum to 132875.7 mg/L."
+    },
+    {
+      "severity": "warn",
+      "title": "Silica not analysed",
+      "detail": "No silica value entered."
+    },
+    {
+      "severity": "warn",
+      "title": "Parameters missing from the analysis",
+      "detail": "Not provided: turbidity (NTU), TOC."
+    },
+    {
+      "severity": "info",
+      "title": "Conductivity not entered",
+      "detail": "No conductivity value provided."
+    },
+    {
+      "severity": "info",
+      "title": "Seasonal variation",
+      "detail": "This tool works from a single set of values."
+    }
+  ],
+  "substitutions": [
+    {
+      "parameter": "TDS",
+      "reported": "280 000 mg/L",
+      "used": "20 000 mg/L",
+      "why": "At 280 000 mg/L the osmotic pressure is about 218 bar, which is above the pressure rating of every leachate membrane made. The plant the sheet describes cannot be built by any membrane route. 20 000 mg/L is the middle of the published range for mature landfill leachate."
+    },
+    {
+      "parameter": "Chloride",
+      "reported": "130 000 mg/L, labelled free chlorine (Cl2)",
+      "used": "6 000 mg/L",
+      "why": "Free chlorine cannot coexist with 35 000 mg/L of COD — it would be consumed in seconds. The figure is a mislabelled chloride, and even as chloride it is nearly seven times seawater."
+    },
+    {
+      "parameter": "Na, K, Ca, Mg, SO4, HCO3",
+      "reported": "not analysed",
+      "used": "assumed, balanced against the chloride",
+      "why": "None of the major cations appear in the sheet, so no ionic balance can be computed from it. The set used here is typical of mature leachate and is internally neutral; it is an assumption, not a measurement."
+    },
+    {
+      "parameter": "Total nitrogen",
+      "reported": "not analysed; free ammonia 2 200 mg/L",
+      "used": "TN = 2 200 mg/L as N",
+      "why": "The sheet gives ammonia but no total nitrogen, so organic nitrogen is unknown. Taking TN equal to the ammonia is the optimistic case: any organic nitrogen present is not strippable and would raise the final effluent nitrogen."
+    }
+  ],
+  "caseA": {
+    "name": "Case A — laboratory sheet as written",
+    "withMVR": false,
+    "feedName": "Landfill leachate — literature composite, as tabulated",
+    "feedFlow_m3d": 1200,
+    "productFlow_m3d": 976.6,
+    "wasteFlow_m3d": 223.4,
+    "recovery_pct": 81.38,
+    "totalPower_kW": 1772.2,
+    "energy_kWh_d": 42533,
+    "sec_kWh_m3": 43.55,
+    "capex_USD": 1412107,
+    "opex_USD_m3": 17.809,
+    "drySolids_t_d": 4.54,
+    "chemicals_t_d": [
+      {
+        "name": "Sulphuric acid H2SO4",
+        "t_d": 7.937
+      },
+      {
+        "name": "Hydrated lime Ca(OH)2",
+        "t_d": 7.781
+      },
+      {
+        "name": "Oxygen (LOX or PSA)",
+        "t_d": 0.527
+      },
+      {
+        "name": "Poly-aluminium chloride",
+        "t_d": 0.3
+      },
+      {
+        "name": "Citric acid (CIP)",
+        "t_d": 0.073
+      },
+      {
+        "name": "Caustic soda (CIP)",
+        "t_d": 0.045
+      },
+      {
+        "name": "Antiscalant",
+        "t_d": 0.007
+      },
+      {
+        "name": "Sodium hypochlorite (CIP)",
+        "t_d": 0.022
+      },
+      {
+        "name": "Polymer (dewatering)",
+        "t_d": 0.005
+      },
+      {
+        "name": "Polymer flocculant",
+        "t_d": 0.004
+      },
+      {
+        "name": "Sodium hypochlorite (as Cl2)",
+        "t_d": 0.002
+      },
+      {
+        "name": "Caustic soda NaOH",
+        "t_d": 0
+      }
+    ],
+    "processArea_m2": 2022,
+    "waterClosure_pct": 0,
+    "converged": true,
+    "compliance": {
+      "pH": {
+        "v": 7,
+        "limit": "6–9",
+        "pass": true
+      },
+      "BOD": {
+        "v": 2.24,
+        "limit": 150,
+        "pass": true
+      },
+      "COD": {
+        "v": 12,
+        "limit": 300,
+        "pass": true
+      },
+      "TSS": {
+        "v": 0,
+        "limit": 100,
+        "pass": true
+      },
+      "TN": {
+        "v": 4.6,
+        "limit": 60,
+        "pass": true
+      }
+    },
+    "stages": [
+      {
+        "stage": "Raw Leachate",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1000,
+        "TDS": 280000,
+        "pH": 7.4,
+        "osmotic_bar": 222.1
+      },
+      {
+        "stage": "Intake & Screen",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1000,
+        "TDS": 280000,
+        "pH": 7.4,
+        "osmotic_bar": 222.1
+      },
+      {
+        "stage": "Equalisation",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 970,
+        "TDS": 280000,
+        "pH": 7.4,
+        "osmotic_bar": 222.1
+      },
+      {
+        "stage": "Coagulation",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 970,
+        "TDS": 280000,
+        "pH": 7.4,
+        "osmotic_bar": 222.1
+      },
+      {
+        "stage": "Lamella Clarifier",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1082.5,
+        "TDS": 280000,
+        "pH": 7,
+        "osmotic_bar": 222.1
+      },
+      {
+        "stage": "UASB",
+        "flow_m3d": 1164,
+        "COD": 27061.9,
+        "BOD": 9355.7,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 133.9,
+        "TDS": 288660,
+        "pH": 7,
+        "osmotic_bar": 228.9
+      },
+      {
+        "stage": "Alkali Dosing pH 11",
+        "flow_m3d": 1160.5,
+        "COD": 5971.5,
+        "BOD": 750.7,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 40.3,
+        "TDS": 289528,
+        "pH": 7.3,
+        "osmotic_bar": 229.6
+      },
+      {
+        "stage": "Ammonia Stripping",
+        "flow_m3d": 1160.5,
+        "COD": 5971.5,
+        "BOD": 750.7,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 40.3,
+        "TDS": 289528,
+        "pH": 11,
+        "osmotic_bar": 229.6
+      },
+      {
+        "stage": "Neutralisation pH 7",
+        "flow_m3d": 1160.5,
+        "COD": 5672.9,
+        "BOD": 728.2,
+        "TN": 270.7,
+        "NH4_N": 270.7,
+        "TSS": 40.3,
+        "TDS": 289528,
+        "pH": 11,
+        "osmotic_bar": 229.6
+      },
+      {
+        "stage": "MBR",
+        "flow_m3d": 1160.5,
+        "COD": 5672.9,
+        "BOD": 728.2,
+        "TN": 270.7,
+        "NH4_N": 270.7,
+        "TSS": 40.3,
+        "TDS": 289528,
+        "pH": 7,
+        "osmotic_bar": 229.6
+      },
+      {
+        "stage": "DTRO 2-stage",
+        "flow_m3d": 1148.9,
+        "COD": 2005.6,
+        "BOD": 22.1,
+        "TN": 150.4,
+        "NH4_N": 21.9,
+        "TSS": 0,
+        "TDS": 292453,
+        "pH": 7,
+        "osmotic_bar": 231.9
+      },
+      {
+        "stage": "Catalytic AOP",
+        "flow_m3d": 976.6,
+        "COD": 30,
+        "BOD": 0.4,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 5222,
+        "pH": 6.9,
+        "osmotic_bar": 4.1
+      },
+      {
+        "stage": "Final pH Trim",
+        "flow_m3d": 976.6,
+        "COD": 12,
+        "BOD": 2.2,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 5222,
+        "pH": 6.9,
+        "osmotic_bar": 4.1
+      },
+      {
+        "stage": "Outfall to SPARING",
+        "flow_m3d": 976.6,
+        "COD": 12,
+        "BOD": 2.2,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 5222,
+        "pH": 7,
+        "osmotic_bar": 4.1
+      }
+    ],
+    "units": [
+      {
+        "label": "Intake & Screen",
+        "type": "intake",
+        "inFlow": 50,
+        "power_kW": 2.34,
+        "capex_USD": 58798,
+        "area_m2": 58,
+        "sizing": [
+          {
+            "label": "Intake pumps",
+            "value": "2 x 100 % @ 55 m3/h"
+          },
+          {
+            "label": "Pump shaft power",
+            "value": "2.3 kW"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Equalisation",
+        "type": "eqtank",
+        "inFlow": 50,
+        "power_kW": 0,
+        "capex_USD": 26451,
+        "area_m2": 191,
+        "sizing": [
+          {
+            "label": "Working volume",
+            "value": "660 m3"
+          },
+          {
+            "label": "HRT",
+            "value": "12.0 h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Coagulation",
+        "type": "coagfloc",
+        "inFlow": 50,
+        "power_kW": 2.38,
+        "capex_USD": 6785,
+        "area_m2": 0,
+        "sizing": [
+          {
+            "label": "Rapid mix volume",
+            "value": "1.3 m3"
+          },
+          {
+            "label": "Flocculation volume",
+            "value": "17 m3"
+          }
+        ],
+        "notes": [
+          "Raw water alkalinity is low; pH control will be active and caustic demand significant."
+        ]
+      },
+      {
+        "label": "Lamella Clarifier",
+        "type": "clarifier",
+        "inFlow": 50,
+        "power_kW": 2.4,
+        "capex_USD": 27921,
+        "area_m2": 36,
+        "sizing": [
+          {
+            "label": "Total plan area",
+            "value": "12.5 m2"
+          },
+          {
+            "label": "Configuration",
+            "value": "2 x 6.3 m2"
+          },
+          {
+            "label": "Dry solids to sludge",
+            "value": "47.6 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "UASB",
+        "type": "anaerobic",
+        "inFlow": 48.5,
+        "power_kW": 3.46,
+        "capex_USD": 240409,
+        "area_m2": 952,
+        "sizing": [
+          {
+            "label": "Reactor volume",
+            "value": "3938 m3"
+          },
+          {
+            "label": "Actual HRT",
+            "value": "81.2 h"
+          },
+          {
+            "label": "Cross-sectional area",
+            "value": "48.5 m2, height 81.2 m"
+          },
+          {
+            "label": "COD removed",
+            "value": "1023.8 kg/h"
+          },
+          {
+            "label": "Biogas",
+            "value": "473 Nm3/h at 65 % CH4"
+          },
+          {
+            "label": "Recoverable energy",
+            "value": "3062 kW thermal"
+          }
+        ],
+        "notes": [
+          "Biogas recovers about 3062 kW of thermal energy. Whether that is a credit depends on there being something on site that can use it — on a landfill with a waste-to-energy plant it is; on a standalone leachate plant it usually is not, and the gas is flared.",
+          "Volume is set by the organic loading rate (3938 m3), not by the HRT (1164 m3). On strong wastewater this is normal."
+        ]
+      },
+      {
+        "label": "Alkali Dosing pH 11",
+        "type": "phadjust",
+        "inFlow": 48.35,
+        "power_kW": 2.14,
+        "capex_USD": 16286,
+        "area_m2": 6,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "16.1 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "157.4 meq/L"
+          },
+          {
+            "label": "Hydrated lime Ca(OH)2",
+            "value": "324.2 kg/h (7.78 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": [
+          "Ammonium accounts for 100 % of the alkali demand. Sizing the dose from alkalinity alone would under-order the reagent several times over.",
+          "Lime adds calcium to the water. Where the next step is a membrane, check the concentrate saturation before choosing it over caustic."
+        ]
+      },
+      {
+        "label": "Ammonia Stripping",
+        "type": "nh3strip",
+        "inFlow": 48.35,
+        "power_kW": 88.98,
+        "capex_USD": 116163,
+        "area_m2": 59,
+        "sizing": [
+          {
+            "label": "Free ammonia fraction",
+            "value": "98.8 % at pH 11.0, 30 degC"
+          },
+          {
+            "label": "Ammonia removal",
+            "value": "88.1 %"
+          },
+          {
+            "label": "Nitrogen stripped",
+            "value": "96.6 kgN/h (2.32 t/d)"
+          },
+          {
+            "label": "Air flow",
+            "value": "145064 m3/h"
+          },
+          {
+            "label": "Tower diameter x packing",
+            "value": "5.1 m x 8 m"
+          },
+          {
+            "label": "Cross-section governed by",
+            "value": "gas velocity (20.1 m2)"
+          },
+          {
+            "label": "Superficial gas velocity",
+            "value": "2.00 m/s"
+          },
+          {
+            "label": "Actual liquid loading",
+            "value": "2.4 m3/m2.h"
+          },
+          {
+            "label": "Footprint",
+            "value": "20 m2 per tower"
+          },
+          {
+            "label": "Blower power",
+            "value": "86.3 kW"
+          },
+          {
+            "label": "Ammonium sulphate produced",
+            "value": "441.9 kg/h (10.61 t/d)"
+          }
+        ],
+        "notes": [
+          "The diameter is set by the air, not the water: 20.1 m2 is needed to keep the gas below 2 m/s, against 1.9 m2 for the liquid. The actual liquid loading is only 2.4 m3/m2.h. This is why a stripping tower designed from the water flow alone comes out far too small.",
+          "10.6 t/d of ammonium sulphate is produced. That is a fertiliser with a real market, but it needs offtake, storage and logistics — and the matching sulphuric acid supply chain — before it can be counted as a credit."
+        ]
+      },
+      {
+        "label": "Neutralisation pH 7",
+        "type": "phadjust",
+        "inFlow": 48.35,
+        "power_kW": 2.14,
+        "capex_USD": 16286,
+        "area_m2": 6,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "16.1 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "1.0 meq/L"
+          },
+          {
+            "label": "Sulphuric acid H2SO4",
+            "value": "2.7 kg/h (0.07 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": [
+          "Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %."
+        ]
+      },
+      {
+        "label": "MBR",
+        "type": "mbr",
+        "inFlow": 48.35,
+        "power_kW": 85.86,
+        "capex_USD": 345523,
+        "area_m2": 280,
+        "sizing": [
+          {
+            "label": "Reactor volume",
+            "value": "967 m3"
+          },
+          {
+            "label": "HRT / SRT",
+            "value": "20 h / 30 d"
+          },
+          {
+            "label": "Membrane area",
+            "value": "3989 m2 at 12 LMH net"
+          },
+          {
+            "label": "Oxygen demand",
+            "value": "96.0 kgO2/h"
+          },
+          {
+            "label": "Process aeration",
+            "value": "80.0 kW"
+          },
+          {
+            "label": "Membrane scouring",
+            "value": "3.6 kW (1396 Nm3/h)"
+          },
+          {
+            "label": "Scouring share of power",
+            "value": "4 %"
+          },
+          {
+            "label": "F/M ratio",
+            "value": "0.085 kgBOD/kgMLSS.d"
+          },
+          {
+            "label": "Waste sludge",
+            "value": "10.2 kg/h dry solids"
+          }
+        ],
+        "notes": [
+          "Nitrification needs 1343 mg/L of alkalinity as CaCO3 and only 0 is present. The pH will crash, nitrification will stall, and the plant will fail on ammonia while looking like a biology problem. Dose alkalinity or accept a lower ammonia removal.",
+          "BOD:TN is 2.69, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
+          "BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water."
+        ]
+      },
+      {
+        "label": "DTRO 2-stage",
+        "type": "dtro",
+        "inFlow": 47.87,
+        "power_kW": 1555.7,
+        "capex_USD": 370011,
+        "area_m2": 160,
+        "sizing": [
+          {
+            "label": "Stages",
+            "value": "2 in series at 85 % overall"
+          },
+          {
+            "label": "Membrane area",
+            "value": "2261 m2"
+          },
+          {
+            "label": "Modules",
+            "value": "252 x 9 m2"
+          },
+          {
+            "label": "Feed pressure",
+            "value": "877 bar (estimated)"
+          },
+          {
+            "label": "Feed / concentrate osmotic",
+            "value": "228 / 1498 bar"
+          },
+          {
+            "label": "Concentrate TDS",
+            "value": "1920.1 g/L"
+          },
+          {
+            "label": "Specific energy",
+            "value": "38.23 kWh/m3 permeate"
+          }
+        ],
+        "notes": [
+          "Estimated feed pressure 877 bar exceeds the 120 bar module rating. Either the recovery is too high for this salinity or the water is too concentrated for DTRO at all — check the feed TDS before anything else.",
+          "Feed osmotic pressure alone is 228 bar. A membrane cannot work below its own osmotic pressure, so at this salinity the answer is evaporation, not more pressure.",
+          "Concentrate reaches 1920 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator."
+        ]
+      },
+      {
+        "label": "Sludge Thickener",
+        "type": "thickener",
+        "inFlow": 2.13,
+        "power_kW": 1.5,
+        "capex_USD": 32703,
+        "area_m2": 36,
+        "sizing": [
+          {
+            "label": "Thickener area",
+            "value": "21.6 m2"
+          },
+          {
+            "label": "Dry solids",
+            "value": "54.1 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Catalytic AOP",
+        "type": "aop",
+        "inFlow": 40.69,
+        "power_kW": 21.12,
+        "capex_USD": 58247,
+        "area_m2": 102,
+        "sizing": [
+          {
+            "label": "COD removed",
+            "value": "0.7 kg/h (0.02 t/d)"
+          },
+          {
+            "label": "Ozone demand",
+            "value": "1.8 kg/h (44 kg/d)"
+          },
+          {
+            "label": "Generator power",
+            "value": "18 kW"
+          },
+          {
+            "label": "Specific energy",
+            "value": "0.52 kWh/m3"
+          },
+          {
+            "label": "Contact volume",
+            "value": "20 m3"
+          }
+        ],
+        "notes": [
+          "Effluent BOD rises from 0 to 2 mg/L as refractory molecules are broken into biodegradable fragments. Useful ahead of a biological polishing step; a compliance problem if this is the final unit."
+        ]
+      },
+      {
+        "label": "Filter Press",
+        "type": "dewatering",
+        "inFlow": 1.06,
+        "power_kW": 2.14,
+        "capex_USD": 81993,
+        "area_m2": 131,
+        "sizing": [
+          {
+            "label": "Cake production",
+            "value": "164.5 kg/h at 30 % DS"
+          },
+          {
+            "label": "Dry solids to disposal",
+            "value": "49.4 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Final pH Trim",
+        "type": "phadjust",
+        "inFlow": 40.69,
+        "power_kW": 2.04,
+        "capex_USD": 14532,
+        "area_m2": 5,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "13.6 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "0.0 meq/L"
+          },
+          {
+            "label": "Caustic soda NaOH",
+            "value": "0.0 kg/h (0.00 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": []
+      }
+    ],
+    "warnings": [
+      "Coagulation: Raw water alkalinity is low; pH control will be active and caustic demand significant.",
+      "UASB: Biogas recovers about 3062 kW of thermal energy. Whether that is a credit depends on there being something on site that can use it — on a landfill with a waste-to-energy plant it is; on a standalone leachate plant it usually is not, and the gas is flared.",
+      "UASB: Volume is set by the organic loading rate (3938 m3), not by the HRT (1164 m3). On strong wastewater this is normal.",
+      "Alkali Dosing pH 11: Ammonium accounts for 100 % of the alkali demand. Sizing the dose from alkalinity alone would under-order the reagent several times over.",
+      "Alkali Dosing pH 11: Lime adds calcium to the water. Where the next step is a membrane, check the concentrate saturation before choosing it over caustic.",
+      "Ammonia Stripping: The diameter is set by the air, not the water: 20.1 m2 is needed to keep the gas below 2 m/s, against 1.9 m2 for the liquid. The actual liquid loading is only 2.4 m3/m2.h. This is why a stripping tower designed from the water flow alone comes out far too small.",
+      "Ammonia Stripping: 10.6 t/d of ammonium sulphate is produced. That is a fertiliser with a real market, but it needs offtake, storage and logistics — and the matching sulphuric acid supply chain — before it can be counted as a credit.",
+      "Neutralisation pH 7: Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %.",
+      "MBR: Nitrification needs 1343 mg/L of alkalinity as CaCO3 and only 0 is present. The pH will crash, nitrification will stall, and the plant will fail on ammonia while looking like a biology problem. Dose alkalinity or accept a lower ammonia removal.",
+      "MBR: BOD:TN is 2.69, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
+      "MBR: BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water.",
+      "DTRO 2-stage: Estimated feed pressure 877 bar exceeds the 120 bar module rating. Either the recovery is too high for this salinity or the water is too concentrated for DTRO at all — check the feed TDS before anything else.",
+      "DTRO 2-stage: Feed osmotic pressure alone is 228 bar. A membrane cannot work below its own osmotic pressure, so at this salinity the answer is evaporation, not more pressure.",
+      "DTRO 2-stage: Concentrate reaches 1920 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator.",
+      "Catalytic AOP: Effluent BOD rises from 0 to 2 mg/L as refractory molecules are broken into biodegradable fragments. Useful ahead of a biological polishing step; a compliance problem if this is the final unit."
+    ],
+    "trace": [
+      {
+        "key": "Hg",
+        "label": "Mercury",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.0008,
+        "removalPct": 97,
+        "outlet": 0.00002400000000000002,
+        "basis": "membraneTight",
+        "limit": 0.005,
+        "pass": true,
+        "marginX": 208.33333333333314,
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cd",
+        "label": "Cadmium",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.43,
+        "removalPct": 98.5,
+        "outlet": 0.006450000000000005,
+        "basis": "membraneTight",
+        "limit": 0.1,
+        "pass": true,
+        "marginX": 15.503875968992237,
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Pb",
+        "label": "Lead",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 3.363,
+        "removalPct": 99,
+        "outlet": 0.03363000000000003,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "As",
+        "label": "Arsenic",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 13.8,
+        "removalPct": 96,
+        "outlet": 0.5520000000000005,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cr",
+        "label": "Chromium, total",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.902,
+        "removalPct": 98,
+        "outlet": 0.018040000000000018,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Ni",
+        "label": "Nickel",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 4.254,
+        "removalPct": 98,
+        "outlet": 0.08508000000000007,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Zn",
+        "label": "Zinc",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.475,
+        "removalPct": 98,
+        "outlet": 0.009500000000000008,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cu",
+        "label": "Copper",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.00027,
+        "removalPct": 98,
+        "outlet": 0.000005400000000000005,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Se",
+        "label": "Selenium",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.03,
+        "removalPct": 93,
+        "outlet": 0.0020999999999999986,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Co",
+        "label": "Cobalt",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 1.172,
+        "removalPct": 97,
+        "outlet": 0.03516000000000003,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "CN",
+        "label": "Cyanide",
+        "unit": "mg/L",
+        "group": "Inorganic",
+        "inlet": 6.1,
+        "removalPct": 98,
+        "outlet": 0.1220000000000001,
+        "basis": "oxidation"
+      },
+      {
+        "key": "S2",
+        "label": "Sulphide",
+        "unit": "mg/L",
+        "group": "Inorganic",
+        "inlet": 28.5,
+        "removalPct": 99,
+        "outlet": 0.28500000000000025,
+        "basis": "oxidation"
+      },
+      {
+        "key": "Phenol",
+        "label": "Phenol",
+        "unit": "mg/L",
+        "group": "Organic micropollutants",
+        "inlet": 22.4,
+        "removalPct": 99,
+        "outlet": 0.22400000000000017,
+        "basis": "oxidation"
+      }
+    ],
+    "inhibitions": [
+      {
+        "parameter": "Cyanide",
+        "value": 6.1,
+        "threshold": 2,
+        "process": "nitrification",
+        "why": "Free cyanide inhibits nitrifying bacteria at very low concentrations, so an ammonia limit is missed while the carbon removal still looks healthy.",
+        "present": true
+      },
+      {
+        "parameter": "Sulphide",
+        "value": 28.5,
+        "threshold": 20,
+        "process": "aerobic biology",
+        "why": "Sulphide is toxic to aerobic biomass and exerts an immediate oxygen demand of its own.",
+        "present": true
+      }
+    ]
+  },
+  "caseB": {
+    "name": "Case B — design basis, concentrate to disposal",
+    "withMVR": false,
+    "feedName": "Landfill leachate — design basis (salinity substituted, see assumptions)",
+    "feedFlow_m3d": 1200,
+    "productFlow_m3d": 976.6,
+    "wasteFlow_m3d": 223.4,
+    "recovery_pct": 81.38,
+    "totalPower_kW": 349.5,
+    "energy_kWh_d": 8388,
+    "sec_kWh_m3": 8.59,
+    "capex_USD": 1447933,
+    "opex_USD_m3": 22.613,
+    "drySolids_t_d": 5.77,
+    "chemicals_t_d": [
+      {
+        "name": "Hydrated lime Ca(OH)2",
+        "t_d": 13.099
+      },
+      {
+        "name": "Sulphuric acid H2SO4",
+        "t_d": 12.27
+      },
+      {
+        "name": "Oxygen (LOX or PSA)",
+        "t_d": 0.501
+      },
+      {
+        "name": "Poly-aluminium chloride",
+        "t_d": 0.3
+      },
+      {
+        "name": "Citric acid (CIP)",
+        "t_d": 0.073
+      },
+      {
+        "name": "Caustic soda NaOH",
+        "t_d": 0.065
+      },
+      {
+        "name": "Caustic soda (CIP)",
+        "t_d": 0.045
+      },
+      {
+        "name": "Antiscalant",
+        "t_d": 0.007
+      },
+      {
+        "name": "Polymer (dewatering)",
+        "t_d": 0.007
+      },
+      {
+        "name": "Sodium hypochlorite (CIP)",
+        "t_d": 0.022
+      },
+      {
+        "name": "Polymer flocculant",
+        "t_d": 0.004
+      },
+      {
+        "name": "Sodium hypochlorite (as Cl2)",
+        "t_d": 0.002
+      }
+    ],
+    "processArea_m2": 2022,
+    "waterClosure_pct": 0,
+    "converged": true,
+    "compliance": {
+      "pH": {
+        "v": 7,
+        "limit": "6–9",
+        "pass": true
+      },
+      "BOD": {
+        "v": 2.14,
+        "limit": 150,
+        "pass": true
+      },
+      "COD": {
+        "v": 11.4,
+        "limit": 300,
+        "pass": true
+      },
+      "TSS": {
+        "v": 0,
+        "limit": 100,
+        "pass": true
+      },
+      "TN": {
+        "v": 4.6,
+        "limit": 60,
+        "pass": true
+      }
+    },
+    "stages": [
+      {
+        "stage": "Raw Leachate",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1000,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Intake & Screen",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1000,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Equalisation",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 970,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Coagulation",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 970,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Lamella Clarifier",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1082.5,
+        "TDS": 20000,
+        "pH": 7,
+        "osmotic_bar": 17.7
+      },
+      {
+        "stage": "UASB",
+        "flow_m3d": 1164,
+        "COD": 27061.9,
+        "BOD": 9355.7,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 133.9,
+        "TDS": 20619,
+        "pH": 7,
+        "osmotic_bar": 18.3
+      },
+      {
+        "stage": "Alkali Dosing pH 11",
+        "flow_m3d": 1160.5,
+        "COD": 5971.5,
+        "BOD": 750.7,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 40.3,
+        "TDS": 20681,
+        "pH": 7.3,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Ammonia Stripping",
+        "flow_m3d": 1160.5,
+        "COD": 5672.9,
+        "BOD": 728.2,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 598.6,
+        "TDS": 20681,
+        "pH": 11,
+        "osmotic_bar": 16.4
+      },
+      {
+        "stage": "Neutralisation pH 7",
+        "flow_m3d": 1160.5,
+        "COD": 5389.3,
+        "BOD": 706.3,
+        "TN": 270.7,
+        "NH4_N": 270.7,
+        "TSS": 598.6,
+        "TDS": 20681,
+        "pH": 11,
+        "osmotic_bar": 16.4
+      },
+      {
+        "stage": "MBR",
+        "flow_m3d": 1160.5,
+        "COD": 5389.3,
+        "BOD": 706.3,
+        "TN": 270.7,
+        "NH4_N": 270.7,
+        "TSS": 598.6,
+        "TDS": 20681,
+        "pH": 7,
+        "osmotic_bar": 18.7
+      },
+      {
+        "stage": "DTRO 2-stage",
+        "flow_m3d": 1148.9,
+        "COD": 1905.3,
+        "BOD": 21.4,
+        "TN": 150.4,
+        "NH4_N": 21.9,
+        "TSS": 0.6,
+        "TDS": 20889,
+        "pH": 7,
+        "osmotic_bar": 17.2
+      },
+      {
+        "stage": "Catalytic AOP",
+        "flow_m3d": 976.6,
+        "COD": 28.5,
+        "BOD": 0.4,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 373,
+        "pH": 5.8,
+        "osmotic_bar": 0.4
+      },
+      {
+        "stage": "Final pH Trim",
+        "flow_m3d": 976.6,
+        "COD": 11.4,
+        "BOD": 2.1,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 373,
+        "pH": 5.8,
+        "osmotic_bar": 0.4
+      },
+      {
+        "stage": "Outfall to SPARING",
+        "flow_m3d": 976.6,
+        "COD": 11.4,
+        "BOD": 2.1,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 373,
+        "pH": 7,
+        "osmotic_bar": 0.5
+      }
+    ],
+    "units": [
+      {
+        "label": "Intake & Screen",
+        "type": "intake",
+        "inFlow": 50,
+        "power_kW": 2.34,
+        "capex_USD": 58798,
+        "area_m2": 58,
+        "sizing": [
+          {
+            "label": "Intake pumps",
+            "value": "2 x 100 % @ 55 m3/h"
+          },
+          {
+            "label": "Pump shaft power",
+            "value": "2.3 kW"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Equalisation",
+        "type": "eqtank",
+        "inFlow": 50,
+        "power_kW": 0,
+        "capex_USD": 26451,
+        "area_m2": 191,
+        "sizing": [
+          {
+            "label": "Working volume",
+            "value": "660 m3"
+          },
+          {
+            "label": "HRT",
+            "value": "12.0 h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Coagulation",
+        "type": "coagfloc",
+        "inFlow": 50,
+        "power_kW": 2.38,
+        "capex_USD": 6785,
+        "area_m2": 0,
+        "sizing": [
+          {
+            "label": "Rapid mix volume",
+            "value": "1.3 m3"
+          },
+          {
+            "label": "Flocculation volume",
+            "value": "17 m3"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Lamella Clarifier",
+        "type": "clarifier",
+        "inFlow": 50,
+        "power_kW": 2.4,
+        "capex_USD": 27921,
+        "area_m2": 36,
+        "sizing": [
+          {
+            "label": "Total plan area",
+            "value": "12.5 m2"
+          },
+          {
+            "label": "Configuration",
+            "value": "2 x 6.3 m2"
+          },
+          {
+            "label": "Dry solids to sludge",
+            "value": "47.6 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "UASB",
+        "type": "anaerobic",
+        "inFlow": 48.5,
+        "power_kW": 3.46,
+        "capex_USD": 240409,
+        "area_m2": 952,
+        "sizing": [
+          {
+            "label": "Reactor volume",
+            "value": "3938 m3"
+          },
+          {
+            "label": "Actual HRT",
+            "value": "81.2 h"
+          },
+          {
+            "label": "Cross-sectional area",
+            "value": "48.5 m2, height 81.2 m"
+          },
+          {
+            "label": "COD removed",
+            "value": "1023.8 kg/h"
+          },
+          {
+            "label": "Biogas",
+            "value": "473 Nm3/h at 65 % CH4"
+          },
+          {
+            "label": "Recoverable energy",
+            "value": "3062 kW thermal"
+          }
+        ],
+        "notes": [
+          "Biogas recovers about 3062 kW of thermal energy. Whether that is a credit depends on there being something on site that can use it — on a landfill with a waste-to-energy plant it is; on a standalone leachate plant it usually is not, and the gas is flared.",
+          "Volume is set by the organic loading rate (3938 m3), not by the HRT (1164 m3). On strong wastewater this is normal.",
+          "Sulphate 825 mg/L will be reduced to hydrogen sulphide, competing with methanogenesis and creating an odour, corrosion and gas-treatment problem. Above roughly COD:SO4 of 10 this becomes the governing design issue."
+        ]
+      },
+      {
+        "label": "Alkali Dosing pH 11",
+        "type": "phadjust",
+        "inFlow": 48.35,
+        "power_kW": 2.14,
+        "capex_USD": 16286,
+        "area_m2": 6,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "16.1 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "264.9 meq/L"
+          },
+          {
+            "label": "Hydrated lime Ca(OH)2",
+            "value": "545.8 kg/h (13.10 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "27.0 kg/h"
+          }
+        ],
+        "notes": [
+          "Lime adds calcium to the water. Where the next step is a membrane, check the concentrate saturation before choosing it over caustic.",
+          "The hydroxide floc carries about 5 % of the COD down with it, which is why the suspended solids rise across this step while the dissolved organics fall. Those solids have to be removed somewhere downstream."
+        ]
+      },
+      {
+        "label": "Ammonia Stripping",
+        "type": "nh3strip",
+        "inFlow": 48.35,
+        "power_kW": 88.98,
+        "capex_USD": 116163,
+        "area_m2": 59,
+        "sizing": [
+          {
+            "label": "Free ammonia fraction",
+            "value": "98.8 % at pH 11.0, 30 degC"
+          },
+          {
+            "label": "Ammonia removal",
+            "value": "88.1 %"
+          },
+          {
+            "label": "Nitrogen stripped",
+            "value": "96.6 kgN/h (2.32 t/d)"
+          },
+          {
+            "label": "Air flow",
+            "value": "145064 m3/h"
+          },
+          {
+            "label": "Tower diameter x packing",
+            "value": "5.1 m x 8 m"
+          },
+          {
+            "label": "Cross-section governed by",
+            "value": "gas velocity (20.1 m2)"
+          },
+          {
+            "label": "Superficial gas velocity",
+            "value": "2.00 m/s"
+          },
+          {
+            "label": "Actual liquid loading",
+            "value": "2.4 m3/m2.h"
+          },
+          {
+            "label": "Footprint",
+            "value": "20 m2 per tower"
+          },
+          {
+            "label": "Blower power",
+            "value": "86.3 kW"
+          },
+          {
+            "label": "Ammonium sulphate produced",
+            "value": "441.9 kg/h (10.61 t/d)"
+          }
+        ],
+        "notes": [
+          "The diameter is set by the air, not the water: 20.1 m2 is needed to keep the gas below 2 m/s, against 1.9 m2 for the liquid. The actual liquid loading is only 2.4 m3/m2.h. This is why a stripping tower designed from the water flow alone comes out far too small.",
+          "10.6 t/d of ammonium sulphate is produced. That is a fertiliser with a real market, but it needs offtake, storage and logistics — and the matching sulphuric acid supply chain — before it can be counted as a credit."
+        ]
+      },
+      {
+        "label": "Neutralisation pH 7",
+        "type": "phadjust",
+        "inFlow": 48.35,
+        "power_kW": 2.14,
+        "capex_USD": 16286,
+        "area_m2": 6,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "16.1 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "67.2 meq/L"
+          },
+          {
+            "label": "Sulphuric acid H2SO4",
+            "value": "183.3 kg/h (4.40 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": [
+          "Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %."
+        ]
+      },
+      {
+        "label": "MBR",
+        "type": "mbr",
+        "inFlow": 48.35,
+        "power_kW": 84.84,
+        "capex_USD": 345523,
+        "area_m2": 280,
+        "sizing": [
+          {
+            "label": "Reactor volume",
+            "value": "967 m3"
+          },
+          {
+            "label": "HRT / SRT",
+            "value": "20 h / 30 d"
+          },
+          {
+            "label": "Membrane area",
+            "value": "3989 m2 at 12 LMH net"
+          },
+          {
+            "label": "Oxygen demand",
+            "value": "94.8 kgO2/h"
+          },
+          {
+            "label": "Process aeration",
+            "value": "79.0 kW"
+          },
+          {
+            "label": "Membrane scouring",
+            "value": "3.6 kW (1396 Nm3/h)"
+          },
+          {
+            "label": "Scouring share of power",
+            "value": "4 %"
+          },
+          {
+            "label": "F/M ratio",
+            "value": "0.082 kgBOD/kgMLSS.d"
+          },
+          {
+            "label": "Waste sludge",
+            "value": "9.9 kg/h dry solids"
+          }
+        ],
+        "notes": [
+          "BOD:TN is 2.61, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
+          "BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water."
+        ]
+      },
+      {
+        "label": "DTRO 2-stage",
+        "type": "dtro",
+        "inFlow": 47.87,
+        "power_kW": 134.18,
+        "capex_USD": 370011,
+        "area_m2": 160,
+        "sizing": [
+          {
+            "label": "Stages",
+            "value": "2 in series at 85 % overall"
+          },
+          {
+            "label": "Membrane area",
+            "value": "2261 m2"
+          },
+          {
+            "label": "Modules",
+            "value": "252 x 9 m2"
+          },
+          {
+            "label": "Feed pressure",
+            "value": "76 bar (estimated)"
+          },
+          {
+            "label": "Feed / concentrate osmotic",
+            "value": "16 / 107 bar"
+          },
+          {
+            "label": "Concentrate TDS",
+            "value": "137.1 g/L"
+          },
+          {
+            "label": "Specific energy",
+            "value": "3.30 kWh/m3 permeate"
+          }
+        ],
+        "notes": [
+          "Concentrate reaches 137 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator."
+        ]
+      },
+      {
+        "label": "Sludge Thickener",
+        "type": "thickener",
+        "inFlow": 2.13,
+        "power_kW": 1.5,
+        "capex_USD": 43401,
+        "area_m2": 36,
+        "sizing": [
+          {
+            "label": "Thickener area",
+            "value": "32.4 m2"
+          },
+          {
+            "label": "Dry solids",
+            "value": "81.1 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Catalytic AOP",
+        "type": "aop",
+        "inFlow": 40.69,
+        "power_kW": 20.2,
+        "capex_USD": 56553,
+        "area_m2": 102,
+        "sizing": [
+          {
+            "label": "COD removed",
+            "value": "0.7 kg/h (0.02 t/d)"
+          },
+          {
+            "label": "Ozone demand",
+            "value": "1.7 kg/h (42 kg/d)"
+          },
+          {
+            "label": "Generator power",
+            "value": "17 kW"
+          },
+          {
+            "label": "Specific energy",
+            "value": "0.50 kWh/m3"
+          },
+          {
+            "label": "Contact volume",
+            "value": "20 m3"
+          }
+        ],
+        "notes": [
+          "Effluent BOD rises from 0 to 2 mg/L as refractory molecules are broken into biodegradable fragments. Useful ahead of a biological polishing step; a compliance problem if this is the final unit."
+        ]
+      },
+      {
+        "label": "Filter Press",
+        "type": "dewatering",
+        "inFlow": 1.06,
+        "power_kW": 2.91,
+        "capex_USD": 108815,
+        "area_m2": 131,
+        "sizing": [
+          {
+            "label": "Cake production",
+            "value": "246.5 kg/h at 30 % DS"
+          },
+          {
+            "label": "Dry solids to disposal",
+            "value": "74.0 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Final pH Trim",
+        "type": "phadjust",
+        "inFlow": 40.69,
+        "power_kW": 2.04,
+        "capex_USD": 14532,
+        "area_m2": 5,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "13.6 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "1.4 meq/L"
+          },
+          {
+            "label": "Caustic soda NaOH",
+            "value": "2.7 kg/h (0.06 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": []
+      }
+    ],
+    "warnings": [
+      "UASB: Biogas recovers about 3062 kW of thermal energy. Whether that is a credit depends on there being something on site that can use it — on a landfill with a waste-to-energy plant it is; on a standalone leachate plant it usually is not, and the gas is flared.",
+      "UASB: Volume is set by the organic loading rate (3938 m3), not by the HRT (1164 m3). On strong wastewater this is normal.",
+      "UASB: Sulphate 825 mg/L will be reduced to hydrogen sulphide, competing with methanogenesis and creating an odour, corrosion and gas-treatment problem. Above roughly COD:SO4 of 10 this becomes the governing design issue.",
+      "Alkali Dosing pH 11: Lime adds calcium to the water. Where the next step is a membrane, check the concentrate saturation before choosing it over caustic.",
+      "Alkali Dosing pH 11: The hydroxide floc carries about 5 % of the COD down with it, which is why the suspended solids rise across this step while the dissolved organics fall. Those solids have to be removed somewhere downstream.",
+      "Ammonia Stripping: The diameter is set by the air, not the water: 20.1 m2 is needed to keep the gas below 2 m/s, against 1.9 m2 for the liquid. The actual liquid loading is only 2.4 m3/m2.h. This is why a stripping tower designed from the water flow alone comes out far too small.",
+      "Ammonia Stripping: 10.6 t/d of ammonium sulphate is produced. That is a fertiliser with a real market, but it needs offtake, storage and logistics — and the matching sulphuric acid supply chain — before it can be counted as a credit.",
+      "Neutralisation pH 7: Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %.",
+      "MBR: BOD:TN is 2.61, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
+      "MBR: BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water.",
+      "DTRO 2-stage: Concentrate reaches 137 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator.",
+      "Catalytic AOP: Effluent BOD rises from 0 to 2 mg/L as refractory molecules are broken into biodegradable fragments. Useful ahead of a biological polishing step; a compliance problem if this is the final unit."
+    ],
+    "trace": [
+      {
+        "key": "Hg",
+        "label": "Mercury",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.0008,
+        "removalPct": 97,
+        "outlet": 0.00002400000000000002,
+        "basis": "membraneTight",
+        "limit": 0.005,
+        "pass": true,
+        "marginX": 208.33333333333314,
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cd",
+        "label": "Cadmium",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.43,
+        "removalPct": 98.5,
+        "outlet": 0.006450000000000005,
+        "basis": "membraneTight",
+        "limit": 0.1,
+        "pass": true,
+        "marginX": 15.503875968992237,
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Pb",
+        "label": "Lead",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 3.363,
+        "removalPct": 99,
+        "outlet": 0.03363000000000003,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "As",
+        "label": "Arsenic",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 13.8,
+        "removalPct": 96,
+        "outlet": 0.5520000000000005,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cr",
+        "label": "Chromium, total",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.902,
+        "removalPct": 98,
+        "outlet": 0.018040000000000018,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Ni",
+        "label": "Nickel",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 4.254,
+        "removalPct": 98,
+        "outlet": 0.08508000000000007,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Zn",
+        "label": "Zinc",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.475,
+        "removalPct": 98,
+        "outlet": 0.009500000000000008,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cu",
+        "label": "Copper",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.00027,
+        "removalPct": 98,
+        "outlet": 0.000005400000000000005,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Se",
+        "label": "Selenium",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.03,
+        "removalPct": 93,
+        "outlet": 0.0020999999999999986,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Co",
+        "label": "Cobalt",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 1.172,
+        "removalPct": 97,
+        "outlet": 0.03516000000000003,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "CN",
+        "label": "Cyanide",
+        "unit": "mg/L",
+        "group": "Inorganic",
+        "inlet": 6.1,
+        "removalPct": 98,
+        "outlet": 0.1220000000000001,
+        "basis": "oxidation"
+      },
+      {
+        "key": "S2",
+        "label": "Sulphide",
+        "unit": "mg/L",
+        "group": "Inorganic",
+        "inlet": 28.5,
+        "removalPct": 99,
+        "outlet": 0.28500000000000025,
+        "basis": "oxidation"
+      },
+      {
+        "key": "Phenol",
+        "label": "Phenol",
+        "unit": "mg/L",
+        "group": "Organic micropollutants",
+        "inlet": 22.4,
+        "removalPct": 99,
+        "outlet": 0.22400000000000017,
+        "basis": "oxidation"
+      }
+    ],
+    "inhibitions": [
+      {
+        "parameter": "Cyanide",
+        "value": 6.1,
+        "threshold": 2,
+        "process": "nitrification",
+        "why": "Free cyanide inhibits nitrifying bacteria at very low concentrations, so an ammonia limit is missed while the carbon removal still looks healthy.",
+        "present": true
+      },
+      {
+        "parameter": "Sulphide",
+        "value": 28.5,
+        "threshold": 20,
+        "process": "aerobic biology",
+        "why": "Sulphide is toxic to aerobic biomass and exerts an immediate oxygen demand of its own.",
+        "present": true
+      }
+    ]
+  },
+  "caseC": {
+    "name": "Case C — design basis with MVR/crystalliser (ZLD)",
+    "withMVR": true,
+    "feedName": "Landfill leachate — design basis (salinity substituted, see assumptions)",
+    "feedFlow_m3d": 1200,
+    "productFlow_m3d": 1117.9,
+    "wasteFlow_m3d": 82.1,
+    "recovery_pct": 93.16,
+    "totalPower_kW": 603.1,
+    "energy_kWh_d": 14474,
+    "sec_kWh_m3": 12.95,
+    "capex_USD": 1837390,
+    "opex_USD_m3": 20.286,
+    "drySolids_t_d": 5.77,
+    "chemicals_t_d": [
+      {
+        "name": "Hydrated lime Ca(OH)2",
+        "t_d": 13.099
+      },
+      {
+        "name": "Sulphuric acid H2SO4",
+        "t_d": 12.27
+      },
+      {
+        "name": "Oxygen (LOX or PSA)",
+        "t_d": 0.501
+      },
+      {
+        "name": "Poly-aluminium chloride",
+        "t_d": 0.3
+      },
+      {
+        "name": "Citric acid (CIP)",
+        "t_d": 0.073
+      },
+      {
+        "name": "Caustic soda NaOH",
+        "t_d": 0.065
+      },
+      {
+        "name": "Caustic soda (CIP)",
+        "t_d": 0.045
+      },
+      {
+        "name": "Antiscalant",
+        "t_d": 0.007
+      },
+      {
+        "name": "Polymer (dewatering)",
+        "t_d": 0.007
+      },
+      {
+        "name": "Sodium hypochlorite (CIP)",
+        "t_d": 0.022
+      },
+      {
+        "name": "Polymer flocculant",
+        "t_d": 0.004
+      },
+      {
+        "name": "Sodium hypochlorite (as Cl2)",
+        "t_d": 0.002
+      }
+    ],
+    "processArea_m2": 2327,
+    "waterClosure_pct": 0,
+    "converged": true,
+    "compliance": {
+      "pH": {
+        "v": 7,
+        "limit": "6–9",
+        "pass": true
+      },
+      "BOD": {
+        "v": 0,
+        "limit": 150,
+        "pass": true
+      },
+      "COD": {
+        "v": 0,
+        "limit": 300,
+        "pass": true
+      },
+      "TSS": {
+        "v": 0,
+        "limit": 100,
+        "pass": true
+      },
+      "TN": {
+        "v": 0,
+        "limit": 60,
+        "pass": true
+      }
+    },
+    "stages": [
+      {
+        "stage": "Raw Leachate",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1000,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Intake & Screen",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1000,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Equalisation",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 970,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Coagulation",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 970,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Lamella Clarifier",
+        "flow_m3d": 1200,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1082.5,
+        "TDS": 20000,
+        "pH": 7,
+        "osmotic_bar": 17.7
+      },
+      {
+        "stage": "UASB",
+        "flow_m3d": 1164,
+        "COD": 27061.9,
+        "BOD": 9355.7,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 133.9,
+        "TDS": 20619,
+        "pH": 7,
+        "osmotic_bar": 18.3
+      },
+      {
+        "stage": "Alkali Dosing pH 11",
+        "flow_m3d": 1160.5,
+        "COD": 5971.5,
+        "BOD": 750.7,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 40.3,
+        "TDS": 20681,
+        "pH": 7.3,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Ammonia Stripping",
+        "flow_m3d": 1160.5,
+        "COD": 5672.9,
+        "BOD": 728.2,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 598.6,
+        "TDS": 20681,
+        "pH": 11,
+        "osmotic_bar": 16.4
+      },
+      {
+        "stage": "Neutralisation pH 7",
+        "flow_m3d": 1160.5,
+        "COD": 5389.3,
+        "BOD": 706.3,
+        "TN": 270.7,
+        "NH4_N": 270.7,
+        "TSS": 598.6,
+        "TDS": 20681,
+        "pH": 11,
+        "osmotic_bar": 16.4
+      },
+      {
+        "stage": "MBR",
+        "flow_m3d": 1160.5,
+        "COD": 5389.3,
+        "BOD": 706.3,
+        "TN": 270.7,
+        "NH4_N": 270.7,
+        "TSS": 598.6,
+        "TDS": 20681,
+        "pH": 7,
+        "osmotic_bar": 18.7
+      },
+      {
+        "stage": "DTRO 2-stage",
+        "flow_m3d": 1148.9,
+        "COD": 1905.3,
+        "BOD": 21.4,
+        "TN": 150.4,
+        "NH4_N": 21.9,
+        "TSS": 0.6,
+        "TDS": 20889,
+        "pH": 7,
+        "osmotic_bar": 17.2
+      },
+      {
+        "stage": "Catalytic AOP",
+        "flow_m3d": 976.6,
+        "COD": 28.5,
+        "BOD": 0.4,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 373,
+        "pH": 5.8,
+        "osmotic_bar": 0.4
+      },
+      {
+        "stage": "MVR Evaporator",
+        "flow_m3d": 172.3,
+        "COD": 12540.6,
+        "BOD": 140.3,
+        "TN": 976.4,
+        "NH4_N": 134.7,
+        "TSS": 4,
+        "TDS": 137150,
+        "pH": 7,
+        "osmotic_bar": 112.5
+      },
+      {
+        "stage": "Final pH Trim",
+        "flow_m3d": 976.6,
+        "COD": 11.4,
+        "BOD": 2.1,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 373,
+        "pH": 5.8,
+        "osmotic_bar": 0.4
+      },
+      {
+        "stage": "Distillate Reuse",
+        "flow_m3d": 141.3,
+        "COD": 0,
+        "BOD": 0,
+        "TN": 0,
+        "NH4_N": 0,
+        "TSS": 0,
+        "TDS": 20,
+        "pH": 7,
+        "osmotic_bar": 0
+      },
+      {
+        "stage": "Crystalliser",
+        "flow_m3d": 31,
+        "COD": 69670,
+        "BOD": 779.2,
+        "TN": 5424.4,
+        "NH4_N": 748.6,
+        "TSS": 22.4,
+        "TDS": 761852,
+        "pH": 7,
+        "osmotic_bar": 624.7
+      },
+      {
+        "stage": "Outfall to SPARING",
+        "flow_m3d": 976.6,
+        "COD": 11.4,
+        "BOD": 2.1,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 373,
+        "pH": 7,
+        "osmotic_bar": 0.5
+      }
+    ],
+    "units": [
+      {
+        "label": "Intake & Screen",
+        "type": "intake",
+        "inFlow": 50,
+        "power_kW": 2.34,
+        "capex_USD": 58798,
+        "area_m2": 58,
+        "sizing": [
+          {
+            "label": "Intake pumps",
+            "value": "2 x 100 % @ 55 m3/h"
+          },
+          {
+            "label": "Pump shaft power",
+            "value": "2.3 kW"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Equalisation",
+        "type": "eqtank",
+        "inFlow": 50,
+        "power_kW": 0,
+        "capex_USD": 26451,
+        "area_m2": 191,
+        "sizing": [
+          {
+            "label": "Working volume",
+            "value": "660 m3"
+          },
+          {
+            "label": "HRT",
+            "value": "12.0 h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Coagulation",
+        "type": "coagfloc",
+        "inFlow": 50,
+        "power_kW": 2.38,
+        "capex_USD": 6785,
+        "area_m2": 0,
+        "sizing": [
+          {
+            "label": "Rapid mix volume",
+            "value": "1.3 m3"
+          },
+          {
+            "label": "Flocculation volume",
+            "value": "17 m3"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Lamella Clarifier",
+        "type": "clarifier",
+        "inFlow": 50,
+        "power_kW": 2.4,
+        "capex_USD": 27921,
+        "area_m2": 36,
+        "sizing": [
+          {
+            "label": "Total plan area",
+            "value": "12.5 m2"
+          },
+          {
+            "label": "Configuration",
+            "value": "2 x 6.3 m2"
+          },
+          {
+            "label": "Dry solids to sludge",
+            "value": "47.6 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "UASB",
+        "type": "anaerobic",
+        "inFlow": 48.5,
+        "power_kW": 3.46,
+        "capex_USD": 240409,
+        "area_m2": 952,
+        "sizing": [
+          {
+            "label": "Reactor volume",
+            "value": "3938 m3"
+          },
+          {
+            "label": "Actual HRT",
+            "value": "81.2 h"
+          },
+          {
+            "label": "Cross-sectional area",
+            "value": "48.5 m2, height 81.2 m"
+          },
+          {
+            "label": "COD removed",
+            "value": "1023.8 kg/h"
+          },
+          {
+            "label": "Biogas",
+            "value": "473 Nm3/h at 65 % CH4"
+          },
+          {
+            "label": "Recoverable energy",
+            "value": "3062 kW thermal"
+          }
+        ],
+        "notes": [
+          "Biogas recovers about 3062 kW of thermal energy. Whether that is a credit depends on there being something on site that can use it — on a landfill with a waste-to-energy plant it is; on a standalone leachate plant it usually is not, and the gas is flared.",
+          "Volume is set by the organic loading rate (3938 m3), not by the HRT (1164 m3). On strong wastewater this is normal.",
+          "Sulphate 825 mg/L will be reduced to hydrogen sulphide, competing with methanogenesis and creating an odour, corrosion and gas-treatment problem. Above roughly COD:SO4 of 10 this becomes the governing design issue."
+        ]
+      },
+      {
+        "label": "Alkali Dosing pH 11",
+        "type": "phadjust",
+        "inFlow": 48.35,
+        "power_kW": 2.14,
+        "capex_USD": 16286,
+        "area_m2": 6,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "16.1 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "264.9 meq/L"
+          },
+          {
+            "label": "Hydrated lime Ca(OH)2",
+            "value": "545.8 kg/h (13.10 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "27.0 kg/h"
+          }
+        ],
+        "notes": [
+          "Lime adds calcium to the water. Where the next step is a membrane, check the concentrate saturation before choosing it over caustic.",
+          "The hydroxide floc carries about 5 % of the COD down with it, which is why the suspended solids rise across this step while the dissolved organics fall. Those solids have to be removed somewhere downstream."
+        ]
+      },
+      {
+        "label": "Ammonia Stripping",
+        "type": "nh3strip",
+        "inFlow": 48.35,
+        "power_kW": 88.98,
+        "capex_USD": 116163,
+        "area_m2": 59,
+        "sizing": [
+          {
+            "label": "Free ammonia fraction",
+            "value": "98.8 % at pH 11.0, 30 degC"
+          },
+          {
+            "label": "Ammonia removal",
+            "value": "88.1 %"
+          },
+          {
+            "label": "Nitrogen stripped",
+            "value": "96.6 kgN/h (2.32 t/d)"
+          },
+          {
+            "label": "Air flow",
+            "value": "145064 m3/h"
+          },
+          {
+            "label": "Tower diameter x packing",
+            "value": "5.1 m x 8 m"
+          },
+          {
+            "label": "Cross-section governed by",
+            "value": "gas velocity (20.1 m2)"
+          },
+          {
+            "label": "Superficial gas velocity",
+            "value": "2.00 m/s"
+          },
+          {
+            "label": "Actual liquid loading",
+            "value": "2.4 m3/m2.h"
+          },
+          {
+            "label": "Footprint",
+            "value": "20 m2 per tower"
+          },
+          {
+            "label": "Blower power",
+            "value": "86.3 kW"
+          },
+          {
+            "label": "Ammonium sulphate produced",
+            "value": "441.9 kg/h (10.61 t/d)"
+          }
+        ],
+        "notes": [
+          "The diameter is set by the air, not the water: 20.1 m2 is needed to keep the gas below 2 m/s, against 1.9 m2 for the liquid. The actual liquid loading is only 2.4 m3/m2.h. This is why a stripping tower designed from the water flow alone comes out far too small.",
+          "10.6 t/d of ammonium sulphate is produced. That is a fertiliser with a real market, but it needs offtake, storage and logistics — and the matching sulphuric acid supply chain — before it can be counted as a credit."
+        ]
+      },
+      {
+        "label": "Neutralisation pH 7",
+        "type": "phadjust",
+        "inFlow": 48.35,
+        "power_kW": 2.14,
+        "capex_USD": 16286,
+        "area_m2": 6,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "16.1 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "67.2 meq/L"
+          },
+          {
+            "label": "Sulphuric acid H2SO4",
+            "value": "183.3 kg/h (4.40 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": [
+          "Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %."
+        ]
+      },
+      {
+        "label": "MBR",
+        "type": "mbr",
+        "inFlow": 48.35,
+        "power_kW": 84.84,
+        "capex_USD": 345523,
+        "area_m2": 280,
+        "sizing": [
+          {
+            "label": "Reactor volume",
+            "value": "967 m3"
+          },
+          {
+            "label": "HRT / SRT",
+            "value": "20 h / 30 d"
+          },
+          {
+            "label": "Membrane area",
+            "value": "3989 m2 at 12 LMH net"
+          },
+          {
+            "label": "Oxygen demand",
+            "value": "94.8 kgO2/h"
+          },
+          {
+            "label": "Process aeration",
+            "value": "79.0 kW"
+          },
+          {
+            "label": "Membrane scouring",
+            "value": "3.6 kW (1396 Nm3/h)"
+          },
+          {
+            "label": "Scouring share of power",
+            "value": "4 %"
+          },
+          {
+            "label": "F/M ratio",
+            "value": "0.082 kgBOD/kgMLSS.d"
+          },
+          {
+            "label": "Waste sludge",
+            "value": "9.9 kg/h dry solids"
+          }
+        ],
+        "notes": [
+          "BOD:TN is 2.61, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
+          "BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water."
+        ]
+      },
+      {
+        "label": "DTRO 2-stage",
+        "type": "dtro",
+        "inFlow": 47.87,
+        "power_kW": 134.18,
+        "capex_USD": 370011,
+        "area_m2": 160,
+        "sizing": [
+          {
+            "label": "Stages",
+            "value": "2 in series at 85 % overall"
+          },
+          {
+            "label": "Membrane area",
+            "value": "2261 m2"
+          },
+          {
+            "label": "Modules",
+            "value": "252 x 9 m2"
+          },
+          {
+            "label": "Feed pressure",
+            "value": "76 bar (estimated)"
+          },
+          {
+            "label": "Feed / concentrate osmotic",
+            "value": "16 / 107 bar"
+          },
+          {
+            "label": "Concentrate TDS",
+            "value": "137.1 g/L"
+          },
+          {
+            "label": "Specific energy",
+            "value": "3.30 kWh/m3 permeate"
+          }
+        ],
+        "notes": [
+          "Concentrate reaches 137 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator."
+        ]
+      },
+      {
+        "label": "Sludge Thickener",
+        "type": "thickener",
+        "inFlow": 2.13,
+        "power_kW": 1.5,
+        "capex_USD": 43401,
+        "area_m2": 36,
+        "sizing": [
+          {
+            "label": "Thickener area",
+            "value": "32.4 m2"
+          },
+          {
+            "label": "Dry solids",
+            "value": "81.1 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Catalytic AOP",
+        "type": "aop",
+        "inFlow": 40.69,
+        "power_kW": 20.2,
+        "capex_USD": 56553,
+        "area_m2": 102,
+        "sizing": [
+          {
+            "label": "COD removed",
+            "value": "0.7 kg/h (0.02 t/d)"
+          },
+          {
+            "label": "Ozone demand",
+            "value": "1.7 kg/h (42 kg/d)"
+          },
+          {
+            "label": "Generator power",
+            "value": "17 kW"
+          },
+          {
+            "label": "Specific energy",
+            "value": "0.50 kWh/m3"
+          },
+          {
+            "label": "Contact volume",
+            "value": "20 m3"
+          }
+        ],
+        "notes": [
+          "Effluent BOD rises from 0 to 2 mg/L as refractory molecules are broken into biodegradable fragments. Useful ahead of a biological polishing step; a compliance problem if this is the final unit."
+        ]
+      },
+      {
+        "label": "MVR Evaporator",
+        "type": "mvr",
+        "inFlow": 7.18,
+        "power_kW": 147.2,
+        "capex_USD": 150533,
+        "area_m2": 174,
+        "sizing": [
+          {
+            "label": "Evaporation duty",
+            "value": "5.9 m3/h"
+          },
+          {
+            "label": "Compressor power",
+            "value": "147 kW"
+          },
+          {
+            "label": "Concentrate TDS",
+            "value": "761852 mg/L"
+          }
+        ],
+        "notes": [
+          "Verify scaling and boiling point elevation with a rigorous thermal model before committing."
+        ]
+      },
+      {
+        "label": "Filter Press",
+        "type": "dewatering",
+        "inFlow": 1.06,
+        "power_kW": 2.91,
+        "capex_USD": 108815,
+        "area_m2": 131,
+        "sizing": [
+          {
+            "label": "Cake production",
+            "value": "246.5 kg/h at 30 % DS"
+          },
+          {
+            "label": "Dry solids to disposal",
+            "value": "74.0 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Final pH Trim",
+        "type": "phadjust",
+        "inFlow": 40.69,
+        "power_kW": 2.04,
+        "capex_USD": 14532,
+        "area_m2": 5,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "13.6 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "1.4 meq/L"
+          },
+          {
+            "label": "Caustic soda NaOH",
+            "value": "2.7 kg/h (0.06 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Crystalliser",
+        "type": "crystalliser",
+        "inFlow": 1.29,
+        "power_kW": 106.35,
+        "capex_USD": 238923,
+        "area_m2": 131,
+        "sizing": [
+          {
+            "label": "Salt production",
+            "value": "0.89 t/h"
+          },
+          {
+            "label": "Mother liquor purge",
+            "value": "0.2 m3/h"
+          }
+        ],
+        "notes": []
+      }
+    ],
+    "warnings": [
+      "UASB: Biogas recovers about 3062 kW of thermal energy. Whether that is a credit depends on there being something on site that can use it — on a landfill with a waste-to-energy plant it is; on a standalone leachate plant it usually is not, and the gas is flared.",
+      "UASB: Volume is set by the organic loading rate (3938 m3), not by the HRT (1164 m3). On strong wastewater this is normal.",
+      "UASB: Sulphate 825 mg/L will be reduced to hydrogen sulphide, competing with methanogenesis and creating an odour, corrosion and gas-treatment problem. Above roughly COD:SO4 of 10 this becomes the governing design issue.",
+      "Alkali Dosing pH 11: Lime adds calcium to the water. Where the next step is a membrane, check the concentrate saturation before choosing it over caustic.",
+      "Alkali Dosing pH 11: The hydroxide floc carries about 5 % of the COD down with it, which is why the suspended solids rise across this step while the dissolved organics fall. Those solids have to be removed somewhere downstream.",
+      "Ammonia Stripping: The diameter is set by the air, not the water: 20.1 m2 is needed to keep the gas below 2 m/s, against 1.9 m2 for the liquid. The actual liquid loading is only 2.4 m3/m2.h. This is why a stripping tower designed from the water flow alone comes out far too small.",
+      "Ammonia Stripping: 10.6 t/d of ammonium sulphate is produced. That is a fertiliser with a real market, but it needs offtake, storage and logistics — and the matching sulphuric acid supply chain — before it can be counted as a credit.",
+      "Neutralisation pH 7: Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %.",
+      "MBR: BOD:TN is 2.61, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
+      "MBR: BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water.",
+      "DTRO 2-stage: Concentrate reaches 137 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator.",
+      "Catalytic AOP: Effluent BOD rises from 0 to 2 mg/L as refractory molecules are broken into biodegradable fragments. Useful ahead of a biological polishing step; a compliance problem if this is the final unit.",
+      "MVR Evaporator: Verify scaling and boiling point elevation with a rigorous thermal model before committing."
+    ],
+    "trace": [
+      {
+        "key": "Hg",
+        "label": "Mercury",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.0008,
+        "removalPct": 97,
+        "outlet": 0.00002400000000000002,
+        "basis": "membraneTight",
+        "limit": 0.005,
+        "pass": true,
+        "marginX": 208.33333333333314,
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cd",
+        "label": "Cadmium",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.43,
+        "removalPct": 98.5,
+        "outlet": 0.006450000000000005,
+        "basis": "membraneTight",
+        "limit": 0.1,
+        "pass": true,
+        "marginX": 15.503875968992237,
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Pb",
+        "label": "Lead",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 3.363,
+        "removalPct": 99,
+        "outlet": 0.03363000000000003,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "As",
+        "label": "Arsenic",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 13.8,
+        "removalPct": 96,
+        "outlet": 0.5520000000000005,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cr",
+        "label": "Chromium, total",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.902,
+        "removalPct": 98,
+        "outlet": 0.018040000000000018,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Ni",
+        "label": "Nickel",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 4.254,
+        "removalPct": 98,
+        "outlet": 0.08508000000000007,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Zn",
+        "label": "Zinc",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.475,
+        "removalPct": 98,
+        "outlet": 0.009500000000000008,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cu",
+        "label": "Copper",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.00027,
+        "removalPct": 98,
+        "outlet": 0.000005400000000000005,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Se",
+        "label": "Selenium",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.03,
+        "removalPct": 93,
+        "outlet": 0.0020999999999999986,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Co",
+        "label": "Cobalt",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 1.172,
+        "removalPct": 97,
+        "outlet": 0.03516000000000003,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "CN",
+        "label": "Cyanide",
+        "unit": "mg/L",
+        "group": "Inorganic",
+        "inlet": 6.1,
+        "removalPct": 98,
+        "outlet": 0.1220000000000001,
+        "basis": "oxidation"
+      },
+      {
+        "key": "S2",
+        "label": "Sulphide",
+        "unit": "mg/L",
+        "group": "Inorganic",
+        "inlet": 28.5,
+        "removalPct": 99,
+        "outlet": 0.28500000000000025,
+        "basis": "oxidation"
+      },
+      {
+        "key": "Phenol",
+        "label": "Phenol",
+        "unit": "mg/L",
+        "group": "Organic micropollutants",
+        "inlet": 22.4,
+        "removalPct": 99,
+        "outlet": 0.22400000000000017,
+        "basis": "oxidation"
+      }
+    ],
+    "inhibitions": [
+      {
+        "parameter": "Cyanide",
+        "value": 6.1,
+        "threshold": 2,
+        "process": "nitrification",
+        "why": "Free cyanide inhibits nitrifying bacteria at very low concentrations, so an ammonia limit is missed while the carbon removal still looks healthy.",
+        "present": true
+      },
+      {
+        "parameter": "Sulphide",
+        "value": 28.5,
+        "threshold": 20,
+        "process": "aerobic biology",
+        "why": "Sulphide is toxic to aerobic biomass and exerts an immediate oxygen demand of its own.",
+        "present": true
+      }
+    ]
+  },
+  "caseD": {
+    "name": "Case D — 2028 target, 7000 m3/d on the same site",
+    "withMVR": true,
+    "feedName": "Landfill leachate — design basis (salinity substituted, see assumptions) at 7000 m3/d",
+    "feedFlow_m3d": 7000,
+    "productFlow_m3d": 6521,
+    "wasteFlow_m3d": 479,
+    "recovery_pct": 93.16,
+    "totalPower_kW": 3446.6,
+    "energy_kWh_d": 82717,
+    "sec_kWh_m3": 12.68,
+    "capex_USD": 6944283,
+    "opex_USD_m3": 20.104,
+    "drySolids_t_d": 33.66,
+    "chemicals_t_d": [
+      {
+        "name": "Hydrated lime Ca(OH)2",
+        "t_d": 76.411
+      },
+      {
+        "name": "Sulphuric acid H2SO4",
+        "t_d": 71.576
+      },
+      {
+        "name": "Oxygen (LOX or PSA)",
+        "t_d": 2.922
+      },
+      {
+        "name": "Poly-aluminium chloride",
+        "t_d": 1.75
+      },
+      {
+        "name": "Citric acid (CIP)",
+        "t_d": 0.423
+      },
+      {
+        "name": "Caustic soda NaOH",
+        "t_d": 0.378
+      },
+      {
+        "name": "Caustic soda (CIP)",
+        "t_d": 0.26
+      },
+      {
+        "name": "Antiscalant",
+        "t_d": 0.04
+      },
+      {
+        "name": "Polymer (dewatering)",
+        "t_d": 0.043
+      },
+      {
+        "name": "Sodium hypochlorite (CIP)",
+        "t_d": 0.128
+      },
+      {
+        "name": "Polymer flocculant",
+        "t_d": 0.021
+      },
+      {
+        "name": "Sodium hypochlorite (as Cl2)",
+        "t_d": 0.014
+      }
+    ],
+    "processArea_m2": 9571,
+    "waterClosure_pct": 0,
+    "converged": true,
+    "compliance": {
+      "pH": {
+        "v": 7,
+        "limit": "6–9",
+        "pass": true
+      },
+      "BOD": {
+        "v": 0,
+        "limit": 150,
+        "pass": true
+      },
+      "COD": {
+        "v": 0,
+        "limit": 300,
+        "pass": true
+      },
+      "TSS": {
+        "v": 0,
+        "limit": 100,
+        "pass": true
+      },
+      "TN": {
+        "v": 0,
+        "limit": 60,
+        "pass": true
+      }
+    },
+    "stages": [
+      {
+        "stage": "Raw Leachate",
+        "flow_m3d": 7000,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1000,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Intake & Screen",
+        "flow_m3d": 7000,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1000,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Equalisation",
+        "flow_m3d": 7000,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 970,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Coagulation",
+        "flow_m3d": 7000,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 970,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Lamella Clarifier",
+        "flow_m3d": 7000,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1082.5,
+        "TDS": 20000,
+        "pH": 7,
+        "osmotic_bar": 17.7
+      },
+      {
+        "stage": "UASB",
+        "flow_m3d": 6790,
+        "COD": 27061.9,
+        "BOD": 9355.7,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 133.9,
+        "TDS": 20619,
+        "pH": 7,
+        "osmotic_bar": 18.3
+      },
+      {
+        "stage": "Alkali Dosing pH 11",
+        "flow_m3d": 6769.6,
+        "COD": 5971.5,
+        "BOD": 750.7,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 40.3,
+        "TDS": 20681,
+        "pH": 7.3,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Ammonia Stripping",
+        "flow_m3d": 6769.6,
+        "COD": 5672.9,
+        "BOD": 728.2,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 598.6,
+        "TDS": 20681,
+        "pH": 11,
+        "osmotic_bar": 16.4
+      },
+      {
+        "stage": "Neutralisation pH 7",
+        "flow_m3d": 6769.6,
+        "COD": 5389.3,
+        "BOD": 706.3,
+        "TN": 270.7,
+        "NH4_N": 270.7,
+        "TSS": 598.6,
+        "TDS": 20681,
+        "pH": 11,
+        "osmotic_bar": 16.4
+      },
+      {
+        "stage": "MBR",
+        "flow_m3d": 6769.6,
+        "COD": 5389.3,
+        "BOD": 706.3,
+        "TN": 270.7,
+        "NH4_N": 270.7,
+        "TSS": 598.6,
+        "TDS": 20681,
+        "pH": 7,
+        "osmotic_bar": 18.7
+      },
+      {
+        "stage": "DTRO 2-stage",
+        "flow_m3d": 6701.9,
+        "COD": 1905.3,
+        "BOD": 21.4,
+        "TN": 150.4,
+        "NH4_N": 21.9,
+        "TSS": 0.6,
+        "TDS": 20889,
+        "pH": 7,
+        "osmotic_bar": 17.2
+      },
+      {
+        "stage": "Catalytic AOP",
+        "flow_m3d": 5696.6,
+        "COD": 28.5,
+        "BOD": 0.4,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 373,
+        "pH": 5.8,
+        "osmotic_bar": 0.4
+      },
+      {
+        "stage": "MVR Evaporator",
+        "flow_m3d": 1005.3,
+        "COD": 12540.6,
+        "BOD": 140.3,
+        "TN": 976.4,
+        "NH4_N": 134.7,
+        "TSS": 4,
+        "TDS": 137150,
+        "pH": 7,
+        "osmotic_bar": 112.5
+      },
+      {
+        "stage": "Final pH Trim",
+        "flow_m3d": 5696.6,
+        "COD": 11.4,
+        "BOD": 2.1,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 373,
+        "pH": 5.8,
+        "osmotic_bar": 0.4
+      },
+      {
+        "stage": "Distillate Reuse",
+        "flow_m3d": 824.3,
+        "COD": 0,
+        "BOD": 0,
+        "TN": 0,
+        "NH4_N": 0,
+        "TSS": 0,
+        "TDS": 20,
+        "pH": 7,
+        "osmotic_bar": 0
+      },
+      {
+        "stage": "Crystalliser",
+        "flow_m3d": 181,
+        "COD": 69670,
+        "BOD": 779.2,
+        "TN": 5424.4,
+        "NH4_N": 748.6,
+        "TSS": 22.4,
+        "TDS": 761852,
+        "pH": 7,
+        "osmotic_bar": 624.7
+      },
+      {
+        "stage": "Outfall to SPARING",
+        "flow_m3d": 5696.6,
+        "COD": 11.4,
+        "BOD": 2.1,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 373,
+        "pH": 7,
+        "osmotic_bar": 0.5
+      }
+    ],
+    "units": [
+      {
+        "label": "Intake & Screen",
+        "type": "intake",
+        "inFlow": 291.67,
+        "power_kW": 13.63,
+        "capex_USD": 175482,
+        "area_m2": 58,
+        "sizing": [
+          {
+            "label": "Intake pumps",
+            "value": "2 x 100 % @ 321 m3/h"
+          },
+          {
+            "label": "Pump shaft power",
+            "value": "13.6 kW"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Equalisation",
+        "type": "eqtank",
+        "inFlow": 291.67,
+        "power_kW": 0,
+        "capex_USD": 87753,
+        "area_m2": 1117,
+        "sizing": [
+          {
+            "label": "Working volume",
+            "value": "3850 m3"
+          },
+          {
+            "label": "HRT",
+            "value": "12.0 h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Coagulation",
+        "type": "coagfloc",
+        "inFlow": 291.67,
+        "power_kW": 3.41,
+        "capex_USD": 23317,
+        "area_m2": 3,
+        "sizing": [
+          {
+            "label": "Rapid mix volume",
+            "value": "7.3 m3"
+          },
+          {
+            "label": "Flocculation volume",
+            "value": "97 m3"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Lamella Clarifier",
+        "type": "clarifier",
+        "inFlow": 291.67,
+        "power_kW": 4.33,
+        "capex_USD": 104802,
+        "area_m2": 36,
+        "sizing": [
+          {
+            "label": "Total plan area",
+            "value": "72.9 m2"
+          },
+          {
+            "label": "Configuration",
+            "value": "2 x 36.5 m2"
+          },
+          {
+            "label": "Dry solids to sludge",
+            "value": "277.8 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "UASB",
+        "type": "anaerobic",
+        "inFlow": 282.92,
+        "power_kW": 10.49,
+        "capex_USD": 855875,
+        "area_m2": 5551,
+        "sizing": [
+          {
+            "label": "Reactor volume",
+            "value": "22969 m3"
+          },
+          {
+            "label": "Actual HRT",
+            "value": "81.2 h"
+          },
+          {
+            "label": "Cross-sectional area",
+            "value": "282.9 m2, height 81.2 m"
+          },
+          {
+            "label": "COD removed",
+            "value": "5971.9 kg/h"
+          },
+          {
+            "label": "Biogas",
+            "value": "2756 Nm3/h at 65 % CH4"
+          },
+          {
+            "label": "Recoverable energy",
+            "value": "17862 kW thermal"
+          }
+        ],
+        "notes": [
+          "Biogas recovers about 17862 kW of thermal energy. Whether that is a credit depends on there being something on site that can use it — on a landfill with a waste-to-energy plant it is; on a standalone leachate plant it usually is not, and the gas is flared.",
+          "Volume is set by the organic loading rate (22969 m3), not by the HRT (6790 m3). On strong wastewater this is normal.",
+          "Sulphate 825 mg/L will be reduced to hydrogen sulphide, competing with methanogenesis and creating an odour, corrosion and gas-treatment problem. Above roughly COD:SO4 of 10 this becomes the governing design issue."
+        ]
+      },
+      {
+        "label": "Alkali Dosing pH 11",
+        "type": "phadjust",
+        "inFlow": 282.07,
+        "power_kW": 5.26,
+        "capex_USD": 52156,
+        "area_m2": 34,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "94.0 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "264.9 meq/L"
+          },
+          {
+            "label": "Hydrated lime Ca(OH)2",
+            "value": "3183.8 kg/h (76.41 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "157.5 kg/h"
+          }
+        ],
+        "notes": [
+          "Lime adds calcium to the water. Where the next step is a membrane, check the concentrate saturation before choosing it over caustic.",
+          "The hydroxide floc carries about 5 % of the COD down with it, which is why the suspended solids rise across this step while the dissolved organics fall. Those solids have to be removed somewhere downstream."
+        ]
+      },
+      {
+        "label": "Ammonia Stripping",
+        "type": "nh3strip",
+        "inFlow": 282.07,
+        "power_kW": 519.07,
+        "capex_USD": 411134,
+        "area_m2": 339,
+        "sizing": [
+          {
+            "label": "Free ammonia fraction",
+            "value": "98.8 % at pH 11.0, 30 degC"
+          },
+          {
+            "label": "Ammonia removal",
+            "value": "88.1 %"
+          },
+          {
+            "label": "Nitrogen stripped",
+            "value": "563.4 kgN/h (13.52 t/d)"
+          },
+          {
+            "label": "Air flow",
+            "value": "846204 m3/h"
+          },
+          {
+            "label": "Tower diameter x packing",
+            "value": "12.2 m x 8 m"
+          },
+          {
+            "label": "Cross-section governed by",
+            "value": "gas velocity (117.5 m2)"
+          },
+          {
+            "label": "Superficial gas velocity",
+            "value": "2.00 m/s"
+          },
+          {
+            "label": "Actual liquid loading",
+            "value": "2.4 m3/m2.h"
+          },
+          {
+            "label": "Footprint",
+            "value": "118 m2 per tower"
+          },
+          {
+            "label": "Blower power",
+            "value": "503.7 kW"
+          },
+          {
+            "label": "Ammonium sulphate produced",
+            "value": "2577.8 kg/h (61.87 t/d)"
+          }
+        ],
+        "notes": [
+          "The diameter is set by the air, not the water: 117.5 m2 is needed to keep the gas below 2 m/s, against 11.3 m2 for the liquid. The actual liquid loading is only 2.4 m3/m2.h. This is why a stripping tower designed from the water flow alone comes out far too small.",
+          "61.9 t/d of ammonium sulphate is produced. That is a fertiliser with a real market, but it needs offtake, storage and logistics — and the matching sulphuric acid supply chain — before it can be counted as a credit."
+        ]
+      },
+      {
+        "label": "Neutralisation pH 7",
+        "type": "phadjust",
+        "inFlow": 282.07,
+        "power_kW": 5.26,
+        "capex_USD": 52156,
+        "area_m2": 34,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "94.0 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "67.2 meq/L"
+          },
+          {
+            "label": "Sulphuric acid H2SO4",
+            "value": "1069.0 kg/h (25.66 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": [
+          "Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %."
+        ]
+      },
+      {
+        "label": "MBR",
+        "type": "mbr",
+        "inFlow": 282.07,
+        "power_kW": 494.88,
+        "capex_USD": 1430558,
+        "area_m2": 1636,
+        "sizing": [
+          {
+            "label": "Reactor volume",
+            "value": "5641 m3"
+          },
+          {
+            "label": "HRT / SRT",
+            "value": "20 h / 30 d"
+          },
+          {
+            "label": "Membrane area",
+            "value": "23271 m2 at 12 LMH net"
+          },
+          {
+            "label": "Oxygen demand",
+            "value": "552.9 kgO2/h"
+          },
+          {
+            "label": "Process aeration",
+            "value": "460.7 kW"
+          },
+          {
+            "label": "Membrane scouring",
+            "value": "20.9 kW (8145 Nm3/h)"
+          },
+          {
+            "label": "Scouring share of power",
+            "value": "4 %"
+          },
+          {
+            "label": "F/M ratio",
+            "value": "0.082 kgBOD/kgMLSS.d"
+          },
+          {
+            "label": "Waste sludge",
+            "value": "58.0 kg/h dry solids"
+          }
+        ],
+        "notes": [
+          "BOD:TN is 2.61, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
+          "BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water."
+        ]
+      },
+      {
+        "label": "DTRO 2-stage",
+        "type": "dtro",
+        "inFlow": 279.25,
+        "power_kW": 782.74,
+        "capex_USD": 1632404,
+        "area_m2": 160,
+        "sizing": [
+          {
+            "label": "Stages",
+            "value": "2 in series at 85 % overall"
+          },
+          {
+            "label": "Membrane area",
+            "value": "13187 m2"
+          },
+          {
+            "label": "Modules",
+            "value": "1466 x 9 m2"
+          },
+          {
+            "label": "Feed pressure",
+            "value": "76 bar (estimated)"
+          },
+          {
+            "label": "Feed / concentrate osmotic",
+            "value": "16 / 107 bar"
+          },
+          {
+            "label": "Concentrate TDS",
+            "value": "137.1 g/L"
+          },
+          {
+            "label": "Specific energy",
+            "value": "3.30 kWh/m3 permeate"
+          }
+        ],
+        "notes": [
+          "Concentrate reaches 137 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator."
+        ]
+      },
+      {
+        "label": "Sludge Thickener",
+        "type": "thickener",
+        "inFlow": 12.42,
+        "power_kW": 1.5,
+        "capex_USD": 149158,
+        "area_m2": 36,
+        "sizing": [
+          {
+            "label": "Thickener area",
+            "value": "189.2 m2"
+          },
+          {
+            "label": "Dry solids",
+            "value": "473.0 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Catalytic AOP",
+        "type": "aop",
+        "inFlow": 237.36,
+        "power_kW": 108.19,
+        "capex_USD": 191963,
+        "area_m2": 102,
+        "sizing": [
+          {
+            "label": "COD removed",
+            "value": "4.1 kg/h (0.10 t/d)"
+          },
+          {
+            "label": "Ozone demand",
+            "value": "10.1 kg/h (243 kg/d)"
+          },
+          {
+            "label": "Generator power",
+            "value": "101 kW"
+          },
+          {
+            "label": "Specific energy",
+            "value": "0.46 kWh/m3"
+          },
+          {
+            "label": "Contact volume",
+            "value": "119 m3"
+          }
+        ],
+        "notes": [
+          "Effluent BOD rises from 0 to 2 mg/L as refractory molecules are broken into biodegradable fragments. Useful ahead of a biological polishing step; a compliance problem if this is the final unit."
+        ]
+      },
+      {
+        "label": "MVR Evaporator",
+        "type": "mvr",
+        "inFlow": 41.89,
+        "power_kW": 858.69,
+        "capex_USD": 535911,
+        "area_m2": 174,
+        "sizing": [
+          {
+            "label": "Evaporation duty",
+            "value": "34.3 m3/h"
+          },
+          {
+            "label": "Compressor power",
+            "value": "859 kW"
+          },
+          {
+            "label": "Concentrate TDS",
+            "value": "761852 mg/L"
+          }
+        ],
+        "notes": [
+          "Verify scaling and boiling point elevation with a rigorous thermal model before committing."
+        ]
+      },
+      {
+        "label": "Filter Press",
+        "type": "dewatering",
+        "inFlow": 6.21,
+        "power_kW": 14.08,
+        "capex_USD": 373965,
+        "area_m2": 131,
+        "sizing": [
+          {
+            "label": "Cake production",
+            "value": "1438.0 kg/h at 30 % DS"
+          },
+          {
+            "label": "Dry solids to disposal",
+            "value": "431.4 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Final pH Trim",
+        "type": "phadjust",
+        "inFlow": 237.36,
+        "power_kW": 4.66,
+        "capex_USD": 46542,
+        "area_m2": 29,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "79.1 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "1.4 meq/L"
+          },
+          {
+            "label": "Caustic soda NaOH",
+            "value": "15.7 kg/h (0.38 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Crystalliser",
+        "type": "crystalliser",
+        "inFlow": 7.54,
+        "power_kW": 620.36,
+        "capex_USD": 821106,
+        "area_m2": 131,
+        "sizing": [
+          {
+            "label": "Salt production",
+            "value": "5.17 t/h"
+          },
+          {
+            "label": "Mother liquor purge",
+            "value": "1.1 m3/h"
+          }
+        ],
+        "notes": []
+      }
+    ],
+    "warnings": [
+      "UASB: Biogas recovers about 17862 kW of thermal energy. Whether that is a credit depends on there being something on site that can use it — on a landfill with a waste-to-energy plant it is; on a standalone leachate plant it usually is not, and the gas is flared.",
+      "UASB: Volume is set by the organic loading rate (22969 m3), not by the HRT (6790 m3). On strong wastewater this is normal.",
+      "UASB: Sulphate 825 mg/L will be reduced to hydrogen sulphide, competing with methanogenesis and creating an odour, corrosion and gas-treatment problem. Above roughly COD:SO4 of 10 this becomes the governing design issue.",
+      "Alkali Dosing pH 11: Lime adds calcium to the water. Where the next step is a membrane, check the concentrate saturation before choosing it over caustic.",
+      "Alkali Dosing pH 11: The hydroxide floc carries about 5 % of the COD down with it, which is why the suspended solids rise across this step while the dissolved organics fall. Those solids have to be removed somewhere downstream.",
+      "Ammonia Stripping: The diameter is set by the air, not the water: 117.5 m2 is needed to keep the gas below 2 m/s, against 11.3 m2 for the liquid. The actual liquid loading is only 2.4 m3/m2.h. This is why a stripping tower designed from the water flow alone comes out far too small.",
+      "Ammonia Stripping: 61.9 t/d of ammonium sulphate is produced. That is a fertiliser with a real market, but it needs offtake, storage and logistics — and the matching sulphuric acid supply chain — before it can be counted as a credit.",
+      "Neutralisation pH 7: Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %.",
+      "MBR: BOD:TN is 2.61, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
+      "MBR: BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water.",
+      "DTRO 2-stage: Concentrate reaches 137 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator.",
+      "Catalytic AOP: Effluent BOD rises from 0 to 2 mg/L as refractory molecules are broken into biodegradable fragments. Useful ahead of a biological polishing step; a compliance problem if this is the final unit.",
+      "MVR Evaporator: Verify scaling and boiling point elevation with a rigorous thermal model before committing."
+    ],
+    "trace": [
+      {
+        "key": "Hg",
+        "label": "Mercury",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.0008,
+        "removalPct": 97,
+        "outlet": 0.00002400000000000002,
+        "basis": "membraneTight",
+        "limit": 0.005,
+        "pass": true,
+        "marginX": 208.33333333333314,
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cd",
+        "label": "Cadmium",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.43,
+        "removalPct": 98.5,
+        "outlet": 0.006450000000000005,
+        "basis": "membraneTight",
+        "limit": 0.1,
+        "pass": true,
+        "marginX": 15.503875968992237,
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Pb",
+        "label": "Lead",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 3.363,
+        "removalPct": 99,
+        "outlet": 0.03363000000000003,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "As",
+        "label": "Arsenic",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 13.8,
+        "removalPct": 96,
+        "outlet": 0.5520000000000005,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cr",
+        "label": "Chromium, total",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.902,
+        "removalPct": 98,
+        "outlet": 0.018040000000000018,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Ni",
+        "label": "Nickel",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 4.254,
+        "removalPct": 98,
+        "outlet": 0.08508000000000007,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Zn",
+        "label": "Zinc",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.475,
+        "removalPct": 98,
+        "outlet": 0.009500000000000008,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cu",
+        "label": "Copper",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.00027,
+        "removalPct": 98,
+        "outlet": 0.000005400000000000005,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Se",
+        "label": "Selenium",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.03,
+        "removalPct": 93,
+        "outlet": 0.0020999999999999986,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Co",
+        "label": "Cobalt",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 1.172,
+        "removalPct": 97,
+        "outlet": 0.03516000000000003,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "CN",
+        "label": "Cyanide",
+        "unit": "mg/L",
+        "group": "Inorganic",
+        "inlet": 6.1,
+        "removalPct": 98,
+        "outlet": 0.1220000000000001,
+        "basis": "oxidation"
+      },
+      {
+        "key": "S2",
+        "label": "Sulphide",
+        "unit": "mg/L",
+        "group": "Inorganic",
+        "inlet": 28.5,
+        "removalPct": 99,
+        "outlet": 0.28500000000000025,
+        "basis": "oxidation"
+      },
+      {
+        "key": "Phenol",
+        "label": "Phenol",
+        "unit": "mg/L",
+        "group": "Organic micropollutants",
+        "inlet": 22.4,
+        "removalPct": 99,
+        "outlet": 0.22400000000000017,
+        "basis": "oxidation"
+      }
+    ],
+    "inhibitions": [
+      {
+        "parameter": "Cyanide",
+        "value": 6.1,
+        "threshold": 2,
+        "process": "nitrification",
+        "why": "Free cyanide inhibits nitrifying bacteria at very low concentrations, so an ammonia limit is missed while the carbon removal still looks healthy.",
+        "present": true
+      },
+      {
+        "parameter": "Sulphide",
+        "value": 28.5,
+        "threshold": 20,
+        "process": "aerobic biology",
+        "why": "Sulphide is toxic to aerobic biomass and exerts an immediate oxygen demand of its own.",
+        "present": true
+      }
+    ]
+  },
+  "caseE": {
+    "name": "Case E — 2028 target after capping, 2100 m3/d",
+    "withMVR": true,
+    "feedName": "Landfill leachate — design basis (salinity substituted, see assumptions) at 2100 m3/d (post-capping)",
+    "feedFlow_m3d": 2100,
+    "productFlow_m3d": 1956.3,
+    "wasteFlow_m3d": 143.7,
+    "recovery_pct": 93.16,
+    "totalPower_kW": 1044.3,
+    "energy_kWh_d": 25064,
+    "sec_kWh_m3": 12.81,
+    "capex_USD": 2796685,
+    "opex_USD_m3": 20.203,
+    "drySolids_t_d": 10.1,
+    "chemicals_t_d": [
+      {
+        "name": "Hydrated lime Ca(OH)2",
+        "t_d": 22.923
+      },
+      {
+        "name": "Sulphuric acid H2SO4",
+        "t_d": 21.473
+      },
+      {
+        "name": "Oxygen (LOX or PSA)",
+        "t_d": 0.876
+      },
+      {
+        "name": "Poly-aluminium chloride",
+        "t_d": 0.525
+      },
+      {
+        "name": "Citric acid (CIP)",
+        "t_d": 0.127
+      },
+      {
+        "name": "Caustic soda NaOH",
+        "t_d": 0.113
+      },
+      {
+        "name": "Caustic soda (CIP)",
+        "t_d": 0.078
+      },
+      {
+        "name": "Antiscalant",
+        "t_d": 0.012
+      },
+      {
+        "name": "Polymer (dewatering)",
+        "t_d": 0.013
+      },
+      {
+        "name": "Sodium hypochlorite (CIP)",
+        "t_d": 0.038
+      },
+      {
+        "name": "Polymer flocculant",
+        "t_d": 0.006
+      },
+      {
+        "name": "Sodium hypochlorite (as Cl2)",
+        "t_d": 0.004
+      }
+    ],
+    "processArea_m2": 3451,
+    "waterClosure_pct": 0,
+    "converged": true,
+    "compliance": {
+      "pH": {
+        "v": 7,
+        "limit": "6–9",
+        "pass": true
+      },
+      "BOD": {
+        "v": 0,
+        "limit": 150,
+        "pass": true
+      },
+      "COD": {
+        "v": 0,
+        "limit": 300,
+        "pass": true
+      },
+      "TSS": {
+        "v": 0,
+        "limit": 100,
+        "pass": true
+      },
+      "TN": {
+        "v": 0,
+        "limit": 60,
+        "pass": true
+      }
+    },
+    "stages": [
+      {
+        "stage": "Raw Leachate",
+        "flow_m3d": 2100,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1000,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Intake & Screen",
+        "flow_m3d": 2100,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1000,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Equalisation",
+        "flow_m3d": 2100,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 970,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Coagulation",
+        "flow_m3d": 2100,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 970,
+        "TDS": 20000,
+        "pH": 7.4,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Lamella Clarifier",
+        "flow_m3d": 2100,
+        "COD": 35000,
+        "BOD": 11000,
+        "TN": 2200,
+        "NH4_N": 2200,
+        "TSS": 1082.5,
+        "TDS": 20000,
+        "pH": 7,
+        "osmotic_bar": 17.7
+      },
+      {
+        "stage": "UASB",
+        "flow_m3d": 2037,
+        "COD": 27061.9,
+        "BOD": 9355.7,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 133.9,
+        "TDS": 20619,
+        "pH": 7,
+        "osmotic_bar": 18.3
+      },
+      {
+        "stage": "Alkali Dosing pH 11",
+        "flow_m3d": 2030.9,
+        "COD": 5971.5,
+        "BOD": 750.7,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 40.3,
+        "TDS": 20681,
+        "pH": 7.3,
+        "osmotic_bar": 17.9
+      },
+      {
+        "stage": "Ammonia Stripping",
+        "flow_m3d": 2030.9,
+        "COD": 5672.9,
+        "BOD": 728.2,
+        "TN": 2268,
+        "NH4_N": 2268,
+        "TSS": 598.6,
+        "TDS": 20681,
+        "pH": 11,
+        "osmotic_bar": 16.4
+      },
+      {
+        "stage": "Neutralisation pH 7",
+        "flow_m3d": 2030.9,
+        "COD": 5389.3,
+        "BOD": 706.3,
+        "TN": 270.7,
+        "NH4_N": 270.7,
+        "TSS": 598.6,
+        "TDS": 20681,
+        "pH": 11,
+        "osmotic_bar": 16.4
+      },
+      {
+        "stage": "MBR",
+        "flow_m3d": 2030.9,
+        "COD": 5389.3,
+        "BOD": 706.3,
+        "TN": 270.7,
+        "NH4_N": 270.7,
+        "TSS": 598.6,
+        "TDS": 20681,
+        "pH": 7,
+        "osmotic_bar": 18.7
+      },
+      {
+        "stage": "DTRO 2-stage",
+        "flow_m3d": 2010.6,
+        "COD": 1905.3,
+        "BOD": 21.4,
+        "TN": 150.4,
+        "NH4_N": 21.9,
+        "TSS": 0.6,
+        "TDS": 20889,
+        "pH": 7,
+        "osmotic_bar": 17.2
+      },
+      {
+        "stage": "Catalytic AOP",
+        "flow_m3d": 1709,
+        "COD": 28.5,
+        "BOD": 0.4,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 373,
+        "pH": 5.8,
+        "osmotic_bar": 0.4
+      },
+      {
+        "stage": "MVR Evaporator",
+        "flow_m3d": 301.6,
+        "COD": 12540.6,
+        "BOD": 140.3,
+        "TN": 976.4,
+        "NH4_N": 134.7,
+        "TSS": 4,
+        "TDS": 137150,
+        "pH": 7,
+        "osmotic_bar": 112.5
+      },
+      {
+        "stage": "Final pH Trim",
+        "flow_m3d": 1709,
+        "COD": 11.4,
+        "BOD": 2.1,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 373,
+        "pH": 5.8,
+        "osmotic_bar": 0.4
+      },
+      {
+        "stage": "Distillate Reuse",
+        "flow_m3d": 247.3,
+        "COD": 0,
+        "BOD": 0,
+        "TN": 0,
+        "NH4_N": 0,
+        "TSS": 0,
+        "TDS": 20,
+        "pH": 7,
+        "osmotic_bar": 0
+      },
+      {
+        "stage": "Crystalliser",
+        "flow_m3d": 54.3,
+        "COD": 69670,
+        "BOD": 779.2,
+        "TN": 5424.4,
+        "NH4_N": 748.6,
+        "TSS": 22.4,
+        "TDS": 761852,
+        "pH": 7,
+        "osmotic_bar": 624.7
+      },
+      {
+        "stage": "Outfall to SPARING",
+        "flow_m3d": 1709,
+        "COD": 11.4,
+        "BOD": 2.1,
+        "TN": 4.6,
+        "NH4_N": 2,
+        "TSS": 0,
+        "TDS": 373,
+        "pH": 7,
+        "osmotic_bar": 0.5
+      }
+    ],
+    "units": [
+      {
+        "label": "Intake & Screen",
+        "type": "intake",
+        "inFlow": 87.5,
+        "power_kW": 4.09,
+        "capex_USD": 83186,
+        "area_m2": 58,
+        "sizing": [
+          {
+            "label": "Intake pumps",
+            "value": "2 x 100 % @ 96 m3/h"
+          },
+          {
+            "label": "Pump shaft power",
+            "value": "4.1 kW"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Equalisation",
+        "type": "eqtank",
+        "inFlow": 87.5,
+        "power_kW": 0,
+        "capex_USD": 38700,
+        "area_m2": 335,
+        "sizing": [
+          {
+            "label": "Working volume",
+            "value": "1155 m3"
+          },
+          {
+            "label": "HRT",
+            "value": "12.0 h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Coagulation",
+        "type": "coagfloc",
+        "inFlow": 87.5,
+        "power_kW": 2.57,
+        "capex_USD": 10038,
+        "area_m2": 1,
+        "sizing": [
+          {
+            "label": "Rapid mix volume",
+            "value": "2.2 m3"
+          },
+          {
+            "label": "Flocculation volume",
+            "value": "29 m3"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Lamella Clarifier",
+        "type": "clarifier",
+        "inFlow": 87.5,
+        "power_kW": 2.7,
+        "capex_USD": 42483,
+        "area_m2": 36,
+        "sizing": [
+          {
+            "label": "Total plan area",
+            "value": "21.9 m2"
+          },
+          {
+            "label": "Configuration",
+            "value": "2 x 10.9 m2"
+          },
+          {
+            "label": "Dry solids to sludge",
+            "value": "83.4 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "UASB",
+        "type": "anaerobic",
+        "inFlow": 84.88,
+        "power_kW": 4.55,
+        "capex_USD": 359698,
+        "area_m2": 1665,
+        "sizing": [
+          {
+            "label": "Reactor volume",
+            "value": "6891 m3"
+          },
+          {
+            "label": "Actual HRT",
+            "value": "81.2 h"
+          },
+          {
+            "label": "Cross-sectional area",
+            "value": "84.9 m2, height 81.2 m"
+          },
+          {
+            "label": "COD removed",
+            "value": "1791.6 kg/h"
+          },
+          {
+            "label": "Biogas",
+            "value": "827 Nm3/h at 65 % CH4"
+          },
+          {
+            "label": "Recoverable energy",
+            "value": "5359 kW thermal"
+          }
+        ],
+        "notes": [
+          "Biogas recovers about 5359 kW of thermal energy. Whether that is a credit depends on there being something on site that can use it — on a landfill with a waste-to-energy plant it is; on a standalone leachate plant it usually is not, and the gas is flared.",
+          "Volume is set by the organic loading rate (6891 m3), not by the HRT (2037 m3). On strong wastewater this is normal.",
+          "Sulphate 825 mg/L will be reduced to hydrogen sulphide, competing with methanogenesis and creating an odour, corrosion and gas-treatment problem. Above roughly COD:SO4 of 10 this becomes the governing design issue."
+        ]
+      },
+      {
+        "label": "Alkali Dosing pH 11",
+        "type": "phadjust",
+        "inFlow": 84.62,
+        "power_kW": 2.63,
+        "capex_USD": 23562,
+        "area_m2": 10,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "28.2 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "264.9 meq/L"
+          },
+          {
+            "label": "Hydrated lime Ca(OH)2",
+            "value": "955.1 kg/h (22.92 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "47.2 kg/h"
+          }
+        ],
+        "notes": [
+          "Lime adds calcium to the water. Where the next step is a membrane, check the concentrate saturation before choosing it over caustic.",
+          "The hydroxide floc carries about 5 % of the COD down with it, which is why the suspended solids rise across this step while the dissolved organics fall. Those solids have to be removed somewhere downstream."
+        ]
+      },
+      {
+        "label": "Ammonia Stripping",
+        "type": "nh3strip",
+        "inFlow": 84.62,
+        "power_kW": 155.72,
+        "capex_USD": 173447,
+        "area_m2": 102,
+        "sizing": [
+          {
+            "label": "Free ammonia fraction",
+            "value": "98.8 % at pH 11.0, 30 degC"
+          },
+          {
+            "label": "Ammonia removal",
+            "value": "88.1 %"
+          },
+          {
+            "label": "Nitrogen stripped",
+            "value": "169.0 kgN/h (4.06 t/d)"
+          },
+          {
+            "label": "Air flow",
+            "value": "253861 m3/h"
+          },
+          {
+            "label": "Tower diameter x packing",
+            "value": "6.7 m x 8 m"
+          },
+          {
+            "label": "Cross-section governed by",
+            "value": "gas velocity (35.3 m2)"
+          },
+          {
+            "label": "Superficial gas velocity",
+            "value": "2.00 m/s"
+          },
+          {
+            "label": "Actual liquid loading",
+            "value": "2.4 m3/m2.h"
+          },
+          {
+            "label": "Footprint",
+            "value": "35 m2 per tower"
+          },
+          {
+            "label": "Blower power",
+            "value": "151.1 kW"
+          },
+          {
+            "label": "Ammonium sulphate produced",
+            "value": "773.3 kg/h (18.56 t/d)"
+          }
+        ],
+        "notes": [
+          "The diameter is set by the air, not the water: 35.3 m2 is needed to keep the gas below 2 m/s, against 3.4 m2 for the liquid. The actual liquid loading is only 2.4 m3/m2.h. This is why a stripping tower designed from the water flow alone comes out far too small.",
+          "18.6 t/d of ammonium sulphate is produced. That is a fertiliser with a real market, but it needs offtake, storage and logistics — and the matching sulphuric acid supply chain — before it can be counted as a credit."
+        ]
+      },
+      {
+        "label": "Neutralisation pH 7",
+        "type": "phadjust",
+        "inFlow": 84.62,
+        "power_kW": 2.63,
+        "capex_USD": 23562,
+        "area_m2": 10,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "28.2 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "67.2 meq/L"
+          },
+          {
+            "label": "Sulphuric acid H2SO4",
+            "value": "320.7 kg/h (7.70 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": [
+          "Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %."
+        ]
+      },
+      {
+        "label": "MBR",
+        "type": "mbr",
+        "inFlow": 84.62,
+        "power_kW": 148.46,
+        "capex_USD": 541641,
+        "area_m2": 491,
+        "sizing": [
+          {
+            "label": "Reactor volume",
+            "value": "1692 m3"
+          },
+          {
+            "label": "HRT / SRT",
+            "value": "20 h / 30 d"
+          },
+          {
+            "label": "Membrane area",
+            "value": "6981 m2 at 12 LMH net"
+          },
+          {
+            "label": "Oxygen demand",
+            "value": "165.9 kgO2/h"
+          },
+          {
+            "label": "Process aeration",
+            "value": "138.2 kW"
+          },
+          {
+            "label": "Membrane scouring",
+            "value": "6.3 kW (2443 Nm3/h)"
+          },
+          {
+            "label": "Scouring share of power",
+            "value": "4 %"
+          },
+          {
+            "label": "F/M ratio",
+            "value": "0.082 kgBOD/kgMLSS.d"
+          },
+          {
+            "label": "Waste sludge",
+            "value": "17.4 kg/h dry solids"
+          }
+        ],
+        "notes": [
+          "BOD:TN is 2.61, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
+          "BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water."
+        ]
+      },
+      {
+        "label": "DTRO 2-stage",
+        "type": "dtro",
+        "inFlow": 83.77,
+        "power_kW": 234.82,
+        "capex_USD": 592074,
+        "area_m2": 160,
+        "sizing": [
+          {
+            "label": "Stages",
+            "value": "2 in series at 85 % overall"
+          },
+          {
+            "label": "Membrane area",
+            "value": "3956 m2"
+          },
+          {
+            "label": "Modules",
+            "value": "440 x 9 m2"
+          },
+          {
+            "label": "Feed pressure",
+            "value": "76 bar (estimated)"
+          },
+          {
+            "label": "Feed / concentrate osmotic",
+            "value": "16 / 107 bar"
+          },
+          {
+            "label": "Concentrate TDS",
+            "value": "137.1 g/L"
+          },
+          {
+            "label": "Specific energy",
+            "value": "3.30 kWh/m3 permeate"
+          }
+        ],
+        "notes": [
+          "Concentrate reaches 137 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator."
+        ]
+      },
+      {
+        "label": "Sludge Thickener",
+        "type": "thickener",
+        "inFlow": 3.73,
+        "power_kW": 1.5,
+        "capex_USD": 64214,
+        "area_m2": 36,
+        "sizing": [
+          {
+            "label": "Thickener area",
+            "value": "56.8 m2"
+          },
+          {
+            "label": "Dry solids",
+            "value": "141.9 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Catalytic AOP",
+        "type": "aop",
+        "inFlow": 71.21,
+        "power_kW": 33.86,
+        "capex_USD": 83338,
+        "area_m2": 102,
+        "sizing": [
+          {
+            "label": "COD removed",
+            "value": "1.2 kg/h (0.03 t/d)"
+          },
+          {
+            "label": "Ozone demand",
+            "value": "3.0 kg/h (73 kg/d)"
+          },
+          {
+            "label": "Generator power",
+            "value": "30 kW"
+          },
+          {
+            "label": "Specific energy",
+            "value": "0.48 kWh/m3"
+          },
+          {
+            "label": "Contact volume",
+            "value": "36 m3"
+          }
+        ],
+        "notes": [
+          "Effluent BOD rises from 0 to 2 mg/L as refractory molecules are broken into biodegradable fragments. Useful ahead of a biological polishing step; a compliance problem if this is the final unit."
+        ]
+      },
+      {
+        "label": "MVR Evaporator",
+        "type": "mvr",
+        "inFlow": 12.57,
+        "power_kW": 257.61,
+        "capex_USD": 225227,
+        "area_m2": 174,
+        "sizing": [
+          {
+            "label": "Evaporation duty",
+            "value": "10.3 m3/h"
+          },
+          {
+            "label": "Compressor power",
+            "value": "258 kW"
+          },
+          {
+            "label": "Concentrate TDS",
+            "value": "761852 mg/L"
+          }
+        ],
+        "notes": [
+          "Verify scaling and boiling point elevation with a rigorous thermal model before committing."
+        ]
+      },
+      {
+        "label": "Filter Press",
+        "type": "dewatering",
+        "inFlow": 1.86,
+        "power_kW": 4.64,
+        "capex_USD": 160996,
+        "area_m2": 131,
+        "sizing": [
+          {
+            "label": "Cake production",
+            "value": "431.4 kg/h at 30 % DS"
+          },
+          {
+            "label": "Dry solids to disposal",
+            "value": "129.4 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Final pH Trim",
+        "type": "phadjust",
+        "inFlow": 71.21,
+        "power_kW": 2.45,
+        "capex_USD": 21025,
+        "area_m2": 9,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "23.7 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "1.4 meq/L"
+          },
+          {
+            "label": "Caustic soda NaOH",
+            "value": "4.7 kg/h (0.11 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Crystalliser",
+        "type": "crystalliser",
+        "inFlow": 2.26,
+        "power_kW": 186.11,
+        "capex_USD": 353496,
+        "area_m2": 131,
+        "sizing": [
+          {
+            "label": "Salt production",
+            "value": "1.55 t/h"
+          },
+          {
+            "label": "Mother liquor purge",
+            "value": "0.3 m3/h"
+          }
+        ],
+        "notes": []
+      }
+    ],
+    "warnings": [
+      "UASB: Biogas recovers about 5359 kW of thermal energy. Whether that is a credit depends on there being something on site that can use it — on a landfill with a waste-to-energy plant it is; on a standalone leachate plant it usually is not, and the gas is flared.",
+      "UASB: Volume is set by the organic loading rate (6891 m3), not by the HRT (2037 m3). On strong wastewater this is normal.",
+      "UASB: Sulphate 825 mg/L will be reduced to hydrogen sulphide, competing with methanogenesis and creating an odour, corrosion and gas-treatment problem. Above roughly COD:SO4 of 10 this becomes the governing design issue.",
+      "Alkali Dosing pH 11: Lime adds calcium to the water. Where the next step is a membrane, check the concentrate saturation before choosing it over caustic.",
+      "Alkali Dosing pH 11: The hydroxide floc carries about 5 % of the COD down with it, which is why the suspended solids rise across this step while the dissolved organics fall. Those solids have to be removed somewhere downstream.",
+      "Ammonia Stripping: The diameter is set by the air, not the water: 35.3 m2 is needed to keep the gas below 2 m/s, against 3.4 m2 for the liquid. The actual liquid loading is only 2.4 m3/m2.h. This is why a stripping tower designed from the water flow alone comes out far too small.",
+      "Ammonia Stripping: 18.6 t/d of ammonium sulphate is produced. That is a fertiliser with a real market, but it needs offtake, storage and logistics — and the matching sulphuric acid supply chain — before it can be counted as a credit.",
+      "Neutralisation pH 7: Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %.",
+      "MBR: BOD:TN is 2.61, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
+      "MBR: BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water.",
+      "DTRO 2-stage: Concentrate reaches 137 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator.",
+      "Catalytic AOP: Effluent BOD rises from 0 to 2 mg/L as refractory molecules are broken into biodegradable fragments. Useful ahead of a biological polishing step; a compliance problem if this is the final unit.",
+      "MVR Evaporator: Verify scaling and boiling point elevation with a rigorous thermal model before committing."
+    ],
+    "trace": [
+      {
+        "key": "Hg",
+        "label": "Mercury",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.0008,
+        "removalPct": 97,
+        "outlet": 0.00002400000000000002,
+        "basis": "membraneTight",
+        "limit": 0.005,
+        "pass": true,
+        "marginX": 208.33333333333314,
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cd",
+        "label": "Cadmium",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.43,
+        "removalPct": 98.5,
+        "outlet": 0.006450000000000005,
+        "basis": "membraneTight",
+        "limit": 0.1,
+        "pass": true,
+        "marginX": 15.503875968992237,
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Pb",
+        "label": "Lead",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 3.363,
+        "removalPct": 99,
+        "outlet": 0.03363000000000003,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "As",
+        "label": "Arsenic",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 13.8,
+        "removalPct": 96,
+        "outlet": 0.5520000000000005,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cr",
+        "label": "Chromium, total",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.902,
+        "removalPct": 98,
+        "outlet": 0.018040000000000018,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Ni",
+        "label": "Nickel",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 4.254,
+        "removalPct": 98,
+        "outlet": 0.08508000000000007,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Zn",
+        "label": "Zinc",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.475,
+        "removalPct": 98,
+        "outlet": 0.009500000000000008,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Cu",
+        "label": "Copper",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.00027,
+        "removalPct": 98,
+        "outlet": 0.000005400000000000005,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Se",
+        "label": "Selenium",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 0.03,
+        "removalPct": 93,
+        "outlet": 0.0020999999999999986,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "Co",
+        "label": "Cobalt",
+        "unit": "mg/L",
+        "group": "Heavy metals",
+        "inlet": 1.172,
+        "removalPct": 97,
+        "outlet": 0.03516000000000003,
+        "basis": "membraneTight",
+        "note": "This barrier separates rather than destroys: the mass removed leaves in the concentrate, the sludge or the backwash, at a higher concentration than it entered. It has to be disposed of, and on a heavy metal that usually decides how the residue is classified."
+      },
+      {
+        "key": "CN",
+        "label": "Cyanide",
+        "unit": "mg/L",
+        "group": "Inorganic",
+        "inlet": 6.1,
+        "removalPct": 98,
+        "outlet": 0.1220000000000001,
+        "basis": "oxidation"
+      },
+      {
+        "key": "S2",
+        "label": "Sulphide",
+        "unit": "mg/L",
+        "group": "Inorganic",
+        "inlet": 28.5,
+        "removalPct": 99,
+        "outlet": 0.28500000000000025,
+        "basis": "oxidation"
+      },
+      {
+        "key": "Phenol",
+        "label": "Phenol",
+        "unit": "mg/L",
+        "group": "Organic micropollutants",
+        "inlet": 22.4,
+        "removalPct": 99,
+        "outlet": 0.22400000000000017,
+        "basis": "oxidation"
+      }
+    ],
+    "inhibitions": [
+      {
+        "parameter": "Cyanide",
+        "value": 6.1,
+        "threshold": 2,
+        "process": "nitrification",
+        "why": "Free cyanide inhibits nitrifying bacteria at very low concentrations, so an ammonia limit is missed while the carbon removal still looks healthy.",
+        "present": true
+      },
+      {
+        "parameter": "Sulphide",
+        "value": 28.5,
+        "threshold": 20,
+        "process": "aerobic biology",
+        "why": "Sulphide is toxic to aerobic biomass and exerts an immediate oxygen demand of its own.",
+        "present": true
+      }
+    ]
+  }
+}
