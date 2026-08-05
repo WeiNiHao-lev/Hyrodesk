@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from "fs";
 import {
-  AlignmentType, BorderStyle, Document, HeadingLevel, Packer, Paragraph,
+  AlignmentType, BorderStyle, Document, HeadingLevel, ImageRun, Packer, Paragraph,
   ShadingType, Table, TableCell, TableRow, TextRun, WidthType,
 } from "docx";
 
@@ -46,6 +46,26 @@ const bullet = (t: string) => new Paragraph({
   children: [new TextRun({ text: t, size: 19, font: "Calibri" })],
 });
 const spacer = () => new Paragraph({ spacing: { after: 120 }, children: [] });
+
+/** A full-width figure with a numbered caption. */
+function figure(file: string, caption: string, widthPt = 470) {
+  const png = readFileSync(file);
+  // Keep the aspect ratio of the source rather than guessing it.
+  const w = png.readUInt32BE(16), h = png.readUInt32BE(20);
+  return [
+    new Paragraph({
+      alignment: AlignmentType.CENTER, spacing: { before: 140, after: 60 },
+      children: [new ImageRun({
+        data: png, type: "png",
+        transformation: { width: widthPt, height: Math.round(widthPt * h / w) },
+      })],
+    }),
+    new Paragraph({
+      alignment: AlignmentType.CENTER, spacing: { after: 180 },
+      children: [new TextRun({ text: caption, size: 17, italics: true, color: "5A6B7B", font: "Calibri" })],
+    }),
+  ];
+}
 
 type Cell = string | { v: string; bg?: string; b?: boolean };
 function table(head: string[], rows: Cell[][], widths: number[], numeric: number[] = []) {
@@ -394,6 +414,9 @@ body.push(P(
 body.push(P(
   "Set-back is the only mitigation that is free, needs no maintenance, cannot be value-engineered out during construction, and works even if every other measure fails. On this site it is available in abundance and should be treated as the primary design decision, not as leftover space.",
 ));
+
+body.push(...figure("scripts/out/layout-en.png",
+  "Figure 1 — Proposed layout. Blocks are drawn to the area the model sized. The buffer is at the same scale as the plant, so the comparison is not rhetorical."));
 
 body.push(H3("Found each unit independently"));
 body.push(P(
