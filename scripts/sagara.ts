@@ -66,7 +66,7 @@ const feedDry: FeedSpec = {
  * Fraction of the filtered water sent to RO. The whole design turns on this
  * number, so it is a parameter of the run rather than a constant.
  */
-function makeTrain(roSharePct: number): Flowsheet {
+function makeTrain(roSharePct: number, rejScale = 1): Flowsheet {
   const specs: Spec[] = [
     { type: "feedsource", label: "Waduk", x: 0, y: 200 },
     { type: "intake", label: "Intake & Screen", params: { headM: 30, pumpEff: 0.75, screenRemovalTSS: 3, electrochlorination: false, cl2Dose: 1.5 }, x: 140, y: 200 },
@@ -77,7 +77,7 @@ function makeTrain(roSharePct: number): Flowsheet {
     // The structural feature this run exists to exercise: one vessel, two lines.
     { type: "rawtank", label: "Tangki Air Tersaring", params: { hrtH: 1, outletCount: 2, split2: roSharePct, lossPct: 0 }, x: 840, y: 200 },
     { type: "cartridge", label: "Cartridge 5 µm", params: { micron: 5 }, x: 980, y: 320 },
-    { type: "ro", label: "RO Air Payau 3 train", params: { recovery: 75, flux: 18, trains: 3, antiscalantDose: 3, smbsDose: 5 }, x: 1120, y: 320 },
+    { type: "ro", label: "RO Air Payau 3 train", params: { recovery: 75, flux: 18, trains: 3, antiscalantDose: 3, smbsDose: 5, rejectionScale: rejScale }, x: 1120, y: 320 },
     { type: "producttank", label: "Tangki Produk + Blending", params: { hrtH: 4, outletCount: 1 }, x: 1280, y: 200 },
     { type: "phadjust", label: "Trim pH Produk (NaOH)", params: { targetPH: 7.6, reagentUp: "naoh", codCoPrecipPct: 0, hrtMin: 5 }, x: 1420, y: 200 },
     { type: "pump", label: "Pompa Distribusi ke SIER", params: { headM: 45, pumpEff: 0.75, standby: 1 }, x: 1560, y: 200 },
@@ -162,16 +162,40 @@ const dry = runCase("Puncak kemarau, TDS 450 — bagian RO sama", base, feedDry)
  * Solved by scanning rather than algebra, so the answer comes out of the same
  * model as everything else.
  */
-function shareFor(target: number, f: FeedSpec): { share: number; tds: number } {
+function shareFor(target: number, f: FeedSpec, rejScale = 1): { share: number; tds: number } {
   let best = { share: 0, tds: Number.POSITIVE_INFINITY };
-  for (let s = 5; s <= 70; s += 0.1) {
-    const r = simulate({ ...makeTrain(s), feed: f });
+  for (let s = 5; s <= 75; s += 0.1) {
+    const r = simulate({ ...makeTrain(s, rejScale), feed: f });
     const tds = r.productStreams[0]?.stream.c.TDS ?? 1e9;
-    if (tds <= target) { best = { share: round(s, 1), tds: round(tds, 1) }; break; }
     best = { share: round(s, 1), tds: round(tds, 1) };
+    if (tds <= target) break;
   }
   return best;
 }
+
+/**
+ * The memo assumes the membrane rejects 98.5 % of TDS; the model's brackish
+ * default is 97.5 %. One point of rejection sounds like nothing and decides the
+ * number of RO trains, so it gets scanned rather than argued about.
+ *
+ * rejectionScale multiplies the whole matrix, so 0.985/0.975 lifts TDS
+ * rejection to the memo's figure.
+ */
+const SCALE_985 = 0.985 / 0.975;
+const rejectionStudy = [
+  { label: "Model default — rejeksi TDS 97,5 %", scale: 1 },
+  { label: "Asumsi memo — rejeksi TDS 98,5 %", scale: SCALE_985 },
+].map((c) => {
+  const atDesign = simulate({ ...makeTrain(32.7, c.scale), feed });
+  const perm = atDesign.nodes.find((x) => x.type === "ro")!.outlets.permeate;
+  return {
+    ...c,
+    permeate_TDS: round(perm.c.TDS, 1),
+    product_TDS_at_32_7pct: round(atDesign.productStreams[0]?.stream.c.TDS ?? 0, 1),
+    shareNormal: shareFor(300, feed, c.scale),
+    shareDry: shareFor(300, feedDry, c.scale),
+  };
+});
 
 const out = {
   generated: new Date().toISOString(),
@@ -186,6 +210,9 @@ const out = {
   design, dry,
   minShareNormal: shareFor(300, feed),
   minShareDry: shareFor(300, feedDry),
+  rejectionStudy,
+  // Three trains at the memo's sizing cap the RO share at 40 % of product.
+  threeTrainCeilingPct: 40,
   reference: {
     source: "Percakapan desain, Lampiran C (tabel aliran S-01 … S-13)",
     raw_m3h: 205.0, filtered_m3h: 196.0, bypass_m3h: 132.0, roFeed_m3h: 64.0,
@@ -207,5 +234,8 @@ for (const c of [design, dry]) {
   console.log(`  product: TDS ${c.product_TDS}  turbidity ${c.product_turbidity} NTU  pH ${c.product_pH}`);
   console.log(`  power ${c.power_kW} kW   SEC ${c.sec_kWh_m3} kWh/m3\n`);
 }
-console.log(`Minimum RO share for TDS 300 — normal: ${out.minShareNormal.share} % (TDS ${out.minShareNormal.tds})`);
-console.log(`Minimum RO share for TDS 300 — dry   : ${out.minShareDry.share} % (TDS ${out.minShareDry.tds})`);
+for (const r of rejectionStudy) {
+  console.log(`${r.label}`);
+  console.log(`   permeate TDS ${r.permeate_TDS}   product at 32.7 % = ${r.product_TDS_at_32_7pct}`);
+  console.log(`   share needed for 300: normal ${r.shareNormal.share} %   dry ${r.shareDry.share} %`);
+}

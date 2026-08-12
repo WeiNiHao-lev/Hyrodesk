@@ -128,6 +128,15 @@ export function splitByRejection(
 /**
  * Remove a fraction of selected components into a concentrated side stream
  * (clarifier sludge, filter backwash, biological waste sludge, ...).
+ *
+ * A component with no stated removal leaves in BOTH streams at the same
+ * concentration, because the side stream is water and carries whatever is
+ * dissolved in it. Defaulting such a component to zero removal kept all of its
+ * mass in a smaller product flow and quietly concentrated it: on a plant losing
+ * 4.5 % of its water to float and backwash, the dissolved solids rose from 365
+ * to 382 mg/L across units that remove no salt at all. Mass still balanced,
+ * which is why it survived — the error was in where the mass went, not how much
+ * of it there was.
  */
 export function removeToSideStream(
   inlet: Stream,
@@ -142,7 +151,9 @@ export function removeToSideStream(
 
   for (const k of COMPONENTS) {
     const feedLoad = inlet.flow * inlet.c[k];
-    const rem = clamp(removal[k] ?? 0, 0, 1);
+    // Unlisted components go with the water, so the fraction removed is the
+    // fraction of the water removed.
+    const rem = clamp(removal[k] ?? f, 0, 1);
     const removedLoad = feedLoad * rem;
     product.c[k] = product.flow > 0 ? (feedLoad - removedLoad) / product.flow : 0;
     side.c[k] = side.flow > 0 ? removedLoad / side.flow : 0;

@@ -118,6 +118,13 @@ const phAdjust: UnitModel = {
       meq = (alk / 50) * frac + hydroxideEq;
       const excess = 1 + n(p, "excessPct", 15) / 100;
       const kgPerH = (meq * excess * inlet.flow) / 1000;
+      // Acid dosed against alkalinity destroys the bicarbonate it neutralises:
+      // H2SO4 + 2 HCO3- -> SO4(2-) + 2 CO2 + 2 H2O. Adding the anion without
+      // removing the bicarbonate inflated the dissolved solids by the whole
+      // dose, when the true net effect is slightly negative — 48 mg/L of
+      // sulphate replacing 61 mg/L of bicarbonate per milliequivalent.
+      const carbonateEqRemoved = Math.min(meq, alkalinityAsCaCO3(inlet) / 50);
+      out.c.HCO3 = Math.max(0, inlet.c.HCO3 - carbonateEqRemoved * 61.02);
       if (s(p, "reagentDown", "h2so4") === "hcl") {
         chem["Hydrochloric acid HCl"] = kgPerH * MW.HCl;
         out.c.Cl = inlet.c.Cl + meq * excess * 35.45;

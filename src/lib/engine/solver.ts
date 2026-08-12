@@ -341,6 +341,18 @@ function buildSummary(
   // engineering notes: they are exactly the things the reader must not miss.
   const warnings: string[] = [...messages];
   for (const r of nodes) for (const nt of r.aux.notes || []) warnings.push(`${r.label}: ${nt}`);
+  // A dissolved species can leave in more mass than it entered in, because
+  // dosing chemicals add ions the feed never had — sulphate from acid, sodium
+  // from caustic. The water balance cannot see that, so it closes while the
+  // ion balance does not, and until now nothing said so.
+  for (const b of saltBalance) {
+    if (b.inKgH <= 1e-9 || Math.abs(b.errorPct) <= 3) continue;
+    warnings.push(
+      b.errorPct < 0
+        ? `${b.label} balance shows ${Math.abs(b.errorPct).toFixed(1)} % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error.`
+        : `${b.label} balance shows ${b.errorPct.toFixed(1)} % less leaving than entering. Some stream carrying it is not routed to a product or waste outlet.`,
+    );
+  }
   if (products.length === 0) warnings.push("No product outlet is connected, so recovery cannot be computed. Add a Product Outlet block.");
   if (wastes.length === 0 && products.length > 0) warnings.push("No waste outlet is connected. Reject and backwash streams are unaccounted for and the balance will not close.");
   const wb = waterBalance[0];
