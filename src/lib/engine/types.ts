@@ -116,6 +116,15 @@ export interface UnitModel {
   inlets: number;
   /** Named outlet ports, in display order. */
   outlets: string[];
+  /**
+   * Outlets that depend on how the block is configured.
+   *
+   * A tank is one vessel, but a real plant routinely draws two lines off it —
+   * a bypass and a membrane feed, say — and forcing that through a separate
+   * splitter block draws a machine that does not exist. Where this is present
+   * it replaces `outlets`; where it is absent nothing changes.
+   */
+  dynamicOutlets?: (p: Params) => string[];
   description: string;
   /**
    * CCEPC deployment maturity, 1-5. Used by the optimiser: higher means the

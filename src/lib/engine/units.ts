@@ -56,23 +56,38 @@ const intake: UnitModel = {
 
 /* ================================================================= TANKS */
 
+/** Draw-off names for a tank configured with `count` outlets. */
+function tankOutlets(count: number): string[] {
+  const k = Math.max(1, Math.min(4, Math.round(count)));
+  return k === 1 ? ["out"] : Array.from({ length: k }, (_, i) => `out${i + 1}`);
+}
+
 function tankModel(
   type: string, label: string, short: string, defaultHRT: number,
   category: UnitModel["category"] = "storage",
 ): UnitModel {
   return {
     type, label, short, category, inlets: 1, outlets: ["out"],
+    dynamicOutlets: (p) => tankOutlets(n(p, "outletCount", 1)),
     description:
-      "Storage or buffer volume sized on hydraulic retention time. Provides no treatment; equalises flow and quality.",
+      "Storage or buffer volume sized on hydraulic retention time. Provides no treatment; equalises flow and quality. More than one outlet may be drawn from it — a bypass and a membrane feed, for instance — with the split set here.",
     ccepcMaturity: 5,
     params: [
+      { key: "outletCount", label: "Number of outlets", type: "number", unit: "-", min: 1, max: 4, step: 1, group: "Connections",
+        help: "One vessel, several draw-off lines. Inlets need no setting: every connection made to the inlet is mixed." },
+      { key: "split2", label: "Outlet 2 share", type: "number", unit: "%", min: 0, max: 100, step: 0.1, group: "Connections" },
+      { key: "split3", label: "Outlet 3 share", type: "number", unit: "%", min: 0, max: 100, step: 0.1, group: "Connections" },
+      { key: "split4", label: "Outlet 4 share", type: "number", unit: "%", min: 0, max: 100, step: 0.1, group: "Connections" },
       { key: "hrtH", label: "Retention time (HRT)", type: "number", unit: "h", min: 0.1, max: 72, step: 0.5, group: "Sizing",
         help: "Volume = inlet flow x HRT. Drives both tank size and capital cost." },
       { key: "lossPct", label: "Evaporation / desilting loss", type: "number", unit: "%", min: 0, max: 5, step: 0.1, group: "Performance" },
       { key: "settleTSSPct", label: "Plain settling of TSS", type: "number", unit: "%", min: 0, max: 60, step: 1, group: "Performance" },
       PARAM_FLOWMARGIN,
     ],
-    defaults: { hrtH: defaultHRT, lossPct: 0, settleTSSPct: 0, designMarginPct: 10 },
+    defaults: {
+      hrtH: defaultHRT, lossPct: 0, settleTSSPct: 0, designMarginPct: 10,
+      outletCount: 1, split2: 0, split3: 0, split4: 0,
+    },
     solve: (inlet, p) => {
       const loss = n(p, "lossPct") / 100;
       const out = cloneStream(inlet);
@@ -85,8 +100,27 @@ function tankModel(
       }
       const hrt = n(p, "hrtH", defaultHRT);
       const vol = inlet.flow * hrt * (1 + n(p, "designMarginPct", 10) / 100);
+
+      // Split the outflow across however many draw-off lines are configured.
+      // Outlet 1 takes whatever the named shares leave, so the shares can never
+      // sum to more than the tank holds.
+      const names = tankOutlets(n(p, "outletCount", 1));
+      const shares = names.map((_, i) => (i === 0 ? 0 : n(p, `split${i + 1}`, 0)));
+      const rest = 100 - shares.reduce((a, b) => a + b, 0);
+      shares[0] = rest;
+      const outs: Record<string, typeof out> = {};
+      const splitNotes: string[] = [];
+      if (rest < 0) {
+        splitNotes.push(`The outlet shares total ${(100 - rest).toFixed(1)} %, which is more water than enters the tank. Reduce them until they sum to 100 %.`);
+      }
+      names.forEach((nm, i) => {
+        const s = clamp(shares[i], 0, 100) / 100;
+        const branch = cloneStream(out);
+        branch.flow = out.flow * s;
+        outs[nm] = branch;
+      });
       return {
-        outlets: { out },
+        outlets: outs,
         aux: aux({
           hrtH: hrt,
           sizing: [
@@ -94,7 +128,10 @@ function tankModel(
             { label: "HRT", value: `${hrt.toFixed(1)} h` },
           ],
           capexUSD: costCurve(vol, 320, 0.68),
-          notes: loss > 0 ? [`${(loss * 100).toFixed(1)} % volumetric loss taken as evaporation / desilting.`] : [],
+          notes: [
+            ...(loss > 0 ? [`${(loss * 100).toFixed(1)} % volumetric loss taken as evaporation / desilting.`] : []),
+            ...splitNotes,
+          ],
         }),
       };
     },
@@ -1298,6 +1335,18 @@ export const UNIT_MODELS: UnitModel[] = [
 export const UNIT_BY_TYPE: Record<string, UnitModel> = Object.fromEntries(
   UNIT_MODELS.map((m) => [m.type, m]),
 );
+
+/**
+ * The outlets a block actually has, given how it is configured. Every consumer
+ * — the canvas handles, the palette, the balance — must go through this rather
+ * than reading `model.outlets`, or a second draw-off line will exist in the
+ * solver and be invisible on the drawing.
+ */
+export function outletsOf(type: string, params: Params): string[] {
+  const m = UNIT_BY_TYPE[type];
+  if (!m) return [];
+  return m.dynamicOutlets ? m.dynamicOutlets(params) : m.outlets;
+}
 
 export const CATEGORY_LABELS: Record<UnitModel["category"], string> = {
   intake: "Intake",

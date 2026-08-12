@@ -1,8 +1,8 @@
 "use client";
 
 import { Handle, Position, NodeProps } from "@xyflow/react";
-import { UNIT_BY_TYPE } from "@/lib/engine/units";
-import { UnitCategory } from "@/lib/engine/types";
+import { outletsOf, UNIT_BY_TYPE } from "@/lib/engine/units";
+import { Params, UnitCategory } from "@/lib/engine/types";
 
 export const CATEGORY_STYLE: Record<UnitCategory, { bg: string; ring: string; text: string; dot: string }> = {
   intake:       { bg: "bg-sky-50",     ring: "ring-sky-200",     text: "text-sky-800",     dot: "bg-sky-400" },
@@ -21,6 +21,7 @@ export const CATEGORY_STYLE: Record<UnitCategory, { bg: string; ring: string; te
 export interface UnitNodeData extends Record<string, unknown> {
   label: string;
   unitType: string;
+  params?: Params;
   flow?: number;
   tds?: number;
   selected?: boolean;
@@ -31,7 +32,8 @@ export function UnitNode({ data, selected }: NodeProps) {
   const model = UNIT_BY_TYPE[d.unitType];
   if (!model) return null;
   const style = CATEGORY_STYLE[model.category];
-  const outs = model.outlets;
+  // Read through outletsOf: a tank set to two draw-off lines must show two.
+  const outs = outletsOf(d.unitType, d.params ?? {});
 
   return (
     <div

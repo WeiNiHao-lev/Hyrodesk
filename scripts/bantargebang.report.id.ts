@@ -17,7 +17,7 @@ const d: Json = JSON.parse(readFileSync("scripts/out/bantargebang.json", "utf8")
 
 const NAVY = "0F2942", ALT = "EEF6FB", OK = "D8F7E9", BAD = "FBDDD8", WARN = "FEF3D4", TEAL = "0E7C5A";
 
-const P = (t: string, o: { b?: boolean; sz?: number; color?: string; it?: boolean; align?: any } = {}) =>
+const P = (t: string, o: { b?: boolean; sz?: number; color?: string; it?: boolean; align?: (typeof AlignmentType)[keyof typeof AlignmentType] } = {}) =>
   new Paragraph({
     alignment: o.align, spacing: { after: 130, line: 276 },
     children: [new TextRun({ text: t, bold: o.b, size: o.sz ?? 20, color: o.color, italics: o.it, font: "Calibri" })],

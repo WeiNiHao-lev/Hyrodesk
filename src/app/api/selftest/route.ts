@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { FEED_PRESETS, TEMPLATES } from "@/lib/engine/templates";
 import { feedStream, simulate, simulateForProduct } from "@/lib/engine/solver";
-import { UNIT_BY_TYPE, UNIT_MODELS } from "@/lib/engine/units";
+import { outletsOf, UNIT_BY_TYPE, UNIT_MODELS } from "@/lib/engine/units";
 import { knowledgeFor } from "@/lib/engine/knowledge";
 import { calcRowsFor } from "@/lib/report/calcsheets";
 import { inhibitionFindings, traceBalance } from "@/lib/engine/compliance";
@@ -173,6 +173,9 @@ async function runChecks() {
 
   /* --- the canvas terminals: feed in, outfall out, balance closed --- */
   const canvas = checkCanvasTerminals();
+
+  /* --- a tank with more than one draw-off line --- */
+  const tankSplit = checkTankOutlets();
 
   /* --- Excel export: assert the workbook is built from live formulas --- */
   let xlsx: Record<string, unknown> = { ok: false };
@@ -354,9 +357,10 @@ async function runChecks() {
     {
       ok: allClosed && allConverged && diagnosticsOk && productDrivenOk
         && xlsx.ok === true && docx.ok === true && diagrams.ok === true
-        && leachate.ok && coverage.ok && markers.ok && prepare.ok && canvas.ok,
+        && leachate.ok && coverage.ok && markers.ok && prepare.ok && canvas.ok
+        && tankSplit.ok,
       allConverged, allClosed, diagnosticsOk, productDrivenOk,
-      coverage, leachate, markers, prepare, canvas, xlsx, docx, diagrams,
+      coverage, leachate, markers, prepare, canvas, tankSplit, xlsx, docx, diagrams,
       productDriven: pdTests,
       diagnostics: {
         fixture: KNOWN_BAD_FEED.name,
@@ -378,6 +382,55 @@ async function runChecks() {
     },
     { headers: { "cache-control": "no-store" } },
   );
+}
+
+/**
+ * A tank drawn with two draw-off lines, which is how a real plant splits a
+ * bypass from a membrane feed. The split has to be exact and the balance has to
+ * close, because the whole point of putting it on one block rather than behind
+ * a splitter is that the drawing should match the vessel that gets built.
+ */
+function checkTankOutlets() {
+  const params = { hrtH: 1, outletCount: 2, split2: 32.7, lossPct: 0 };
+  const m = UNIT_BY_TYPE.rawtank;
+  const names = outletsOf("rawtank", params);
+  const probe = feedStream({
+    name: "probe", flow: 196, T: 30, pH: 7,
+    c: { TDS: 375, TSS: 0.5, Ca: 55, Mg: 15, Na: 42, Cl: 40, SO4: 45, HCO3: 158 },
+  });
+  const solved = m.solve(probe, { ...m.defaults, ...params });
+  const out1 = solved.outlets.out1?.flow ?? 0;
+  const out2 = solved.outlets.out2?.flow ?? 0;
+
+  // A single-outlet tank must keep the old port name, or every existing
+  // flowsheet loses its connection the moment this feature ships.
+  const single = outletsOf("rawtank", { outletCount: 1 });
+  const singleSolved = m.solve(probe, { ...m.defaults, outletCount: 1 });
+
+  // Shares that sum past 100 % must be reported, not silently clipped.
+  const over = m.solve(probe, { ...m.defaults, outletCount: 3, split2: 70, split3: 60 });
+
+  return {
+    ok: names.length === 2
+      && Math.abs(out2 / probe.flow * 100 - 32.7) < 1e-6
+      && Math.abs(out1 + out2 - probe.flow) < 1e-9
+      // Quality is unchanged by a split: only the flow divides.
+      && Math.abs((solved.outlets.out1?.c.TDS ?? 0) - 375) < 1e-9
+      && Math.abs((solved.outlets.out2?.c.TDS ?? 0) - 375) < 1e-9
+      && single.length === 1 && single[0] === "out"
+      && !!singleSolved.outlets.out
+      && over.aux.notes.some((x) => /more water than enters/i.test(x)),
+    outletNames: names,
+    inFlow: round(probe.flow, 4),
+    out1: round(out1, 4),
+    out2: round(out2, 4),
+    sharePct: round(out2 / probe.flow * 100, 4),
+    closure: round(out1 + out2 - probe.flow, 9),
+    qualityUnchanged: round(solved.outlets.out1?.c.TDS ?? 0, 4) === 375
+      && round(solved.outlets.out2?.c.TDS ?? 0, 4) === 375,
+    singleOutletStillNamedOut: single.length === 1 && single[0] === "out",
+    overSubscribedWarns: over.aux.notes,
+  };
 }
 
 /**

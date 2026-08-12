@@ -1,0 +1,511 @@
+{
+  "generated": "2026-08-12T12:13:29.437Z",
+  "project": {
+    "name": "WTP Sagara — 50 L/s ke Kawasan Industri SIER, Surabaya",
+    "productTarget_m3h": 180,
+    "rawDesign_m3h": 205,
+    "land_m2": 2000,
+    "spec": {
+      "TDS_max": 300,
+      "turbidity_max_NTU": 1
+    }
+  },
+  "tankOutletsConfigured": [
+    "out1",
+    "out2"
+  ],
+  "design": {
+    "name": "Titik desain — 32,7 % ke RO",
+    "converged": true,
+    "waterClosure_pct": 0,
+    "raw_m3h": 205,
+    "product_m3h": 179.84,
+    "waste_m3h": 25.16,
+    "recovery_pct": 87.73,
+    "tankOutlets": {
+      "out1": 131.8,
+      "out2": 64.04
+    },
+    "roFeed_m3h": 64.04,
+    "roPermeate_m3h": 48.03,
+    "roPermeate_TDS": 17.7,
+    "roConcentrate_m3h": 16.01,
+    "roConcentrate_TDS": 1475,
+    "product_TDS": 284.7,
+    "product_turbidity": 0.109,
+    "product_pH": 7.6,
+    "power_kW": 92.8,
+    "sec_kWh_m3": 0.516,
+    "chemicals": [
+      {
+        "name": "Sulphuric acid H2SO4",
+        "kg_h": 11.974
+      },
+      {
+        "name": "Caustic soda NaOH",
+        "kg_h": 4.808
+      },
+      {
+        "name": "Poly-aluminium chloride",
+        "kg_h": 5.125
+      },
+      {
+        "name": "Antiscalant",
+        "kg_h": 0.192
+      },
+      {
+        "name": "Sodium metabisulphite",
+        "kg_h": 0.32
+      },
+      {
+        "name": "Polymer flocculant",
+        "kg_h": 0.062
+      },
+      {
+        "name": "Sodium hypochlorite (as Cl2)",
+        "kg_h": 0.308
+      },
+      {
+        "name": "Polymer (dewatering)",
+        "kg_h": 0.024
+      }
+    ],
+    "drySolids_t_d": 0.275,
+    "capex_USD": 594962,
+    "compliance": [
+      {
+        "p": "Turbidity",
+        "limit": "≤ 3 NTU",
+        "actual": "0.1093",
+        "pass": true,
+        "scope": false
+      },
+      {
+        "p": "TDS",
+        "limit": "≤ 500 mg/L",
+        "actual": "284.7",
+        "pass": true,
+        "scope": false
+      },
+      {
+        "p": "pH",
+        "limit": "6.5 – 8.5 -",
+        "actual": "7.60",
+        "pass": true,
+        "scope": false
+      },
+      {
+        "p": "Iron",
+        "limit": "≤ 0.3 mg/L",
+        "actual": "0.0927",
+        "pass": true,
+        "scope": false
+      },
+      {
+        "p": "Manganese",
+        "limit": "≤ 0.4 mg/L",
+        "actual": "0.0700",
+        "pass": true,
+        "scope": false
+      },
+      {
+        "p": "Nitrate",
+        "limit": "≤ 50 mg/L",
+        "actual": "2.43",
+        "pass": true,
+        "scope": false
+      },
+      {
+        "p": "Total hardness",
+        "limit": "≤ 500 mg/L CaCO₃",
+        "actual": "153.1",
+        "pass": true,
+        "scope": false
+      }
+    ],
+    "warnings": [
+      "RO Air Payau 3 train: Feed SDI15 4.0 exceeds the usual limit of 3 for RO."
+    ],
+    "stages": [
+      {
+        "stage": "Waduk",
+        "in_m3h": 205,
+        "TDS": 365,
+        "TSS": 20,
+        "NTU": 15,
+        "pH": 8.5
+      },
+      {
+        "stage": "Intake & Screen",
+        "in_m3h": 205,
+        "TDS": 365,
+        "TSS": 20,
+        "NTU": 15,
+        "pH": 8.5
+      },
+      {
+        "stage": "Koreksi pH 8,5 → 6,9",
+        "in_m3h": 205,
+        "TDS": 365,
+        "TSS": 19.4,
+        "NTU": 14.775,
+        "pH": 8.5
+      },
+      {
+        "stage": "Rapid Mix + Flokulasi",
+        "in_m3h": 205,
+        "TDS": 365,
+        "TSS": 19.4,
+        "NTU": 14.775,
+        "pH": 6.9
+      },
+      {
+        "stage": "DAF 2 unit",
+        "in_m3h": 205,
+        "TDS": 365,
+        "TSS": 30.65,
+        "NTU": 14.775,
+        "pH": 6.9
+      },
+      {
+        "stage": "Filter Dual-Media",
+        "in_m3h": 202.95,
+        "TDS": 368.7,
+        "TSS": 2.48,
+        "NTU": 1.182,
+        "pH": 6.9
+      },
+      {
+        "stage": "Tangki Air Tersaring",
+        "in_m3h": 195.85,
+        "TDS": 382.1,
+        "TSS": 0.31,
+        "NTU": 0.142,
+        "pH": 6.9
+      },
+      {
+        "stage": "Pengental Lumpur",
+        "in_m3h": 9.15,
+        "TDS": 0,
+        "TSS": 679.86,
+        "NTU": 4.226,
+        "pH": 6.9
+      },
+      {
+        "stage": "Cartridge 5 µm",
+        "in_m3h": 64.04,
+        "TDS": 382.1,
+        "TSS": 0.31,
+        "NTU": 0.142,
+        "pH": 6.9
+      },
+      {
+        "stage": "Screw Press",
+        "in_m3h": 4.58,
+        "TDS": 0,
+        "TSS": 1291.73,
+        "NTU": 4.226,
+        "pH": 6.9
+      },
+      {
+        "stage": "RO Air Payau 3 train",
+        "in_m3h": 64.04,
+        "TDS": 382.1,
+        "TSS": 0.15,
+        "NTU": 0.142,
+        "pH": 6.9
+      },
+      {
+        "stage": "Tangki Produk + Blending",
+        "in_m3h": 179.84,
+        "TDS": 284.7,
+        "TSS": 0.23,
+        "NTU": 0.109,
+        "pH": 6.37
+      },
+      {
+        "stage": "Trim pH Produk (NaOH)",
+        "in_m3h": 179.84,
+        "TDS": 284.7,
+        "TSS": 0.23,
+        "NTU": 0.109,
+        "pH": 6.37
+      },
+      {
+        "stage": "Pompa Distribusi ke SIER",
+        "in_m3h": 179.84,
+        "TDS": 284.7,
+        "TSS": 0.23,
+        "NTU": 0.109,
+        "pH": 7.6
+      },
+      {
+        "stage": "Produk ke SIER",
+        "in_m3h": 179.84,
+        "TDS": 284.7,
+        "TSS": 0.23,
+        "NTU": 0.109,
+        "pH": 7.6
+      }
+    ]
+  },
+  "dry": {
+    "name": "Puncak kemarau, TDS 450 — bagian RO sama",
+    "converged": true,
+    "waterClosure_pct": 0,
+    "raw_m3h": 205,
+    "product_m3h": 179.84,
+    "waste_m3h": 25.16,
+    "recovery_pct": 87.73,
+    "tankOutlets": {
+      "out1": 131.8,
+      "out2": 64.04
+    },
+    "roFeed_m3h": 64.04,
+    "roPermeate_m3h": 48.03,
+    "roPermeate_TDS": 21.8,
+    "roConcentrate_m3h": 16.01,
+    "roConcentrate_TDS": 1819,
+    "product_TDS": 351,
+    "product_turbidity": 0.109,
+    "product_pH": 7.6,
+    "power_kW": 93.2,
+    "sec_kWh_m3": 0.518,
+    "chemicals": [
+      {
+        "name": "Sulphuric acid H2SO4",
+        "kg_h": 14.399
+      },
+      {
+        "name": "Caustic soda NaOH",
+        "kg_h": 5.886
+      },
+      {
+        "name": "Poly-aluminium chloride",
+        "kg_h": 5.125
+      },
+      {
+        "name": "Antiscalant",
+        "kg_h": 0.192
+      },
+      {
+        "name": "Sodium metabisulphite",
+        "kg_h": 0.32
+      },
+      {
+        "name": "Polymer flocculant",
+        "kg_h": 0.062
+      },
+      {
+        "name": "Sodium hypochlorite (as Cl2)",
+        "kg_h": 0.308
+      },
+      {
+        "name": "Polymer (dewatering)",
+        "kg_h": 0.024
+      }
+    ],
+    "drySolids_t_d": 0.275,
+    "capex_USD": 594962,
+    "compliance": [
+      {
+        "p": "Turbidity",
+        "limit": "≤ 3 NTU",
+        "actual": "0.1093",
+        "pass": true,
+        "scope": false
+      },
+      {
+        "p": "TDS",
+        "limit": "≤ 500 mg/L",
+        "actual": "351.0",
+        "pass": true,
+        "scope": false
+      },
+      {
+        "p": "pH",
+        "limit": "6.5 – 8.5 -",
+        "actual": "7.60",
+        "pass": true,
+        "scope": false
+      },
+      {
+        "p": "Iron",
+        "limit": "≤ 0.3 mg/L",
+        "actual": "0.0927",
+        "pass": true,
+        "scope": false
+      },
+      {
+        "p": "Manganese",
+        "limit": "≤ 0.4 mg/L",
+        "actual": "0.0700",
+        "pass": true,
+        "scope": false
+      },
+      {
+        "p": "Nitrate",
+        "limit": "≤ 50 mg/L",
+        "actual": "2.43",
+        "pass": true,
+        "scope": false
+      },
+      {
+        "p": "Total hardness",
+        "limit": "≤ 500 mg/L CaCO₃",
+        "actual": "178.1",
+        "pass": true,
+        "scope": false
+      }
+    ],
+    "warnings": [
+      "RO Air Payau 3 train: Feed SDI15 4.0 exceeds the usual limit of 3 for RO."
+    ],
+    "stages": [
+      {
+        "stage": "Waduk",
+        "in_m3h": 205,
+        "TDS": 450,
+        "TSS": 20,
+        "NTU": 15,
+        "pH": 8.5
+      },
+      {
+        "stage": "Intake & Screen",
+        "in_m3h": 205,
+        "TDS": 450,
+        "TSS": 20,
+        "NTU": 15,
+        "pH": 8.5
+      },
+      {
+        "stage": "Koreksi pH 8,5 → 6,9",
+        "in_m3h": 205,
+        "TDS": 450,
+        "TSS": 19.4,
+        "NTU": 14.775,
+        "pH": 8.5
+      },
+      {
+        "stage": "Rapid Mix + Flokulasi",
+        "in_m3h": 205,
+        "TDS": 450,
+        "TSS": 19.4,
+        "NTU": 14.775,
+        "pH": 6.9
+      },
+      {
+        "stage": "DAF 2 unit",
+        "in_m3h": 205,
+        "TDS": 450,
+        "TSS": 30.65,
+        "NTU": 14.775,
+        "pH": 6.9
+      },
+      {
+        "stage": "Filter Dual-Media",
+        "in_m3h": 202.95,
+        "TDS": 454.5,
+        "TSS": 2.48,
+        "NTU": 1.182,
+        "pH": 6.9
+      },
+      {
+        "stage": "Tangki Air Tersaring",
+        "in_m3h": 195.85,
+        "TDS": 471,
+        "TSS": 0.31,
+        "NTU": 0.142,
+        "pH": 6.9
+      },
+      {
+        "stage": "Pengental Lumpur",
+        "in_m3h": 9.15,
+        "TDS": 0,
+        "TSS": 679.86,
+        "NTU": 4.226,
+        "pH": 6.9
+      },
+      {
+        "stage": "Cartridge 5 µm",
+        "in_m3h": 64.04,
+        "TDS": 471,
+        "TSS": 0.31,
+        "NTU": 0.142,
+        "pH": 6.9
+      },
+      {
+        "stage": "Screw Press",
+        "in_m3h": 4.58,
+        "TDS": 0,
+        "TSS": 1291.73,
+        "NTU": 4.226,
+        "pH": 6.9
+      },
+      {
+        "stage": "RO Air Payau 3 train",
+        "in_m3h": 64.04,
+        "TDS": 471,
+        "TSS": 0.15,
+        "NTU": 0.142,
+        "pH": 6.9
+      },
+      {
+        "stage": "Tangki Produk + Blending",
+        "in_m3h": 179.84,
+        "TDS": 351,
+        "TSS": 0.23,
+        "NTU": 0.109,
+        "pH": 6.37
+      },
+      {
+        "stage": "Trim pH Produk (NaOH)",
+        "in_m3h": 179.84,
+        "TDS": 351,
+        "TSS": 0.23,
+        "NTU": 0.109,
+        "pH": 6.37
+      },
+      {
+        "stage": "Pompa Distribusi ke SIER",
+        "in_m3h": 179.84,
+        "TDS": 351,
+        "TSS": 0.23,
+        "NTU": 0.109,
+        "pH": 7.6
+      },
+      {
+        "stage": "Produk ke SIER",
+        "in_m3h": 179.84,
+        "TDS": 351,
+        "TSS": 0.23,
+        "NTU": 0.109,
+        "pH": 7.6
+      }
+    ]
+  },
+  "minShareNormal": {
+    "share": 28,
+    "tds": 299.8
+  },
+  "minShareDry": {
+    "share": 45.1,
+    "tds": 299.8
+  },
+  "reference": {
+    "source": "Percakapan desain, Lampiran C (tabel aliran S-01 … S-13)",
+    "raw_m3h": 205,
+    "filtered_m3h": 196,
+    "bypass_m3h": 132,
+    "roFeed_m3h": 64,
+    "permeate_m3h": 48,
+    "permeate_TDS": 12,
+    "concentrate_m3h": 16,
+    "concentrate_TDS": 1464,
+    "product_m3h": 180,
+    "product_TDS": 278,
+    "recovery_pct": 87.8,
+    "sec_kWh_m3": 0.545,
+    "roSharePct_ofProduct": 26.7
+  }
+}

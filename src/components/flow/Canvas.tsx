@@ -6,7 +6,7 @@ import {
   Edge, Node, Connection, NodeChange, applyNodeChanges, MarkerType, useReactFlow,
 } from "@xyflow/react";
 import { useStudy } from "@/lib/store/useStudy";
-import { UNIT_BY_TYPE } from "@/lib/engine/units";
+import { outletsOf } from "@/lib/engine/units";
 import { UnitNode } from "./UnitNode";
 
 const nodeTypes = { unit: UnitNode };
@@ -35,7 +35,8 @@ function CanvasInner() {
           data: {
             label: nd.label,
             unitType: nd.type,
-            flow: r ? (UNIT_BY_TYPE[nd.type]?.outlets.length ? outFlow : r.inlet.flow) : undefined,
+            params: nd.params,
+            flow: r ? (outletsOf(nd.type, nd.params).length ? outFlow : r.inlet.flow) : undefined,
             tds: r ? r.inlet.c.TDS : undefined,
           },
         } as Node;

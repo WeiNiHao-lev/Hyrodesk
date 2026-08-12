@@ -22,7 +22,7 @@ const BAD = "FBDDD8";
 const WARN = "FEF3D4";
 const TEAL = "0E7C5A";
 
-const P = (t: string, o: { b?: boolean; sz?: number; color?: string; it?: boolean; after?: number; align?: any } = {}) =>
+const P = (t: string, o: { b?: boolean; sz?: number; color?: string; it?: boolean; after?: number; align?: (typeof AlignmentType)[keyof typeof AlignmentType] } = {}) =>
   new Paragraph({
     alignment: o.align,
     spacing: { after: o.after ?? 130, line: 276 },
