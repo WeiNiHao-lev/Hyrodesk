@@ -1,0 +1,45 @@
+{
+  "generated": "2026-08-12T13:23:44.565Z",
+  "membraneCases": [
+    {
+      "label": "RO air payau",
+      "type": "ro",
+      "share": 23.5,
+      "TDS": 299.8,
+      "hardness": 162,
+      "alkalinity": 97,
+      "Na": 49.5,
+      "Cl": 32.7,
+      "SO4": 83.2,
+      "Ca": 44.8,
+      "Mg": 12.2,
+      "power_kW": 90.2,
+      "sec": 0.489,
+      "recovery": 89.9
+    },
+    {
+      "label": "Nanofiltrasi",
+      "type": "nf",
+      "share": 75,
+      "TDS": 343,
+      "hardness": 91,
+      "alkalinity": 73,
+      "Na": 55.6,
+      "Cl": 41,
+      "SO4": 34.8,
+      "Ca": 27.1,
+      "Mg": 5.7,
+      "power_kW": 102.9,
+      "sec": 0.646,
+      "recovery": 77.6
+    }
+  ],
+  "limeSoftening": {
+    "meqNeeded": 0.8,
+    "limeDose_mgL": 29.7,
+    "lime_kgd": 146,
+    "sludge_kgd": 395,
+    "alkLeft": 90,
+    "existingSludge_kgd": 157
+  }
+}

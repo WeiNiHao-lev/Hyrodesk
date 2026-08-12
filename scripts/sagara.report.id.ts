@@ -100,7 +100,7 @@ const f = (v: number, dp = 1) => {
   return `${r < 0 ? "-" : ""}${i.replace(/\B(?=(\d{3})+(?!\d))/g, ".")}${dec ? "," + dec : ""}`;
 };
 
-const G = d.design, DRY = d.dry, R = d.reference, RS = d.rejectionStudy;
+const G = d.design, R = d.reference, RS = d.rejectionStudy;
 const body: (Paragraph | Table)[] = [];
 
 /* ================================================================= sampul */
