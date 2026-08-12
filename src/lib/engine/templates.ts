@@ -116,6 +116,24 @@ export interface FeedPreset {
 
 export const FEED_PRESETS: FeedPreset[] = [
   {
+    key: "reservoir-sagara",
+    label: "Reservoir — Sagara / SIER Surabaya (algal, pH 8.5)",
+    spec: {
+      name: "Waduk Sagara",
+      sourceType: "river",
+      flow: 205, T: 30, pH: 8.5,
+      c: {
+        TDS: 365, TSS: 20, TOC: 5,
+        Ca: 55, Mg: 15, Na: 42, K: 6,
+        HCO3: 158, SO4: 45, Cl: 40, NO3: 3,
+        SiO2: 12, Fe: 0.3, Mn: 0.15,
+        BOD: 3, COD: 15,
+      },
+      turbidityNTU: 15,
+      alkalinityAsCaCO3: 130,
+    },
+  },
+  {
     key: "seawater-gresik",
     label: "Seawater — Gresik (CCEPC project data)",
     spec: {
@@ -280,7 +298,7 @@ export const TEMPLATES: Template[] = [
           [3, "sludge", 12], [4, "backwash", 13], [5, "backwash", 14],
           [7, "concentrate", 15], [8, "concentrate", 16], [9, "concentrate", 17],
         ],
-        FEED_PRESETS[1].spec,
+        feedPreset("river-sumatra"),
         { standard: "gbt1576", productSpecKey: "demin" },
       ),
   },
@@ -317,7 +335,7 @@ export const TEMPLATES: Template[] = [
           [2, "sludge", 11], [3, "float", 12], [5, "backwash", 13],
           [6, "backwash", 14], [7, "concentrate", 15],
         ],
-        FEED_PRESETS[0].spec,
+        feedPreset("seawater-gresik"),
         { standard: "custom", productSpecKey: "process" },
       ),
   },
@@ -349,7 +367,7 @@ export const TEMPLATES: Template[] = [
           [2, "was", 7], [3, "sludge", 7], [7, "thickened", 8], [8, "cake", 9],
           [7, "supernatant", 10], [8, "filtrate", 11], [4, "backwash", 12],
         ],
-        FEED_PRESETS[2].spec,
+        feedPreset("municipal-sewage"),
         { standard: "permenlhk", productSpecKey: "reuse" },
       ),
   },
@@ -381,11 +399,66 @@ export const TEMPLATES: Template[] = [
           [5, "distillate", 7], [5, "concentrate", 8],
           [1, "was", 9], [2, "backwash", 10],
         ],
-        FEED_PRESETS[4].spec,
+        feedPreset("landfill-leachate"),
         { standard: "permenlhk", productSpecKey: "reuse" },
       ),
   },
+  {
+    key: "wtp-sagara-split",
+    name: "WTP surface water — split-stream RO (Sagara / SIER)",
+    category: "WTP",
+    description:
+      "Reservoir water for industrial supply where the dissolved solids need only a small reduction. Everything passes conventional treatment; a quarter of the filtered water is taken to RO and blended back. DAF rather than sedimentation, because an algal floc floats. The filtered water tank has two draw-off lines, which is the point of the design.",
+    make: () =>
+      build(
+        [
+          { type: "feedsource", label: "Waduk", x: 0, y: 200 },
+          { type: "intake", label: "Intake & Screen", params: { headM: 30, pumpEff: 0.75, screenRemovalTSS: 3, cl2Dose: 1.5 }, x: 150, y: 200 },
+          { type: "phadjust", label: "Koreksi pH 8.5 to 6.9", params: { targetPH: 6.9, reagentDown: "h2so4", codCoPrecipPct: 0, hrtMin: 5 }, x: 300, y: 200 },
+          { type: "coagfloc", label: "Rapid Mix + Flokulasi", params: { coagDose: 25, polymerDose: 0.3, targetPH: 6.9, mixTimeMin: 1, flocTimeMin: 18 }, x: 450, y: 200 },
+          { type: "daf", label: "DAF 2 unit", params: { loading: 10, recyclePct: 10, tssRemoval: 92, floatFlowPct: 1.0, codRemoval: 40 }, x: 600, y: 200 },
+          { type: "mmf", label: "Filter Dual-Media", params: { rate: 10, backwashPct: 3.5, tssRemoval: 88 }, x: 750, y: 200 },
+          // One vessel, two lines: the bypass and the RO feed. This is why tanks
+          // take an outlet count.
+          { type: "rawtank", label: "Tangki Air Tersaring", params: { hrtH: 1, outletCount: 2, split2: 32.7, lossPct: 0 }, x: 900, y: 200 },
+          { type: "cartridge", label: "Cartridge 5 um", params: { micron: 5 }, x: 1050, y: 340 },
+          { type: "ro", label: "RO Air Payau 3 train", params: { recovery: 75, flux: 18, trains: 3, antiscalantDose: 3, smbsDose: 5 }, x: 1200, y: 340 },
+          { type: "producttank", label: "Tangki Produk + Blending", params: { hrtH: 4 }, x: 1350, y: 200 },
+          { type: "phadjust", label: "Trim pH Produk", params: { targetPH: 7.6, reagentUp: "naoh", codCoPrecipPct: 0, hrtMin: 5 }, x: 1500, y: 200 },
+          { type: "pump", label: "Pompa Distribusi", params: { headM: 45, pumpEff: 0.75, standby: 1 }, x: 1650, y: 200 },
+          { type: "outfall", label: "Produk ke SIER", x: 1800, y: 200 },
+          { type: "thickener", label: "Pengental Lumpur", params: { supernatantPct: 50 }, x: 750, y: 470 },
+          { type: "dewatering", label: "Screw Press", params: { cakeDryness: 18, polymerDose: 4 }, x: 900, y: 470 },
+          { type: "waste", label: "Cake ke TPA", params: { name: "sludge" }, x: 1050, y: 470 },
+          { type: "waste", label: "Efluen ke Badan Air", params: { name: "reject" }, x: 1200, y: 560 },
+        ],
+        [
+          [0, "out", 1], [1, "out", 2], [2, "out", 3], [3, "out", 4], [4, "out", 5], [5, "out", 6],
+          [6, "out1", 9],
+          [6, "out2", 7], [7, "out", 8], [8, "permeate", 9],
+          [9, "out", 10], [10, "out", 11], [11, "out", 12],
+          [4, "float", 13], [5, "backwash", 13],
+          [13, "thickened", 14], [13, "supernatant", 16],
+          [14, "cake", 15], [14, "filtrate", 16],
+          [8, "concentrate", 16],
+        ],
+        feedPreset("reservoir-sagara"),
+        { standard: "permenkes", productSpecKey: "process" },
+      ),
+  },
 ];
+
+/**
+ * A feed by name rather than by position. Templates used to index into
+ * FEED_PRESETS, so adding a preset at the front silently repointed every one of
+ * them at the wrong water — the kind of break that shows up as a plausible
+ * number rather than as an error.
+ */
+export function feedPreset(key: string): FeedSpec {
+  const p = FEED_PRESETS.find((x) => x.key === key);
+  if (!p) throw new Error(`Unknown feed preset: ${key}`);
+  return JSON.parse(JSON.stringify(p.spec)) as FeedSpec;
+}
 
 export function templateByKey(key: string): Template | undefined {
   return TEMPLATES.find((t) => t.key === key);

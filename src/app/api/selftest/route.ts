@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { FEED_PRESETS, TEMPLATES } from "@/lib/engine/templates";
+import { feedPreset, TEMPLATES } from "@/lib/engine/templates";
 import { feedStream, simulate, simulateForProduct } from "@/lib/engine/solver";
 import { outletsOf, UNIT_BY_TYPE, UNIT_MODELS } from "@/lib/engine/units";
 import { knowledgeFor } from "@/lib/engine/knowledge";
@@ -134,7 +134,7 @@ async function runChecks() {
   const caught = mustCatch.filter((t) => titles.includes(t));
   const diagnosticsOk = caught.length === mustCatch.length;
 
-  const advice = adviseProcess(FEED_PRESETS[1].spec, "demin");
+  const advice = adviseProcess(feedPreset("river-sumatra"), "demin");
 
   /* --- product-driven sizing: the intake must be solved, not guessed --- */
   const pdTests = TEMPLATES.filter((t) => t.key !== "blank").map((t) => {

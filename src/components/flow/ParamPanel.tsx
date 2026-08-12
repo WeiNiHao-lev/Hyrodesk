@@ -81,6 +81,12 @@ export function ParamPanel() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-3">
+        {groups.length === 0 && (
+          <p className="rounded-lg bg-ink-900/[0.03] px-3 py-3 text-[0.72rem] leading-relaxed text-ink-500">
+            This block has nothing to set. It marks a point on the flowsheet rather than sizing a
+            machine, so it carries no design parameters. Open the Learn tab to read what it is for.
+          </p>
+        )}
         {groups.map(([group, defs]) => (
           <div key={group} className="mb-4">
             <div className="mb-2 text-[0.6rem] font-bold uppercase tracking-wider text-ink-500">

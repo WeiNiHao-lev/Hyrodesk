@@ -47,6 +47,15 @@ function SimulateInner() {
     flowsheet.nodes.find((nd) => nd.id === selectedId)?.type === "feedsource";
   const hasFeedBlock = flowsheet.nodes.some((nd) => nd.type === "feedsource");
   const [tab, setTab] = useState<Tab>("block");
+  // Selecting the feed on the canvas should show the water. Selecting it must
+  // not then pin the panel there — the previous version derived the active tab
+  // from the selection, which meant Learn and Basis could be clicked and
+  // nothing happened for as long as the feed stayed selected.
+  const [tabSetFor, setTabSetFor] = useState<string | null>(null);
+  if (selectedId !== tabSetFor) {
+    setTabSetFor(selectedId);
+    if (selectedIsFeed && tab !== "block") setTab("block");
+  }
   const [showOpt, setShowOpt] = useState(false);
   const [showSave, setShowSave] = useState(false);
 
@@ -67,9 +76,10 @@ function SimulateInner() {
   }, []);
 
 
-  // Selecting the feed on the canvas shows it whichever tab was open. Derived
-  // rather than pushed into state, so there is no render cascade to reason about.
-  const activeTab: Tab = selectedIsFeed ? "block" : tab;
+  // The Feed tab only exists when there is no feed block to click. If one is
+  // added while that tab is open, fall back rather than showing a panel with no
+  // way back to it.
+  const activeTab: Tab = tab === "feed" && hasFeedBlock ? "block" : tab;
 
   const s = result?.summary;
   const warn = s?.warnings.length ?? 0;
