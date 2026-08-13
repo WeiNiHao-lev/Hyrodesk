@@ -22,7 +22,7 @@ const LIME = A.limeSoftening;
 const G = d.design;
 const U = (label: string) => G.units.find((x: Json) => x.label.startsWith(label));
 
-const NAVY = "0F2942", ALT = "EEF6FB", OK = "D8F7E9", WARN = "FEF3D4", TEAL = "0E7C5A", GREY = "5A6B7B";
+const NAVY = "0F2942", ALT = "EEF6FB", OK = "D8F7E9", BAD = "FBDDD8", WARN = "FEF3D4", TEAL = "0E7C5A", GREY = "5A6B7B";
 type Align = (typeof AlignmentType)[keyof typeof AlignmentType];
 
 const P = (t: string, o: { b?: boolean; sz?: number; color?: string; it?: boolean; align?: Align } = {}) =>
@@ -134,7 +134,7 @@ body.push(
   table(["Bagian", "Isi"], [
     ["I — Dasar Teori", "Apa yang ada di dalam air, mengapa koloid tidak mengendap, bagaimana memisahkannya, dan apa itu membran"],
     ["II — Alat Hitung", "Enam persamaan yang dipakai berulang di seluruh desain, lengkap dengan penurunannya"],
-    ["III — Sepuluh Keputusan", "Penerapan teori ke Sagara: apa yang dipilih, apa yang kalah, dan mengapa"],
+    ["III — Desain Proses", "Rangkaian dan alasan tiap tahap, mengapa tiga train, neraca air, bahan kimia, lahan, risiko, rekomendasi"],
     ["IV — Perhitungan Unit", "Setiap unit dihitung dari rumus, disubstitusikan, sampai hasilnya"],
     ["V — Penguasaan", "Pertanyaan yang akan diajukan, jawabannya, dan angka yang harus dihafal"],
   ], [2400, 7000]),
@@ -372,20 +372,248 @@ body.push(P(
   "Dan perhatikan mana yang mendominasi. Suku pertama membawa 375 mg/L dengan bobot besar; suku kedua membawa 12 mg/L dengan bobot kecil. Memperbaiki permeat dari 17 ke 10 mg/L hanya menggeser produk sekitar 2 mg/L. Inilah alasan kuantitatif mengapa negosiasi rejeksi membran BUKAN hal yang menentukan jumlah train.",
 ));
 
-/* ============================================================ BAGIAN IV */
-body.push(...PART("BAGIAN III", "Perhitungan Unit demi Unit"));
+
+/* ============================================================ BAGIAN III */
+body.push(...PART("BAGIAN III", "Desain Proses"));
+
+body.push(H1("12  Rangkaian Proses dan Alasan Tiap Tahapnya"));
+body.push(P(
+  "Rangkaiannya dibaca dari kiri ke kanan, tetapi dirancang dari kanan ke kiri. Yang tetap adalah permintaan — 180 m\u00b3/jam pada TDS di bawah 300 dan kekeruhan di bawah 1 NTU. Debit intake adalah HASIL, bukan masukan: 205 m\u00b3/jam muncul setelah semua kehilangan air di sepanjang rangkaian dihitung mundur.",
+));
+body.push(table(["Tahap", "Apa yang dikerjakan", "Mengapa ada di rangkaian ini"], [
+  ["Intake, screen, pompa air baku",
+   "Mengambil air dari waduk dan menaikkannya ke pabrik pada head 30 m",
+   "Penyadapan multi-level adalah pengendalian alga termurah yang tersedia: alga menumpuk di lapisan permukaan, dan kemampuan menyadap dari kedalaman berbeda berbiaya operasi nol asalkan dipasang sejak awal"],
+  ["Praoksidasi NaOCl 1,5 mg/L",
+   "Menekan biofouling dan mengendalikan pertumbuhan alga di perpipaan",
+   "Dosisnya sengaja RENDAH. Klorin dosis tinggi memecah sel alga dan melepaskan organik intraseluler serta mikrosistin terlarut, yang bisa disaring DAF selagi masih di dalam sel tetapi tidak bisa setelah terlarut"],
+  ["Koreksi pH 8,5 \u2192 6,9 dengan H\u2082SO\u2084",
+   "Menurunkan pH ke rentang optimum koagulan",
+   "Al(OH)\u2083 paling tidak larut pada pH 6\u20137. Pada 8,5 aluminium larut kembali sebagai aluminat dan koagulan terbuang. Kendali harus umpan-balik karena pH waduk berayun harian 7,8\u20139,2"],
+  ["Rapid mix, G = 700 s\u207b\u00b9, 60 detik",
+   "Menyebarkan PAC 25 g/m\u00b3 secara merata",
+   "Hidrolisis koagulan selesai dalam hitungan detik. Kalau penyebarannya tidak selesai lebih dulu, sebagian air tidak pernah bertemu koagulan aktif"],
+  ["Flokulasi 3 tahap tapered, 18 menit",
+   "Menumbuhkan flok dengan G menurun 70 \u2192 45 \u2192 25 s\u207b\u00b9",
+   "Flok kecil butuh tumbukan sering; flok besar mudah pecah. Energi yang menurun bertahap menumbuhkan flok besar tanpa merobeknya kembali"],
+  ["DAF 2 unit, beban 10 m/jam",
+   "Mengangkat flok ke permukaan dengan gelembung mikro 40\u201370 \u00b5m",
+   "Flok alga mengapung karena vakuola gas. Pada clarifier gravitasi ia lolos ke filter; DAF justru memanfaatkan sifat itu. Hemat lahan drastis: 70 m\u00b2 terhadap \u00b1260 m\u00b2 untuk sedimentasi setara"],
+  ["Filter dual-media, 10 m/jam",
+   "Antrasit 600 mm di atas pasir 400 mm",
+   "Dua lapisan dengan gradasi terbalik: butir kasar-ringan di atas menangkap flok besar, butir halus-berat di bawah memoles. Satu lapisan pasir saja akan tersumbat di permukaan"],
+  ["Tangki air tersaring, HRT 1 jam",
+   "Menyangga dan MEMBAGI aliran menjadi dua",
+   "Titik percabangan desain ini. Kedua cabang sudah 0,10 NTU sehingga bypass memenuhi spesifikasi apa adanya, dan umpan RO sudah sebersih yang bisa diberikan rangkaian"],
+  ["Cartridge filter 5 \u00b5m",
+   "Penjaga partikel terakhir sebelum membran",
+   "Bukan penyisih \u2014 penjaga. Fungsi terpentingnya justru sebagai peringatan dini: tekanan diferensialnya naik lebih dulu kalau ada gangguan di hulu"],
+  ["RO 3 train, 2 tahap array 4:2",
+   "Menurunkan TDS sepertiga aliran dari 375 ke sekitar 12 mg/L",
+   "Satu-satunya tahap yang menyentuh padatan terlarut. Lihat Bab 13 untuk alasan jumlah train"],
+  ["Tangki produk, HRT 4 jam",
+   "Mencampur bypass dan permeat, menyangga permintaan, waktu kontak klor",
+   "Tiga fungsi dalam satu struktur. Volumenya ditentukan fungsi kedua \u2014 tenant industri tidak mengambil air dengan laju rata"],
+  ["Trim pH dengan NaOH",
+   "Menaikkan pH campuran ke 7,6",
+   "BUKAN pemoles. Tanpa tahap ini produk keluar pH 6,37, di bawah batas bawah 6,5. CO\u2082 menembus membran sementara alkalinitas yang akan menyangganya tidak"],
+  ["Pengental + screw press",
+   "Memekatkan lumpur ke cake 18 % DS",
+   "Mengirim lumpur cair berarti mengangkut 97 % air. Menukar CAPEX satu kali dengan OPEX seumur kontrak"],
+], [2100, 3000, 4300]));
+
+body.push(H1("13  Mengapa Tiga Train, dan Mengapa Katup Tidak Cukup"));
+body.push(P(
+  "Ini keberatan yang paling wajar terhadap desain ini, dan pantas dijawab dengan hitungan, bukan dengan pernyataan. Keberatannya begini: kalau yang dibutuhkan cuma 48 m\u00b3/jam permeat, kenapa tidak satu train besar saja yang bukaan katupnya diatur?",
+));
+body.push(P(
+  "Jawabannya: katup memang bisa diatur, tetapi jendelanya jauh lebih sempit daripada yang diduga \u2014 dan pada susunan ini, hampir tidak ada sama sekali.",
+));
+
+body.push(H3("Mengapa membran tidak bisa di-throttle sebebas pompa"));
+body.push(P(
+  "Pada pompa, mengurangi debit hanya berarti mengurangi keluaran. Pada membran, mengurangi debit mengubah kondisi di dalam bejana. Air mengalir menyilang permukaan membran, dan kecepatan aliran silang itulah yang menyapu garam yang tertinggal menjauh dari permukaan. Kalau aliran melambat, garam menumpuk tepat di permukaan membran \u2014 gejala yang disebut polarisasi konsentrasi.",
+));
+body.push(P(
+  "Konsentrasi di permukaan bisa beberapa kali lebih tinggi daripada konsentrasi rata-rata di dalam bejana. Di situlah kerak mulai terbentuk, dan kerak pada membran bersifat merusak permanen, bukan sekadar menurunkan kinerja sementara. Karena itu pabrikan menetapkan ALIRAN KONSENTRAT MINIMUM per bejana, dan angka itu tidak boleh dilanggar.",
+));
+
+body.push(H3("Hitungannya untuk susunan ini"));
+body.push(P(
+  "Satu train menghasilkan 24 m\u00b3/jam permeat pada recovery 75 %, sehingga umpannya 32 dan konsentratnya 8 m\u00b3/jam. Konsentrat itu keluar melalui 2 bejana tahap kedua:",
+));
+body.push(EQ("Konsentrat per bejana = 8 \u00f7 2 = 4,0 m\u00b3/jam"));
+body.push(P(
+  "Batas minimum tipikal pabrikan untuk bejana 8 inci adalah sekitar 3,6 m\u00b3/jam. Jadi pada beban penuh, marginnya hanya 11 %. Sekarang lihat apa yang terjadi kalau di-throttle:",
+));
+body.push(table(["Beban train", "Konsentrat per bejana", "Terhadap batas 3,6", "Putusan"], [
+  ["100 %", "4,00 m\u00b3/jam", "+11 %", "Aman"],
+  ["95 %", "3,80 m\u00b3/jam", "+6 %", "Aman"],
+  ["90 %", "3,60 m\u00b3/jam", "0 %", "Tepat di batas"],
+  [{ v: "85 %", bg: BAD}, { v: "3,40 m\u00b3/jam", bg: BAD}, { v: "\u22125 %", bg: BAD}, { v: "DI BAWAH BATAS", bg: BAD}],
+  [{ v: "67 %", bg: BAD}, { v: "2,68 m\u00b3/jam", bg: BAD}, { v: "\u221226 %", bg: BAD}, { v: "Risiko kerak serius", bg: BAD}],
+], [1800, 2400, 2200, 3000], [1, 2]));
+body.push(spacer());
+body.push(box("Inilah jawaban atas pertanyaan katup", [
+  "Jendela throttling satu train RO hanya sekitar 90\u2013100 % dari beban desainnya. Bukan 0\u2013100 %.",
+  "Satu train besar berkapasitas 72 m\u00b3/jam yang harus melayani kebutuhan normal 48 m\u00b3/jam berarti berjalan pada 67 % SEPANJANG WAKTU \u2014 jauh di luar jendela, dengan konsentrat per bejana 26 % di bawah batas pabrikan.",
+  "Itu bukan operasi hemat; itu resep kerak. Dan kerak pada membran tidak pulih dengan pencucian biasa.",
+], BAD, "9B2C1F"));
+
+body.push(H3("Jadi train ITU SENDIRI adalah mekanisme pengaturannya"));
+body.push(P(
+  "Di sinilah logikanya berbalik. Train bukan cadangan yang menempel pada desain \u2014 train adalah CARA mengatur kapasitas. Kalau tiap train hanya bisa berjalan pada 90\u2013100 % bebannya, maka satu-satunya cara mengubah kapasitas total adalah menghidupkan atau mematikan train, bukan mengecilkan bukaan.",
+));
+body.push(table(["Kondisi", "Permeat dibutuhkan", "Train operasi", "Beban tiap train", "Status"], [
+  ["Normal", "48 m\u00b3/jam", "2", "100 %", "Tepat di titik desain"],
+  [{ v: "Kemarau, TDS 450", bg: OK}, { v: "61,6 m\u00b3/jam", bg: OK}, { v: "3", bg: OK}, { v: "86 %", bg: OK}, { v: "Di dalam jendela", bg: OK}],
+  ["Permintaan rendah", "24 m\u00b3/jam", "1", "100 %", "Tetap di titik desain"],
+  [{ v: "Satu train di-CIP", bg: WARN}, { v: "48 m\u00b3/jam", bg: WARN}, { v: "2 dari 3", bg: WARN}, { v: "100 %", bg: WARN}, { v: "Produksi tidak terganggu", bg: WARN}],
+], [2200, 1900, 1500, 1600, 2200], [1, 2, 3]));
+body.push(spacer());
+body.push(P(
+  "Perhatikan kolom keempat: pada setiap kondisi, train yang beroperasi berjalan di dekat 100 % beban desainnya. Itulah yang tidak bisa dicapai satu train besar berapa pun bukaan katupnya.",
+));
+
+body.push(H3("Dan dua train pun tidak cukup"));
+body.push(P(
+  "Kalau hanya ada dua train berkapasitas 24 m\u00b3/jam, kapasitas totalnya 48 \u2014 persis kebutuhan normal, tanpa sisa apa pun. Saat kemarau menuntut 61,6 m\u00b3/jam, dua train harus berjalan pada 128 % beban desain. Itu bukan pilihan operasi; itu mustahil.",
+));
+body.push(P(
+  "Dan pada 4 kali pencucian per train per tahun \u00d7 8 jam, dua train berarti produksi permeat turun setengah selama pencucian berlangsung \u2014 dan pada saat itu TDS produk naik melewati 300 mg/L. Tiga train membuat pencucian menjadi peristiwa yang tidak terlihat oleh pelanggan.",
+));
+body.push(box("Cara menjawabnya kalau ditanya besok", [
+  "\"Train bukan cadangan mekanikal \u2014 train adalah cara kami mengatur kapasitas. Satu train RO hanya bisa di-throttle antara 90 dan 100 % beban desainnya, karena di bawah itu aliran konsentrat per bejana jatuh di bawah batas pabrikan dan mulai terbentuk kerak.\"",
+  "\"Satu train besar 72 m\u00b3/jam yang melayani kebutuhan normal 48 berarti berjalan di 67 % sepanjang tahun \u2014 26 % di bawah batas aliran konsentrat minimum.\"",
+  "\"Dengan tiga train, kapasitasnya 24, 48, atau 72 m\u00b3/jam, dan pada setiap titik itu train yang jalan berada di beban desainnya. Kemarau butuh 61,6 \u2014 tiga train pada 86 %, masih di dalam jendela. Dua train harus 128 %, dan itu mustahil.\"",
+  "Catatan jujur: angka batas 3,6 m\u00b3/jam per bejana adalah nilai tipikal pabrikan. Harus dikonfirmasi dalam perangkat lunak proyeksi pemasok sebelum susunan array dikunci.",
+], OK, "0E7C5A"));
+
+body.push(H1("14  Neraca Air Tahap demi Tahap"));
+body.push(P("Nilai adalah kondisi di inlet setiap tahap, sehingga efek satu unit adalah selisih antara barisnya dan baris di bawahnya.", {it: true, sz: 18}));
+body.push(table(
+  ["Tahap", "m\u00b3/jam", "TDS", "TSS", "Kekeruhan", "pH"],
+  G.stages.filter((s: Json) => s.in_m3h > 0.5).map((s: Json) => [
+    s.stage, f(s.in_m3h, 2), f(s.TDS, 1), f(s.TSS, 2), f(s.NTU, 3), f(s.pH, 2),
+  ]), [2800, 1400, 1400, 1300, 1500, 1000], [1, 2, 3, 4, 5],
+));
+body.push(spacer());
+body.push(table(["Besaran", "Nilai"], [
+  ["Air baku", `${f(G.raw_m3h, 2)} m\u00b3/jam`],
+  ["Produk ke SIER", `${f(G.product_m3h, 2)} m\u00b3/jam`],
+  ["Buangan total", `${f(G.waste_m3h, 2)} m\u00b3/jam`],
+  ["Recovery pabrik", `${f(G.recovery_pct, 2)} %`],
+  [{ v: "Galat penutupan neraca", b: true}, { v: `${f(G.waterClosure_pct, 4)} % \u2014 eksak`, b: true}],
+], [4200, 5200], [1]));
+
+body.push(H1("15  Bahan Kimia, Energi, dan Residu"));
+body.push(H3("Konsumsi bahan kimia"));
+body.push(table(["Bahan", "kg/jam", "ton/hari", "Fungsinya"],
+  G.chemicals.filter((c: Json) => c.kg_h > 0.001).map((c: Json) => {
+    const nm: Json = {
+      "Sulphuric acid H2SO4": ["Asam sulfat H\u2082SO\u2084", "Menurunkan pH 8,5 \u2192 6,9 sebelum koagulasi"],
+      "Caustic soda NaOH": ["Soda kaustik NaOH", "Menaikkan pH produk ke 7,6 setelah pencampuran"],
+      "Poly-aluminium chloride": ["PAC", "Koagulan \u2014 menetralkan muatan koloid"],
+      "Antiscalant": ["Antiscalant", "Mencegah kerak pada membran"],
+      "Sodium metabisulphite": ["SBS", "Mematikan klor sisa sebelum membran"],
+      "Polymer flocculant": ["Polimer anionik", "Membantu flok tumbuh"],
+      "Sodium hypochlorite (as Cl2)": ["Natrium hipoklorit", "Praoksidasi dan sisa klor di produk"],
+      "Polymer (dewatering)": ["Polimer dewatering", "Mengondisikan lumpur sebelum press"],
+    };
+    const e = nm[c.name] ?? [c.name, ""];
+    return [e[0], f(c.kg_h, 3), f(c.kg_h * 24 / 1000, 3), e[1]];
+  }), [2000, 1300, 1300, 4800], [1, 2]));
+body.push(spacer());
+body.push(P(
+  "Perhatikan dua baris teratas. Asam sulfat dan soda kaustik mendominasi massa, dan keduanya DIHITUNG dari kimia airnya \u2014 dari ekuivalen alkalinitas yang harus dinetralkan \u2014 bukan dari dosis yang dimasukkan. Dosis PAC, polimer, antiscalant, dan SBS sebaliknya adalah nilai yang dimasukkan lalu dikalikan debit; model tidak memprediksinya, dan jar test yang menentukannya.",
+));
+body.push(H3("Energi"));
+body.push(table(["Besaran", "Model", "Dokumen desain"], [
+  ["Daya total", `${f(G.power_kW, 1)} kW`, "98,1 kW"],
+  ["Energi spesifik", `${f(G.sec_kWh_m3, 3)} kWh/m\u00b3`, "0,545 kWh/m\u00b3"],
+], [4200, 2600, 2600], [1, 2]));
+body.push(spacer());
+body.push(P(
+  "Temuan paling berguna soal energi justru tidak datang dari model: pos listrik terbesar bukan RO yang cuma 19 %, melainkan pompa distribusi ke SIER pada 29 %. Kalau titik serah dapat dinegosiasikan di pagar pabrik, OPEX turun Rp 197/m\u00b3 \u2014 lebih besar daripada hampir semua pilihan desain proses yang tersedia. Itu keputusan kontrak, bukan keputusan rekayasa.",
+));
+body.push(H3("Residu"));
+body.push(table(["Aliran", "Jumlah", "Tujuan"], [
+  ["Cake lumpur", `${f(G.drySolids_t_d, 3)} ton/hari padatan kering`, "TPA, non-B3 (lumpur IPA air permukaan)"],
+  ["Konsentrat RO", `${f(G.roConcentrate_m3h, 1)} m\u00b3/jam @ ${f(G.roConcentrate_TDS, 0)} mg/L`, "Badan air dengan izin IPLC, atau dijual sebagai air utilitas non-kritis di SIER"],
+  ["Efluen cair total", `${f(G.waste_m3h, 1)} m\u00b3/jam`, "Termasuk supernatan pengental dan filtrat press"],
+], [2200, 3000, 4200]));
+
+body.push(H1("16  Kebutuhan Lahan"));
+body.push(P(
+  "Lahan tersedia 2.000 m\u00b2, dan dokumen desain menghitung kebutuhan 1.794 m\u00b2 \u2014 90 % terpakai. Sisanya habis untuk pagar, parkir, dan pos jaga.",
+));
+body.push(table(["Area", "m\u00b2", "Catatan"], [
+  ["Gedung kimia & sistem dosing", "120", "Penyimpanan 30 hari, bunded"],
+  ["Rapid mix + flokulasi", "45", "Struktur menyatu"],
+  ["DAF 2 unit + saturator", "70", "Sedimentasi setara butuh \u00b1260 m\u00b2"],
+  ["Filter 5 sel + pipe gallery", "155", ""],
+  ["Tangki air tersaring 200 m\u00b3", "65", ""],
+  ["Gedung RO (3 train + CIP)", "180", "Termasuk ruang tarik elemen"],
+  ["Tangki produk 750 m\u00b3", "250", "Bisa ditekan bila semi-tertanam"],
+  ["Rumah pompa distribusi", "60", ""],
+  ["Tangki pemulihan + pengental", "75", ""],
+  ["Dewatering + gudang cake", "160", "Cake ditampung 7 hari"],
+  ["MCC, genset, kendali, lab, kantor", "200", ""],
+  ["Jalan, drainase, jarak antar unit", "414", "30 % \u2014 akses truk kimia dan cake"],
+  [{ v: "TOTAL", b: true}, { v: "1.794", b: true}, { v: "90 % dari 2.000 m\u00b2 tersedia", b: true}],
+], [3400, 1200, 4800], [1]));
+body.push(spacer());
+body.push(box("Peringatan lahan", [
+  "Tidak ada ruang untuk ekspansi kapasitas maupun retrofit RO penuh di kemudian hari. Kalau permintaan SIER berpotensi naik di atas 50 L/detik, itu keputusan yang harus diambil SEKARANG, sebelum tata letak dikunci.",
+  "Dua cara membebaskan ruang: tangki produk semi-tertanam dengan gedung di atasnya (\u00b1150 m\u00b2), atau menghapus area dewatering dan mengirim lumpur cair (\u00b1160 m\u00b2, tetapi OPEX naik tajam).",
+  "Intake dan rumah pompa air baku diasumsikan berada di lokasi waduk, di luar batas 2.000 m\u00b2 ini.",
+], WARN, "8A6100"));
+
+body.push(H1("17  Risiko Teknis"));
+body.push(table(["Risiko", "Mengapa nyata di sini", "Mitigasi"], [
+  ["SDI umpan RO di atas batas",
+   "Simulasi menunjukkan SDI\u2081\u2085 sekitar 4 terhadap batas 3 pada konfigurasi filter dual-media. Kekeruhan 0,10 NTU tidak menjamin apa pun tentang SDI",
+   "Uji pilot filter selama satu siklus bloom. Kalau gagal, pra-olah naik ke UF: CAPEX +Rp 4 miliar, OPEX +Rp 120/m\u00b3"],
+  ["Toksin sianobakteri",
+   "Air hijau pada pH 8,5 adalah profil klasik bloom. DAF menyisihkan sel tetapi tidak toksin yang sudah terlarut",
+   "Batasi dosis praoksidasi 1,5 mg/L agar sel tidak pecah. Siapkan titik injeksi karbon aktif bubuk sejak konstruksi. Pantau mikrosistin mingguan saat bloom"],
+  ["Biofouling membran",
+   "Suhu 30 \u00b0C ditambah organik alga adalah kombinasi terburuk untuk RO. SBS mematikan klor sebelum membran, sehingga umpan RO tidak terlindungi biosida",
+   "Frekuensi CIP direncanakan 4\u00d7/tahun per train. Tiga train membuat pencucian tidak mengganggu produksi"],
+  ["Mangan lolos ke jaringan",
+   "Mn 0,15 mg/L akibat stratifikasi waduk. Lolos filter lalu mengendap sebagai noda hitam di pipa pelanggan",
+   "KMnO\u2084 sebagai alternatif praoksidasi menutup risiko ini sekaligus"],
+  ["Pembuangan konsentrat",
+   `${f(G.roConcentrate_m3h, 0)} m\u00b3/jam pada ${f(G.roConcentrate_TDS, 0)} mg/L memerlukan izin pembuangan air limbah`,
+   "Alternatif: menjualnya sebagai air utilitas non-kritis di SIER untuk penyiraman atau make-up menara pendingin \u2014 sekaligus menaikkan recovery efektif ke \u00b196 %"],
+], [2100, 3800, 3500]));
+
+body.push(H1("18  Rekomendasi"));
+body.push(table(["No.", "Rekomendasi"], [
+  ["1", "Lakukan sampling air waduk empat musim dengan analisis ion lengkap. Asumsi A5 \u2014 TDS puncak kemarau \u2014 menentukan jumlah train RO sendirian, dan saat ini belum terverifikasi."],
+  ["2", "Uji pilot filter selama satu siklus bloom untuk membuktikan SDI\u2081\u2085 dapat ditahan di bawah 3. Ini satu-satunya risiko teknis terbuka, dan konsekuensinya Rp 4 miliar."],
+  ["3", "Klarifikasi Pajak Air Permukaan ke Bapenda Jawa Timur sebelum harga dikunci. Risiko tunggal terbesar terhadap target OPEX, dan penyelesaiannya administratif."],
+  ["4", "Negosiasikan titik serah di pagar pabrik. Nilainya Rp 197/m\u00b3 \u2014 lebih besar daripada hampir semua pilihan desain proses."],
+  ["5", "Kunci klausul take-or-pay minimum 82 % kapasitas. Di bawah titik impas itu, target OPEX terlewati tanpa satu pun kesalahan teknis."],
+  ["6", "Konfirmasi batas aliran konsentrat minimum per bejana dalam perangkat lunak proyeksi pemasok sebelum susunan array dikunci. Seluruh argumen jumlah train berdiri di atas angka itu."],
+  ["7", "Jajaki pemanfaatan konsentrat RO sebagai air utilitas di SIER. Bila berhasil, izin pembuangan tidak diperlukan dan recovery efektif naik ke \u00b196 %."],
+  ["8", "Putuskan kelas pabrik sebelum RFP disusun \u2014 sipil 40 tahun atau paket fabrikasi baja 18 tahun. Ini menentukan CAPEX Rp 53 / 44 / 40 miliar dan tidak bisa diubah setelah tender terbit."],
+], [700, 8700]));
+
+/* ============================================================= BAGIAN IV */
+body.push(...PART("BAGIAN IV", "Perhitungan Unit demi Unit"));
 body.push(P(
   "Setiap unit dihitung dari rumus di Bagian II, disubstitusikan dengan angka Sagara, sampai hasilnya. Seluruh angka di bawah ini dihasilkan mesin simulasi, bukan diketik ulang.",
 ));
 
-body.push(H1("12  Intake dan Pompa Air Baku"));
+body.push(H1("19  Intake dan Pompa Air Baku"));
 body.push(calc([
   ["Debit air baku", "Q = 205 m³/jam (turunan dari produk 180 dan recovery)", "205 m³/jam"],
   ["Daya poros pompa", "P = ρ·g·Q·H / η = 1000 × 9,81 × (205/3600) × 30 / 0,75", sz("Intake", /shaft power/i)],
   ["Konfigurasi", "3 × 50 % dengan VFD, 2 operasi + 1 cadangan", sz("Intake", /Intake pumps/i)],
 ]));
 
-body.push(H1("13  Koreksi pH"));
+body.push(H1("20  Koreksi pH"));
 body.push(calc([
   ["Alkalinitas", "Alk = C_HCO₃ / 61,02 × 50 = 158 / 61,02 × 50", "130 mg/L CaCO₃"],
   ["Ekuivalen dinetralkan", "eq = (Alk/50) × fraksi penurunan pH", sz("Koreksi", /Reagent demand/i)],
@@ -393,7 +621,7 @@ body.push(calc([
   ["Volume bak", `V = Q × HRT = 205 × ${f((U("Koreksi")?.hrtH ?? 0), 3)} jam`, sz("Koreksi", /Tank volume/i)],
 ]));
 
-body.push(H1("14  Koagulasi dan Flokulasi"));
+body.push(H1("21  Koagulasi dan Flokulasi"));
 body.push(calc([
   ["Volume rapid mix", "V = Q × t / 60 = 205 × 1 / 60", sz("Rapid Mix", /Rapid mix volume/i)],
   ["Volume flokulasi", "V = Q × t / 60 = 205 × 18 / 60", sz("Rapid Mix", /Flocculation volume/i)],
@@ -401,14 +629,14 @@ body.push(calc([
   ["Duti pompa dosing", "V = M / (kekuatan larutan) / ρ", sz("Rapid Mix", /Dosing pump/i)],
 ]));
 
-body.push(H1("15  DAF"));
+body.push(H1("22  DAF"));
 body.push(calc([
   ["Luas flotasi", "A = Q / beban = 205 / 10", sz("DAF", /Flotation area/i)],
   ["Resirkulasi jenuh", "Q_r = 10 % × Q, dijenuhkan pada 5–6 bar", sz("DAF", /Saturation recycle/i)],
   ["Lumpur apung", "1,0 % dari debit, membawa padatan tersisih", sz("DAF", /Float/i)],
 ]));
 
-body.push(H1("16  Filter Dual-Media"));
+body.push(H1("23  Filter Dual-Media"));
 body.push(calc([
   ["Luas filtrasi total", "A = Q / laju = 203 / 10", sz("Filter", /filtration area/i)],
   ["Jumlah sel", "Termasuk satu sel dalam kondisi cuci balik", sz("Filter", /Units/i)],
@@ -416,7 +644,7 @@ body.push(calc([
   ["Air cuci balik", "3,5 % dari debit, dikembalikan ke pengental", sz("Filter", /Backwash/i)],
 ]));
 
-body.push(H1("17  Tangki Air Tersaring — dua jalur keluar"));
+body.push(H1("24  Tangki Air Tersaring — dua jalur keluar"));
 body.push(calc([
   ["Volume kerja", `V = Q × HRT × (1+margin) = ${f(U("Tangki Air")?.inFlow_m3h ?? 0, 1)} × ${f(U("Tangki Air")?.hrtH ?? 0, 1)} × 1,1`,
     sz("Tangki Air", /Working volume/i)],
@@ -425,7 +653,7 @@ body.push(calc([
   ["Pemeriksaan", "Jumlah kedua jalur harus sama dengan masuknya", `${f(G.tankOutlets.out1 + G.tankOutlets.out2, 1)} m³/jam ✓`],
 ]));
 
-body.push(H1("18  Reverse Osmosis"));
+body.push(H1("25  Reverse Osmosis"));
 body.push(calc([
   ["Umpan RO", "32,7 % air tersaring", `${f(G.roFeed_m3h, 2)} m³/jam`],
   ["Permeat", "Q_p = Q_umpan × Y = 64,04 × 0,75", `${f(G.roPermeate_m3h, 2)} m³/jam`],
@@ -444,7 +672,7 @@ body.push(box("Train dan stage: dua sumbu yang berbeda", [
   "Jadi susunannya: 3 train paralel, masing-masing 2 tahap seri. (4+2) × 6 elemen = 36 per train, × 3 = 108 elemen.",
 ], ALT, NAVY));
 
-body.push(H1("19  Tangki Produk dan Pencampuran"));
+body.push(H1("26  Tangki Produk dan Pencampuran"));
 body.push(calc([
   ["Masukan 1 — bypass", "Dari jalur 1 tangki air tersaring", `${f(G.tankOutlets.out1, 1)} m³/jam @ 365 mg/L`],
   ["Masukan 2 — permeat", "Dari RO", `${f(G.roPermeate_m3h, 1)} m³/jam @ ${f(G.roPermeate_TDS, 1)} mg/L`],
@@ -453,7 +681,7 @@ body.push(calc([
   ["TDS campuran", "Persamaan pencampuran, Bagian II bab 11", `${f(G.product_TDS, 1)} mg/L`],
 ]));
 
-body.push(H1("20  Trim pH dan Distribusi"));
+body.push(H1("27  Trim pH dan Distribusi"));
 body.push(calc([
   ["pH sebelum trim", "Permeat RO asam karena CO₂ menembus membran", "6,37 — GAGAL batas 6,5"],
   ["Dosis NaOH", "Dari ekuivalen yang dibutuhkan × Q", sz("Trim pH", /Caustic/i)],
@@ -461,7 +689,7 @@ body.push(calc([
   ["Daya pompa distribusi", "P = ρ·g·Q·H/η pada head 45 m", sz("Pompa Distribusi", /shaft power/i)],
 ]));
 
-body.push(H1("21  Penanganan Lumpur"));
+body.push(H1("28  Penanganan Lumpur"));
 body.push(calc([
   ["Umpan pengental", "Float DAF + cuci balik filter", `${f(U("Pengental")?.inFlow_m3h ?? 0, 2)} m³/jam`],
   ["Luas pengental", "A = Q / beban hidraulik", sz("Pengental", /Thickener area/i)],
@@ -470,9 +698,9 @@ body.push(calc([
 ]));
 
 /* ============================================================= BAGIAN IV */
-body.push(...PART("BAGIAN IV", "Penguasaan"));
+body.push(...PART("BAGIAN V", "Penguasaan"));
 
-body.push(H1("22  Ringkasan Sepuluh Keputusan"));
+body.push(H1("29  Ringkasan Sepuluh Keputusan"));
 body.push(table(["Keputusan", "Dipilih", "Alasan satu kalimat", "Yang kalah"], [
   ["Perlu penyisih garam?", "Ya", "Konvensional menyisihkan nol TDS; produk keluar 375 vs batas 300", "Konvensional saja"],
   ["Teknologi apa?", "RO air payau", "Satu-satunya yang menurunkan TDS tanpa membuang ion yang membuat air stabil", `NF (gagal di ${f(NFC.TDS, 0)} mg/L), kapur (lumpur +${f(LIME.sludge_kgd, 0)} kg/hari), IX, EDR`],
@@ -486,7 +714,7 @@ body.push(table(["Keputusan", "Dipilih", "Alasan satu kalimat", "Yang kalah"], [
   ["Lumpur?", "Diolah di tapak", "Kirim cair = mengangkut 97 % air", "Kirim cair"],
 ], [1700, 1500, 3400, 2800]));
 
-body.push(H1("23  Pertanyaan yang Akan Diajukan"));
+body.push(H1("30  Pertanyaan yang Akan Diajukan"));
 body.push(table(["Pertanyaan", "Jawaban"], ([
   ["Kenapa tidak IPA biasa saja?",
    "Koagulasi dan filtrasi menyisihkan padatan tersuspensi, bukan terlarut. TDS keluar sama dengan masuk — bahkan naik ke 375 karena koagulan dan asam. Kekeruhan 15 ke 1 NTU rutin; TDS-nya yang tidak bisa dikerjakan unit konvensional mana pun."],
@@ -514,7 +742,7 @@ body.push(table(["Pertanyaan", "Jawaban"], ([
    "SDI umpan RO. Simulasi menunjukkan sekitar 4 terhadap batas 3 pada konfigurasi filter dual-media. Kalau uji pilot membuktikan tidak bisa ditahan di bawah 3 saat bloom, pra-olah harus naik ke UF — CAPEX +Rp 4 miliar. Jauh lebih baik diketahui sekarang."],
 ] as [string, string][]).map(([q, a]) => [{ v: q, b: true }, a]), [2700, 6700]));
 
-body.push(H1("24  Angka yang Harus Dihafal"));
+body.push(H1("31  Angka yang Harus Dihafal"));
 body.push(table(["Angka", "Artinya"], [
   ["18 %", "Penyisihan TDS yang dibutuhkan. Angka pembuka seluruh argumen"],
   ["375 mg/L", "TDS air tersaring tanpa RO. Bukti konvensional gagal"],
