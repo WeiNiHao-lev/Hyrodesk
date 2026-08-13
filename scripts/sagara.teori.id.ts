@@ -30,8 +30,6 @@ const P = (t: string, o: { b?: boolean; sz?: number; color?: string; it?: boolea
     children: [new TextRun({ text: t, bold: o.b, size: o.sz ?? 20, color: o.color, italics: o.it, font: "Calibri" })] });
 const H1 = (t: string) => new Paragraph({ heading: HeadingLevel.HEADING_1, spacing: { before: 340, after: 170 },
   children: [new TextRun({ text: t, bold: true, size: 30, color: NAVY, font: "Calibri" })] });
-const H2 = (t: string) => new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 260, after: 120 },
-  children: [new TextRun({ text: t, bold: true, size: 24, color: NAVY, font: "Calibri" })] });
 const H3 = (t: string) => new Paragraph({ spacing: { before: 190, after: 90 },
   children: [new TextRun({ text: t, bold: true, size: 21, color: TEAL, font: "Calibri" })] });
 const PART = (t: string, sub: string) => [
@@ -44,8 +42,6 @@ const PART = (t: string, sub: string) => [
 const EQ = (t: string) => new Paragraph({
   spacing: { before: 100, after: 120 }, alignment: AlignmentType.CENTER,
   children: [new TextRun({ text: t, size: 22, color: NAVY, font: "Consolas" })] });
-const bullet = (t: string) => new Paragraph({ bullet: { level: 0 }, spacing: { after: 75, line: 272 },
-  children: [new TextRun({ text: t, size: 19, font: "Calibri" })] });
 const spacer = () => new Paragraph({ spacing: { after: 120 }, children: [] });
 
 type Cell = string | { v: string; bg?: string; b?: boolean };
