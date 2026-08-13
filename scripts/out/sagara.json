@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-12T12:48:12.550Z",
+  "generated": "2026-08-13T00:21:46.245Z",
   "project": {
     "name": "WTP Sagara — 50 L/s ke Kawasan Industri SIER, Surabaya",
     "productTarget_m3h": 180,
@@ -127,6 +127,293 @@
       "RO Air Payau 3 train: Feed SDI15 4.0 exceeds the usual limit of 3 for RO.",
       "Na balance shows 23.5 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error.",
       "SO4 balance shows 56.0 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error."
+    ],
+    "units": [
+      {
+        "label": "Intake & Screen",
+        "type": "intake",
+        "inFlow_m3h": 205,
+        "hrtH": null,
+        "power_kW": 22.35,
+        "capex_USD": 141023,
+        "sizing": [
+          {
+            "label": "Intake pumps",
+            "value": "2 x 100 % @ 226 m3/h"
+          },
+          {
+            "label": "Pump shaft power",
+            "value": "22.3 kW"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Koreksi pH 8,5 → 6,9",
+        "type": "phadjust",
+        "inFlow_m3h": 205,
+        "hrtH": 0.083,
+        "power_kW": 2.18,
+        "capex_USD": 16923,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "17.1 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "1.0 meq/L"
+          },
+          {
+            "label": "Sulphuric acid H2SO4",
+            "value": "12.0 kg/h (0.29 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Rapid Mix + Flokulasi",
+        "type": "coagfloc",
+        "inFlow_m3h": 205,
+        "hrtH": 0.317,
+        "power_kW": 3.08,
+        "capex_USD": 16707,
+        "sizing": [
+          {
+            "label": "Rapid mix volume",
+            "value": "3.4 m3"
+          },
+          {
+            "label": "Flocculation volume",
+            "value": "62 m3"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "DAF 2 unit",
+        "type": "daf",
+        "inFlow_m3h": 205,
+        "hrtH": null,
+        "power_kW": 9.84,
+        "capex_USD": 57197,
+        "sizing": [
+          {
+            "label": "Flotation area",
+            "value": "20.5 m2"
+          },
+          {
+            "label": "Saturation recycle",
+            "value": "20.5 m3/h @ 5-6 bar"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Filter Dual-Media",
+        "type": "mmf",
+        "inFlow_m3h": 202.95,
+        "hrtH": null,
+        "power_kW": 10.03,
+        "capex_USD": 45428,
+        "sizing": [
+          {
+            "label": "Total filtration area",
+            "value": "20.3 m2"
+          },
+          {
+            "label": "Units",
+            "value": "3 (incl. 1 standby)"
+          },
+          {
+            "label": "Media volume",
+            "value": "24.4 m3"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Tangki Air Tersaring",
+        "type": "rawtank",
+        "inFlow_m3h": 195.85,
+        "hrtH": 1,
+        "power_kW": 0,
+        "capex_USD": 12354,
+        "sizing": [
+          {
+            "label": "Working volume",
+            "value": "215 m3"
+          },
+          {
+            "label": "HRT",
+            "value": "1.0 h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Pengental Lumpur",
+        "type": "thickener",
+        "inFlow_m3h": 9.15,
+        "hrtH": null,
+        "power_kW": 1.5,
+        "capex_USD": 7195,
+        "sizing": [
+          {
+            "label": "Thickener area",
+            "value": "2.5 m2"
+          },
+          {
+            "label": "Dry solids",
+            "value": "6.2 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Cartridge 5 µm",
+        "type": "cartridge",
+        "inFlow_m3h": 64.04,
+        "hrtH": null,
+        "power_kW": 0,
+        "capex_USD": 4610,
+        "sizing": [
+          {
+            "label": "Elements",
+            "value": "28 x 40 in, 5 um"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Screw Press",
+        "type": "dewatering",
+        "inFlow_m3h": 4.58,
+        "hrtH": null,
+        "power_kW": 0.78,
+        "capex_USD": 18039,
+        "sizing": [
+          {
+            "label": "Cake production",
+            "value": "31.5 kg/h at 18 % DS"
+          },
+          {
+            "label": "Dry solids to disposal",
+            "value": "5.7 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "RO Air Payau 3 train",
+        "type": "ro",
+        "inFlow_m3h": 64.04,
+        "hrtH": null,
+        "power_kW": 11.41,
+        "capex_USD": 215114,
+        "sizing": [
+          {
+            "label": "Membrane area",
+            "value": "2668 m2"
+          },
+          {
+            "label": "Elements / vessels",
+            "value": "72 elements in 12 vessels"
+          },
+          {
+            "label": "Trains",
+            "value": "3 x 33 %"
+          },
+          {
+            "label": "Actual flux",
+            "value": "17.9 LMH"
+          },
+          {
+            "label": "Feed pressure",
+            "value": "4.8 bar (estimated)"
+          },
+          {
+            "label": "Specific energy",
+            "value": "0.238 kWh/m3 permeate"
+          }
+        ],
+        "notes": [
+          "Feed SDI15 4.0 exceeds the usual limit of 3 for RO."
+        ]
+      },
+      {
+        "label": "Tangki Produk + Blending",
+        "type": "producttank",
+        "inFlow_m3h": 179.84,
+        "hrtH": 4,
+        "power_kW": 0,
+        "capex_USD": 29924,
+        "sizing": [
+          {
+            "label": "Working volume",
+            "value": "791 m3"
+          },
+          {
+            "label": "HRT",
+            "value": "4.0 h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Trim pH Produk (NaOH)",
+        "type": "phadjust",
+        "inFlow_m3h": 179.84,
+        "hrtH": 0.083,
+        "power_kW": 2.1,
+        "capex_USD": 15521,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "15.0 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "0.6 meq/L"
+          },
+          {
+            "label": "Caustic soda NaOH",
+            "value": "4.6 kg/h (0.11 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Pompa Distribusi ke SIER",
+        "type": "pump",
+        "inFlow_m3h": 179.84,
+        "hrtH": null,
+        "power_kW": 29.4,
+        "capex_USD": 14928,
+        "sizing": [
+          {
+            "label": "Duty",
+            "value": "179.8 m3/h @ 45 m"
+          },
+          {
+            "label": "Configuration",
+            "value": "2 x 100 %"
+          },
+          {
+            "label": "Shaft power",
+            "value": "29.4 kW"
+          }
+        ],
+        "notes": []
+      }
     ],
     "stages": [
       {
@@ -364,6 +651,293 @@
       "RO Air Payau 3 train: Feed SDI15 4.0 exceeds the usual limit of 3 for RO.",
       "Na balance shows 23.3 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error.",
       "SO4 balance shows 54.3 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error."
+    ],
+    "units": [
+      {
+        "label": "Intake & Screen",
+        "type": "intake",
+        "inFlow_m3h": 205,
+        "hrtH": null,
+        "power_kW": 22.35,
+        "capex_USD": 141023,
+        "sizing": [
+          {
+            "label": "Intake pumps",
+            "value": "2 x 100 % @ 226 m3/h"
+          },
+          {
+            "label": "Pump shaft power",
+            "value": "22.3 kW"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Koreksi pH 8,5 → 6,9",
+        "type": "phadjust",
+        "inFlow_m3h": 205,
+        "hrtH": 0.083,
+        "power_kW": 2.18,
+        "capex_USD": 16923,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "17.1 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "1.2 meq/L"
+          },
+          {
+            "label": "Sulphuric acid H2SO4",
+            "value": "14.4 kg/h (0.35 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Rapid Mix + Flokulasi",
+        "type": "coagfloc",
+        "inFlow_m3h": 205,
+        "hrtH": 0.317,
+        "power_kW": 3.08,
+        "capex_USD": 16707,
+        "sizing": [
+          {
+            "label": "Rapid mix volume",
+            "value": "3.4 m3"
+          },
+          {
+            "label": "Flocculation volume",
+            "value": "62 m3"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "DAF 2 unit",
+        "type": "daf",
+        "inFlow_m3h": 205,
+        "hrtH": null,
+        "power_kW": 9.84,
+        "capex_USD": 57197,
+        "sizing": [
+          {
+            "label": "Flotation area",
+            "value": "20.5 m2"
+          },
+          {
+            "label": "Saturation recycle",
+            "value": "20.5 m3/h @ 5-6 bar"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Filter Dual-Media",
+        "type": "mmf",
+        "inFlow_m3h": 202.95,
+        "hrtH": null,
+        "power_kW": 10.03,
+        "capex_USD": 45428,
+        "sizing": [
+          {
+            "label": "Total filtration area",
+            "value": "20.3 m2"
+          },
+          {
+            "label": "Units",
+            "value": "3 (incl. 1 standby)"
+          },
+          {
+            "label": "Media volume",
+            "value": "24.4 m3"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Tangki Air Tersaring",
+        "type": "rawtank",
+        "inFlow_m3h": 195.85,
+        "hrtH": 1,
+        "power_kW": 0,
+        "capex_USD": 12354,
+        "sizing": [
+          {
+            "label": "Working volume",
+            "value": "215 m3"
+          },
+          {
+            "label": "HRT",
+            "value": "1.0 h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Pengental Lumpur",
+        "type": "thickener",
+        "inFlow_m3h": 9.15,
+        "hrtH": null,
+        "power_kW": 1.5,
+        "capex_USD": 7195,
+        "sizing": [
+          {
+            "label": "Thickener area",
+            "value": "2.5 m2"
+          },
+          {
+            "label": "Dry solids",
+            "value": "6.2 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Cartridge 5 µm",
+        "type": "cartridge",
+        "inFlow_m3h": 64.04,
+        "hrtH": null,
+        "power_kW": 0,
+        "capex_USD": 4610,
+        "sizing": [
+          {
+            "label": "Elements",
+            "value": "28 x 40 in, 5 um"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Screw Press",
+        "type": "dewatering",
+        "inFlow_m3h": 4.58,
+        "hrtH": null,
+        "power_kW": 0.78,
+        "capex_USD": 18039,
+        "sizing": [
+          {
+            "label": "Cake production",
+            "value": "31.5 kg/h at 18 % DS"
+          },
+          {
+            "label": "Dry solids to disposal",
+            "value": "5.7 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "RO Air Payau 3 train",
+        "type": "ro",
+        "inFlow_m3h": 64.04,
+        "hrtH": null,
+        "power_kW": 11.84,
+        "capex_USD": 215114,
+        "sizing": [
+          {
+            "label": "Membrane area",
+            "value": "2668 m2"
+          },
+          {
+            "label": "Elements / vessels",
+            "value": "72 elements in 12 vessels"
+          },
+          {
+            "label": "Trains",
+            "value": "3 x 33 %"
+          },
+          {
+            "label": "Actual flux",
+            "value": "17.9 LMH"
+          },
+          {
+            "label": "Feed pressure",
+            "value": "5.0 bar (estimated)"
+          },
+          {
+            "label": "Specific energy",
+            "value": "0.247 kWh/m3 permeate"
+          }
+        ],
+        "notes": [
+          "Feed SDI15 4.0 exceeds the usual limit of 3 for RO."
+        ]
+      },
+      {
+        "label": "Tangki Produk + Blending",
+        "type": "producttank",
+        "inFlow_m3h": 179.84,
+        "hrtH": 4,
+        "power_kW": 0,
+        "capex_USD": 29924,
+        "sizing": [
+          {
+            "label": "Working volume",
+            "value": "791 m3"
+          },
+          {
+            "label": "HRT",
+            "value": "4.0 h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Trim pH Produk (NaOH)",
+        "type": "phadjust",
+        "inFlow_m3h": 179.84,
+        "hrtH": 0.083,
+        "power_kW": 2.1,
+        "capex_USD": 15521,
+        "sizing": [
+          {
+            "label": "Tank volume",
+            "value": "15.0 m3"
+          },
+          {
+            "label": "Reagent demand",
+            "value": "0.7 meq/L"
+          },
+          {
+            "label": "Caustic soda NaOH",
+            "value": "5.6 kg/h (0.13 t/d)"
+          },
+          {
+            "label": "Precipitated solids",
+            "value": "0.0 kg/h"
+          }
+        ],
+        "notes": []
+      },
+      {
+        "label": "Pompa Distribusi ke SIER",
+        "type": "pump",
+        "inFlow_m3h": 179.84,
+        "hrtH": null,
+        "power_kW": 29.4,
+        "capex_USD": 14928,
+        "sizing": [
+          {
+            "label": "Duty",
+            "value": "179.8 m3/h @ 45 m"
+          },
+          {
+            "label": "Configuration",
+            "value": "2 x 100 %"
+          },
+          {
+            "label": "Shaft power",
+            "value": "29.4 kW"
+          }
+        ],
+        "notes": []
+      }
     ],
     "stages": [
       {

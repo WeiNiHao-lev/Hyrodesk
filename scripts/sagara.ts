@@ -144,6 +144,20 @@ function runCase(name: string, fs: Flowsheet, over?: FeedSpec) {
       p: c.label, limit: c.limitText, actual: c.actualText, pass: c.pass, scope: c.outsideScope ?? false,
     })) : [],
     warnings: s.warnings,
+    // Every sizing line the model produced, per unit. This is what the design
+    // calculation section of the report is built from — including the tank
+    // volumes and retention times, which were computed all along but never
+    // reported.
+    units: r.nodes.filter((x) => !["waste", "feedsource", "outfall"].includes(x.type)).map((x) => ({
+      label: x.label, type: x.type,
+      inFlow_m3h: round(x.inlet.flow, 2),
+      hrtH: x.aux.hrtH != null ? round(x.aux.hrtH, 3) : null,
+      power_kW: round(x.aux.powerKW, 2),
+      capex_USD: Math.round(x.aux.capexUSD),
+      params: x.type in {} ? {} : undefined,
+      sizing: x.aux.sizing,
+      notes: x.aux.notes,
+    })),
     stages: r.nodes.filter((x) => !["waste"].includes(x.type)).map((x) => ({
       stage: x.label, in_m3h: round(x.inlet.flow, 2),
       TDS: round(x.inlet.c.TDS, 1), TSS: round(x.inlet.c.TSS, 2),
