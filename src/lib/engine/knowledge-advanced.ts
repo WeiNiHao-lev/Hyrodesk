@@ -209,6 +209,174 @@ export const ADVANCED_KNOWLEDGE: Record<string, UnitKnowledge> = {
       "The Bantargebang analysis sizes this at an air-to-water ratio of 3000 on 1200 m3/d, giving roughly 150,000 m3/h of air and a tower whose diameter is set entirely by that air flow.",
   },
 
+  aombr: {
+    principle:
+      "Ammonia removal and nitrogen removal are different jobs, and a single aerated tank only does the first. Nitrifiers oxidise ammonium to nitrate, which is still nitrogen and still counts against a total-nitrogen consent. Getting rid of it needs the opposite condition: no oxygen, and carbon to donate electrons, so that bacteria use nitrate as their oxidant and release it as nitrogen gas. An A/O reactor supplies both by putting an unaerated anoxic zone in front of the aerated one and pumping mixed liquor backwards from the aerated zone into it. The feed enters the anoxic zone, so its raw carbon meets the returned nitrate before any of it has been aerated away.",
+    whenToUse: [
+      "Where the consent is written on total nitrogen rather than on ammonia. This is the whole reason the configuration exists.",
+      "Where the feed has carbon to spare. Denitrification is free treatment paid for with BOD that would otherwise have cost oxygen to destroy.",
+      "Where alkalinity is tight. Denitrification returns half the alkalinity that nitrification consumed, and on a high-ammonia water that is often the difference between holding pH and stalling.",
+      "Where the aeration bill matters. Each kg of nitrate nitrogen reduced saves 2.86 kg of oxygen the blowers would have supplied.",
+    ],
+    whenNotToUse: [
+      "Where the consent is on ammonia only. The anoxic zone, the mixers and the recycle pumps are all cost for a parameter nobody measures.",
+      "Where BOD:TN is below about 3 and no cheap carbon is available. The methanol bill will exceed the cost of stripping the ammonia off instead.",
+      "Where the nitrogen is mostly ammoniacal and very concentrated, as in a young leachate. Stripping or anammox beats conventional denitrification well before 1000 mg/L.",
+      "As a way to reach a very low total nitrogen with a modest recycle. The R/(1+R) ceiling is arithmetic, not engineering, and no operational skill moves it.",
+    ],
+    designRules: [
+      {
+        rule: "The recycle ratio, not the tank volume, sets the ceiling on nitrogen removal.",
+        why: "Nitrate is made in the oxic zone and destroyed in the anoxic zone, so only the nitrate that is pumped back can be destroyed. With a recycle of R times the feed, the best achievable is R/(1+R) of what was nitrified: 75 % at R=3, 80 % at R=4, 83 % at R=5. Adding volume to a plant that is recycle-limited changes nothing at all.",
+      },
+      {
+        rule: "Stop increasing the recycle at about 5Q.",
+        why: "The ceiling improves by three points between R=4 and R=5 and by two more between R=5 and R=8, while pumping power rises in proportion to R the whole way. Worse, the recycle carries dissolved oxygen into the anoxic zone, and every mg/L of it destroys a mg/L of BOD that the nitrate needed. Past 5Q the extra nitrate delivered is worth less than the carbon destroyed delivering it.",
+      },
+      {
+        rule: "Check BOD:TN before believing any nitrogen removal figure.",
+        why: "About 4 kg of BOD is consumed per kg of nitrate nitrogen reduced, 2.86 by stoichiometry and the rest going into cell synthesis. Below a ratio of 4 the water cannot denitrify itself and external carbon becomes an operating cost that runs for the life of the plant.",
+      },
+      {
+        rule: "Size the anoxic zone at 25-40 % of the total volume.",
+        why: "Below 20 % there is not enough contact time to reduce the nitrate arriving in the recycle, so the recycle is pumped for nothing. Above 45 % the oxic zone runs short, and nitrification is the slower of the two reactions, so the plant then fails on ammonia instead of on nitrate.",
+      },
+      {
+        rule: "Mix the anoxic zone, do not aerate it, and do not let the mixer entrain air.",
+        why: "The sludge has to stay suspended or the zone becomes a settling tank, but any oxygen introduced is consumed in preference to nitrate and defeats the purpose. Submersible mixers at 5-8 W/m3 do the job; a coarse-bubble system does not.",
+      },
+      {
+        rule: "Count the alkalinity net of what denitrification returns.",
+        why: "Nitrification consumes 7.14 mg of alkalinity as CaCO3 per mg of nitrogen and denitrification returns 3.57. Designing the alkali dosing on the gross figure over-orders the caustic by half on a plant that denitrifies well, and designing it on the net figure without checking the recycle under-orders it when the plant does not.",
+      },
+    ],
+    keyNumbers: [
+      { param: "Mixed liquor recycle", typical: "3-5 x Q", why: "Sets the ceiling R/(1+R) at 75-83 %. The single most consequential number in the configuration." },
+      { param: "Anoxic volume fraction", typical: "25-40 %", why: "Enough contact time for the returned nitrate without starving nitrification of oxic volume." },
+      { param: "BOD per nitrate-N", typical: "4.0 kgBOD/kgN", why: "2.86 by electron stoichiometry; the balance goes into cell synthesis. Use 3.0 kg methanol per kg N when carbon is dosed." },
+      { param: "SDNR", typical: "0.04-0.10 kgN/kgMLSS.d", why: "The anoxic zone's loading check, as F/M is the oxic zone's. Above 0.12 the zone is undersized for its nitrate load." },
+      { param: "Oxygen credit", typical: "2.86 kgO2/kgN denitrified", why: "Real saving on the blowers, typically 10-20 % of process aeration. Frequently left out of energy estimates." },
+      { param: "Alkalinity returned", typical: "3.57 mg CaCO3 per mg N", why: "Exactly half what nitrification consumed. On a high-ammonia water this is what keeps the pH up." },
+      { param: "DO in the recycle", typical: "under 1 mg/L", why: "Each mg/L costs a mg/L of BOD. At R=4 a DO of 2 wastes 8 mg/L of carbon, worth about 2 mg/L of nitrate nitrogen." },
+    ],
+    failureModes: [
+      { mode: "Recycle-limited nitrogen", symptom: "Ammonia low, nitrate high, total nitrogen failing while every biological indicator looks healthy", prevention: "Compute R/(1+R) at design. If the target exceeds it, the answer is more recycle or a second anoxic stage, never more tank." },
+      { mode: "Carbon starvation", symptom: "Nitrate breaking through, especially at low load or after rain", prevention: "Check BOD:TN at minimum strength, not average. Provide for carbon dosing even if it is not used." },
+      { mode: "Oxygen in the recycle", symptom: "Denitrification worse than predicted despite ample recycle and carbon", prevention: "Lower the oxic DO set point to 1.5-2 mg/L, and draw the recycle from the end of the oxic zone rather than mid-tank." },
+      { mode: "Anoxic zone settling", symptom: "Solids accumulating in the anoxic zone, MLSS falling in the oxic zone", prevention: "Mixer power at 5-8 W/m3 and a mixing pattern verified, not assumed." },
+      { mode: "Alkalinity exhaustion", symptom: "pH falling, nitrification stalling, ammonia rising while nitrate falls", prevention: "Net alkalinity balance at design; alkali dosing provided and pH alarmed." },
+    ],
+    upstream: "Fine screening to 1-3 mm, grease removal, and equalisation. The feed must enter the anoxic zone, not the oxic one, or its carbon is aerated away before the nitrate can use it.",
+    downstream: "Direct discharge, or reverse osmosis where the consent is tighter than biology can reach. The permeate carries no solids, so it is a good membrane feed.",
+    ccepcNote:
+      "CCEPC runs two-stage A/O plus MBR on the Qianzishan biogas slurry plant, and A/O configurations on the Baoxie and Zuoling municipal works in Wuhan. On leachate the group more often strips the ammonia first, precisely because BOD:TN is too low for the anoxic zone to pay.",
+  },
+
+  tuf: {
+    principle:
+      "A ultrafiltration membrane separates by pore size, and the pore size is much the same whichever way the module is built. What differs is how the cake is kept off, and that decides everything else. A tubular module keeps it off by shear: the liquor is pumped through wide channels, five to twelve millimetres across, fast enough that the wall shear strips solids as fast as they deposit. Nothing is immersed, nothing is aerated, and no part of the membrane ever sits still. That is why it will run on mixed liquor at 25,000 mg/L and on feeds carrying fibre, oil and grit that would destroy a hollow fibre in a week. The bill for it is the recirculation pump, which moves twenty to fifty times the permeate flow against the pressure drop the tubes themselves impose, continuously.",
+    whenToUse: [
+      "Landfill leachate. The feed carries fibre, hair and oil, the MLSS is high, and the alternative fouls irreversibly. This is why every Chinese leachate MBR uses it.",
+      "Where the reactor is to run above 12,000 mg/L MLSS. A submerged membrane cannot; a tubular one can go to 25,000.",
+      "Where the feed screening cannot be trusted. A tubular channel passes what would braid round a fibre bundle.",
+      "Where the plant is retrofitted into an existing tank. The modules sit outside it, so the tank is not rebuilt.",
+    ],
+    whenNotToUse: [
+      "On a clean feed. Paying 3 kWh/m3 to separate a water a submerged membrane would take at 0.3 is throwing away the difference for tolerance nobody needs.",
+      "Where electricity is the dominant operating cost and the feed does not demand it.",
+      "Where the crossflow cannot be maintained at part load. The velocity is what keeps it clean, so a tubular loop cannot simply be throttled.",
+    ],
+    designRules: [
+      {
+        rule: "The crossflow velocity is the design variable, and the energy follows from it.",
+        why: "Pressure drop rises with the square of velocity and the pumping power with the cube. Going from 3 to 4 m/s raises the scouring by a third and the power by more than double. Below 2.5 m/s the cake is not stripped at all and the flux collapses within days, so the working window is narrow and worth getting right.",
+      },
+      {
+        rule: "Size the recirculation from the area, not from a rule of thumb.",
+        why: "The membrane area fixes how many parallel tube paths there are, the paths and the velocity fix the recirculation flow, and the path length fixes the pressure drop. Every one of those is a consequence of choices already made. Quoting a specific energy instead hides which choice is driving the bill.",
+      },
+      {
+        rule: "Count the liquor viscosity, not water's.",
+        why: "Mixed liquor at 10,000 mg/L is roughly twice as viscous as water and at 25,000 three to five times. That lowers the Reynolds number, raises the friction factor, and raises the pumping power for the same velocity. A calculation done on water understates the pump.",
+      },
+      {
+        rule: "Do not draw the recirculation loop on the flowsheet.",
+        why: "It is internal to the unit and the model already accounts for it. Drawing it makes the solver iterate the loop and count the same load twenty times over.",
+      },
+    ],
+    keyNumbers: [
+      { param: "Crossflow velocity", typical: "3-4.5 m/s", why: "Below 3 the cake is not stripped; above 4.5 the pressure drop grows faster than the benefit." },
+      { param: "Channel diameter", typical: "5.2, 8, 11.5 mm", why: "The standard sizes. Wider passes more solids and costs more pumping for the same velocity." },
+      { param: "Net flux", typical: "60-120 LMH on mixed liquor", why: "Four to six times a submerged membrane, because the crossflow rather than the flux controls the cake." },
+      { param: "Recirculation ratio", typical: "20-50 x permeate", why: "A consequence of the area and the velocity, not an independent choice." },
+      { param: "Specific energy", typical: "2-4 kWh/m3 permeate", why: "The single largest energy item on most leachate plants. Against 0.1-0.3 for a submerged membrane." },
+      { param: "Feed MLSS", typical: "up to 25,000 mg/L", why: "Roughly twice what an immersed membrane tolerates, and the reason to accept the energy." },
+      { param: "CIP frequency", typical: "12-52 per year", why: "More often than a submerged membrane because the feed is dirtier, but each clean is quicker." },
+    ],
+    failureModes: [
+      { mode: "Crossflow lost at part load", symptom: "Flux falling whenever the plant runs below design flow", prevention: "Recirculate at constant velocity and vary the permeate draw, never the loop flow. Variable-speed drives on the recirculation pump are a trap unless the control keeps velocity, not flow." },
+      { mode: "Laminar flow", symptom: "Rapid irreversible flux loss shortly after commissioning", prevention: "Check the Reynolds number at the design viscosity, not water's. A liquor five times as viscous can be laminar at a velocity that looks safe." },
+      { mode: "Pump wear", symptom: "Recirculation flow drifting down, energy per m3 drifting up", prevention: "The loop pump handles abrasive liquor continuously. Duty and standby, and wear parts held on site." },
+      { mode: "Energy ignored at tender", symptom: "Operating cost far above the bid", prevention: "Price the recirculation from the hydraulics at award, not from a catalogue specific-energy figure." },
+    ],
+    upstream: "Screening to 3 mm is enough, against 1 mm for a submerged membrane. Oil removal is helpful but not the absolute requirement it is for hollow fibre.",
+    downstream: "Nanofiltration or reverse osmosis. Tubular UF permeate is a sound membrane feed, SDI comfortably below 3.",
+    ccepcNote:
+      "External tubular UF is standard on the CCEPC leachate reference plants, paired with two-stage A/O ahead of NF and RO. On Bantargebang-scale duty it is the largest single power consumer on the works.",
+  },
+
+  suf: {
+    principle:
+      "The opposite trade to a tubular module. The membrane hangs in the tank, permeate is drawn through it by suction at well under a bar, and the cake is kept off by coarse bubbles rising along the fibres. There is no recirculation loop and no high-pressure pump, so the energy is a fifth to a tenth of the tubular arrangement doing the same separation. What it costs is flux and tolerance: fifteen to twenty-five litres per square metre per hour against eighty, so four times the area for the same duty, and a feed that has to be screened finely because a hair braiding round a fibre bundle does damage no cleaning reverses.",
+    whenToUse: [
+      "Municipal sewage and any reasonably clean mixed liquor, where the tolerance a tubular module buys is not needed.",
+      "Where electricity is expensive relative to capital. The area costs more and the power costs much less.",
+      "Where the tank can be built to hold the membranes. The modules are part of the civil works, not a skid beside them.",
+    ],
+    whenNotToUse: [
+      "On leachate, or any feed with fibre, hair, oil or grit. This is the failure that ends plants.",
+      "Above about 12,000 mg/L MLSS. The sludge viscosity rises, the bubbles stop scouring, and the membrane fouls faster than it can be cleaned.",
+      "Where the plant will spend much of its life turned down. The blower runs regardless, so half flow is not half power.",
+    ],
+    designRules: [
+      {
+        rule: "The scouring blower is the design, and it does no treatment.",
+        why: "Air swept along the membrane surface only keeps solids off it. On a submerged unit it is typically eighty to ninety per cent of the module's power and it runs continuously, load or no load. Every other energy term here is a rounding error beside it.",
+      },
+      {
+        rule: "Use the mixed-liquor flux, never the clean-water flux.",
+        why: "A module rated at 60-80 LMH on clean water delivers 15-25 in mixed liquor and 8-15 on leachate. Specifying from the catalogue figure is how membrane areas end up at a third of what is needed, and it is the most common single error in MBR tendering.",
+      },
+      {
+        rule: "Screen to 1 mm, not 3.",
+        why: "Three millimetres is fine for a tubular channel and far too coarse for a fibre bundle. Hair passes a 3 mm screen, wraps the fibres, and cuts them.",
+      },
+      {
+        rule: "Deeper membrane tanks scour better and cost more air pressure.",
+        why: "The blower must overcome the static head of the tank plus the diffuser loss. The power is proportional to that pressure, so tank depth is an energy decision taken by the civil engineer.",
+      },
+    ],
+    keyNumbers: [
+      { param: "Net flux", typical: "15-25 LMH municipal, 8-15 leachate", why: "Net of relaxation and backwash. A quarter of the tubular figure, which is where the extra area comes from." },
+      { param: "Scouring air", typical: "0.3-0.5 Nm3/m2.h", why: "Set by the supplier. The dominant energy term and not reducible without fouling." },
+      { param: "Specific energy", typical: "0.3-0.8 kWh/m3 permeate", why: "A fifth to a tenth of tubular. This is the whole case for the arrangement." },
+      { param: "Blower discharge", typical: "50-70 kPa", why: "Static head of the membrane tank plus diffuser loss." },
+      { param: "MLSS ceiling", typical: "12,000 mg/L", why: "Above it the bubbles stop scouring and the fouling rate outruns the cleaning schedule." },
+      { param: "Suction pressure", typical: "0.1-0.4 bar", why: "Vacuum, not pressure. Rising suction at constant flux is the fouling indicator to trend." },
+      { param: "Recovery cleans", typical: "2-6 per year", why: "Hypochlorite for organic fouling, citric acid for inorganic. More often than this means something upstream is wrong." },
+    ],
+    failureModes: [
+      { mode: "Fibre damage from screening failure", symptom: "Permeate turbidity rising, integrity test failing on one module", prevention: "1 mm screening ahead of the membrane tank, and the screen itself maintained. This is not optional." },
+      { mode: "Oil fouling", symptom: "Permeability falling and not recovering after cleaning", prevention: "Oil removal upstream. If the feed will always carry oil, the arrangement is wrong and tubular is the answer." },
+      { mode: "MLSS chased upward", symptom: "Fouling accelerating after a capacity increase that raised the MLSS", prevention: "Hold 12,000 as a ceiling. The apparent gain in capacity is paid for twice." },
+      { mode: "Blower sized on clean-water flux", symptom: "Air per square metre correct but the total air a third of what is needed", prevention: "Set the area from the mixed-liquor flux first, then the air from the area." },
+    ],
+    upstream: "Screening to 1 mm, oil and grease removal, and grit removal. Everything a tubular module forgives, this one does not.",
+    downstream: "Nanofiltration, reverse osmosis or direct discharge. The permeate carries no suspended solids.",
+    ccepcNote:
+      "Submerged membranes are CCEPC's standard on municipal duty; on leachate the group uses external tubular UF instead, and the reason is feed tolerance rather than any difference in what the membrane separates.",
+  },
+
   mbr: {
     principle:
       "Conventional activated sludge separates biomass from water by letting it settle, which limits how much biomass the tank can hold: push the concentration too high and the clarifier fails. An MBR replaces the clarifier with a membrane immersed in the sludge, so separation no longer depends on settling. The reactor can then run at three times the biomass concentration in the same volume, the sludge age is decoupled from the hydraulic retention time, and the effluent contains no suspended solids at all because the membrane is an absolute barrier.",

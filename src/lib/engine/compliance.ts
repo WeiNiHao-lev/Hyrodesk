@@ -39,7 +39,9 @@ const BARRIER_OF: Record<string, BarrierClass> = {
   denitrifilter: "filtration", baf: "biological",
   aao: "biological", msbr: "biological", mbbr: "biological",
   "coke-ao": "biological", anaerobic: "biological", mbr: "membraneLoose",
+  aombr: "membraneLoose",
   uf: "membraneLoose", ceramicmf: "membraneLoose",
+  tuf: "membraneLoose", suf: "membraneLoose",
   nf: "membraneTight", ro: "membraneTight", swro: "membraneTight",
   dtro: "membraneTight", edi: "membraneTight", mixedbed: "membraneTight",
   softener: "coagulation",
@@ -270,7 +272,7 @@ export interface InhibitionFinding {
 export function inhibitionFindings(fs: Flowsheet): InhibitionFinding[] {
   const entered = fs.feed.trace ?? {};
   const types = new Set(fs.nodes.map((nd) => nd.type));
-  const hasBiology = [...types].some((t) => BARRIER_OF[t] === "biological" || t === "mbr");
+  const hasBiology = [...types].some((t) => BARRIER_OF[t] === "biological" || t === "mbr" || t === "aombr");
   const hasMembrane = [...types].some((t) =>
     BARRIER_OF[t] === "membraneTight" || BARRIER_OF[t] === "membraneLoose");
 

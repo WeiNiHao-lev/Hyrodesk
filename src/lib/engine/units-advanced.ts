@@ -959,9 +959,531 @@ const oilSeparator: UnitModel = {
   },
 };
 
+/* ============================================================== A/O MBR */
+
+/**
+ * Anoxic-oxic MBR.
+ *
+ * The plain MBR above is one well-mixed aerobic tank: it nitrifies, and its
+ * nitrogen removal is a percentage the engineer types in. That is fine for a
+ * plant whose consent is written on ammonia, and wrong for one whose consent is
+ * written on total nitrogen, because it lets anybody type 80 % without owning
+ * the two things that have to be true for 80 % to happen.
+ *
+ * Denitrification is limited twice over, and this model enforces both.
+ *
+ * First by RECYCLE. Nitrate is made in the aerobic zone and destroyed in the
+ * anoxic zone, so the only nitrate that can be destroyed is the nitrate that
+ * gets pumped back. With a recycle of R times the feed, the fraction of the
+ * nitrified nitrogen that ever reaches the anoxic zone is R/(1+R): the rest
+ * leaves with the effluent as nitrate however good the biology is. At R = 4
+ * that ceiling is 80 %, and no amount of tank volume moves it.
+ *
+ * Second by CARBON. Reducing nitrate needs an electron donor, about 4 kg of BOD
+ * per kg of nitrate nitrogen. A feed at BOD:TN of 3 cannot denitrify itself
+ * whatever the recycle is, and the methanol bill that follows is usually what
+ * decides against the biological route.
+ *
+ * The two limits fight each other, which is the part that is easy to miss:
+ * raising the recycle also pumps dissolved oxygen into the anoxic zone, and
+ * that oxygen burns the carbon the nitrate needed. Past about R = 5 the extra
+ * nitrate delivered is worth less than the carbon destroyed delivering it.
+ */
+const aoMBR: UnitModel = {
+  type: "aombr", label: "A/O MBR (anoxic-oxic)", short: "A/O MBR",
+  category: "biological", inlets: 1, outlets: ["out", "was"],
+  description:
+    "Membrane bioreactor with the reactor split into an unaerated anoxic zone followed by an aerated oxic zone, and mixed liquor pumped back from oxic to anoxic. Removes total nitrogen rather than only ammonia. Unlike the plain MBR block, the nitrogen removal here is computed from the recycle ratio and the available carbon rather than entered by hand, so an unachievable target appears as a warning instead of as a number.",
+  ccepcMaturity: 5,
+  params: [
+    { key: "hrtH", label: "Total HRT", type: "number", unit: "h", min: 4, max: 96, step: 1, group: "Sizing",
+      help: "Anoxic and oxic zones together. The split between them is set below." },
+    { key: "anoxicFracPct", label: "Anoxic fraction of volume", type: "number", unit: "%", min: 10, max: 60, step: 5, group: "Sizing",
+      help: "25-40 % is the working range. Below 20 % the anoxic zone has too little contact time for the nitrate delivered to it; above 45 % the oxic zone runs short for nitrification, which is the slower reaction." },
+    { key: "mlrRatio", label: "Mixed liquor recycle", type: "number", unit: "x Q feed", min: 0, max: 8, step: 0.5, group: "Sizing",
+      help: "Total recirculation landing in the anoxic zone: internal recycle plus any membrane-tank return routed there. This single number sets the ceiling on nitrogen removal, R/(1+R)." },
+    { key: "mlss", label: "MLSS", type: "number", unit: "mg/L", min: 5000, max: 15000, step: 250, group: "Sizing" },
+    { key: "srtD", label: "Sludge age (SRT)", type: "number", unit: "d", min: 10, max: 60, step: 1, group: "Sizing" },
+    { key: "flux", label: "Net membrane flux", type: "number", unit: "LMH", min: 5, max: 35, step: 1, group: "Sizing" },
+    { key: "bodRemoval", label: "BOD removal", type: "number", unit: "%", min: 80, max: 99.5, step: 0.5, group: "Performance" },
+    { key: "codRemoval", label: "COD removal", type: "number", unit: "%", min: 5, max: 98, step: 0.5, group: "Performance" },
+    { key: "nh4Removal", label: "Nitrification", type: "number", unit: "%", min: 0, max: 99.5, step: 0.5, group: "Performance",
+      help: "How much of the ammonium is oxidised to nitrate in the oxic zone. Total nitrogen removal is NOT set here: it is computed from what the recycle can deliver and the carbon can reduce." },
+    { key: "tpRemoval", label: "TP removal", type: "number", unit: "%", min: 0, max: 95, step: 1, group: "Performance" },
+    { key: "bodPerN", label: "BOD per nitrate-N", type: "number", unit: "kgBOD/kgN", min: 2.9, max: 8, step: 0.1, group: "Performance",
+      help: "Stoichiometry alone gives 2.86; 4.0 is the practical figure once cell synthesis is counted. Raise it on a poorly degradable carbon source." },
+    { key: "anoxicDO", label: "DO in the recycle", type: "number", unit: "mg/L", min: 0, max: 6, step: 0.1, group: "Performance",
+      help: "Dissolved oxygen carried back from the oxic zone. Every mg of it destroys a mg of BOD that the nitrate needed, which is why a very high recycle stops paying." },
+    { key: "scourAir", label: "Scouring air", type: "number", unit: "Nm3/m2.h", min: 0.1, max: 1.2, step: 0.05, group: "Hydraulics" },
+    { key: "aeUp", label: "Aeration efficiency", type: "number", unit: "kgO2/kWh", min: 0.6, max: 3, step: 0.1, group: "Hydraulics" },
+    { key: "anoxicMixW", label: "Anoxic mixing", type: "number", unit: "W/m3", min: 2, max: 20, step: 0.5, group: "Hydraulics",
+      help: "Submersible mixers keep the anoxic sludge suspended without adding oxygen. 5-8 W/m3; anything that entrains air defeats the zone." },
+    { key: "wasPct", label: "Waste sludge draw", type: "number", unit: "% of feed", min: 0.1, max: 6, step: 0.1, group: "Performance" },
+    { key: "yieldCoef", label: "Sludge yield", type: "number", unit: "kgVSS/kgBOD", min: 0.1, max: 0.7, step: 0.05, group: "Performance" },
+    { key: "carbonDose", label: "External carbon (as methanol)", type: "number", unit: "mg/L", min: 0, max: 3000, step: 10, group: "Chemicals",
+      help: "Only needed where the feed cannot denitrify itself. About 3 kg of methanol per kg of nitrate nitrogen once synthesis is counted." },
+    { key: "cipPerYear", label: "Recovery cleans", type: "number", unit: "1/y", min: 1, max: 12, step: 1, group: "Chemicals" },
+  ],
+  defaults: {
+    hrtH: 20, anoxicFracPct: 33, mlrRatio: 4, mlss: 9000, srtD: 25, flux: 15,
+    bodRemoval: 96, codRemoval: 85, nh4Removal: 95, tpRemoval: 55,
+    bodPerN: 4.0, anoxicDO: 1.0, scourAir: 0.35, aeUp: 1.4, anoxicMixW: 6,
+    wasPct: 1.0, yieldCoef: 0.3, carbonDose: 0, cipPerYear: 4,
+  },
+  solve: (inlet, p) => {
+    const Q = inlet.flow;
+    const nh4Rem = n(p, "nh4Removal", 95) / 100;
+    const R = n(p, "mlrRatio", 4);
+
+    /* --- the nitrogen pools entering, all as mg/L of N ---
+     *
+     * Total nitrogen is not one substance. Splitting it is not pedantry: cell
+     * synthesis, nitrification and denitrification each act on a different
+     * pool, in a fixed order, and a model that works on the total instead can
+     * report an effluent whose total nitrogen is below its own nitrate.
+     */
+    const nh4Nin = inlet.c.NH4 * (MW.N / MW.NH4);
+    const no3Nin = inlet.c.NO3 * (MW.N / 62.004);
+    const orgNin = Math.max(inlet.c.TN - nh4Nin - no3Nin, 0);
+
+    /* --- growth takes its nitrogen first ---
+     * New cells are roughly 12 % nitrogen by mass and take it from the
+     * ammonium pool before the nitrifiers get any. On a weak municipal water
+     * this assimilation alone accounts for a fifth of the nitrogen removed,
+     * and leaving it out makes the anoxic zone look better than it is.
+     */
+    const bodLoadKgH = (Q * inlet.c.BOD * (n(p, "bodRemoval", 96) / 100)) / 1000;
+    const wasKgH = bodLoadKgH * n(p, "yieldCoef", 0.3);
+    const assimDemand = (wasKgH * 0.12 * 1000) / Math.max(Q, 1e-9);
+    const assimFromNH4 = Math.min(assimDemand, nh4Nin);
+    const assimFromOrg = Math.min(assimDemand - assimFromNH4, orgNin * 0.5);
+    const nAssim = assimFromNH4 + assimFromOrg;
+
+    /* --- nitrification works on what is left of the ammonium --- */
+    const nh4Avail = nh4Nin - assimFromNH4;
+    const nitrifiedN = nh4Avail * nh4Rem;
+    const nh4Nout = nh4Avail - nitrifiedN;
+
+    /* --- limit 1: the recycle. Nitrate not returned cannot be reduced. --- */
+    const recycleCeiling = R / (1 + R);
+
+    /* --- limit 2: the carbon. Recycled oxygen is subtracted first, because it
+       is consumed in preference to nitrate: a facultative organism takes the
+       better electron acceptor whenever both are on offer. --- */
+    const doPenaltyBOD = R * n(p, "anoxicDO", 1.0);
+    const bodForDenitri = Math.max(inlet.c.BOD - doPenaltyBOD, 0);
+    const bodPerN = Math.max(n(p, "bodPerN", 4.0), 0.1);
+    const nFromInternalC = bodForDenitri / bodPerN;
+    // Methanol carries 1.5 g COD per g, and about 3 g of it go to each g of
+    // nitrate nitrogen once the biomass grown on it is counted.
+    const nFromDosedC = n(p, "carbonDose", 0) / 3.0;
+    const carbonCeilingN = nFromInternalC + nFromDosedC;
+
+    /* --- what happens is the smallest of the three --- */
+    const denitrifiedN = Math.min(nitrifiedN * recycleCeiling, carbonCeilingN, nitrifiedN);
+    // Nitrogen nitrified but not reduced leaves as nitrate. Reporting it is the
+    // difference between a plant that meets an ammonia consent and one that
+    // meets a total nitrogen consent, and they are not the same plant.
+    const nitrateOutN = no3Nin + nitrifiedN - denitrifiedN;
+
+    // TN and NH4 are deliberately absent from this removal map: they are booked
+    // by hand below, because they do not go where a removal fraction sends them.
+    const { product, side } = removeToSideStream(inlet, n(p, "wasPct", 1.0) / 100, {
+      BOD: n(p, "bodRemoval", 96) / 100,
+      COD: n(p, "codRemoval", 85) / 100,
+      TOC: n(p, "codRemoval", 85) / 100,
+      TP: n(p, "tpRemoval", 55) / 100,
+      TSS: 0.999, Oil: 0.98, Fe: 0.9, Mn: 0.7,
+    });
+    product.extras.coliform = 0;
+    product.extras.turbidityNTU = 0.1;
+    product.extras.sdi15 = 2.5;
+
+    /* --- the nitrogen ledger, kept by hand ---
+     *
+     * Everything else this model removes is moved from the water into the waste
+     * sludge, and that conserves mass because the sludge is where it goes.
+     * Denitrified nitrogen does not go there. It leaves the plant as N2 to
+     * atmosphere, and booking it to the sludge the way a removal fraction would
+     * leaves the waste stream carrying thousands of mg/L of nitrogen that does
+     * not exist. A dewatering filtrate returned to the head of works — which is
+     * the standard arrangement — would then carry a nitrogen load the plant
+     * never had, and size the whole reactor wrong. So the balance is written
+     * out explicitly: gas, sludge, and water, in that order.
+     */
+    // Organic nitrogen that was not assimilated: the particulate share is held
+    // by the membrane and leaves with the sludge, the soluble refractory share
+    // passes into the permeate and is the floor on what this plant can reach.
+    const orgNleft = orgNin - assimFromOrg;
+    const orgNout = orgNleft * 0.25;
+    const orgNtoSludge = orgNleft - orgNout;
+
+    // Dissolved nitrogen is at the same concentration in both streams, because
+    // the waste sludge is mixed liquor and not a separate phase. Particulate
+    // nitrogen goes wholly to the sludge.
+    const dissolvedNout = nh4Nout + nitrateOutN + orgNout;
+    const particulateN = nAssim + orgNtoSludge;
+    product.c.TN = dissolvedNout;
+    side.c.TN = side.flow > 0
+      ? dissolvedNout + (Q * particulateN) / side.flow
+      : dissolvedNout;
+    product.c.NH4 = nh4Nout * (MW.NH4 / MW.N);
+    side.c.NH4 = product.c.NH4;
+    product.c.NO3 = nitrateOutN * (62.004 / MW.N);
+    side.c.NO3 = product.c.NO3;
+
+    // Closes exactly: in = water out + sludge out + gas.
+    const tnInKgH = (Q * inlet.c.TN) / 1000;
+    const nToGasKgH = (Q * denitrifiedN) / 1000;
+    const nToSludgeKgH = (Q * particulateN) / 1000;
+    const tnRemovalFrac = inlet.c.TN > 0
+      ? clamp(1 - dissolvedNout / inlet.c.TN, 0, 0.99)
+      : 0;
+
+    /* --- oxygen: nitrification adds, denitrification gives back --- */
+    const nitrKgH = (Q * nitrifiedN) / 1000;
+    const denitKgH = (Q * denitrifiedN) / 1000;
+    // 2.86 kg of oxygen equivalent comes back per kg of nitrate nitrogen
+    // reduced, because the nitrate does oxidising the blower would otherwise do.
+    const o2CreditKgH = denitKgH * 2.86;
+    const o2KgH = Math.max(bodLoadKgH * 1.2 + nitrKgH * 4.57 - o2CreditKgH, 0);
+
+    /* --- alkalinity: 7.14 consumed nitrifying, 3.57 returned denitrifying --- */
+    const alkNeeded = nitrifiedN * 7.14 - denitrifiedN * 3.57;
+    const alkAvail = alkalinityAsCaCO3(inlet);
+    const alkLeft = alkAvail - alkNeeded;
+    product.c.HCO3 = (Math.max(alkLeft, 0) / 50) * 61.02;
+    product.c.CO3 = 0;
+
+    /* --- volumes and power --- */
+    const volTotal = Q * n(p, "hrtH", 20);
+    const anoxFrac = n(p, "anoxicFracPct", 33) / 100;
+    const volAnox = volTotal * anoxFrac;
+    const volOx = volTotal - volAnox;
+    const processKW = o2KgH / Math.max(n(p, "aeUp", 1.4), 0.1);
+    const mixKW = (volAnox * n(p, "anoxicMixW", 6)) / 1000;
+    // Internal recycle pumps move a great deal of water against almost no head.
+    const recycleKW = pumpKW(Q * R, 1.5, 0.6);
+    const area = (product.flow * 1000) / Math.max(n(p, "flux", 15), 1);
+    const scourM3H = area * n(p, "scourAir", 0.35);
+    const scourKW = ((scourM3H / 3600) * 6000) / 0.65 / 1000;
+    const permeateKW = pumpKW(product.flow, 6, 0.6);
+
+    const fm = (bodLoadKgH * 24) / Math.max((volOx * n(p, "mlss", 9000)) / 1000, 0.001);
+    // Nitrate load per unit of anoxic biomass: the sizing check for the anoxic
+    // zone, the way F/M is the check for the oxic one.
+    const sdnr = volAnox > 0
+      ? (denitKgH * 24) / Math.max((volAnox * n(p, "mlss", 9000)) / 1000, 0.001)
+      : 0;
+
+    const notes: string[] = [];
+    const limiting = nitrifiedN * recycleCeiling <= carbonCeilingN ? "recycle" : "carbon";
+    if (inlet.c.TN > 0) {
+      notes.push(
+        `Nitrogen removal ${(tnRemovalFrac * 100).toFixed(0)} % is limited by the ${limiting}. The recycle ceiling R/(1+R) at R=${R} is ${(recycleCeiling * 100).toFixed(0)} % of what is nitrified; the carbon available supports ${carbonCeilingN.toFixed(1)} mg/L of nitrate nitrogen against ${(nitrifiedN * recycleCeiling).toFixed(1)} delivered.`,
+      );
+    }
+    if (nitrateOutN > 5) {
+      notes.push(
+        `Effluent carries ${nitrateOutN.toFixed(1)} mg/L of nitrate nitrogen that was nitrified but never reduced. A consent written on ammonia will pass; one written on total nitrogen will not.`,
+      );
+    }
+    if (R > 5) {
+      notes.push(
+        `Recycle above 5Q returns little. At R=${R} the ceiling is ${(recycleCeiling * 100).toFixed(0)} % against 83 % at 5Q, while the recycled oxygen already destroys ${doPenaltyBOD.toFixed(0)} mg/L of BOD that the nitrate needed. Pumping power rises in proportion to R for a ceiling that does not.`,
+      );
+    }
+    if (inlet.c.BOD > 0 && doPenaltyBOD > inlet.c.BOD * 0.25) {
+      notes.push(
+        `Recycled dissolved oxygen consumes ${doPenaltyBOD.toFixed(0)} mg/L of the ${inlet.c.BOD.toFixed(0)} mg/L BOD entering, ${((100 * doPenaltyBOD) / inlet.c.BOD).toFixed(0)} % of the carbon budget. Lower the oxic-zone DO set point or draw the recycle from a de-oxygenated point.`,
+      );
+    }
+    const bodTn = inlet.c.BOD / Math.max(inlet.c.TN, 0.01);
+    if (inlet.c.TN > 0 && bodTn < 4 && n(p, "carbonDose", 0) === 0) {
+      const shortfallN = Math.max(nitrifiedN * recycleCeiling - nFromInternalC, 0);
+      notes.push(
+        `BOD:TN is ${bodTn.toFixed(1)}, below the 4 that self-denitrification needs. Closing the gap takes about ${(shortfallN * 3.0).toFixed(0)} mg/L of methanol, ${((shortfallN * 3.0 * Q * 8) / 1000).toFixed(1)} t/y at 8000 h — price it before choosing this route over stripping.`,
+      );
+    }
+    if (alkNeeded > 0 && alkLeft < 100) {
+      notes.push(
+        `Nitrification needs ${alkNeeded.toFixed(0)} mg/L of alkalinity as CaCO3 net of the ${(denitrifiedN * 3.57).toFixed(0)} returned by denitrification, and only ${alkAvail.toFixed(0)} is present. The pH will fall and nitrification will stall. Note what the anoxic zone is worth here: without it the demand would be ${(nitrifiedN * 7.14).toFixed(0)}.`,
+      );
+    }
+    if (anoxFrac < 0.2) {
+      notes.push(`Anoxic zone is only ${(anoxFrac * 100).toFixed(0)} % of the volume; below 20 % it has too little contact time for the nitrate delivered to it.`);
+    }
+    if (sdnr > 0.12) {
+      notes.push(`Specific denitrification rate ${sdnr.toFixed(3)} kgN/kgMLSS.d is above the 0.04-0.10 typical range; the anoxic zone is undersized for its nitrate load.`);
+    }
+    if (fm > 0.15) notes.push(`F/M ratio ${fm.toFixed(3)} kgBOD/kgMLSS.d is high for an MBR; increase the oxic volume or the MLSS.`);
+    if (n(p, "mlss", 9000) > 12000) notes.push("Above 12000 mg/L MLSS the oxygen transfer efficiency collapses and the membrane fouls quickly.");
+
+    const chem: Record<string, number> = {};
+    if (n(p, "carbonDose", 0) > 0) chem["Methanol (external carbon)"] = (n(p, "carbonDose", 0) * Q) / 1000;
+    chem["Sodium hypochlorite (CIP)"] = (area * 0.5 * n(p, "cipPerYear", 4)) / 8760;
+    chem["Citric acid (CIP)"] = (area * 0.3 * n(p, "cipPerYear", 4)) / 8760;
+
+    return {
+      outlets: { out: product, was: side },
+      aux: aux({
+        powerKW: processKW + mixKW + recycleKW + scourKW + permeateKW + 0.02 * Q,
+        chemicals: chem,
+        drySolidsKgH: wasKgH,
+        hrtH: n(p, "hrtH", 20),
+        sizing: [
+          { label: "Total reactor volume", value: `${volTotal.toFixed(0)} m3` },
+          { label: "Anoxic / oxic volume", value: `${volAnox.toFixed(0)} / ${volOx.toFixed(0)} m3 (${(anoxFrac * 100).toFixed(0)} % anoxic)` },
+          { label: "HRT / SRT", value: `${n(p, "hrtH", 20)} h / ${n(p, "srtD", 25)} d` },
+          { label: "Mixed liquor recycle", value: `${R} x Q = ${(Q * R).toFixed(0)} m3/h` },
+          { label: "Recycle ceiling on TN", value: `${(recycleCeiling * 100).toFixed(0)} % of nitrified N` },
+          { label: "Nitrogen nitrified", value: `${nitrKgH.toFixed(2)} kgN/h (${nitrifiedN.toFixed(1)} mg/L)` },
+          { label: "Nitrogen denitrified", value: `${denitKgH.toFixed(2)} kgN/h (${denitrifiedN.toFixed(1)} mg/L)` },
+          { label: "Nitrate leaving", value: `${nitrateOutN.toFixed(1)} mg/L as N` },
+          { label: "Nitrogen in / gas / sludge / water", value: `${tnInKgH.toFixed(2)} = ${nToGasKgH.toFixed(2)} + ${nToSludgeKgH.toFixed(2)} + ${((tnInKgH - nToGasKgH - nToSludgeKgH)).toFixed(2)} kgN/h` },
+          { label: "Nitrogen leaving as N2 gas", value: `${nToGasKgH.toFixed(2)} kgN/h — vented, not in the sludge` },
+          { label: "Nitrogen into biomass", value: `${nToSludgeKgH.toFixed(2)} kgN/h to waste sludge` },
+          { label: "TN removal achieved", value: `${(tnRemovalFrac * 100).toFixed(0)} %, limited by ${limiting}` },
+          { label: "Oxygen demand", value: `${o2KgH.toFixed(1)} kgO2/h (after ${o2CreditKgH.toFixed(1)} credit from denitrification)` },
+          { label: "Membrane area", value: `${area.toFixed(0)} m2 at ${n(p, "flux", 15)} LMH net` },
+          { label: "Process aeration", value: `${processKW.toFixed(1)} kW` },
+          { label: "Anoxic mixing", value: `${mixKW.toFixed(1)} kW` },
+          { label: "Recycle pumping", value: `${recycleKW.toFixed(1)} kW` },
+          { label: "Membrane scouring", value: `${scourKW.toFixed(1)} kW (${scourM3H.toFixed(0)} Nm3/h)` },
+          { label: "F/M ratio (oxic)", value: `${fm.toFixed(3)} kgBOD/kgMLSS.d` },
+          { label: "SDNR (anoxic)", value: `${sdnr.toFixed(3)} kgN/kgMLSS.d` },
+          { label: "Waste sludge", value: `${wasKgH.toFixed(1)} kg/h dry solids` },
+        ],
+        capexUSD: costCurve(volTotal, 900, 0.72) + costCurve(area, 190, 0.85),
+        notes,
+      }),
+    };
+  },
+};
+
+/* ==================================================== ultrafiltration family */
+
+/**
+ * What a UF membrane keeps is set by the pore size, and the pore size is much
+ * the same across every UF made. What differs between the three arrangements
+ * below is how the membrane is kept clean, and that decides the energy, the
+ * solids the feed may carry, and most of the cost.
+ */
+const UF_REJ_MLSS: Partial<Record<Component, number>> = {
+  TSS: 0.999, Fe: 0.9, Mn: 0.6, TOC: 0.3, COD: 0.25, BOD: 0.2, Oil: 0.95,
+};
+
+/**
+ * External tubular UF.
+ *
+ * The tubes are wide — 5 to 12 mm — and the liquor is pumped through them fast
+ * enough that the shear at the wall strips the cake as it forms. Nothing is
+ * immersed, nothing is aerated, and the membrane never sees a quiescent
+ * moment. That is what lets it run on mixed liquor at 25,000 mg/L, on leachate
+ * carrying fibre and oil, on feeds that would destroy a hollow fibre in a week.
+ *
+ * The price is the pump. Keeping 3.5 m/s in an 8 mm tube means recirculating
+ * twenty to fifty times the permeate flow, against the pressure drop the tubes
+ * themselves impose, continuously. That is 2 to 4 kWh per m3 of permeate,
+ * against 0.1 to 0.3 for a submerged membrane doing the same separation — and
+ * it is the single largest energy item on most Chinese leachate plants.
+ *
+ * The model computes it from the hydraulics rather than taking a specific
+ * energy figure, because the whole point of the arrangement is that the energy
+ * follows from the velocity, and the velocity is the thing an engineer chooses.
+ */
+const tubularUF: UnitModel = {
+  type: "tuf", label: "Tubular UF (external, crossflow)", short: "TUF",
+  category: "membrane", inlets: 1, outlets: ["out", "reject"],
+  description:
+    "External tubular ultrafiltration. Wide channels swept at high crossflow velocity, no air scour and nothing immersed. Tolerates mixed liquor at 25,000 mg/L and feeds carrying fibre, oil and grit that would foul a hollow fibre irreversibly. Standard on Chinese landfill leachate MBRs. The recirculation pump dominates the energy and the model derives it from the tube hydraulics.",
+  ccepcMaturity: 5,
+  params: [
+    { key: "flux", label: "Net flux", type: "number", unit: "LMH", min: 30, max: 150, step: 5, group: "Sizing",
+      help: "60-120 on mixed liquor. Higher than a submerged membrane because the crossflow, not the flux, controls the cake." },
+    { key: "tubeIDmm", label: "Channel diameter", type: "number", unit: "mm", min: 4, max: 15, step: 0.5, group: "Sizing",
+      help: "5.2, 8 and 11.5 mm are the standard sizes. Wider passes more solids and costs more pumping for the same velocity." },
+    { key: "crossflow", label: "Crossflow velocity", type: "number", unit: "m/s", min: 1.5, max: 5, step: 0.1, group: "Hydraulics",
+      help: "3-4.5 m/s. This is the design variable: below 2.5 the cake is not stripped, above 4.5 the pressure drop grows faster than the benefit." },
+    { key: "moduleLenM", label: "Module length", type: "number", unit: "m", min: 1, max: 6, step: 0.5, group: "Sizing" },
+    { key: "modulesInSeries", label: "Modules in series per loop", type: "number", unit: "-", min: 1, max: 8, step: 1, group: "Sizing",
+      help: "More in series means a longer path, more pressure drop, and fewer recirculation pumps for the same area." },
+    { key: "tmpBar", label: "Trans-membrane pressure", type: "number", unit: "bar", min: 0.5, max: 6, step: 0.1, group: "Hydraulics" },
+    { key: "viscRatio", label: "Liquor viscosity vs water", type: "number", unit: "x", min: 1, max: 8, step: 0.5, group: "Hydraulics",
+      help: "Mixed liquor at 10,000 mg/L is roughly twice as viscous as water; at 25,000 it is three to five times. It raises the friction factor and therefore the pumping bill." },
+    { key: "recovery", label: "Net recovery", type: "number", unit: "%", min: 85, max: 99.9, step: 0.1, group: "Performance",
+      help: "In an MBR loop the retentate returns to the reactor and is not a loss; this is the net bleed only." },
+    { key: "pumpEff", label: "Recirculation pump efficiency", type: "number", unit: "-", min: 0.4, max: 0.85, step: 0.01, group: "Hydraulics" },
+    { key: "cipPerYear", label: "CIP cleans", type: "number", unit: "1/y", min: 4, max: 52, step: 1, group: "Chemicals" },
+  ],
+  defaults: {
+    flux: 80, tubeIDmm: 8, crossflow: 3.5, moduleLenM: 3, modulesInSeries: 4,
+    tmpBar: 2.5, viscRatio: 3, recovery: 99, pumpEff: 0.75, cipPerYear: 24,
+  },
+  solve: (inlet, p) => {
+    const Y = clamp(n(p, "recovery", 99) / 100, 0.5, 0.999);
+    const { product, side } = removeToSideStream(inlet, 1 - Y, UF_REJ_MLSS);
+    product.extras.turbidityNTU = Math.min(inlet.extras.turbidityNTU, 0.1);
+    product.extras.sdi15 = Math.min(inlet.extras.sdi15, 2.5);
+    product.extras.coliform = 0;
+
+    const area = (product.flow * 1000) / Math.max(n(p, "flux", 80), 1);
+    const D = Math.max(n(p, "tubeIDmm", 8), 1) / 1000;
+    const pathM = Math.max(n(p, "moduleLenM", 3), 0.5) * Math.max(n(p, "modulesInSeries", 4), 1);
+    // Each parallel path presents pi x D x L of membrane, so the area fixes how
+    // many paths there are, and the paths fix the recirculation flow.
+    const areaPerPath = Math.PI * D * pathM;
+    const paths = Math.max(area / Math.max(areaPerPath, 1e-6), 1);
+    const v = Math.max(n(p, "crossflow", 3.5), 0.1);
+    const recircM3H = v * (Math.PI * D * D / 4) * paths * 3600;
+
+    // Darcy-Weisbach with the Blasius friction factor. Mixed liquor is more
+    // viscous than water, which lowers the Reynolds number and raises f.
+    const nu = 1.0e-6 * Math.max(n(p, "viscRatio", 3), 1);
+    const Re = (v * D) / nu;
+    const f = Re > 2300 ? 0.316 / Math.pow(Re, 0.25) : 64 / Math.max(Re, 1);
+    const dpPa = f * (pathM / D) * ((1010 * v * v) / 2);
+    const recircKW = ((recircM3H / 3600) * dpPa) / Math.max(n(p, "pumpEff", 0.75), 0.1) / 1000;
+    const feedKW = pumpKW(inlet.flow, n(p, "tmpBar", 2.5) * 10.2, 0.72);
+    const totalKW = recircKW + feedKW;
+    const sec = product.flow > 0 ? totalKW / product.flow : 0;
+
+    const notes: string[] = [];
+    if (Re < 2300) {
+      notes.push(`Reynolds number ${Re.toFixed(0)} is laminar. The crossflow is not scouring anything and the membrane will blind. Raise the velocity or narrow the channel.`);
+    }
+    if (v < 2.5) {
+      notes.push(`Crossflow ${v} m/s is below the 3 m/s that keeps the cake off a tubular membrane. The energy saving is real but so is the fouling.`);
+    }
+    if (sec > 5) {
+      notes.push(`Specific energy ${sec.toFixed(2)} kWh/m3 is high even for tubular UF. Check the crossflow velocity and the number of modules in series before accepting it.`);
+    }
+    if (inlet.c.TSS > 30000) {
+      notes.push(`Feed at ${(inlet.c.TSS / 1000).toFixed(1)} g/L suspended solids exceeds what tubular UF handles reliably; above about 25 g/L the viscosity rises faster than the pump can pay for.`);
+    }
+    notes.push(`Recirculation is ${(recircM3H / Math.max(product.flow, 0.01)).toFixed(0)} times the permeate flow and runs continuously. It is internal to this unit — do not draw it as a recycle on the flowsheet, or the solver will count the load twice.`);
+
+    return {
+      outlets: { out: product, reject: side },
+      aux: aux({
+        powerKW: totalKW,
+        chemicals: {
+          "Sodium hypochlorite (CIP)": (area * 0.4 * n(p, "cipPerYear", 24)) / 8760,
+          "Citric acid (CIP)": (area * 0.25 * n(p, "cipPerYear", 24)) / 8760,
+        },
+        sizing: [
+          { label: "Membrane area", value: `${area.toFixed(0)} m2 at ${n(p, "flux", 80)} LMH` },
+          { label: "Channel / path", value: `${n(p, "tubeIDmm", 8)} mm x ${pathM.toFixed(1)} m (${n(p, "modulesInSeries", 4)} modules in series)` },
+          { label: "Parallel paths", value: `${Math.round(paths)}` },
+          { label: "Crossflow velocity", value: `${v} m/s (Re ${Re.toFixed(0)})` },
+          { label: "Recirculation flow", value: `${recircM3H.toFixed(0)} m3/h = ${(recircM3H / Math.max(product.flow, 0.01)).toFixed(0)} x permeate` },
+          { label: "Pressure drop per loop", value: `${(dpPa / 1e5).toFixed(2)} bar` },
+          { label: "Recirculation pump", value: `${recircKW.toFixed(1)} kW` },
+          { label: "Feed pump at TMP", value: `${feedKW.toFixed(1)} kW` },
+          { label: "Specific energy", value: `${sec.toFixed(2)} kWh/m3 permeate` },
+        ],
+        capexUSD: costCurve(area, 320, 0.85) + costCurve(Math.max(recircM3H, 1), 900, 0.7),
+        notes,
+      }),
+    };
+  },
+};
+
+/**
+ * Submerged UF.
+ *
+ * The opposite trade. The membrane hangs in the tank, permeate is drawn through
+ * it by suction at well under a bar, and the cake is kept off by air bubbled up
+ * the fibres. There is no recirculation loop and no high-pressure pump, so the
+ * energy is a fifth to a tenth of a tubular arrangement.
+ *
+ * What it costs instead is flux and tolerance. Fifteen to twenty-five LMH
+ * against eighty, so four times the membrane area for the same duty; and the
+ * feed has to be screened to 1-3 mm because a hair braiding round a fibre
+ * bundle does damage that no cleaning reverses.
+ *
+ * The blower is the whole energy story here, and it runs whether or not there
+ * is any load, which is why a submerged plant at half flow is not half the
+ * power.
+ */
+const submergedUF: UnitModel = {
+  type: "suf", label: "Submerged UF (immersed, air-scoured)", short: "SUF",
+  category: "membrane", inlets: 1, outlets: ["out", "reject"],
+  description:
+    "Immersed hollow-fibre or flat-sheet ultrafiltration drawn under suction and kept clean by coarse-bubble air scour. A fifth to a tenth of the energy of a tubular arrangement, at four times the membrane area and much less tolerance for fibre, oil and grit. The scouring blower runs continuously regardless of load.",
+  ccepcMaturity: 5,
+  params: [
+    { key: "flux", label: "Net flux", type: "number", unit: "LMH", min: 5, max: 40, step: 1, group: "Sizing",
+      help: "15-25 on municipal mixed liquor, 8-15 on leachate. Net of relaxation and backwash." },
+    { key: "mlssMax", label: "MLSS the tank runs at", type: "number", unit: "mg/L", min: 3000, max: 20000, step: 250, group: "Sizing" },
+    { key: "scourAir", label: "Scouring air", type: "number", unit: "Nm3/m2.h", min: 0.1, max: 1.2, step: 0.05, group: "Hydraulics",
+      help: "Set by the membrane supplier. This is the energy, and it cannot be reduced without fouling." },
+    { key: "blowerDp", label: "Blower discharge pressure", type: "number", unit: "kPa", min: 20, max: 100, step: 5, group: "Hydraulics",
+      help: "Static head of the membrane tank plus diffuser loss. Deeper tanks scour better and cost more air pressure." },
+    { key: "blowerEff", label: "Blower efficiency", type: "number", unit: "-", min: 0.4, max: 0.8, step: 0.01, group: "Hydraulics" },
+    { key: "suctionBar", label: "Suction pressure", type: "number", unit: "bar", min: 0.05, max: 0.8, step: 0.05, group: "Hydraulics" },
+    { key: "recovery", label: "Net recovery", type: "number", unit: "%", min: 85, max: 99.9, step: 0.1, group: "Performance" },
+    { key: "cipPerYear", label: "Recovery cleans", type: "number", unit: "1/y", min: 1, max: 12, step: 1, group: "Chemicals" },
+  ],
+  defaults: {
+    flux: 18, mlssMax: 9000, scourAir: 0.35, blowerDp: 60, blowerEff: 0.65,
+    suctionBar: 0.3, recovery: 98, cipPerYear: 4,
+  },
+  solve: (inlet, p) => {
+    const Y = clamp(n(p, "recovery", 98) / 100, 0.5, 0.999);
+    const { product, side } = removeToSideStream(inlet, 1 - Y, UF_REJ_MLSS);
+    product.extras.turbidityNTU = Math.min(inlet.extras.turbidityNTU, 0.08);
+    product.extras.sdi15 = Math.min(inlet.extras.sdi15, 2.5);
+    product.extras.coliform = 0;
+
+    const area = (product.flow * 1000) / Math.max(n(p, "flux", 18), 1);
+    const scourM3H = area * n(p, "scourAir", 0.35);
+    const scourKW =
+      ((scourM3H / 3600) * n(p, "blowerDp", 60) * 1000) /
+      Math.max(n(p, "blowerEff", 0.65), 0.1) / 1000;
+    const permeateKW = pumpKW(product.flow, n(p, "suctionBar", 0.3) * 10.2, 0.6);
+    const totalKW = scourKW + permeateKW;
+    const sec = product.flow > 0 ? totalKW / product.flow : 0;
+
+    const notes: string[] = [];
+    if (n(p, "mlssMax", 9000) > 12000) {
+      notes.push(`At ${n(p, "mlssMax", 9000)} mg/L MLSS a submerged membrane fouls faster than it can be cleaned. Above about 12,000 the arrangement to reach for is tubular, which is what the extra pumping energy buys.`);
+    }
+    if (inlet.c.Oil > 20) {
+      notes.push(`Feed oil ${inlet.c.Oil.toFixed(0)} mg/L will foul immersed fibres irreversibly. Remove it upstream or use tubular UF instead.`);
+    }
+    if (n(p, "flux", 18) > 28) {
+      notes.push(`Flux ${n(p, "flux", 18)} LMH is above what an immersed membrane sustains on mixed liquor. A module rated at 60 LMH on clean water delivers a third of that here.`);
+    }
+    notes.push(`Scouring is ${(100 * scourKW / Math.max(totalKW, 0.01)).toFixed(0)} % of this unit's power and runs continuously. Halving the flow does not halve the energy.`);
+
+    return {
+      outlets: { out: product, reject: side },
+      aux: aux({
+        powerKW: totalKW,
+        chemicals: {
+          "Sodium hypochlorite (CIP)": (area * 0.5 * n(p, "cipPerYear", 4)) / 8760,
+          "Citric acid (CIP)": (area * 0.3 * n(p, "cipPerYear", 4)) / 8760,
+        },
+        sizing: [
+          { label: "Membrane area", value: `${area.toFixed(0)} m2 at ${n(p, "flux", 18)} LMH` },
+          { label: "Scouring air", value: `${scourM3H.toFixed(0)} Nm3/h at ${n(p, "blowerDp", 60)} kPa` },
+          { label: "Scouring blower", value: `${scourKW.toFixed(1)} kW` },
+          { label: "Permeate pump", value: `${permeateKW.toFixed(1)} kW` },
+          { label: "Scouring share of power", value: `${(100 * scourKW / Math.max(totalKW, 0.01)).toFixed(0)} %` },
+          { label: "Specific energy", value: `${sec.toFixed(3)} kWh/m3 permeate` },
+        ],
+        capexUSD: costCurve(area, 190, 0.85) + costCurve(Math.max(scourM3H, 1), 700, 0.7),
+        notes,
+      }),
+    };
+  },
+};
+
 export const ADVANCED_MODELS: UnitModel[] = [
   phAdjust, ammoniaStripper, oilSeparator,
-  anaerobic, mbr, baf,
+  anaerobic, mbr, aoMBR, baf,
+  tubularUF, submergedUF,
   dtro, aop, electroOx,
 ];
 

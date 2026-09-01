@@ -257,6 +257,7 @@ function evalRows(rows: CalcRow[]): Map<string, number> {
       .replace(/\bLN\(/g, "Math.log(")
       .replace(/\bROUNDUP\(([^,]+),\s*0\)/g, "Math.ceil($1)")
       .replace(/\bMAX\(/g, "Math.max(")
+      .replace(/\bMIN\(/g, "Math.min(")
       .replace(/\^/g, "**");
     try {
       const v = Function(`"use strict";return (${js})`)() as number;
