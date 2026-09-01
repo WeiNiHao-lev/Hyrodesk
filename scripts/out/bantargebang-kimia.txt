@@ -1,0 +1,50 @@
+BANTARGEBANG — SEBERAPA JAUH KIMIA BISA MENGGANTIKAN MEMBRAN
+==========================================================================================================================
+Umpan terkoreksi: TN 5.400 · TDS 28.000 · klorida 13.000 · COD 11.000 · BOD 350 · pH 8,6
+BOD:COD = 0,032 — praktis seluruh COD-nya refraktori.
+
+OPSI                                             daya  kWh/m3      CAPEX  OPEX/m3  produk   kapur  lumpur   lahan
+--------------------------------------------------------------------------------------------------------------------------
+A. Kimia-maks pH 11 + stripping + DTRO 1 pass     288    7,39    862.750     8,54     935    19,5     5,9     707
+B. Sama, kapur hanya ke pH 10,5                   288    7,39    862.750     8,33     935    19,0     5,9     707
+C. Sama, pH 10,0                                  287    7,36    806.677     7,59     935    16,6     2,9     707
+D. Kimia-maks TANPA membran (+ AOP + BAF)       4.216   96,83  2.646.685    36,01   1.045    19,5     5,9     569
+E. Tanpa stripping — DTRO 2 pass                  210    5,62    966.834     1,28     895       —     2,7     756
+F. Kimia-maks + DTRO, stripping lebih keras       330    8,47    875.429     8,79     935    19,5     5,9     734
+
+EFLUEN terhadap Permen LHK P.59/2016
+--------------------------------------------------------------------------------------------------------------------------
+OPSI                                                COD     BOD    TSS      TN      TDS    pH   hasil
+A. Kimia-maks pH 11 + stripping + DTRO 1 pass      76,1     4,2    0,0    45,2      500  7,20   LOLOS
+B. Sama, kapur hanya ke pH 10,5                    76,1     4,2    0,0    55,8      500  7,20   LOLOS
+C. Sama, pH 10,0                                  101,4     5,0    0,0    85,9      500  7,20   Total nitrogen 85.9 vs ≤ 60 mg/L
+D. Kimia-maks TANPA membran (+ AOP + BAF)         482,0   116,0    2,1   525,0   28.000  7,20   COD 482.0 vs ≤ 300 mg/L; Total nitrogen 525.0 vs ≤ 60 mg/L
+E. Tanpa stripping — DTRO 2 pass                    2,0     0,1    0,0    45,9       10  7,20   LOLOS
+F. Kimia-maks + DTRO, stripping lebih keras        76,1     4,2    0,0    23,1      500  7,20   LOLOS
+
+REAGEN (ton/hari) DAN KONSENTRAT
+--------------------------------------------------------------------------------------------------------------------------
+OPSI                                             kapur   H2SO4    NaOH   lumpur  konsentrat m3/hari
+A. Kimia-maks pH 11 + stripping + DTRO 1 pass     19,5    21,8    0,13      5,9                 165
+B. Sama, kapur hanya ke pH 10,5                   19,0    21,1    0,13      5,9                 165
+C. Sama, pH 10,0                                  16,6    19,5    0,14      2,9                 165
+D. Kimia-maks TANPA membran (+ AOP + BAF)         19,5    21,8    0,00      5,9           tidak ada
+E. Tanpa stripping — DTRO 2 pass                   0,0     0,0    0,10      2,7                 176
+F. Kimia-maks + DTRO, stripping lebih keras       19,5    22,8    0,13      5,9                 165
+
+RINCIAN — A. Kimia-maks pH 11 + stripping + DTRO 1 pass
+--------------------------------------------------------------------------------------------------------------------------
+unit                                     daya kW    CAPEX USD  lahan m2
+Bar Screen                                   2,3       58.798        58
+Ekualisasi                                   0,0       26.451       191
+Kapur ke pH 11                               3,0       28.434        14
+Clarifier lumpur kapur                       2,4       39.721        29
+Menara stripping (A/W 3500)                100,5      118.336        66
+Netralisasi ke pH 7.2                        1,8       10.115         3
+Koagulasi-Flokulasi                          2,4        6.602         1
+DAF                                          4,8       28.612        18
+DTRO 2 tahap                               164,1      356.694       160
+Thickener                                    1,5       52.273        36
+Trim pH                                      1,6        5.655         1
+Filter Press                                 3,6      131.057       131
+TOTAL                                      288,0      862.750       707

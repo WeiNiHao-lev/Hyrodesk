@@ -1,0 +1,607 @@
+{
+  "generated": "2026-09-01T10:09:46.216Z",
+  "feed": {
+    "TDS": 28000,
+    "TSS": 1200,
+    "NH4": 6439,
+    "TN": 5400,
+    "NO3": 23,
+    "Cl": 13000,
+    "HCO3": 7000,
+    "Ca": 1800,
+    "Mg": 400,
+    "SO4": 500,
+    "K": 900,
+    "Na": 300,
+    "COD": 11000,
+    "BOD": 350,
+    "TOC": 3500,
+    "TP": 25,
+    "Oil": 6.1,
+    "Fe": 4.134,
+    "Mn": 5.05
+  },
+  "cases": [
+    {
+      "name": "A. Kimia-maks pH 11 + stripping + DTRO 1 pass",
+      "note": "kapur mengerjakan empat hal sekaligus",
+      "power_kW": 288,
+      "sec": 7.39,
+      "capex": 862750,
+      "opexPerM3": 8.537,
+      "product_m3d": 935,
+      "concentrate_m3d": 165,
+      "area_m2": 707,
+      "lime_t_d": 19.47,
+      "acid_t_d": 21.83,
+      "naoh_t_d": 0.13,
+      "drySolids_t_d": 5.89,
+      "effluent": {
+        "COD": 76.1,
+        "BOD": 4.2,
+        "TSS": 0,
+        "TN": 45.2,
+        "TDS": 500,
+        "pH": 7.2
+      },
+      "fails": [],
+      "units": [
+        {
+          "label": "Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Ekualisasi",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Kapur ke pH 11",
+          "kW": 3,
+          "capex": 28434,
+          "area": 14
+        },
+        {
+          "label": "Clarifier lumpur kapur",
+          "kW": 2.4,
+          "capex": 39721,
+          "area": 29
+        },
+        {
+          "label": "Menara stripping (A/W 3500)",
+          "kW": 100.5,
+          "capex": 118336,
+          "area": 66
+        },
+        {
+          "label": "Netralisasi ke pH 7.2",
+          "kW": 1.8,
+          "capex": 10115,
+          "area": 3
+        },
+        {
+          "label": "Koagulasi-Flokulasi",
+          "kW": 2.4,
+          "capex": 6602,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.8,
+          "capex": 28612,
+          "area": 18
+        },
+        {
+          "label": "DTRO 2 tahap",
+          "kW": 164.1,
+          "capex": 356694,
+          "area": 160
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 52273,
+          "area": 36
+        },
+        {
+          "label": "Trim pH",
+          "kW": 1.6,
+          "capex": 5655,
+          "area": 1
+        },
+        {
+          "label": "Filter Press",
+          "kW": 3.6,
+          "capex": 131057,
+          "area": 131
+        }
+      ]
+    },
+    {
+      "name": "B. Sama, kapur hanya ke pH 10,5",
+      "note": "menguji harga setengah satuan pH terakhir",
+      "power_kW": 288,
+      "sec": 7.39,
+      "capex": 862750,
+      "opexPerM3": 8.327,
+      "product_m3d": 935,
+      "concentrate_m3d": 165,
+      "area_m2": 707,
+      "lime_t_d": 19,
+      "acid_t_d": 21.08,
+      "naoh_t_d": 0.13,
+      "drySolids_t_d": 5.89,
+      "effluent": {
+        "COD": 76.1,
+        "BOD": 4.2,
+        "TSS": 0,
+        "TN": 55.8,
+        "TDS": 500,
+        "pH": 7.2
+      },
+      "fails": [],
+      "units": [
+        {
+          "label": "Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Ekualisasi",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Kapur ke pH 10.5",
+          "kW": 3,
+          "capex": 28434,
+          "area": 14
+        },
+        {
+          "label": "Clarifier lumpur kapur",
+          "kW": 2.4,
+          "capex": 39721,
+          "area": 29
+        },
+        {
+          "label": "Menara stripping (A/W 3500)",
+          "kW": 100.5,
+          "capex": 118336,
+          "area": 66
+        },
+        {
+          "label": "Netralisasi ke pH 7.2",
+          "kW": 1.8,
+          "capex": 10115,
+          "area": 3
+        },
+        {
+          "label": "Koagulasi-Flokulasi",
+          "kW": 2.4,
+          "capex": 6602,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.8,
+          "capex": 28612,
+          "area": 18
+        },
+        {
+          "label": "DTRO 2 tahap",
+          "kW": 164.1,
+          "capex": 356694,
+          "area": 160
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 52273,
+          "area": 36
+        },
+        {
+          "label": "Trim pH",
+          "kW": 1.6,
+          "capex": 5655,
+          "area": 1
+        },
+        {
+          "label": "Filter Press",
+          "kW": 3.6,
+          "capex": 131057,
+          "area": 131
+        }
+      ]
+    },
+    {
+      "name": "C. Sama, pH 10,0",
+      "note": "amonia bebas 88,9 % — cukup?",
+      "power_kW": 286.8,
+      "sec": 7.36,
+      "capex": 806677,
+      "opexPerM3": 7.589,
+      "product_m3d": 935,
+      "concentrate_m3d": 165,
+      "area_m2": 707,
+      "lime_t_d": 16.64,
+      "acid_t_d": 19.47,
+      "naoh_t_d": 0.14,
+      "drySolids_t_d": 2.88,
+      "effluent": {
+        "COD": 101.4,
+        "BOD": 5,
+        "TSS": 0,
+        "TN": 85.9,
+        "TDS": 500,
+        "pH": 7.2
+      },
+      "fails": [
+        "Total nitrogen 85.9 vs ≤ 60 mg/L"
+      ],
+      "units": [
+        {
+          "label": "Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Ekualisasi",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Kapur ke pH 10",
+          "kW": 3,
+          "capex": 28434,
+          "area": 14
+        },
+        {
+          "label": "Clarifier lumpur kapur",
+          "kW": 2.4,
+          "capex": 39721,
+          "area": 29
+        },
+        {
+          "label": "Menara stripping (A/W 3500)",
+          "kW": 100.5,
+          "capex": 118336,
+          "area": 66
+        },
+        {
+          "label": "Netralisasi ke pH 7.2",
+          "kW": 1.8,
+          "capex": 10115,
+          "area": 3
+        },
+        {
+          "label": "Koagulasi-Flokulasi",
+          "kW": 2.4,
+          "capex": 6602,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.8,
+          "capex": 28612,
+          "area": 18
+        },
+        {
+          "label": "DTRO 2 tahap",
+          "kW": 164.1,
+          "capex": 356694,
+          "area": 160
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 36285,
+          "area": 36
+        },
+        {
+          "label": "Trim pH",
+          "kW": 1.6,
+          "capex": 5655,
+          "area": 1
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2.4,
+          "capex": 90972,
+          "area": 131
+        }
+      ]
+    },
+    {
+      "name": "D. Kimia-maks TANPA membran (+ AOP + BAF)",
+      "note": "apakah kimia saja bisa?",
+      "power_kW": 4215.6,
+      "sec": 96.83,
+      "capex": 2646685,
+      "opexPerM3": 36.006,
+      "product_m3d": 1045,
+      "concentrate_m3d": 0,
+      "area_m2": 569,
+      "lime_t_d": 19.47,
+      "acid_t_d": 21.83,
+      "naoh_t_d": 0,
+      "drySolids_t_d": 5.91,
+      "effluent": {
+        "COD": 482,
+        "BOD": 116,
+        "TSS": 2.1,
+        "TN": 525,
+        "TDS": 28000,
+        "pH": 7.2
+      },
+      "fails": [
+        "COD 482.0 vs ≤ 300 mg/L",
+        "Total nitrogen 525.0 vs ≤ 60 mg/L"
+      ],
+      "units": [
+        {
+          "label": "Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Ekualisasi",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Kapur ke pH 11",
+          "kW": 3,
+          "capex": 28434,
+          "area": 14
+        },
+        {
+          "label": "Clarifier lumpur kapur",
+          "kW": 2.4,
+          "capex": 39721,
+          "area": 29
+        },
+        {
+          "label": "Menara stripping (A/W 3500)",
+          "kW": 100.5,
+          "capex": 118336,
+          "area": 66
+        },
+        {
+          "label": "Netralisasi ke pH 7.2",
+          "kW": 1.8,
+          "capex": 10115,
+          "area": 3
+        },
+        {
+          "label": "Koagulasi-Flokulasi",
+          "kW": 2.4,
+          "capex": 6602,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.8,
+          "capex": 28612,
+          "area": 18
+        },
+        {
+          "label": "Ozonasi katalitik",
+          "kW": 4083.3,
+          "capex": 2125127,
+          "area": 8
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 52273,
+          "area": 36
+        },
+        {
+          "label": "BAF",
+          "kW": 8.3,
+          "capex": 15071,
+          "area": 12
+        },
+        {
+          "label": "Filter Press",
+          "kW": 3.6,
+          "capex": 131057,
+          "area": 131
+        },
+        {
+          "label": "Trim pH",
+          "kW": 1.6,
+          "capex": 6086,
+          "area": 1
+        }
+      ]
+    },
+    {
+      "name": "E. Tanpa stripping — DTRO 2 pass",
+      "note": "rekomendasi sebelumnya, pada umpan terkoreksi",
+      "power_kW": 209.7,
+      "sec": 5.62,
+      "capex": 966834,
+      "opexPerM3": 1.279,
+      "product_m3d": 895,
+      "concentrate_m3d": 176,
+      "area_m2": 756,
+      "lime_t_d": 0,
+      "acid_t_d": 0,
+      "naoh_t_d": 0.1,
+      "drySolids_t_d": 2.69,
+      "effluent": {
+        "COD": 2,
+        "BOD": 0.1,
+        "TSS": 0,
+        "TN": 45.9,
+        "TDS": 10,
+        "pH": 7.2
+      },
+      "fails": [],
+      "units": [
+        {
+          "label": "Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Ekualisasi",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Koagulasi-Flokulasi",
+          "kW": 2.4,
+          "capex": 6895,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29916,
+          "area": 19
+        },
+        {
+          "label": "DTRO 2 tahap",
+          "kW": 174.6,
+          "capex": 375705,
+          "area": 160
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 34623,
+          "area": 36
+        },
+        {
+          "label": "DTRO 1 tahap",
+          "kW": 20.1,
+          "capex": 342143,
+          "area": 160
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2.3,
+          "capex": 86807,
+          "area": 131
+        },
+        {
+          "label": "Trim pH",
+          "kW": 1.6,
+          "capex": 5495,
+          "area": 1
+        }
+      ]
+    },
+    {
+      "name": "F. Kimia-maks + DTRO, stripping lebih keras",
+      "note": "A/W 5000, sisa N lebih rendah",
+      "power_kW": 330,
+      "sec": 8.47,
+      "capex": 875429,
+      "opexPerM3": 8.787,
+      "product_m3d": 935,
+      "concentrate_m3d": 165,
+      "area_m2": 734,
+      "lime_t_d": 19.47,
+      "acid_t_d": 22.78,
+      "naoh_t_d": 0.13,
+      "drySolids_t_d": 5.89,
+      "effluent": {
+        "COD": 76.1,
+        "BOD": 4.2,
+        "TSS": 0,
+        "TN": 23.1,
+        "TDS": 500,
+        "pH": 7.2
+      },
+      "fails": [],
+      "units": [
+        {
+          "label": "Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Ekualisasi",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Kapur ke pH 11",
+          "kW": 3,
+          "capex": 28434,
+          "area": 14
+        },
+        {
+          "label": "Clarifier lumpur kapur",
+          "kW": 2.4,
+          "capex": 39721,
+          "area": 29
+        },
+        {
+          "label": "Menara stripping (A/W 5000)",
+          "kW": 142.4,
+          "capex": 131015,
+          "area": 93
+        },
+        {
+          "label": "Netralisasi ke pH 7.2",
+          "kW": 1.8,
+          "capex": 10115,
+          "area": 3
+        },
+        {
+          "label": "Koagulasi-Flokulasi",
+          "kW": 2.4,
+          "capex": 6602,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.8,
+          "capex": 28612,
+          "area": 18
+        },
+        {
+          "label": "DTRO 2 tahap",
+          "kW": 164.1,
+          "capex": 356694,
+          "area": 160
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 52273,
+          "area": 36
+        },
+        {
+          "label": "Trim pH",
+          "kW": 1.6,
+          "capex": 5655,
+          "area": 1
+        },
+        {
+          "label": "Filter Press",
+          "kW": 3.6,
+          "capex": 131057,
+          "area": 131
+        }
+      ]
+    }
+  ]
+}
