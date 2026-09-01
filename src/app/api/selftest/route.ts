@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { feedPreset, TEMPLATES } from "@/lib/engine/templates";
-import { feedStream, simulate, simulateForProduct } from "@/lib/engine/solver";
+import { CHEM_PRICES_USD_PER_T, feedStream, simulate, simulateForProduct } from "@/lib/engine/solver";
 import { outletsOf, UNIT_BY_TYPE, UNIT_MODELS } from "@/lib/engine/units";
 import { knowledgeFor } from "@/lib/engine/knowledge";
 import { calcRowsFor } from "@/lib/report/calcsheets";
@@ -661,8 +661,17 @@ function checkUnitCoverage() {
       calcError,
       waterClosure_pct: round(closurePct, 4),
       notes: solved.aux.notes.length,
+      chemicals: Object.keys(solved.aux.chemicals ?? {}),
     };
   });
+  // Every reagent a unit can name must have a price. An unmatched name silently
+  // takes the fallback, which on a bulk-acid plant is a five-fold error in the
+  // dominant line of the operating cost — invisible, because the OPEX still
+  // looks like a number. Found on Sagara, where 80 % of the reagent bill was
+  // being priced at a speciality-chemical rate.
+  const unpricedChemicals = [...new Set(rows.flatMap((x) => x.chemicals))]
+    .filter((name) => CHEM_PRICES_USD_PER_T[name] === undefined)
+    .sort();
   const missingKnowledge = rows.filter((x) => !x.hasKnowledge).map((x) => x.type);
   const noCalcRecipe = rows.filter((x) => x.calcRows < 5).map((x) => x.type);
   const calcErrors = rows.filter((x) => x.calcError).map((x) => `${x.type}: ${x.calcError}`);
@@ -683,9 +692,10 @@ function checkUnitCoverage() {
     .map((x) => `${x.type}: ${x.waterClosure_pct} %`);
   return {
     ok: missingKnowledge.length === 0 && missingCalcs.length === 0
-      && calcErrors.length === 0 && balanceBroken.length === 0,
+      && calcErrors.length === 0 && balanceBroken.length === 0
+      && unpricedChemicals.length === 0,
     unitsChecked: rows.length,
-    missingKnowledge, missingCalcs, calcErrors, balanceBroken,
+    missingKnowledge, missingCalcs, calcErrors, balanceBroken, unpricedChemicals,
     // Pre-existing gap, reported every run so it does not become invisible.
     knownGapsNoCalcRecipe: noCalcRecipe,
     perUnit: rows,

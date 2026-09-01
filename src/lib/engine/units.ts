@@ -845,22 +845,54 @@ function bioUnit(
       wasPct: 1.5, yieldCoef: 0.45, carbonDose: 0,
     },
     solve: (inlet, p) => {
+      const bodLoadKgH = (inlet.flow * inlet.c.BOD * (n(p, "bodRemoval", d.bod) / 100)) / 1000;
+      const wasKgH = bodLoadKgH * n(p, "yieldCoef", 0.45);
+
+      // TN and NH4 are absent from this map on purpose; they are booked below.
       const { product, side } = removeToSideStream(inlet, n(p, "wasPct", 1.5) / 100, {
         BOD: n(p, "bodRemoval", d.bod) / 100,
         COD: n(p, "codRemoval", d.cod) / 100,
         TOC: n(p, "codRemoval", d.cod) / 100,
-        TN: n(p, "tnRemoval", d.tn) / 100,
         TP: n(p, "tpRemoval", d.tp) / 100,
-        NH4: n(p, "nh4Removal", d.nh4) / 100,
         TSS: 0.6, Oil: 0.8,
       });
       product.extras.coliform = inlet.extras.coliform * 0.05;
-      const bodLoadKgH = (inlet.flow * inlet.c.BOD * (n(p, "bodRemoval", d.bod) / 100)) / 1000;
+
+      /* --- where the nitrogen actually goes ---
+       *
+       * Everything else this model removes is moved into the waste sludge,
+       * which conserves mass because the sludge is where it goes. Nitrogen is
+       * different: most of what a biological stage removes leaves as N2 gas to
+       * atmosphere, and only the part built into new cells stays in the sludge.
+       *
+       * Booking all of it to the sludge looks harmless until the flowsheet has
+       * a dewatering filtrate returned to the head of works, which is the
+       * standard arrangement. The nitrogen then comes straight back, the stage
+       * appears to remove almost nothing, and the reactor gets sized for a load
+       * that does not exist. Splitting gas from sludge is what makes the
+       * recycle loop behave.
+       */
+      const tnRemFrac = n(p, "tnRemoval", d.tn) / 100;
+      const tnRemovedKgH = (inlet.flow * inlet.c.TN * tnRemFrac) / 1000;
+      // Volatile suspended solids run about 12 % nitrogen by mass.
+      const nToSludgeKgH = Math.min(wasKgH * 0.12, tnRemovedKgH);
+      const nToGasKgH = tnRemovedKgH - nToSludgeKgH;
+      const tnOutMgL = inlet.c.TN * (1 - tnRemFrac);
+      product.c.TN = tnOutMgL;
+      side.c.TN = side.flow > 0
+        ? tnOutMgL + (nToSludgeKgH * 1000) / side.flow
+        : tnOutMgL;
+      // Ammonium is dissolved and the waste sludge is mixed liquor, so both
+      // streams leave at the same concentration. What was nitrified is gone
+      // from the ammonium pool either way.
+      const nh4Out = inlet.c.NH4 * (1 - n(p, "nh4Removal", d.nh4) / 100);
+      product.c.NH4 = nh4Out;
+      side.c.NH4 = nh4Out;
+
       const o2KgH = bodLoadKgH * 1.2 +
         ((inlet.flow * inlet.c.NH4 * (n(p, "nh4Removal", d.nh4) / 100)) / 1000) * 4.57;
       const aerKW = o2KgH / Math.max(n(p, "aeUp", 2.0), 0.1);
       const vol = inlet.flow * n(p, "hrtH", d.hrt);
-      const wasKgH = bodLoadKgH * n(p, "yieldCoef", 0.45);
       const fm = bodLoadKgH * 24 / Math.max((vol * n(p, "mlss", 4000)) / 1000, 0.001);
       const notes: string[] = [];
       if (fm > 0.35) notes.push(`F/M ratio ${fm.toFixed(2)} kgBOD/kgMLSS.d is high; increase volume or MLSS.`);
@@ -885,6 +917,8 @@ function bioUnit(
             { label: "Oxygen demand", value: `${o2KgH.toFixed(1)} kgO2/h` },
             { label: "Aeration power", value: `${aerKW.toFixed(1)} kW` },
             { label: "F/M ratio", value: `${fm.toFixed(3)} kgBOD/kgMLSS.d` },
+            { label: "Nitrogen to N2 gas", value: `${nToGasKgH.toFixed(2)} kgN/h — vented, not in the sludge` },
+            { label: "Nitrogen into biomass", value: `${nToSludgeKgH.toFixed(2)} kgN/h to waste sludge` },
             { label: "Waste sludge", value: `${wasKgH.toFixed(1)} kg/h dry solids` },
           ],
           capexUSD: costCurve(vol, 700, 0.72),

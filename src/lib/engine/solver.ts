@@ -19,6 +19,40 @@ interface EdgeKey {
 }
 
 /**
+ * Indicative delivered prices, USD per tonne of 100 % active substance.
+ *
+ * A name missing from this table falls through to CHEM_PRICE_FALLBACK, and that
+ * is not a harmless approximation. Bulk acid costs a fifth of what a speciality
+ * reagent does, so a plant whose dosing is dominated by sulphuric acid has its
+ * whole operating cost inflated by a name that failed to match. Every chemical
+ * name any unit model can emit must appear here; the self test enforces it.
+ */
+export const CHEM_PRICES_USD_PER_T: Record<string, number> = {
+  "Poly-aluminium chloride": 350, "Polymer flocculant": 3500,
+  "Polymer (dewatering)": 3500, Antiscalant: 4500, "Sodium metabisulphite": 900,
+  // Alkali, priced as 100 % NaOH however it is delivered.
+  "Caustic soda (pH correction)": 600, "Caustic soda (softening)": 600,
+  "Caustic soda (regeneration)": 600, "Caustic soda NaOH": 600,
+  "Caustic soda (CIP)": 600,
+  "Hydrated lime Ca(OH)2": 180, "Sodium carbonate": 420,
+  // Acid.
+  "Sulphuric acid H2SO4": 150, "Hydrochloric acid HCl": 300,
+  "Hydrochloric acid (UF CEB)": 300, "Hydrochloric acid (regeneration)": 300,
+  "Citric acid (CIP)": 1600,
+  // Oxidants and reductants.
+  "Sodium hypochlorite (as Cl2)": 500, "Sodium hypochlorite (UF CEB)": 500,
+  "Sodium hypochlorite (CIP)": 500, "Hydrogen peroxide H2O2": 900,
+  "Oxygen (LOX or PSA)": 180,
+  // Coagulant salts, carbon source, regenerant.
+  "Ferrous sulphate FeSO4": 260, "Sodium chloride (regeneration)": 110,
+  "Methanol (external carbon)": 480, "External carbon source": 480,
+};
+
+/** Applied when a name is not in the table above. Deliberately expensive: an
+ *  unpriced reagent should look wrong in the OPEX, not disappear into it. */
+export const CHEM_PRICE_FALLBACK = 800;
+
+/**
  * Order the nodes so that, ignoring recycle (back) edges, every node is visited
  * after its upstream neighbours. Cycles are handled by the outer fixed-point
  * iteration rather than by explicit tearing, which keeps the implementation
@@ -293,20 +327,11 @@ function buildSummary(
     }
   }
   const hours = fs.basis.operatingHoursPerYear || 8000;
-  const chemPrices: Record<string, number> = {
-    "Poly-aluminium chloride": 350, "Polymer flocculant": 3500,
-    "Caustic soda (pH correction)": 600, "Caustic soda (softening)": 600,
-    "Caustic soda (regeneration)": 600, "Sodium hypochlorite (as Cl2)": 500,
-    "Sodium hypochlorite (UF CEB)": 500, "Hydrochloric acid (UF CEB)": 300,
-    "Hydrochloric acid (regeneration)": 300, "Sodium metabisulphite": 900,
-    Antiscalant: 4500, "Sodium carbonate": 420, "Sodium chloride (regeneration)": 110,
-    "Methanol (external carbon)": 480, "External carbon source": 480,
-    "Polymer (dewatering)": 3500,
-  };
+  const chemPrices = CHEM_PRICES_USD_PER_T;
   const chemicals = [...chemMap.entries()]
     .map(([name, kgPerH]) => {
       const tPerY = (kgPerH * hours) / 1000;
-      return { name, kgPerH, tPerY, usdPerY: tPerY * (chemPrices[name] ?? 800) };
+      return { name, kgPerH, tPerY, usdPerY: tPerY * (chemPrices[name] ?? CHEM_PRICE_FALLBACK) };
     })
     .sort((a, b) => b.usdPerY - a.usdPerY);
 
