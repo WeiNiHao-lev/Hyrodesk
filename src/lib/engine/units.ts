@@ -1,7 +1,7 @@
 import { Component, ParamDef, Params, UnitModel } from "./types";
 import {
   alkalinityAsCaCO3, clamp, cloneStream, emptyStream, hardnessAsCaCO3,
-  osmoticPressureBar, removeToSideStream, splitByRejection,
+  osmoticPressureBar, reconcileNitrogen, removeToSideStream, splitByRejection,
 } from "./stream";
 import { aux, b, costCurve, n, pumpKW, s } from "./unitkit";
 import { ADVANCED_MODELS } from "./units-advanced";
@@ -510,6 +510,7 @@ function membraneUnit(
       const { product, reject } = splitByRejection(inlet, Y, rej, 0.9);
       const permeate = product;
       const concentrate = reject;
+      reconcileNitrogen(inlet, permeate, concentrate);
       // Carbon dioxide passes a membrane freely, so permeate pH falls.
       permeate.pH = clamp(inlet.pH - 1.0, 4.5, 8.5);
       permeate.extras.sdi15 = 0;

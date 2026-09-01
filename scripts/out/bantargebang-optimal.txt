@@ -1,0 +1,90 @@
+BANTARGEBANG IPAS 2 — PERBANDINGAN SUSUNAN
+======================================================================================================================
+umpan 1.200 m3/hari, COD 35.000, NH3-N 2.200, TDS 20.000, lahan 20.000 m2
+
+OPSI                                          daya  kWh/m3      CAPEX  OPEX/m3  produk  konsen   lahan  % situs
+----------------------------------------------------------------------------------------------------------------------
+A. Usulan — MBBR ringan + UF                   374    9,97    715.222     1,43     901     159     853  4,3 %
+B. UASB menggantikan MBBR                      148    3,90    875.500     0,90     912     161   1.571  7,9 %
+C. UASB, tanpa UF                              148    3,58    833.774     0,84     992     175   1.484  7,4 %
+D. Tanpa biologi sama sekali                   145    3,50    605.961     0,80     995     176     596  3,0 %
+E. UASB + TUF menggantikan UF hollow-fibre     249    6,27  1.015.597     1,14     952     168   1.549  7,7 %
+F. Koagulasi SESUDAH UASB                      147    3,56    846.671     0,83     992     175   1.865  9,3 %
+G. C dengan DTRO 3 tahap, recovery 90 %        199    4,55    850.212     0,90   1.050     117   1.484  7,4 %
+H. C + DTRO pass-2                             167    4,48  1.127.822     1,05     892     175   1.644  8,2 %
+I. Tanpa biologi + DTRO pass-2                 164    4,38    900.749     1,01     895     176     756  3,8 %
+J. Stripping amonia lalu DTRO                  242    5,85    977.047     5,03     992     175   1.529  7,6 %
+K. H + konsentrat pass-2 dikembalikan          172    4,24  1.179.519     1,00     975     191   1.644  8,2 %
+L. I + konsentrat pass-2 dikembalikan          169    4,15    952.577     0,96     978     192     756  3,8 %
+M. K + trim pH  <- KANDIDAT                    174    4,28  1.185.335     1,01     975     191   1.645  8,2 %
+N. L + trim pH                                 171    4,19    958.405     0,97     978     192     757  3,8 %
+
+EFLUEN terhadap Permen LHK P.59/2016
+----------------------------------------------------------------------------------------------------------------------
+OPSI                                            COD     BOD    TSS      TN      TDS     pH   gagal
+A. Usulan — MBBR ringan + UF                  149,3    12,8    0,0   197,0    357,1   6,30   Total nitrogen 197.0 vs ≤ 60 mg/L
+B. UASB menggantikan MBBR                      72,1    12,6    0,0   197,0    357,1   6,60   Total nitrogen 197.0 vs ≤ 60 mg/L
+C. UASB, tanpa UF                              82,9    13,6    0,1   197,0    357,1   6,60   Total nitrogen 197.0 vs ≤ 60 mg/L
+D. Tanpa biologi sama sekali                  375,8   170,0    0,2   197,0    357,1   6,30   BOD 170.0 vs ≤ 150 mg/L; COD 375.8 vs ≤ 300 mg/L; Total nitrogen 197.0 vs ≤ 60 mg/L
+E. UASB + TUF menggantikan UF hollow-fibre     64,8    11,4    0,0   197,0    357,1   6,60   Total nitrogen 197.0 vs ≤ 60 mg/L
+F. Koagulasi SESUDAH UASB                      82,9    13,6    0,1   197,0    357,1   6,30   Total nitrogen 197.0 vs ≤ 60 mg/L
+G. C dengan DTRO 3 tahap, recovery 90 %        95,0    15,6    0,1   225,8    409,3   6,60   Total nitrogen 225.8 vs ≤ 60 mg/L
+H. C + DTRO pass-2                              1,4     0,3    0,0    20,2      7,3   6,31   LOLOS
+I. Tanpa biologi + DTRO pass-2                  6,4     3,9    0,0    20,2      7,3   6,01   LOLOS
+J. Stripping amonia lalu DTRO                  76,4    13,0    1,3    28,5    357,1   5,80   pH 5.80 vs 6 – 9 -
+K. H + konsentrat pass-2 dikembalikan           1,3     0,3    0,0    19,8      6,8   4,94   pH 4.94 vs 6 – 9 -
+L. I + konsentrat pass-2 dikembalikan           6,0     3,6    0,0    19,8      6,8   4,64   pH 4.64 vs 6 – 9 -
+M. K + trim pH  <- KANDIDAT                     1,3     0,3    0,0    19,8      6,8   7,00   LOLOS
+N. L + trim pH                                  6,0     3,6    0,0    19,8      6,8   7,00   LOLOS
+
+KONSENTRAT — yang menentukan biaya pembuangannya
+----------------------------------------------------------------------------------------------------------------------
+OPSI                                        m3/hari       COD       TN       TDS   beban COD ton/hari
+A. Usulan — MBBR ringan + UF                    159    65.704   13.585   131.310   10,45
+B. UASB menggantikan MBBR                       161    31.735   13.585   131.310   5,11
+C. UASB, tanpa UF                               175    36.496   13.585   131.310   6,39
+D. Tanpa biologi sama sekali                    176   165.392   13.585   131.310   29,11
+E. UASB + TUF menggantikan UF hollow-fibre      168    28.512   13.585   131.310   4,79
+F. Koagulasi SESUDAH UASB                       175    36.496   13.585   131.310   6,39
+G. C dengan DTRO 3 tahap, recovery 90 %         117    54.593   20.020   196.316   6,39
+H. C + DTRO pass-2                              175    36.496   13.585   131.310   6,39
+I. Tanpa biologi + DTRO pass-2                  176   165.392   13.585   131.310   29,11
+J. Stripping amonia lalu DTRO                   175    33.631    1.958   131.310   5,89
+K. H + konsentrat pass-2 dikembalikan           191    33.817   13.351   121.965   6,46
+L. I + konsentrat pass-2 dikembalikan           192   153.252   13.351   121.965   29,42
+M. K + trim pH  <- KANDIDAT                     191    33.817   13.351   121.965   6,46
+N. L + trim pH                                  192   153.252   13.351   121.965   29,42
+
+RINCIAN OPSI TERPILIH — H. C + DTRO pass-2
+----------------------------------------------------------------------------------------------------------------------
+unit                                   daya kW    CAPEX USD  lahan m2
+Intake & Bar Screen                        2,3       58.798        58
+Equalisation + coarse aeration             0,0       26.451       191
+Coagulation-Flocculation                   2,4        6.895         1
+DAF                                        4,9       29.916        19
+UASB                                       3,5      228.758       888
+DTRO 2-tahap                             131,5      374.759       160
+Thickener                                  1,5       30.850        36
+DTRO pass-2                               18,4      294.048       160
+Filter Press                               2,0       77.346       131
+TOTAL                                    166,5    1.127.822     1.644
+
+KE MANA GARAMNYA PERGI — neraca yang menentukan nasib konsentrat
+----------------------------------------------------------------------------------------------------------------------
+Garam masuk bersama lindi     : 24,0 ton/hari (TDS 20.000 mg/L x 1.200 m3/hari)
+Keluar bersama permeat        : 0,01 ton/hari
+Harus keluar lewat jalan lain : 24,0 ton/hari
+
+Opsi 1 — resirkulasi konsentrat ke timbunan sampah:
+  Air keluar sebagai permeat, garam kembali ke timbunan dan terlarut lagi di lindi berikutnya.
+  Timbunan bukan tempat pembuangan garam; ia tempat penyimpanan. Neraca tunak tidak ada:
+  24,0 ton/hari menumpuk, konsentrasi umpan naik, tekanan DTRO naik, sampai berhenti.
+  Ini menunda, bukan membuang.
+
+Opsi 2 — kolam evaporasi surya:
+  Konsentrat 175 m3/hari = 63.875 m3/tahun harus menguap.
+  Evaporasi neto 400 mm/tahun -> luas kolam 16,0 ha  — lahan tersisa 1,7 ha, kurang 9,4x
+  Evaporasi neto 800 mm/tahun -> luas kolam 8,0 ha  — lahan tersisa 1,7 ha, kurang 4,7x
+  Evaporasi neto 1200 mm/tahun -> luas kolam 5,3 ha  — lahan tersisa 1,7 ha, kurang 3,1x
+  Dan di Bekasi curah hujan ~1.800-2.000 mm/tahun terhadap evaporasi panci ~1.500-1.800.
+  Evaporasi neto kolam terbuka mendekati nol atau negatif: kolamnya menambah air, bukan membuangnya.

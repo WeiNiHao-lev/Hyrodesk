@@ -1,6 +1,7 @@
 import { Component, Params, Stream, UnitModel } from "./types";
 import {
-  alkalinityAsCaCO3, clamp, cloneStream, removeToSideStream, splitByRejection,
+  alkalinityAsCaCO3, clamp, cloneStream, reconcileNitrogen,
+  removeToSideStream, splitByRejection,
 } from "./stream";
 import { aux, b, costCurve, freeAmmoniaFraction, n, pumpKW, s } from "./unitkit";
 
@@ -351,22 +352,60 @@ const mbr: UnitModel = {
     wasPct: 1.0, yieldCoef: 0.3, carbonDose: 0, cipPerYear: 4,
   },
   solve: (inlet, p) => {
+    const bodLoadPre = (inlet.flow * inlet.c.BOD * (n(p, "bodRemoval", 95) / 100)) / 1000;
+    const wasSolidsKgH = bodLoadPre * n(p, "yieldCoef", 0.3);
+
+    // TN and NH4 are booked by hand below, for the same reason as in the A/O
+    // block: nitrogen leaves as gas and as nitrate, not into the sludge.
     const { product, side } = removeToSideStream(inlet, n(p, "wasPct", 1.0) / 100, {
       BOD: n(p, "bodRemoval", 95) / 100,
       COD: n(p, "codRemoval", 15) / 100,
       TOC: n(p, "codRemoval", 15) / 100,
-      TN: n(p, "tnRemoval", 25) / 100,
       TP: n(p, "tpRemoval", 60) / 100,
-      NH4: n(p, "nh4Removal", 90) / 100,
       // The membrane is an absolute barrier to solids, which is the whole point.
       TSS: 0.999, Oil: 0.98, Fe: 0.9, Mn: 0.7,
     });
     product.extras.coliform = 0;
+
+    /* --- the nitrogen ledger ---
+     *
+     * The reactor nitrifies, and whatever it nitrifies but does not denitrify
+     * leaves as nitrate. Carrying that as an undifferentiated total nitrogen
+     * hides it, and it does not stay hidden: reverse osmosis rejects ammonium
+     * at about 96 % and nitrate at about 95 %, so a downstream model that
+     * cannot see the nitrate cannot predict the permeate. On the Bantargebang
+     * train that difference is the whole nitrogen margin.
+     */
+    const nOfNH4 = MW.N / MW.NH4;
+    const nh4NinM = inlet.c.NH4 * nOfNH4;
+    const no3NinM = inlet.c.NO3 * (MW.N / 62.004);
+    const orgNinM = Math.max(inlet.c.TN - nh4NinM - no3NinM, 0);
+    const nitrifiedNM = nh4NinM * (n(p, "nh4Removal", 90) / 100);
+    const tnRemovedM = inlet.c.TN * (n(p, "tnRemoval", 25) / 100);
+    const nToSludgeM = Math.min(
+      (wasSolidsKgH * 0.12 * 1000) / Math.max(inlet.flow, 1e-9),
+      tnRemovedM,
+    );
+    // Whatever was removed beyond cell synthesis left as nitrogen gas, and it
+    // can only have come from the nitrate pool.
+    const denitrifiedM = Math.min(Math.max(tnRemovedM - nToSludgeM, 0), nitrifiedNM);
+    const nh4NoutM = nh4NinM - nitrifiedNM;
+    const no3NoutM = Math.max(no3NinM + nitrifiedNM - denitrifiedM, 0);
+    const orgNoutM = Math.max(
+      orgNinM - Math.max(tnRemovedM - nToSludgeM - denitrifiedM, 0), 0);
+    product.c.NH4 = nh4NoutM / nOfNH4;
+    side.c.NH4 = product.c.NH4;
+    product.c.NO3 = no3NoutM * (62.004 / MW.N);
+    side.c.NO3 = product.c.NO3;
+    product.c.TN = nh4NoutM + no3NoutM + orgNoutM;
+    side.c.TN = side.flow > 0
+      ? product.c.TN + (inlet.flow * nToSludgeM) / side.flow
+      : product.c.TN;
     product.extras.turbidityNTU = 0.1;
     product.extras.sdi15 = 2.5;
 
-    const bodLoadKgH = (inlet.flow * inlet.c.BOD * (n(p, "bodRemoval", 95) / 100)) / 1000;
-    const nitrifiedMgL = inlet.c.NH4 * (MW.N / MW.NH4) * (n(p, "nh4Removal", 90) / 100);
+    const bodLoadKgH = bodLoadPre;
+    const nitrifiedMgL = nitrifiedNM;
     const nitrKgH = (inlet.flow * nitrifiedMgL) / 1000;
     const o2KgH = bodLoadKgH * 1.2 + nitrKgH * 4.57;
 
@@ -374,8 +413,7 @@ const mbr: UnitModel = {
     // ammoniacal nitrogen oxidised. Denitrification gives about half of it
     // back. On a leachate carrying thousands of mg/L of ammonia this is not a
     // detail: it is usually what decides whether the reactor holds its pH.
-    const alkNeeded = nitrifiedMgL * 7.14
-      - inlet.c.TN * (n(p, "tnRemoval", 25) / 100) * 3.57;
+    const alkNeeded = nitrifiedMgL * 7.14 - denitrifiedM * 3.57;
     const alkAvail = alkalinityAsCaCO3(inlet);
     const alkLeft = alkAvail - alkNeeded;
     product.c.HCO3 = Math.max(alkLeft, 0) / 50 * 61.02;
@@ -389,7 +427,7 @@ const mbr: UnitModel = {
     const permeateKW = pumpKW(product.flow, 6, 0.6);
 
     const vol = inlet.flow * n(p, "hrtH", 24);
-    const wasKgH = bodLoadKgH * n(p, "yieldCoef", 0.3);
+    const wasKgH = wasSolidsKgH;
     const fm = (bodLoadKgH * 24) / Math.max((vol * n(p, "mlss", 10000)) / 1000, 0.001);
 
     const notes: string[] = [];
@@ -431,6 +469,7 @@ const mbr: UnitModel = {
           { label: "Membrane scouring", value: `${scourKW.toFixed(1)} kW (${scourM3H.toFixed(0)} Nm3/h)` },
           { label: "Scouring share of power", value: `${(100 * scourKW / Math.max(processKW + scourKW + permeateKW, 0.01)).toFixed(0)} %` },
           { label: "F/M ratio", value: `${fm.toFixed(3)} kgBOD/kgMLSS.d` },
+          { label: "Nitrate leaving", value: `${no3NoutM.toFixed(1)} mg/L as N — RO rejects it at only ~95 %` },
           { label: "Waste sludge", value: `${wasKgH.toFixed(1)} kg/h dry solids` },
         ],
         capexUSD: costCurve(vol, 900, 0.72) + costCurve(area, 190, 0.85),
@@ -663,6 +702,7 @@ const dtro: UnitModel = {
     for (const [k, v] of Object.entries(DTRO_REJ)) rej[k as Component] = clamp(v * scale, 0, 0.9999);
 
     const { product: permeate, reject: concentrate } = splitByRejection(inlet, Y, rej, 0.95);
+    reconcileNitrogen(inlet, permeate, concentrate);
     // Carbon dioxide passes the membrane freely and re-forms carbonic acid on
     // the permeate side, so the drop depends on how much alkalinity there was
     // to convert. A neutralised, low-alkalinity feed barely moves.

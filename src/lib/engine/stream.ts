@@ -161,6 +161,35 @@ export function removeToSideStream(
   return { product, side };
 }
 
+/**
+ * Rebuild total nitrogen from its species after a membrane split.
+ *
+ * TN is not a substance. It is the sum of ammoniacal, oxidised and organic
+ * nitrogen, and a membrane rejects each of them differently — ammonium is small
+ * and monovalent and passes relatively freely, organic nitrogen is large and is
+ * held almost completely. Rejecting TN as though it were an independent tracer
+ * lets the three drift apart, and on a leachate the drift is not subtle: with
+ * TN rejected at 98.6 % and ammonium at 96 %, a permeate came out at 67 mg/L of
+ * total nitrogen carrying 196 mg/L of ammoniacal nitrogen. A stream cannot hold
+ * more ammonia than it holds nitrogen, and the error runs the wrong way — it
+ * makes a plant that fails a nitrogen consent look like one that passes it.
+ *
+ * Organic nitrogen is carried on the organic carbon, so it is scaled by what
+ * happened to the TOC rather than given a rejection of its own.
+ */
+export function reconcileNitrogen(inlet: Stream, ...outs: Stream[]): void {
+  const nOfNH4 = 14.007 / 18.039;
+  const nOfNO3 = 14.007 / 62.004;
+  const orgNIn = Math.max(
+    inlet.c.TN - inlet.c.NH4 * nOfNH4 - inlet.c.NO3 * nOfNO3,
+    0,
+  );
+  for (const o of outs) {
+    const orgRatio = inlet.c.TOC > 0 ? o.c.TOC / inlet.c.TOC : 1;
+    o.c.TN = o.c.NH4 * nOfNH4 + o.c.NO3 * nOfNO3 + orgNIn * orgRatio;
+  }
+}
+
 /** Total dissolved solids implied by the tracked ions, mg/L. */
 export function tdsFromIons(s: Stream): number {
   return IONS.reduce((a, k) => a + s.c[k], 0);

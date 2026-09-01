@@ -784,12 +784,23 @@ function checkLeachateTrain() {
   stages.push(st("7. Final pH trim", r7.outlets.out));
 
   // The reference stage table from the Bantargebang analysis.
+  //
+  // The two DTRO permeate nitrogen figures are CORRECTED, and deliberately no
+  // longer match the hand analysis. That analysis carried total nitrogen as a
+  // single species and rejected it at the RO's total-nitrogen figure of 98.6 %,
+  // giving 23 mg/L. But most of the nitrogen leaving an MBR on this train is
+  // nitrate, made by nitrifying the ammonia that survived the stripping tower,
+  // and reverse osmosis rejects nitrate at only about 95 %. Counting the
+  // species separately gives 45 mg/L. The plant still complies — the limit is
+  // 60 — but the margin is 25 %, not the 62 % the hand table implied, and a
+  // design decision that spends that margin should be taken knowing which
+  // number is real.
   const reference = [
     { stage: "1. Alkali dosing to pH 11", COD: 10450, TN: 5400, pH: 11 },
     { stage: "2. Ammonia stripping", COD: 9900, TN: 1000, pH: 11 },
     { stage: "4. MBR", COD: 8400, TN: 750, pH: 7.2 },
-    { stage: "5. DTRO permeate", COD: 126, TN: 23, pH: 6.8 },
-    { stage: "6. AOP polishing", COD: 50, TN: 23, pH: 7 },
+    { stage: "5. DTRO permeate", COD: 126, TN: 45, pH: 6.8 },
+    { stage: "6. AOP polishing", COD: 50, TN: 45, pH: 7 },
   ];
   const comparison = reference.map((ref) => {
     const got = stages.find((x) => x.stage === ref.stage)!;

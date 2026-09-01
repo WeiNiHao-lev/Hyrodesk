@@ -1,0 +1,1196 @@
+{
+  "generated": "2026-09-01T04:32:47.562Z",
+  "cases": [
+    {
+      "name": "A. Usulan — MBBR ringan + UF",
+      "note": "kereta seperti didiskusikan",
+      "power_kW": 374.4,
+      "sec": 9.97,
+      "capex": 715222,
+      "opexPerM3": 1.434,
+      "product_m3d": 901,
+      "concentrate_m3d": 159,
+      "recovery": 75.1,
+      "area_m2": 853,
+      "areaPct": 4.3,
+      "effluent": {
+        "COD": 149.3,
+        "BOD": 12.8,
+        "TSS": 0,
+        "TN": 197,
+        "NH4": 252.9,
+        "TDS": 357.1,
+        "pH": 6.3
+      },
+      "concentrateC": {
+        "COD": 65704,
+        "TN": 13585,
+        "TDS": 131310
+      },
+      "fails": [
+        "Total nitrogen 197.0 vs ≤ 60 mg/L"
+      ],
+      "units": [
+        {
+          "label": "Intake & Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Equalisation + coarse aeration",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Coagulation-Flocculation",
+          "kW": 2.4,
+          "capex": 6895,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29916,
+          "area": 19
+        },
+        {
+          "label": "MBBR (BOD removal)",
+          "kW": 231.2,
+          "capex": 68778,
+          "area": 170
+        },
+        {
+          "label": "UF (RO guard)",
+          "kW": 10.5,
+          "capex": 66365,
+          "area": 87
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 31968,
+          "area": 36
+        },
+        {
+          "label": "DTRO 2-tahap",
+          "kW": 119.5,
+          "capex": 345901,
+          "area": 160
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2.1,
+          "capex": 80150,
+          "area": 131
+        }
+      ]
+    },
+    {
+      "name": "B. UASB menggantikan MBBR",
+      "note": "beban organik dibuang secara anaerob",
+      "power_kW": 148.1,
+      "sec": 3.9,
+      "capex": 875500,
+      "opexPerM3": 0.903,
+      "product_m3d": 912,
+      "concentrate_m3d": 161,
+      "recovery": 76,
+      "area_m2": 1571,
+      "areaPct": 7.9,
+      "effluent": {
+        "COD": 72.1,
+        "BOD": 12.6,
+        "TSS": 0,
+        "TN": 197,
+        "NH4": 252.9,
+        "TDS": 357.1,
+        "pH": 6.6
+      },
+      "concentrateC": {
+        "COD": 31735,
+        "TN": 13585,
+        "TDS": 131310
+      },
+      "fails": [
+        "Total nitrogen 197.0 vs ≤ 60 mg/L"
+      ],
+      "units": [
+        {
+          "label": "Intake & Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Equalisation + coarse aeration",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Coagulation-Flocculation",
+          "kW": 2.4,
+          "capex": 6895,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29916,
+          "area": 19
+        },
+        {
+          "label": "UASB",
+          "kW": 3.5,
+          "capex": 228758,
+          "area": 888
+        },
+        {
+          "label": "UF (RO guard)",
+          "kW": 10.6,
+          "capex": 67052,
+          "area": 87
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 30850,
+          "area": 36
+        },
+        {
+          "label": "DTRO 2-tahap",
+          "kW": 121,
+          "capex": 349433,
+          "area": 160
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2,
+          "capex": 77346,
+          "area": 131
+        }
+      ]
+    },
+    {
+      "name": "C. UASB, tanpa UF",
+      "note": "DTRO memang dibuat untuk umpan kotor",
+      "power_kW": 148.1,
+      "sec": 3.58,
+      "capex": 833774,
+      "opexPerM3": 0.836,
+      "product_m3d": 992,
+      "concentrate_m3d": 175,
+      "recovery": 82.6,
+      "area_m2": 1484,
+      "areaPct": 7.4,
+      "effluent": {
+        "COD": 82.9,
+        "BOD": 13.6,
+        "TSS": 0.1,
+        "TN": 197,
+        "NH4": 252.9,
+        "TDS": 357.1,
+        "pH": 6.6
+      },
+      "concentrateC": {
+        "COD": 36496,
+        "TN": 13585,
+        "TDS": 131310
+      },
+      "fails": [
+        "Total nitrogen 197.0 vs ≤ 60 mg/L"
+      ],
+      "units": [
+        {
+          "label": "Intake & Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Equalisation + coarse aeration",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Coagulation-Flocculation",
+          "kW": 2.4,
+          "capex": 6895,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29916,
+          "area": 19
+        },
+        {
+          "label": "UASB",
+          "kW": 3.5,
+          "capex": 228758,
+          "area": 888
+        },
+        {
+          "label": "DTRO 2-tahap",
+          "kW": 131.5,
+          "capex": 374759,
+          "area": 160
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 30850,
+          "area": 36
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2,
+          "capex": 77346,
+          "area": 131
+        }
+      ]
+    },
+    {
+      "name": "D. Tanpa biologi sama sekali",
+      "note": "koagulasi lalu langsung membran",
+      "power_kW": 145,
+      "sec": 3.5,
+      "capex": 605961,
+      "opexPerM3": 0.8,
+      "product_m3d": 995,
+      "concentrate_m3d": 176,
+      "recovery": 82.9,
+      "area_m2": 596,
+      "areaPct": 3,
+      "effluent": {
+        "COD": 375.8,
+        "BOD": 170,
+        "TSS": 0.2,
+        "TN": 197,
+        "NH4": 252.9,
+        "TDS": 357.1,
+        "pH": 6.3
+      },
+      "concentrateC": {
+        "COD": 165392,
+        "TN": 13585,
+        "TDS": 131310
+      },
+      "fails": [
+        "BOD 170.0 vs ≤ 150 mg/L",
+        "COD 375.8 vs ≤ 300 mg/L",
+        "Total nitrogen 197.0 vs ≤ 60 mg/L"
+      ],
+      "units": [
+        {
+          "label": "Intake & Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Equalisation + coarse aeration",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Coagulation-Flocculation",
+          "kW": 2.4,
+          "capex": 6895,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29916,
+          "area": 19
+        },
+        {
+          "label": "DTRO 2-tahap",
+          "kW": 131.9,
+          "capex": 375705,
+          "area": 160
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 30850,
+          "area": 36
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2,
+          "capex": 77346,
+          "area": 131
+        }
+      ]
+    },
+    {
+      "name": "E. UASB + TUF menggantikan UF hollow-fibre",
+      "note": "toleransi umpan, bukan energi",
+      "power_kW": 248.6,
+      "sec": 6.27,
+      "capex": 1015597,
+      "opexPerM3": 1.139,
+      "product_m3d": 952,
+      "concentrate_m3d": 168,
+      "recovery": 79.3,
+      "area_m2": 1549,
+      "areaPct": 7.7,
+      "effluent": {
+        "COD": 64.8,
+        "BOD": 11.4,
+        "TSS": 0,
+        "TN": 197,
+        "NH4": 252.9,
+        "TDS": 357.1,
+        "pH": 6.6
+      },
+      "concentrateC": {
+        "COD": 28512,
+        "TN": 13585,
+        "TDS": 131310
+      },
+      "fails": [
+        "Total nitrogen 197.0 vs ≤ 60 mg/L"
+      ],
+      "units": [
+        {
+          "label": "Intake & Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Equalisation + coarse aeration",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Coagulation-Flocculation",
+          "kW": 2.4,
+          "capex": 6895,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29916,
+          "area": 19
+        },
+        {
+          "label": "UASB",
+          "kW": 3.5,
+          "capex": 228758,
+          "area": 888
+        },
+        {
+          "label": "Tubular UF",
+          "kW": 105.8,
+          "capex": 194445,
+          "area": 65
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 30850,
+          "area": 36
+        },
+        {
+          "label": "DTRO 2-tahap",
+          "kW": 126.3,
+          "capex": 362138,
+          "area": 160
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2,
+          "capex": 77346,
+          "area": 131
+        }
+      ]
+    },
+    {
+      "name": "F. Koagulasi SESUDAH UASB",
+      "note": "menguji urutannya",
+      "power_kW": 147.2,
+      "sec": 3.56,
+      "capex": 846671,
+      "opexPerM3": 0.825,
+      "product_m3d": 992,
+      "concentrate_m3d": 175,
+      "recovery": 82.6,
+      "area_m2": 1865,
+      "areaPct": 9.3,
+      "effluent": {
+        "COD": 82.9,
+        "BOD": 13.6,
+        "TSS": 0.1,
+        "TN": 197,
+        "NH4": 252.9,
+        "TDS": 357.1,
+        "pH": 6.3
+      },
+      "concentrateC": {
+        "COD": 36496,
+        "TN": 13585,
+        "TDS": 131310
+      },
+      "fails": [
+        "Total nitrogen 197.0 vs ≤ 60 mg/L"
+      ],
+      "units": [
+        {
+          "label": "Intake & Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Equalisation + coarse aeration",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "UASB",
+          "kW": 3.5,
+          "capex": 295737,
+          "area": 1269
+        },
+        {
+          "label": "Coagulation-Flocculation",
+          "kW": 2.4,
+          "capex": 6880,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29851,
+          "area": 19
+        },
+        {
+          "label": "DTRO 2-tahap",
+          "kW": 131.5,
+          "capex": 374759,
+          "area": 160
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 15452,
+          "area": 36
+        },
+        {
+          "label": "Filter Press",
+          "kW": 1.1,
+          "capex": 38742,
+          "area": 131
+        }
+      ]
+    },
+    {
+      "name": "G. C dengan DTRO 3 tahap, recovery 90 %",
+      "note": "konsentrat lebih sedikit, tekanan lebih tinggi",
+      "power_kW": 199.2,
+      "sec": 4.55,
+      "capex": 850212,
+      "opexPerM3": 0.903,
+      "product_m3d": 1050,
+      "concentrate_m3d": 117,
+      "recovery": 87.5,
+      "area_m2": 1484,
+      "areaPct": 7.4,
+      "effluent": {
+        "COD": 95,
+        "BOD": 15.6,
+        "TSS": 0.1,
+        "TN": 225.8,
+        "NH4": 290,
+        "TDS": 409.3,
+        "pH": 6.6
+      },
+      "concentrateC": {
+        "COD": 54593,
+        "TN": 20020,
+        "TDS": 196316
+      },
+      "fails": [
+        "Total nitrogen 225.8 vs ≤ 60 mg/L"
+      ],
+      "units": [
+        {
+          "label": "Intake & Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Equalisation + coarse aeration",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Coagulation-Flocculation",
+          "kW": 2.4,
+          "capex": 6895,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29916,
+          "area": 19
+        },
+        {
+          "label": "UASB",
+          "kW": 3.5,
+          "capex": 228758,
+          "area": 888
+        },
+        {
+          "label": "DTRO 3-tahap",
+          "kW": 182.6,
+          "capex": 391197,
+          "area": 160
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 30850,
+          "area": 36
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2,
+          "capex": 77346,
+          "area": 131
+        }
+      ]
+    },
+    {
+      "name": "H. C + DTRO pass-2",
+      "note": "nitrogen diselesaikan oleh membran kedua",
+      "power_kW": 166.5,
+      "sec": 4.48,
+      "capex": 1127822,
+      "opexPerM3": 1.048,
+      "product_m3d": 892,
+      "concentrate_m3d": 175,
+      "recovery": 74.4,
+      "area_m2": 1644,
+      "areaPct": 8.2,
+      "effluent": {
+        "COD": 1.4,
+        "BOD": 0.3,
+        "TSS": 0,
+        "TN": 20.2,
+        "NH4": 25.9,
+        "TDS": 7.3,
+        "pH": 6.31
+      },
+      "concentrateC": {
+        "COD": 36496,
+        "TN": 13585,
+        "TDS": 131310
+      },
+      "fails": [],
+      "units": [
+        {
+          "label": "Intake & Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Equalisation + coarse aeration",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Coagulation-Flocculation",
+          "kW": 2.4,
+          "capex": 6895,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29916,
+          "area": 19
+        },
+        {
+          "label": "UASB",
+          "kW": 3.5,
+          "capex": 228758,
+          "area": 888
+        },
+        {
+          "label": "DTRO 2-tahap",
+          "kW": 131.5,
+          "capex": 374759,
+          "area": 160
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 30850,
+          "area": 36
+        },
+        {
+          "label": "DTRO pass-2",
+          "kW": 18.4,
+          "capex": 294048,
+          "area": 160
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2,
+          "capex": 77346,
+          "area": 131
+        }
+      ]
+    },
+    {
+      "name": "I. Tanpa biologi + DTRO pass-2",
+      "note": "CAPEX terendah yang masih lolos?",
+      "power_kW": 163.5,
+      "sec": 4.38,
+      "capex": 900749,
+      "opexPerM3": 1.008,
+      "product_m3d": 895,
+      "concentrate_m3d": 176,
+      "recovery": 74.6,
+      "area_m2": 756,
+      "areaPct": 3.8,
+      "effluent": {
+        "COD": 6.4,
+        "BOD": 3.9,
+        "TSS": 0,
+        "TN": 20.2,
+        "NH4": 25.9,
+        "TDS": 7.3,
+        "pH": 6.01
+      },
+      "concentrateC": {
+        "COD": 165392,
+        "TN": 13585,
+        "TDS": 131310
+      },
+      "fails": [],
+      "units": [
+        {
+          "label": "Intake & Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Equalisation + coarse aeration",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Coagulation-Flocculation",
+          "kW": 2.4,
+          "capex": 6895,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29916,
+          "area": 19
+        },
+        {
+          "label": "DTRO 2-tahap",
+          "kW": 131.9,
+          "capex": 375705,
+          "area": 160
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 30850,
+          "area": 36
+        },
+        {
+          "label": "DTRO pass-2",
+          "kW": 18.4,
+          "capex": 294788,
+          "area": 160
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2,
+          "capex": 77346,
+          "area": 131
+        }
+      ]
+    },
+    {
+      "name": "J. Stripping amonia lalu DTRO",
+      "note": "rute analisis Bantargebang terdahulu",
+      "power_kW": 241.5,
+      "sec": 5.85,
+      "capex": 977047,
+      "opexPerM3": 5.028,
+      "product_m3d": 992,
+      "concentrate_m3d": 175,
+      "recovery": 82.6,
+      "area_m2": 1529,
+      "areaPct": 7.6,
+      "effluent": {
+        "COD": 76.4,
+        "BOD": 13,
+        "TSS": 1.3,
+        "TN": 28.5,
+        "NH4": 36,
+        "TDS": 357.1,
+        "pH": 5.8
+      },
+      "concentrateC": {
+        "COD": 33631,
+        "TN": 1958,
+        "TDS": 131310
+      },
+      "fails": [
+        "pH 5.80 vs 6 – 9 -"
+      ],
+      "units": [
+        {
+          "label": "Intake & Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Equalisation + coarse aeration",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Coagulation-Flocculation",
+          "kW": 2.4,
+          "capex": 6895,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29916,
+          "area": 19
+        },
+        {
+          "label": "UASB",
+          "kW": 3.5,
+          "capex": 228758,
+          "area": 888
+        },
+        {
+          "label": "Dosing kapur ke pH 10,5",
+          "kW": 2.1,
+          "capex": 16341,
+          "area": 6
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 30850,
+          "area": 36
+        },
+        {
+          "label": "Menara Stripping NH3",
+          "kW": 89.4,
+          "capex": 116591,
+          "area": 36
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2,
+          "capex": 77346,
+          "area": 131
+        },
+        {
+          "label": "Netralisasi ke pH 7",
+          "kW": 1.8,
+          "capex": 10342,
+          "area": 3
+        },
+        {
+          "label": "DTRO 2-tahap",
+          "kW": 131.5,
+          "capex": 374759,
+          "area": 160
+        }
+      ]
+    },
+    {
+      "name": "K. H + konsentrat pass-2 dikembalikan",
+      "note": "air bersih tidak dibuang",
+      "power_kW": 172.1,
+      "sec": 4.24,
+      "capex": 1179519,
+      "opexPerM3": 0.996,
+      "product_m3d": 975,
+      "concentrate_m3d": 191,
+      "recovery": 81.3,
+      "area_m2": 1644,
+      "areaPct": 8.2,
+      "effluent": {
+        "COD": 1.3,
+        "BOD": 0.3,
+        "TSS": 0,
+        "TN": 19.8,
+        "NH4": 25.4,
+        "TDS": 6.8,
+        "pH": 4.94
+      },
+      "concentrateC": {
+        "COD": 33817,
+        "TN": 13351,
+        "TDS": 121965
+      },
+      "fails": [
+        "pH 4.94 vs 6 – 9 -"
+      ],
+      "units": [
+        {
+          "label": "Intake & Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Equalisation + coarse aeration",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Coagulation-Flocculation",
+          "kW": 2.4,
+          "capex": 6895,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29916,
+          "area": 19
+        },
+        {
+          "label": "UASB",
+          "kW": 3.5,
+          "capex": 228758,
+          "area": 888
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 30850,
+          "area": 36
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2,
+          "capex": 77346,
+          "area": 131
+        },
+        {
+          "label": "DTRO 2-tahap",
+          "kW": 135.5,
+          "capex": 403772,
+          "area": 160
+        },
+        {
+          "label": "DTRO pass-2",
+          "kW": 20.1,
+          "capex": 316732,
+          "area": 160
+        }
+      ]
+    },
+    {
+      "name": "L. I + konsentrat pass-2 dikembalikan",
+      "note": "tanpa biologi, air bersih tidak dibuang",
+      "power_kW": 169.1,
+      "sec": 4.15,
+      "capex": 952577,
+      "opexPerM3": 0.959,
+      "product_m3d": 978,
+      "concentrate_m3d": 192,
+      "recovery": 81.5,
+      "area_m2": 756,
+      "areaPct": 3.8,
+      "effluent": {
+        "COD": 6,
+        "BOD": 3.6,
+        "TSS": 0,
+        "TN": 19.8,
+        "NH4": 25.4,
+        "TDS": 6.8,
+        "pH": 4.64
+      },
+      "concentrateC": {
+        "COD": 153252,
+        "TN": 13351,
+        "TDS": 121965
+      },
+      "fails": [
+        "pH 4.64 vs 6 – 9 -"
+      ],
+      "units": [
+        {
+          "label": "Intake & Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Equalisation + coarse aeration",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Coagulation-Flocculation",
+          "kW": 2.4,
+          "capex": 6895,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29916,
+          "area": 19
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 30850,
+          "area": 36
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2,
+          "capex": 77346,
+          "area": 131
+        },
+        {
+          "label": "DTRO 2-tahap",
+          "kW": 135.9,
+          "capex": 404791,
+          "area": 160
+        },
+        {
+          "label": "DTRO pass-2",
+          "kW": 20.1,
+          "capex": 317530,
+          "area": 160
+        }
+      ]
+    },
+    {
+      "name": "M. K + trim pH  <- KANDIDAT",
+      "note": "lengkap: UASB, 2 pass, konsentrat balik, pH",
+      "power_kW": 173.8,
+      "sec": 4.28,
+      "capex": 1185335,
+      "opexPerM3": 1.007,
+      "product_m3d": 975,
+      "concentrate_m3d": 191,
+      "recovery": 81.3,
+      "area_m2": 1645,
+      "areaPct": 8.2,
+      "effluent": {
+        "COD": 1.3,
+        "BOD": 0.3,
+        "TSS": 0,
+        "TN": 19.8,
+        "NH4": 25.4,
+        "TDS": 6.8,
+        "pH": 7
+      },
+      "concentrateC": {
+        "COD": 33817,
+        "TN": 13351,
+        "TDS": 121965
+      },
+      "fails": [],
+      "units": [
+        {
+          "label": "Intake & Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Equalisation + coarse aeration",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Coagulation-Flocculation",
+          "kW": 2.4,
+          "capex": 6895,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29916,
+          "area": 19
+        },
+        {
+          "label": "UASB",
+          "kW": 3.5,
+          "capex": 228758,
+          "area": 888
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 30850,
+          "area": 36
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2,
+          "capex": 77346,
+          "area": 131
+        },
+        {
+          "label": "DTRO 2-tahap",
+          "kW": 135.5,
+          "capex": 403772,
+          "area": 160
+        },
+        {
+          "label": "DTRO pass-2",
+          "kW": 20.1,
+          "capex": 316733,
+          "area": 160
+        },
+        {
+          "label": "Trim pH permeat (NaOH)",
+          "kW": 1.6,
+          "capex": 5816,
+          "area": 1
+        }
+      ]
+    },
+    {
+      "name": "N. L + trim pH",
+      "note": "sama tanpa UASB",
+      "power_kW": 170.8,
+      "sec": 4.19,
+      "capex": 958405,
+      "opexPerM3": 0.97,
+      "product_m3d": 978,
+      "concentrate_m3d": 192,
+      "recovery": 81.5,
+      "area_m2": 757,
+      "areaPct": 3.8,
+      "effluent": {
+        "COD": 6,
+        "BOD": 3.6,
+        "TSS": 0,
+        "TN": 19.8,
+        "NH4": 25.4,
+        "TDS": 6.8,
+        "pH": 7
+      },
+      "concentrateC": {
+        "COD": 153252,
+        "TN": 13351,
+        "TDS": 121965
+      },
+      "fails": [],
+      "units": [
+        {
+          "label": "Intake & Bar Screen",
+          "kW": 2.3,
+          "capex": 58798,
+          "area": 58
+        },
+        {
+          "label": "Equalisation + coarse aeration",
+          "kW": 0,
+          "capex": 26451,
+          "area": 191
+        },
+        {
+          "label": "Coagulation-Flocculation",
+          "kW": 2.4,
+          "capex": 6895,
+          "area": 1
+        },
+        {
+          "label": "DAF",
+          "kW": 4.9,
+          "capex": 29916,
+          "area": 19
+        },
+        {
+          "label": "Thickener",
+          "kW": 1.5,
+          "capex": 30850,
+          "area": 36
+        },
+        {
+          "label": "Filter Press",
+          "kW": 2,
+          "capex": 77346,
+          "area": 131
+        },
+        {
+          "label": "DTRO 2-tahap",
+          "kW": 135.9,
+          "capex": 404792,
+          "area": 160
+        },
+        {
+          "label": "DTRO pass-2",
+          "kW": 20.1,
+          "capex": 317530,
+          "area": 160
+        },
+        {
+          "label": "Trim pH permeat (NaOH)",
+          "kW": 1.6,
+          "capex": 5827,
+          "area": 1
+        }
+      ]
+    }
+  ],
+  "saltLoad_t_d": 24,
+  "saltOutPermeate_t_d": 0.006511599999999999,
+  "saltToAccount_t_d": 23.9934884,
+  "pondCases": [
+    {
+      "netMmY": 400,
+      "area_ha": 15.96875
+    },
+    {
+      "netMmY": 800,
+      "area_ha": 7.984375
+    },
+    {
+      "netMmY": 1200,
+      "area_ha": 5.322916666666667
+    }
+  ]
+}

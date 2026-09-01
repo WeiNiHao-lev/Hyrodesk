@@ -253,6 +253,18 @@ export const STANDARD_LIMITS: Record<string, StructuredLimit[]> = {
     { label: "Oil and grease", key: "Oil", op: "<=", value: 10, unit: "mg/L" },
     { label: "pH", key: "pH", op: "range", value: 6.0, max: 9.0, unit: "-" },
   ],
+  // Permen LHK P.59/2016 — Baku Mutu Air Lindi bagi Usaha dan/atau Kegiatan
+  // Tempat Pemrosesan Akhir Sampah. The standard names seven parameters; the
+  // five bulk ones are here and the two metals, mercury and cadmium, are not
+  // bulk components and are checked in the trace balance instead. Leaving them
+  // out of this table is deliberate, not an omission: see compliance.ts.
+  permen59: [
+    { label: "pH", key: "pH", op: "range", value: 6.0, max: 9.0, unit: "-" },
+    { label: "BOD", key: "BOD", op: "<=", value: 150, unit: "mg/L" },
+    { label: "COD", key: "COD", op: "<=", value: 300, unit: "mg/L" },
+    { label: "TSS", key: "TSS", op: "<=", value: 100, unit: "mg/L" },
+    { label: "Total nitrogen", key: "TN", op: "<=", value: 60, unit: "mg/L" },
+  ],
   cooling: [
     { label: "Turbidity", key: "turbidity", op: "<=", value: 5.0, unit: "NTU" },
     { label: "Total hardness", key: "hardness", op: "<=", value: 250, unit: "mg/L CaCO₃" },
@@ -286,7 +298,18 @@ function metricOf(s: Stream, key: StructuredLimit["key"]): number {
 
 export function checkCompliance(s: Stream, standardKey: string): ComplianceRow[] {
   const limits = STANDARD_LIMITS[standardKey];
-  if (!limits) return [];
+  // An unknown key used to return an empty list, which reads downstream as "no
+  // parameter failed" — a silent pass for a plant nobody checked. Say so
+  // instead, and fail, because a missing limits table is a configuration error
+  // and not a clean bill of health.
+  if (!limits) {
+    return [{
+      label: `Unknown standard "${standardKey}"`,
+      limitText: "—", actual: 0, actualText: "—", pass: false,
+      marginText: "no limits table",
+      note: "No limits are defined for this standard key, so nothing was checked. Add the standard to STANDARD_LIMITS or correct the key.",
+    }];
+  }
   return limits.map((l) => {
     const actual = metricOf(s, l.key);
     let pass: boolean;
