@@ -1,0 +1,44 @@
+[
+  {
+    "trains": 1,
+    "sharePct": 16.3,
+    "bypass": 163.87,
+    "roFeed": 31.97,
+    "permeate": 23.98,
+    "concentrate": 7.99,
+    "product": 187.85,
+    "productTDS": 320.6,
+    "waste": 17.15,
+    "recovery": 91.64,
+    "power": 88.3,
+    "meetsSpec": false
+  },
+  {
+    "trains": 2,
+    "sharePct": 32.7,
+    "bypass": 131.9,
+    "roFeed": 63.95,
+    "permeate": 47.96,
+    "concentrate": 15.99,
+    "product": 179.86,
+    "productTDS": 272.2,
+    "waste": 25.14,
+    "recovery": 87.74,
+    "power": 92.7,
+    "meetsSpec": true
+  },
+  {
+    "trains": 3,
+    "sharePct": 49,
+    "bypass": 99.92,
+    "roFeed": 95.92,
+    "permeate": 71.94,
+    "concentrate": 23.98,
+    "product": 171.87,
+    "productTDS": 219.3,
+    "waste": 33.13,
+    "recovery": 83.84,
+    "power": 97,
+    "meetsSpec": true
+  }
+]

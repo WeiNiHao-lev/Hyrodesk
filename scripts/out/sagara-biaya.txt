@@ -1,0 +1,68 @@
+VERIFIKASI ENERGI, BAHAN KIMIA, DAN CAPEX — WTP SAGARA
+========================================================================================================
+SISTEM                ITEM                                HITUNG       MODEL  SELISIH  RUMUS
+--------------------------------------------------------------------------------------------------------
+Intake                Daya pompa                           22,35       22,35    0.02%  9,81 x (205/3600) x 30 / 0,75
+Koreksi pH            Pengaduk                              2,18        2,18    0.15%  V x 40 W/m3 / 1000 + 1,5 kW dosing
+Koagulasi-Flokulasi   Pengaduk cepat + lambat               3,08        3,08    0.11%  0,02 x Q^0,75 + 2
+DAF                   Pompa resirkulasi + scraper + kompresor        9,84        9,84    0.02%  pompa(20,5 m3/h @ 60 m) + 0,01 x Q + 3
+Filter Dual-Media     Head loss bed + backwash             10,03       10,03    0.01%  pompa(Q @ 12 m) + 0,004 x Q
+Pengental Lumpur      Rake drive                            1,50        1,50    0.00%  tetap 1,5 kW
+Screw Press           Motor screw                           0,78        0,78    0.00%  0,6 + 6,0 kg/h padatan x 0,03
+RO                    Tekanan umpan (bar)                   4,71        4,80    1.95%  (pi_umpan + pi_konsentrat)/2 + 2,5 + 1,5
+RO                    Pompa tekanan tinggi                 11,41       11,41    0.01%  pompa(64,0 m3/h @ 4,8 bar = 49 m) / 0,75
+Trim pH               Pengaduk                              2,10        2,10    0.03%  V x 40 W/m3 / 1000 + 1,5
+Pompa Distribusi      Daya poros                           29,40       29,40    0.01%  9,81 x (179,84/3600) x 45 / 0,75
+TOTAL                 Daya terpasang                       92,67       92,70    0.03%  jumlah seluruh unit
+TOTAL                 Energi spesifik (kWh/m3)              0,52        0,52    0.06%  92,7 kW / 179,84 m3/jam
+Kimia                 PAC koagulan                          5,13        5,13    0.00%  25 mg/L x 205 m3/jam / 1000
+Kimia                 Polimer flokulan                      0,06        0,06    0.81%  0,3 mg/L x 205 / 1000
+Kimia                 NaOCl intake                          0,31        0,31    0.16%  1,5 mg/L x 205 / 1000
+Kimia                 Antiscalant                           0,19        0,19    0.06%  3 mg/L x 64,04 (umpan RO) / 1000
+Kimia                 SMBS                                  0,32        0,32    0.06%  5 mg/L x 64,04 / 1000
+Kimia                 Polimer dewatering                    0,02        0,02    0.00%  6,0 kg/jam padatan / 1000 x 4 kg/t
+Kimia                 H2SO4 — kebutuhan (meq/L)             1,04        1,04    0.00%  (130/50) x (8,5-6,9)/(8,5-4,5)
+Kimia                 H2SO4 — laju (kg/jam)                12,02       11,97    0.41%  1,04 meq/L x 1,15 x 205 m3/jam x 49,04 g/eq / 1000
+Kimia                 NaOH — laju (kg/jam)                  4,59        4,59    0.00%  0.555 meq/L x 1,15 x 179,84 x 40 g/eq / 1000
+CAPEX                 Intake                          141.023,26  141.023,00    0.00%  5.200 x 205^0,62
+CAPEX                 Koreksi pH                       16.922,76   16.923,00    0.00%  2.600 x 17,1^0,66
+CAPEX                 Koagulasi-Flokulasi              16.706,75   16.707,00    0.00%  900 x 64,9^0,70
+CAPEX                 DAF                              57.197,38   57.197,00    0.00%  6.500 x 20,5^0,72
+CAPEX                 Filter Dual-Media                45.427,98   45.428,00    0.00%  5.200 x 20,3^0,72
+CAPEX                 Tangki Tersaring                 12.336,96   12.354,00    0.14%  320 x 215^0,68
+CAPEX                 Cartridge                         4.609,51    4.610,00    0.01%  380 x 64,0^0,60
+CAPEX                 RO — membran                    185.668,87           —        —  210 x 2.668^0,86
+CAPEX                 RO — pompa & skid                29.419,54           —        —  1.600 x 64,0^0,70
+CAPEX                 RO — total                      215.088,42  215.114,00    0.01%  jumlah keduanya
+CAPEX                 Tangki Produk                    29.916,45   29.924,00    0.03%  320 x 791^0,68
+CAPEX                 Trim pH                          15.521,68   15.521,00    0.00%  2.600 x 15,0^0,66
+CAPEX                 Pompa Distribusi                 14.926,95   14.928,00    0.01%  1.400 x 29,4^0,70
+CAPEX                 Pengental                         7.216,75    7.195,00    0.30%  3.800 x 2,5^0,70
+CAPEX                 Screw Press                      18.226,75   18.039,00    1.04%  5.200 x 6,0^0,70
+CAPEX                 TOTAL peralatan                 594.963,00  594.962,00    0.00%  jumlah seluruh unit
+--------------------------------------------------------------------------------------------------------
+Selisih terbesar antara hitungan tangan dan model: 1.95 %
+
+BIAYA BAHAN KIMIA PER TAHUN (8.000 jam operasi)
+--------------------------------------------------------------------------------------------------------
+BAHAN                             kg/jam   ton/thn   USD/ton     USD/thn   % biaya kimia
+Caustic soda NaOH                  4,593      36,7       600      22.046   34.7 %
+Sulphuric acid H2SO4              11,974      95,8       150      14.369   22.6 %
+Poly-aluminium chloride            5,125      41,0       350      14.350   22.6 %
+Antiscalant                        0,192       1,5     4.500       6.912   10.9 %
+Sodium metabisulphite              0,320       2,6       900       2.304   3.6 %
+Polymer flocculant                 0,062       0,5     3.500       1.736   2.7 %
+Sodium hypochlorite (as Cl2)       0,308       2,5       500       1.232   1.9 %
+Polymer (dewatering)               0,024       0,2     3.500         672   1.1 %
+Seluruh bahan kimia punya harga eksplisit; tidak ada yang memakai nilai bawaan.
+TOTAL BAHAN KIMIA: 63.621 USD/tahun
+
+OPEX
+--------------------------------------------------------------------------------------------------------
+Listrik                             66.722   34.4 %   92,7 kW x 8.000 jam x 0,09 USD/kWh
+Bahan kimia                         63.621   32.8 %   lihat tabel di atas
+Penggantian membran & media         23.799   12.3 %   4 % dari CAPEX peralatan — placeholder
+Tenaga kerja                        40.000   20.6 %   tetap 40.000 USD/tahun — placeholder
+TOTAL                              194.142
+Produksi: 1.438.720 m3/tahun  →  OPEX = 0,135 USD/m3
+Porsi energi dalam OPEX: 34.4 %

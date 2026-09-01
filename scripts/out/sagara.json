@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-13T00:21:46.245Z",
+  "generated": "2026-09-01T03:30:29.899Z",
   "project": {
     "name": "WTP Sagara — 50 L/s ke Kawasan Industri SIER, Surabaya",
     "productTarget_m3h": 180,
@@ -38,12 +38,12 @@
     "sec_kWh_m3": 0.515,
     "chemicals": [
       {
-        "name": "Sulphuric acid H2SO4",
-        "kg_h": 11.974
-      },
-      {
         "name": "Caustic soda NaOH",
         "kg_h": 4.593
+      },
+      {
+        "name": "Sulphuric acid H2SO4",
+        "kg_h": 11.974
       },
       {
         "name": "Poly-aluminium chloride",
@@ -562,12 +562,12 @@
     "sec_kWh_m3": 0.518,
     "chemicals": [
       {
-        "name": "Sulphuric acid H2SO4",
-        "kg_h": 14.399
-      },
-      {
         "name": "Caustic soda NaOH",
         "kg_h": 5.623
+      },
+      {
+        "name": "Sulphuric acid H2SO4",
+        "kg_h": 14.399
       },
       {
         "name": "Poly-aluminium chloride",

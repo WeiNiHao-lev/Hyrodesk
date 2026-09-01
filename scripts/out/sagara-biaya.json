@@ -1,0 +1,346 @@
+{
+  "rows": [
+    {
+      "sys": "Intake",
+      "item": "Daya pompa",
+      "rumus": "9,81 x (205/3600) x 30 / 0,75",
+      "hitung": 22.345,
+      "model": 22.35
+    },
+    {
+      "sys": "Koreksi pH",
+      "item": "Pengaduk",
+      "rumus": "V x 40 W/m3 / 1000 + 1,5 kW dosing",
+      "hitung": 2.183333333333333,
+      "model": 2.18
+    },
+    {
+      "sys": "Koagulasi-Flokulasi",
+      "item": "Pengaduk cepat + lambat",
+      "rumus": "0,02 x Q^0,75 + 2",
+      "hitung": 3.0835411054448563,
+      "model": 3.08
+    },
+    {
+      "sys": "DAF",
+      "item": "Pompa resirkulasi + scraper + kompresor",
+      "rumus": "pompa(20,5 m3/h @ 60 m) + 0,01 x Q + 3",
+      "hitung": 9.838214285714287,
+      "model": 9.84
+    },
+    {
+      "sys": "Filter Dual-Media",
+      "item": "Head loss bed + backwash",
+      "rumus": "pompa(Q @ 12 m) + 0,004 x Q",
+      "hitung": 10.0291125,
+      "model": 10.03
+    },
+    {
+      "sys": "Pengental Lumpur",
+      "item": "Rake drive",
+      "rumus": "tetap 1,5 kW",
+      "hitung": 1.5,
+      "model": 1.5
+    },
+    {
+      "sys": "Screw Press",
+      "item": "Motor screw",
+      "rumus": "0,6 + 6,0 kg/h padatan x 0,03",
+      "hitung": 0.78,
+      "model": 0.78
+    },
+    {
+      "sys": "RO",
+      "item": "Tekanan umpan (bar)",
+      "rumus": "(pi_umpan + pi_konsentrat)/2 + 2,5 + 1,5",
+      "hitung": 4.706238331376824,
+      "model": 4.8
+    },
+    {
+      "sys": "RO",
+      "item": "Pompa tekanan tinggi",
+      "rumus": "pompa(64,0 m3/h @ 4,8 bar = 49 m) / 0,75",
+      "hitung": 11.410934099200002,
+      "model": 11.41
+    },
+    {
+      "sys": "Trim pH",
+      "item": "Pengaduk",
+      "rumus": "V x 40 W/m3 / 1000 + 1,5",
+      "hitung": 2.099466666666667,
+      "model": 2.1
+    },
+    {
+      "sys": "Pompa Distribusi",
+      "item": "Daya poros",
+      "rumus": "9,81 x (179,84/3600) x 45 / 0,75",
+      "hitung": 29.40384,
+      "model": 29.4
+    },
+    {
+      "sys": "TOTAL",
+      "item": "Daya terpasang",
+      "rumus": "jumlah seluruh unit",
+      "hitung": 92.67,
+      "model": 92.7
+    },
+    {
+      "sys": "TOTAL",
+      "item": "Energi spesifik (kWh/m3)",
+      "rumus": "92,7 kW / 179,84 m3/jam",
+      "hitung": 0.5152913701067615,
+      "model": 0.515
+    },
+    {
+      "sys": "Kimia",
+      "item": "PAC koagulan",
+      "rumus": "25 mg/L x 205 m3/jam / 1000",
+      "hitung": 5.125,
+      "model": 5.125
+    },
+    {
+      "sys": "Kimia",
+      "item": "Polimer flokulan",
+      "rumus": "0,3 mg/L x 205 / 1000",
+      "hitung": 0.0615,
+      "model": 0.062
+    },
+    {
+      "sys": "Kimia",
+      "item": "NaOCl intake",
+      "rumus": "1,5 mg/L x 205 / 1000",
+      "hitung": 0.3075,
+      "model": 0.308
+    },
+    {
+      "sys": "Kimia",
+      "item": "Antiscalant",
+      "rumus": "3 mg/L x 64,04 (umpan RO) / 1000",
+      "hitung": 0.19212,
+      "model": 0.192
+    },
+    {
+      "sys": "Kimia",
+      "item": "SMBS",
+      "rumus": "5 mg/L x 64,04 / 1000",
+      "hitung": 0.32020000000000004,
+      "model": 0.32
+    },
+    {
+      "sys": "Kimia",
+      "item": "Polimer dewatering",
+      "rumus": "6,0 kg/jam padatan / 1000 x 4 kg/t",
+      "hitung": 0.024,
+      "model": 0.024
+    },
+    {
+      "sys": "Kimia",
+      "item": "H2SO4 — kebutuhan (meq/L)",
+      "rumus": "(130/50) x (8,5-6,9)/(8,5-4,5)",
+      "hitung": 1.0399999999999998,
+      "model": 1.04
+    },
+    {
+      "sys": "Kimia",
+      "item": "H2SO4 — laju (kg/jam)",
+      "rumus": "1,04 meq/L x 1,15 x 205 m3/jam x 49,04 g/eq / 1000",
+      "hitung": 12.023627199999996,
+      "model": 11.974
+    },
+    {
+      "sys": "Kimia",
+      "item": "NaOH — laju (kg/jam)",
+      "rumus": "0.555 meq/L x 1,15 x 179,84 x 40 g/eq / 1000",
+      "hitung": 4.593000000000001,
+      "model": 4.593
+    },
+    {
+      "sys": "CAPEX",
+      "item": "Intake",
+      "rumus": "5.200 x 205^0,62",
+      "hitung": 141023.2559584388,
+      "model": 141023
+    },
+    {
+      "sys": "CAPEX",
+      "item": "Koreksi pH",
+      "rumus": "2.600 x 17,1^0,66",
+      "hitung": 16922.763062274655,
+      "model": 16923
+    },
+    {
+      "sys": "CAPEX",
+      "item": "Koagulasi-Flokulasi",
+      "rumus": "900 x 64,9^0,70",
+      "hitung": 16706.74552633472,
+      "model": 16707
+    },
+    {
+      "sys": "CAPEX",
+      "item": "DAF",
+      "rumus": "6.500 x 20,5^0,72",
+      "hitung": 57197.38010207608,
+      "model": 57197
+    },
+    {
+      "sys": "CAPEX",
+      "item": "Filter Dual-Media",
+      "rumus": "5.200 x 20,3^0,72",
+      "hitung": 45427.983953352355,
+      "model": 45428
+    },
+    {
+      "sys": "CAPEX",
+      "item": "Tangki Tersaring",
+      "rumus": "320 x 215^0,68",
+      "hitung": 12336.959273768798,
+      "model": 12354
+    },
+    {
+      "sys": "CAPEX",
+      "item": "Cartridge",
+      "rumus": "380 x 64,0^0,60",
+      "hitung": 4609.506063150795,
+      "model": 4610
+    },
+    {
+      "sys": "CAPEX",
+      "item": "RO — membran",
+      "rumus": "210 x 2.668^0,86",
+      "hitung": 185668.87435424913,
+      "model": 0
+    },
+    {
+      "sys": "CAPEX",
+      "item": "RO — pompa & skid",
+      "rumus": "1.600 x 64,0^0,70",
+      "hitung": 29419.54210369333,
+      "model": 0
+    },
+    {
+      "sys": "CAPEX",
+      "item": "RO — total",
+      "rumus": "jumlah keduanya",
+      "hitung": 215088.41645794245,
+      "model": 215114
+    },
+    {
+      "sys": "CAPEX",
+      "item": "Tangki Produk",
+      "rumus": "320 x 791^0,68",
+      "hitung": 29916.44517027136,
+      "model": 29924
+    },
+    {
+      "sys": "CAPEX",
+      "item": "Trim pH",
+      "rumus": "2.600 x 15,0^0,66",
+      "hitung": 15521.678352737708,
+      "model": 15521
+    },
+    {
+      "sys": "CAPEX",
+      "item": "Pompa Distribusi",
+      "rumus": "1.400 x 29,4^0,70",
+      "hitung": 14926.953054828322,
+      "model": 14928
+    },
+    {
+      "sys": "CAPEX",
+      "item": "Pengental",
+      "rumus": "3.800 x 2,5^0,70",
+      "hitung": 7216.749032857552,
+      "model": 7195
+    },
+    {
+      "sys": "CAPEX",
+      "item": "Screw Press",
+      "rumus": "5.200 x 6,0^0,70",
+      "hitung": 18226.7492493174,
+      "model": 18039
+    },
+    {
+      "sys": "CAPEX",
+      "item": "TOTAL peralatan",
+      "rumus": "jumlah seluruh unit",
+      "hitung": 594963,
+      "model": 594962
+    }
+  ],
+  "chemLines": [
+    {
+      "name": "Caustic soda NaOH",
+      "kg_h": 4.593,
+      "t_y": 36.744,
+      "usd_t": 600,
+      "usd_y": 22046.4,
+      "defaulted": false
+    },
+    {
+      "name": "Sulphuric acid H2SO4",
+      "kg_h": 11.974,
+      "t_y": 95.792,
+      "usd_t": 150,
+      "usd_y": 14368.800000000001,
+      "defaulted": false
+    },
+    {
+      "name": "Poly-aluminium chloride",
+      "kg_h": 5.125,
+      "t_y": 41,
+      "usd_t": 350,
+      "usd_y": 14350,
+      "defaulted": false
+    },
+    {
+      "name": "Antiscalant",
+      "kg_h": 0.192,
+      "t_y": 1.536,
+      "usd_t": 4500,
+      "usd_y": 6912,
+      "defaulted": false
+    },
+    {
+      "name": "Sodium metabisulphite",
+      "kg_h": 0.32,
+      "t_y": 2.56,
+      "usd_t": 900,
+      "usd_y": 2304,
+      "defaulted": false
+    },
+    {
+      "name": "Polymer flocculant",
+      "kg_h": 0.062,
+      "t_y": 0.496,
+      "usd_t": 3500,
+      "usd_y": 1736,
+      "defaulted": false
+    },
+    {
+      "name": "Sodium hypochlorite (as Cl2)",
+      "kg_h": 0.308,
+      "t_y": 2.464,
+      "usd_t": 500,
+      "usd_y": 1232,
+      "defaulted": false
+    },
+    {
+      "name": "Polymer (dewatering)",
+      "kg_h": 0.024,
+      "t_y": 0.192,
+      "usd_t": 3500,
+      "usd_y": 672,
+      "defaulted": false
+    }
+  ],
+  "powerCost": 66722.4,
+  "chemCost": 63621.200000000004,
+  "replacement": 23798.52,
+  "labour": 40000,
+  "opex": 194142.12,
+  "m3PerY": 1438720,
+  "opexPerM3": 0.13494086410142347,
+  "capexSum": 594963,
+  "totalKW": 92.67,
+  "secKWhM3": 0.5152913701067615
+}
