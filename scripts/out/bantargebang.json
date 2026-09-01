@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-01T04:35:23.219Z",
+  "generated": "2026-09-01T04:49:57.137Z",
   "site": {
     "landAvailable_m2": 20000,
     "capacity_m3d": 1200,
@@ -160,9 +160,9 @@
         "pass": true
       },
       "TN": {
-        "v": 121.92,
+        "v": 19.06,
         "limit": 60,
-        "pass": false
+        "pass": true
       }
     },
     "stages": [
@@ -291,8 +291,8 @@
         "flow_m3d": 1148.9,
         "COD": 2005.6,
         "BOD": 22.1,
-        "TN": 145.9,
-        "NH4_N": 21.2,
+        "TN": 175,
+        "NH4_N": 21,
         "TSS": 0,
         "TDS": 280000,
         "pH": 7,
@@ -303,7 +303,7 @@
         "flow_m3d": 976.6,
         "COD": 30,
         "BOD": 0.4,
-        "TN": 121.9,
+        "TN": 19.1,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 4999,
@@ -315,7 +315,7 @@
         "flow_m3d": 976.6,
         "COD": 12,
         "BOD": 2.2,
-        "TN": 121.9,
+        "TN": 19.1,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 4999,
@@ -327,7 +327,7 @@
         "flow_m3d": 976.6,
         "COD": 12,
         "BOD": 2.2,
-        "TN": 121.9,
+        "TN": 19.1,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 4999,
@@ -614,12 +614,16 @@
             "value": "0.085 kgBOD/kgMLSS.d"
           },
           {
+            "label": "Nitrate leaving",
+            "value": "154.0 mg/L as N — RO rejects it at only ~95 %"
+          },
+          {
             "label": "Waste sludge",
             "value": "10.2 kg/h dry solids"
           }
         ],
         "notes": [
-          "Nitrification needs 1303 mg/L of alkalinity as CaCO3 and only 0 is present. The pH will crash, nitrification will stall, and the plant will fail on ammonia while looking like a biology problem. Dose alkalinity or accept a lower ammonia removal.",
+          "Nitrification needs 1394 mg/L of alkalinity as CaCO3 and only 0 is present. The pH will crash, nitrification will stall, and the plant will fail on ammonia while looking like a biology problem. Dose alkalinity or accept a lower ammonia removal.",
           "BOD:TN is 2.77, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
           "BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water."
         ]
@@ -775,7 +779,7 @@
       "Ammonia Stripping: The diameter is set by the air, not the water: 20.1 m2 is needed to keep the gas below 2 m/s, against 1.9 m2 for the liquid. The actual liquid loading is only 2.4 m3/m2.h. This is why a stripping tower designed from the water flow alone comes out far too small.",
       "Ammonia Stripping: 10.3 t/d of ammonium sulphate is produced. That is a fertiliser with a real market, but it needs offtake, storage and logistics — and the matching sulphuric acid supply chain — before it can be counted as a credit.",
       "Neutralisation pH 7: Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %.",
-      "MBR: Nitrification needs 1303 mg/L of alkalinity as CaCO3 and only 0 is present. The pH will crash, nitrification will stall, and the plant will fail on ammonia while looking like a biology problem. Dose alkalinity or accept a lower ammonia removal.",
+      "MBR: Nitrification needs 1394 mg/L of alkalinity as CaCO3 and only 0 is present. The pH will crash, nitrification will stall, and the plant will fail on ammonia while looking like a biology problem. Dose alkalinity or accept a lower ammonia removal.",
       "MBR: BOD:TN is 2.77, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
       "MBR: BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water.",
       "DTRO 2-stage: Estimated feed pressure 840 bar exceeds the 120 bar module rating. Either the recovery is too high for this salinity or the water is too concentrated for DTRO at all — check the feed TDS before anything else.",
@@ -962,7 +966,7 @@
     "energy_kWh_d": 8243,
     "sec_kWh_m3": 8.44,
     "capex_USD": 1446765,
-    "opex_USD_m3": 5.694,
+    "opex_USD_m3": 5.693,
     "drySolids_t_d": 5.73,
     "chemicals_t_d": [
       {
@@ -987,7 +991,7 @@
       },
       {
         "name": "Caustic soda NaOH",
-        "t_d": 0.063
+        "t_d": 0.061
       },
       {
         "name": "Antiscalant",
@@ -1039,7 +1043,7 @@
         "pass": true
       },
       "TN": {
-        "v": 4.34,
+        "v": 18.98,
         "limit": 60,
         "pass": true
       }
@@ -1170,48 +1174,48 @@
         "flow_m3d": 1148.9,
         "COD": 1905.3,
         "BOD": 21.4,
-        "TN": 145.9,
-        "NH4_N": 21.2,
+        "TN": 174.3,
+        "NH4_N": 21,
         "TSS": 0.6,
         "TDS": 20000,
         "pH": 7,
-        "osmotic_bar": 16.5
+        "osmotic_bar": 17
       },
       {
         "stage": "Catalytic AOP",
         "flow_m3d": 976.6,
         "COD": 28.5,
         "BOD": 0.4,
-        "TN": 4.3,
+        "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 357,
         "pH": 5.8,
-        "osmotic_bar": 0.4
+        "osmotic_bar": 0.5
       },
       {
         "stage": "Final pH Trim",
         "flow_m3d": 976.6,
         "COD": 11.4,
         "BOD": 2.1,
-        "TN": 4.3,
+        "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 357,
         "pH": 5.8,
-        "osmotic_bar": 0.4
+        "osmotic_bar": 0.5
       },
       {
         "stage": "Outfall to SPARING",
         "flow_m3d": 976.6,
         "COD": 11.4,
         "BOD": 2.1,
-        "TN": 4.3,
+        "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 357,
         "pH": 7,
-        "osmotic_bar": 0.4
+        "osmotic_bar": 0.5
       }
     ],
     "units": [
@@ -1492,6 +1496,10 @@
             "value": "0.082 kgBOD/kgMLSS.d"
           },
           {
+            "label": "Nitrate leaving",
+            "value": "153.3 mg/L as N — RO rejects it at only ~95 %"
+          },
+          {
             "label": "Waste sludge",
             "value": "9.9 kg/h dry solids"
           }
@@ -1631,7 +1639,7 @@
           },
           {
             "label": "Caustic soda NaOH",
-            "value": "2.6 kg/h (0.06 t/d)"
+            "value": "2.5 kg/h (0.06 t/d)"
           },
           {
             "label": "Precipitated solids",
@@ -1861,7 +1869,7 @@
       },
       {
         "name": "Caustic soda NaOH",
-        "t_d": 0.063
+        "t_d": 0.061
       },
       {
         "name": "Antiscalant",
@@ -2044,48 +2052,48 @@
         "flow_m3d": 1148.9,
         "COD": 1905.3,
         "BOD": 21.4,
-        "TN": 145.9,
-        "NH4_N": 21.2,
+        "TN": 174.3,
+        "NH4_N": 21,
         "TSS": 0.6,
         "TDS": 20000,
         "pH": 7,
-        "osmotic_bar": 16.5
+        "osmotic_bar": 17
       },
       {
         "stage": "Catalytic AOP",
         "flow_m3d": 976.6,
         "COD": 28.5,
         "BOD": 0.4,
-        "TN": 4.3,
+        "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 357,
         "pH": 5.8,
-        "osmotic_bar": 0.4
+        "osmotic_bar": 0.5
       },
       {
         "stage": "MVR Evaporator",
         "flow_m3d": 172.3,
         "COD": 12540.6,
         "BOD": 140.3,
-        "TN": 947.8,
-        "NH4_N": 130.7,
+        "TN": 1054.2,
+        "NH4_N": 129.4,
         "TSS": 3.9,
         "TDS": 131310,
         "pH": 7,
-        "osmotic_bar": 107.9
+        "osmotic_bar": 110.5
       },
       {
         "stage": "Final pH Trim",
         "flow_m3d": 976.6,
         "COD": 11.4,
         "BOD": 2.1,
-        "TN": 4.3,
+        "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 357,
         "pH": 5.8,
-        "osmotic_bar": 0.4
+        "osmotic_bar": 0.5
       },
       {
         "stage": "Distillate Reuse",
@@ -2104,24 +2112,24 @@
         "flow_m3d": 31,
         "COD": 69670,
         "BOD": 779.2,
-        "TN": 5265.5,
-        "NH4_N": 726.1,
+        "TN": 5856.6,
+        "NH4_N": 718.9,
         "TSS": 21.7,
         "TDS": 729407,
         "pH": 7,
-        "osmotic_bar": 599.4
+        "osmotic_bar": 613.8
       },
       {
         "stage": "Outfall to SPARING",
         "flow_m3d": 976.6,
         "COD": 11.4,
         "BOD": 2.1,
-        "TN": 4.3,
+        "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 357,
         "pH": 7,
-        "osmotic_bar": 0.4
+        "osmotic_bar": 0.5
       }
     ],
     "units": [
@@ -2402,6 +2410,10 @@
             "value": "0.082 kgBOD/kgMLSS.d"
           },
           {
+            "label": "Nitrate leaving",
+            "value": "153.3 mg/L as N — RO rejects it at only ~95 %"
+          },
+          {
             "label": "Waste sludge",
             "value": "9.9 kg/h dry solids"
           }
@@ -2566,7 +2578,7 @@
           },
           {
             "label": "Caustic soda NaOH",
-            "value": "2.6 kg/h (0.06 t/d)"
+            "value": "2.5 kg/h (0.06 t/d)"
           },
           {
             "label": "Precipitated solids",
@@ -2791,7 +2803,7 @@
     "energy_kWh_d": 81235,
     "sec_kWh_m3": 12.46,
     "capex_USD": 6915632,
-    "opex_USD_m3": 5.315,
+    "opex_USD_m3": 5.314,
     "drySolids_t_d": 33.42,
     "chemicals_t_d": [
       {
@@ -2816,7 +2828,7 @@
       },
       {
         "name": "Caustic soda NaOH",
-        "t_d": 0.365
+        "t_d": 0.357
       },
       {
         "name": "Antiscalant",
@@ -2999,48 +3011,48 @@
         "flow_m3d": 6701.9,
         "COD": 1905.3,
         "BOD": 21.4,
-        "TN": 145.9,
-        "NH4_N": 21.2,
+        "TN": 174.3,
+        "NH4_N": 21,
         "TSS": 0.6,
         "TDS": 20000,
         "pH": 7,
-        "osmotic_bar": 16.5
+        "osmotic_bar": 17
       },
       {
         "stage": "Catalytic AOP",
         "flow_m3d": 5696.6,
         "COD": 28.5,
         "BOD": 0.4,
-        "TN": 4.3,
+        "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 357,
         "pH": 5.8,
-        "osmotic_bar": 0.4
+        "osmotic_bar": 0.5
       },
       {
         "stage": "MVR Evaporator",
         "flow_m3d": 1005.3,
         "COD": 12540.6,
         "BOD": 140.3,
-        "TN": 947.8,
-        "NH4_N": 130.7,
+        "TN": 1054.2,
+        "NH4_N": 129.4,
         "TSS": 3.9,
         "TDS": 131310,
         "pH": 7,
-        "osmotic_bar": 107.9
+        "osmotic_bar": 110.5
       },
       {
         "stage": "Final pH Trim",
         "flow_m3d": 5696.6,
         "COD": 11.4,
         "BOD": 2.1,
-        "TN": 4.3,
+        "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 357,
         "pH": 5.8,
-        "osmotic_bar": 0.4
+        "osmotic_bar": 0.5
       },
       {
         "stage": "Distillate Reuse",
@@ -3059,24 +3071,24 @@
         "flow_m3d": 181,
         "COD": 69670,
         "BOD": 779.2,
-        "TN": 5265.5,
-        "NH4_N": 726.1,
+        "TN": 5856.6,
+        "NH4_N": 718.9,
         "TSS": 21.7,
         "TDS": 729407,
         "pH": 7,
-        "osmotic_bar": 599.4
+        "osmotic_bar": 613.8
       },
       {
         "stage": "Outfall to SPARING",
         "flow_m3d": 5696.6,
         "COD": 11.4,
         "BOD": 2.1,
-        "TN": 4.3,
+        "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 357,
         "pH": 7,
-        "osmotic_bar": 0.4
+        "osmotic_bar": 0.5
       }
     ],
     "units": [
@@ -3357,6 +3369,10 @@
             "value": "0.082 kgBOD/kgMLSS.d"
           },
           {
+            "label": "Nitrate leaving",
+            "value": "153.3 mg/L as N — RO rejects it at only ~95 %"
+          },
+          {
             "label": "Waste sludge",
             "value": "58.0 kg/h dry solids"
           }
@@ -3521,7 +3537,7 @@
           },
           {
             "label": "Caustic soda NaOH",
-            "value": "15.2 kg/h (0.37 t/d)"
+            "value": "14.9 kg/h (0.36 t/d)"
           },
           {
             "label": "Precipitated solids",
@@ -3746,7 +3762,7 @@
     "energy_kWh_d": 24619,
     "sec_kWh_m3": 12.58,
     "capex_USD": 2784350,
-    "opex_USD_m3": 5.413,
+    "opex_USD_m3": 5.412,
     "drySolids_t_d": 10.03,
     "chemicals_t_d": [
       {
@@ -3771,7 +3787,7 @@
       },
       {
         "name": "Caustic soda NaOH",
-        "t_d": 0.11
+        "t_d": 0.107
       },
       {
         "name": "Antiscalant",
@@ -3954,48 +3970,48 @@
         "flow_m3d": 2010.6,
         "COD": 1905.3,
         "BOD": 21.4,
-        "TN": 145.9,
-        "NH4_N": 21.2,
+        "TN": 174.3,
+        "NH4_N": 21,
         "TSS": 0.6,
         "TDS": 20000,
         "pH": 7,
-        "osmotic_bar": 16.5
+        "osmotic_bar": 17
       },
       {
         "stage": "Catalytic AOP",
         "flow_m3d": 1709,
         "COD": 28.5,
         "BOD": 0.4,
-        "TN": 4.3,
+        "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 357,
         "pH": 5.8,
-        "osmotic_bar": 0.4
+        "osmotic_bar": 0.5
       },
       {
         "stage": "MVR Evaporator",
         "flow_m3d": 301.6,
         "COD": 12540.6,
         "BOD": 140.3,
-        "TN": 947.8,
-        "NH4_N": 130.7,
+        "TN": 1054.2,
+        "NH4_N": 129.4,
         "TSS": 3.9,
         "TDS": 131310,
         "pH": 7,
-        "osmotic_bar": 107.9
+        "osmotic_bar": 110.5
       },
       {
         "stage": "Final pH Trim",
         "flow_m3d": 1709,
         "COD": 11.4,
         "BOD": 2.1,
-        "TN": 4.3,
+        "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 357,
         "pH": 5.8,
-        "osmotic_bar": 0.4
+        "osmotic_bar": 0.5
       },
       {
         "stage": "Distillate Reuse",
@@ -4014,24 +4030,24 @@
         "flow_m3d": 54.3,
         "COD": 69670,
         "BOD": 779.2,
-        "TN": 5265.5,
-        "NH4_N": 726.1,
+        "TN": 5856.6,
+        "NH4_N": 718.9,
         "TSS": 21.7,
         "TDS": 729407,
         "pH": 7,
-        "osmotic_bar": 599.4
+        "osmotic_bar": 613.8
       },
       {
         "stage": "Outfall to SPARING",
         "flow_m3d": 1709,
         "COD": 11.4,
         "BOD": 2.1,
-        "TN": 4.3,
+        "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
         "TDS": 357,
         "pH": 7,
-        "osmotic_bar": 0.4
+        "osmotic_bar": 0.5
       }
     ],
     "units": [
@@ -4312,6 +4328,10 @@
             "value": "0.082 kgBOD/kgMLSS.d"
           },
           {
+            "label": "Nitrate leaving",
+            "value": "153.3 mg/L as N — RO rejects it at only ~95 %"
+          },
+          {
             "label": "Waste sludge",
             "value": "17.4 kg/h dry solids"
           }
@@ -4476,7 +4496,7 @@
           },
           {
             "label": "Caustic soda NaOH",
-            "value": "4.6 kg/h (0.11 t/d)"
+            "value": "4.5 kg/h (0.11 t/d)"
           },
           {
             "label": "Precipitated solids",

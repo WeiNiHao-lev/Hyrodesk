@@ -1,0 +1,58 @@
+BANTARGEBANG — RUTE TANPA MEMBRAN KETAT
+========================================================================================================================
+P.59/2016 membatasi pH, BOD 150, COD 300, TSS 100, N-total 60. TDS TIDAK dibatasi.
+
+OPSI                                           daya  kWh/m3      CAPEX  OPEX/m3  produk  konsen MeOH t/th   lahan
+------------------------------------------------------------------------------------------------------------------------
+1. Saran teman — MBBR aerob x2 + NF             771   21,00    685.698     2,62     881     220         —   1.301
+2. Saran teman, A/O — 2 tahap + NF              770   20,81    712.029     2,60     888     222         —   1.416
+3. A/O 2 tahap + metanol + NF                   770   20,81    712.029     3,10     888     222     308,3   1.416
+4. A/O 3 tahap + NF                             776   21,13    786.233     2,64     881     220         —   1.609
+5. TANPA MEMBRAN — A/O 3 tahap + Fenton       3.065   66,81  2.055.257    17,57   1.101       —         —   1.487
+6. TANPA MEMBRAN — A/O 3 tahap + metanol + Fenton  3.065   66,81  2.055.257    17,87   1.101       —     231,2   1.487
+7. Pembanding — A/O 2 tahap + DTRO              853   21,69    899.937     2,59     944     167         —   1.445
+
+EFLUEN
+------------------------------------------------------------------------------------------------------------------------
+OPSI                                             COD    BOD    TSS      TN   NH4-N   NO3-N     TDS  hasil
+1. Saran teman — MBBR aerob x2 + NF            698,1    4,2    0,1   384,3     6,6     5,2  19.877  COD 698.1 vs ≤ 300 mg/L; Total nitrogen 384.3 vs ≤ 60 mg/L
+2. Saran teman, A/O — 2 tahap + NF           1.246,8   15,5    0,1    21,4     6,6     5,2  19.877  COD 1247 vs ≤ 300 mg/L
+3. A/O 2 tahap + metanol + NF                1.246,8   15,5    0,1    21,4     6,6     5,2  19.877  COD 1247 vs ≤ 300 mg/L
+4. A/O 3 tahap + NF                            942,6    2,3    0,1     6,2     0,3     5,2  19.877  COD 942.6 vs ≤ 300 mg/L
+5. TANPA MEMBRAN — A/O 3 tahap + Fenton      1.093,3  310,4    6,0     8,7     0,3     5,2  20.000  BOD 310.4 vs ≤ 150 mg/L; COD 1093 vs ≤ 300 mg/L
+6. TANPA MEMBRAN — A/O 3 tahap + metanol + Fenton 1.093,3  310,4    6,0     8,7     0,3     5,2  20.000  BOD 310.4 vs ≤ 150 mg/L; COD 1093 vs ≤ 300 mg/L
+7. Pembanding — A/O 2 tahap + DTRO              61,8    0,8    0,0     1,8     0,5     0,6     357  LOLOS
+
+KONSENTRAT
+------------------------------------------------------------------------------------------------------------------------
+1. Saran teman — MBBR aerob x2 + NF             220 m3/hari   COD    8.774   TN   7.773   TDS   20.494   garam 4,5 t/hari
+2. Saran teman, A/O — 2 tahap + NF              222 m3/hari   COD   15.671   TN     205   TDS   20.494   garam 4,5 t/hari
+3. A/O 2 tahap + metanol + NF                   222 m3/hari   COD   15.671   TN     205   TDS   20.494   garam 4,5 t/hari
+4. A/O 3 tahap + NF                             220 m3/hari   COD   11.848   TN      19   TDS   20.494   garam 4,5 t/hari
+5. TANPA MEMBRAN — A/O 3 tahap + Fenton       tidak ada konsentrat
+6. TANPA MEMBRAN — A/O 3 tahap + metanol + Fenton  tidak ada konsentrat
+7. Pembanding — A/O 2 tahap + DTRO              167 m3/hari   COD   27.194   TN     377   TDS  131.310   garam 21,9 t/hari
+
+PERINGATAN MODEL
+------------------------------------------------------------------------------------------------------------------------
+2. Saran teman, A/O — 2 tahap + NF
+   ! A/O MBBR tahap 1: BOD:TN ratio 3.8 is low for the target denitrification; external carbon will be required.
+   ! A/O MBBR tahap 2: BOD:TN ratio 1.1 is low for the target denitrification; external carbon will be required.
+3. A/O 2 tahap + metanol + NF
+   ! A/O MBBR tahap 1: BOD:TN ratio 3.8 is low for the target denitrification; external carbon will be required.
+   ! A/O MBBR tahap 2 + metanol: BOD:TN ratio 1.1 is low for the target denitrification; external carbon will be required.
+4. A/O 3 tahap + NF
+   ! A/O MBBR tahap 1: BOD:TN ratio 3.8 is low for the target denitrification; external carbon will be required.
+   ! A/O MBBR tahap 2: BOD:TN ratio 1.1 is low for the target denitrification; external carbon will be required.
+   ! A/O MBBR tahap 3: BOD:TN ratio 0.9 is low for the target denitrification; external carbon will be required.
+5. TANPA MEMBRAN — A/O 3 tahap + Fenton
+   ! A/O MBBR tahap 1: BOD:TN ratio 3.8 is low for the target denitrification; external carbon will be required.
+   ! A/O MBBR tahap 2: BOD:TN ratio 1.1 is low for the target denitrification; external carbon will be required.
+   ! A/O MBBR tahap 3: BOD:TN ratio 0.9 is low for the target denitrification; external carbon will be required.
+6. TANPA MEMBRAN — A/O 3 tahap + metanol + Fenton
+   ! A/O MBBR tahap 1: BOD:TN ratio 3.8 is low for the target denitrification; external carbon will be required.
+   ! A/O MBBR tahap 2 + metanol: BOD:TN ratio 1.1 is low for the target denitrification; external carbon will be required.
+   ! A/O MBBR tahap 3: BOD:TN ratio 0.9 is low for the target denitrification; external carbon will be required.
+7. Pembanding — A/O 2 tahap + DTRO
+   ! A/O MBBR tahap 1: BOD:TN ratio 3.8 is low for the target denitrification; external carbon will be required.
+   ! A/O MBBR tahap 2: BOD:TN ratio 1.1 is low for the target denitrification; external carbon will be required.

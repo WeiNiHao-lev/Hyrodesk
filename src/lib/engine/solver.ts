@@ -178,10 +178,25 @@ export function simulate(fs: Flowsheet): SimulationResult {
     if (outbound.has(e.source)) outbound.get(e.source)!.push(e);
   }
 
-  // Nodes with no inbound edge take the plant feed.
-  const sourceNodes = nodeIds.filter((id) => (inbound.get(id) ?? []).length === 0);
+  // Nodes with no inbound edge take the plant feed, shared between them.
+  //
+  // A terminal is never one of them, however it is wired. An outfall or a waste
+  // outlet that nobody connected is a drawing mistake, and treating it as a
+  // second place for the feed to enter turns that mistake into a silent halving
+  // of the plant: the balance still closes, every unit still solves, and every
+  // flow on the sheet is wrong by the number of dangling terminals. Say so
+  // instead.
+  const SINK_TYPES = new Set(["waste", "product", "outfall"]);
+  const isSink = (id: string) => SINK_TYPES.has(nodeById.get(id)?.type ?? "");
+  const unconnected = nodeIds.filter((id) => (inbound.get(id) ?? []).length === 0);
+  const sourceNodes = unconnected.filter((id) => !isSink(id));
+  const orphanSinks = unconnected.filter(isSink);
   if (sourceNodes.length === 0) {
     messages.push("Every unit has an inbound connection, so the feed has nowhere to enter. Leave one unit unconnected on its inlet.");
+  }
+  if (orphanSinks.length > 0) {
+    const names = orphanSinks.map((id) => nodeById.get(id)?.label ?? id).join(", ");
+    messages.push(`Nothing is connected to ${orphanSinks.length === 1 ? "this outlet" : "these outlets"}: ${names}. They carry no flow and contribute nothing to the balance. Connect them or delete them.`);
   }
 
   const edgeStream = new Map<string, Stream>();

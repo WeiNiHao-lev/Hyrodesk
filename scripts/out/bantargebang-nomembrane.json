@@ -1,0 +1,236 @@
+{
+  "generated": "2026-09-01T04:49:23.551Z",
+  "cases": [
+    {
+      "name": "1. Saran teman — MBBR aerob x2 + NF",
+      "note": "'2-stage MBBR' dibaca dua reaktor aerob",
+      "power_kW": 770.9,
+      "sec": 21,
+      "capex": 685698,
+      "opexPerM3": 2.615,
+      "product_m3d": 881,
+      "concentrate_m3d": 220,
+      "area_m2": 1301,
+      "methanol_t_y": 0,
+      "effluent": {
+        "COD": 698.1,
+        "BOD": 4.2,
+        "TSS": 0.1,
+        "TN": 384.3,
+        "NH4N": 6.6,
+        "NO3N": 5.2,
+        "TDS": 19877,
+        "pH": 7.2
+      },
+      "concentrate": {
+        "COD": 8774,
+        "TN": 7773,
+        "TDS": 20494
+      },
+      "fails": [
+        "COD 698.1 vs ≤ 300 mg/L",
+        "Total nitrogen 384.3 vs ≤ 60 mg/L"
+      ],
+      "warnings": []
+    },
+    {
+      "name": "2. Saran teman, A/O — 2 tahap + NF",
+      "note": "'2-stage' dibaca anoksik-oksik dua tahap",
+      "power_kW": 770,
+      "sec": 20.81,
+      "capex": 712029,
+      "opexPerM3": 2.598,
+      "product_m3d": 888,
+      "concentrate_m3d": 222,
+      "area_m2": 1416,
+      "methanol_t_y": 0,
+      "effluent": {
+        "COD": 1246.8,
+        "BOD": 15.5,
+        "TSS": 0.1,
+        "TN": 21.4,
+        "NH4N": 6.6,
+        "NO3N": 5.2,
+        "TDS": 19877,
+        "pH": 7.2
+      },
+      "concentrate": {
+        "COD": 15671,
+        "TN": 205,
+        "TDS": 20494
+      },
+      "fails": [
+        "COD 1247 vs ≤ 300 mg/L"
+      ],
+      "warnings": [
+        "A/O MBBR tahap 1: BOD:TN ratio 3.8 is low for the target denitrification; external carbon will be required.",
+        "A/O MBBR tahap 2: BOD:TN ratio 1.1 is low for the target denitrification; external carbon will be required."
+      ]
+    },
+    {
+      "name": "3. A/O 2 tahap + metanol + NF",
+      "note": "karbon tahap 2 dibeli",
+      "power_kW": 770,
+      "sec": 20.81,
+      "capex": 712029,
+      "opexPerM3": 3.098,
+      "product_m3d": 888,
+      "concentrate_m3d": 222,
+      "area_m2": 1416,
+      "methanol_t_y": 308.3,
+      "effluent": {
+        "COD": 1246.8,
+        "BOD": 15.5,
+        "TSS": 0.1,
+        "TN": 21.4,
+        "NH4N": 6.6,
+        "NO3N": 5.2,
+        "TDS": 19877,
+        "pH": 7.2
+      },
+      "concentrate": {
+        "COD": 15671,
+        "TN": 205,
+        "TDS": 20494
+      },
+      "fails": [
+        "COD 1247 vs ≤ 300 mg/L"
+      ],
+      "warnings": [
+        "A/O MBBR tahap 1: BOD:TN ratio 3.8 is low for the target denitrification; external carbon will be required.",
+        "A/O MBBR tahap 2 + metanol: BOD:TN ratio 1.1 is low for the target denitrification; external carbon will be required."
+      ]
+    },
+    {
+      "name": "4. A/O 3 tahap + NF",
+      "note": "tahap ketiga menggantikan metanol",
+      "power_kW": 775.6,
+      "sec": 21.13,
+      "capex": 786233,
+      "opexPerM3": 2.64,
+      "product_m3d": 881,
+      "concentrate_m3d": 220,
+      "area_m2": 1609,
+      "methanol_t_y": 0,
+      "effluent": {
+        "COD": 942.6,
+        "BOD": 2.3,
+        "TSS": 0.1,
+        "TN": 6.2,
+        "NH4N": 0.3,
+        "NO3N": 5.2,
+        "TDS": 19877,
+        "pH": 7.2
+      },
+      "concentrate": {
+        "COD": 11848,
+        "TN": 19,
+        "TDS": 20494
+      },
+      "fails": [
+        "COD 942.6 vs ≤ 300 mg/L"
+      ],
+      "warnings": [
+        "A/O MBBR tahap 1: BOD:TN ratio 3.8 is low for the target denitrification; external carbon will be required.",
+        "A/O MBBR tahap 2: BOD:TN ratio 1.1 is low for the target denitrification; external carbon will be required.",
+        "A/O MBBR tahap 3: BOD:TN ratio 0.9 is low for the target denitrification; external carbon will be required."
+      ]
+    },
+    {
+      "name": "5. TANPA MEMBRAN — A/O 3 tahap + Fenton",
+      "note": "tidak ada konsentrat sama sekali",
+      "power_kW": 3065.4,
+      "sec": 66.81,
+      "capex": 2055257,
+      "opexPerM3": 17.569,
+      "product_m3d": 1101,
+      "concentrate_m3d": 0,
+      "area_m2": 1487,
+      "methanol_t_y": 0,
+      "effluent": {
+        "COD": 1093.3,
+        "BOD": 310.4,
+        "TSS": 6,
+        "TN": 8.7,
+        "NH4N": 0.3,
+        "NO3N": 5.2,
+        "TDS": 20000,
+        "pH": 7.2
+      },
+      "concentrate": null,
+      "fails": [
+        "BOD 310.4 vs ≤ 150 mg/L",
+        "COD 1093 vs ≤ 300 mg/L"
+      ],
+      "warnings": [
+        "A/O MBBR tahap 1: BOD:TN ratio 3.8 is low for the target denitrification; external carbon will be required.",
+        "A/O MBBR tahap 2: BOD:TN ratio 1.1 is low for the target denitrification; external carbon will be required.",
+        "A/O MBBR tahap 3: BOD:TN ratio 0.9 is low for the target denitrification; external carbon will be required."
+      ]
+    },
+    {
+      "name": "6. TANPA MEMBRAN — A/O 3 tahap + metanol + Fenton",
+      "note": "karbon dibeli, tanpa konsentrat",
+      "power_kW": 3065.4,
+      "sec": 66.81,
+      "capex": 2055257,
+      "opexPerM3": 17.871,
+      "product_m3d": 1101,
+      "concentrate_m3d": 0,
+      "area_m2": 1487,
+      "methanol_t_y": 231.2,
+      "effluent": {
+        "COD": 1093.3,
+        "BOD": 310.4,
+        "TSS": 6,
+        "TN": 8.7,
+        "NH4N": 0.3,
+        "NO3N": 5.2,
+        "TDS": 20000,
+        "pH": 7.2
+      },
+      "concentrate": null,
+      "fails": [
+        "BOD 310.4 vs ≤ 150 mg/L",
+        "COD 1093 vs ≤ 300 mg/L"
+      ],
+      "warnings": [
+        "A/O MBBR tahap 1: BOD:TN ratio 3.8 is low for the target denitrification; external carbon will be required.",
+        "A/O MBBR tahap 2 + metanol: BOD:TN ratio 1.1 is low for the target denitrification; external carbon will be required.",
+        "A/O MBBR tahap 3: BOD:TN ratio 0.9 is low for the target denitrification; external carbon will be required."
+      ]
+    },
+    {
+      "name": "7. Pembanding — A/O 2 tahap + DTRO",
+      "note": "membran ketat, bukan NF",
+      "power_kW": 852.6,
+      "sec": 21.69,
+      "capex": 899937,
+      "opexPerM3": 2.594,
+      "product_m3d": 944,
+      "concentrate_m3d": 167,
+      "area_m2": 1445,
+      "methanol_t_y": 0,
+      "effluent": {
+        "COD": 61.8,
+        "BOD": 0.8,
+        "TSS": 0,
+        "TN": 1.8,
+        "NH4N": 0.5,
+        "NO3N": 0.6,
+        "TDS": 357,
+        "pH": 7.2
+      },
+      "concentrate": {
+        "COD": 27194,
+        "TN": 377,
+        "TDS": 131310
+      },
+      "fails": [],
+      "warnings": [
+        "A/O MBBR tahap 1: BOD:TN ratio 3.8 is low for the target denitrification; external carbon will be required.",
+        "A/O MBBR tahap 2: BOD:TN ratio 1.1 is low for the target denitrification; external carbon will be required."
+      ]
+    }
+  ]
+}
