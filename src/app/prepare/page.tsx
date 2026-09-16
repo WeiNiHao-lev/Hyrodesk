@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
   Ask, AskGroup, BRING_LIST, DIRECTOR_PREP, DOCUMENTS, PRESENTATION_STRUCTURE,
-  SITE_CONDITIONS, TYPE_GUIDES, UNIVERSAL,
+  SITE_CONDITIONS, TYPE_GUIDES, UNIVERSAL, DEFAULT_CONDITION, DEFAULT_GUIDE,
+  guideKeyForKind, resolveCondition, resolveGuide,
 } from "@/lib/engine/sitevisit";
 import { analysePrepare } from "@/lib/engine/prepareAnalysis";
 import { downloadText, getProject, Project, saveProject } from "@/lib/store/db";
@@ -19,18 +20,6 @@ import {
 
 type Tab = "bring" | "ask" | "observe" | "docs" | "regs" | "director" | "findings";
 const STORAGE_KEY = "wtpsim:prepare:v1";
-
-/** Sensible starting guide for a project whose type is already known. */
-function kindToGuide(kind: string): string {
-  switch (kind) {
-    case "Desalination": return "desalination";
-    case "Demineralisation": return "demin";
-    case "WWTP": return "wwtp-industrial";
-    case "ZLD / MLD": return "zld";
-    case "WTP": return "wtp-surface";
-    default: return "wwtp-industrial";
-  }
-}
 
 interface Saved {
   checked: Record<string, boolean>;
@@ -55,8 +44,8 @@ function PrepareInner() {
   const setFromProject = useProject((s) => s.setFromProject);
   const [project, setProject] = useState<Project | null>(null);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
-  const [condition, setCondition] = useState("brownfield");
-  const [type, setType] = useState("wwtp-industrial");
+  const [condition, setCondition] = useState(DEFAULT_CONDITION);
+  const [type, setType] = useState(DEFAULT_GUIDE);
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [tab, setTab] = useState<Tab>("ask");
@@ -86,8 +75,11 @@ function PrepareInner() {
           const rec = p.prepare;
           setChecked(rec?.checked ?? {});
           setNotes(rec?.notes ?? {});
-          setCondition(rec?.condition ?? "brownfield");
-          setType(rec?.type ?? kindToGuide(p.kind));
+          // Normalised on the way in, so a key saved by an older version is
+          // replaced by one that exists and the corrected value is what gets
+          // written back on the next save.
+          setCondition(resolveCondition(rec?.condition).key);
+          setType(resolveGuide(rec?.type ?? guideKeyForKind(p.kind)).key);
           setLoaded(true);
           return;
         }
@@ -100,8 +92,8 @@ function PrepareInner() {
           const st = JSON.parse(raw) as Saved;
           setChecked(st.checked ?? {});
           setNotes(st.notes ?? {});
-          if (st.condition) setCondition(st.condition);
-          if (st.type) setType(st.type);
+          if (st.condition) setCondition(resolveCondition(st.condition).key);
+          if (st.type) setType(resolveGuide(st.type).key);
         }
       } catch { /* ignore corrupt state */ }
       setLoaded(true);
@@ -164,8 +156,10 @@ function PrepareInner() {
     };
   }, [persist]);
 
-  const cond = SITE_CONDITIONS.find((c) => c.key === condition)!;
-  const guide = TYPE_GUIDES.find((t) => t.key === type)!;
+  // Never a bare find(...)!: an unknown key here used to take the whole page
+  // down on first render.
+  const cond = resolveCondition(condition);
+  const guide = resolveGuide(type);
 
   const allGroups: AskGroup[] = useMemo(
     () => [...UNIVERSAL, ...cond.groups, ...guide.groups],

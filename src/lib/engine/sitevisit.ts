@@ -803,3 +803,52 @@ export const BRING_LIST = [
   { item: "PPE — boots, hi-vis, helmet, gloves, eye protection", why: "You will not be allowed onto an operating plant without it, and the visit ends before it starts." },
   { item: "Notebook — paper, not only a phone", why: "Sketches of basin layouts and dimensions are faster on paper and survive a flat battery." },
 ];
+
+/* ------------------------------------------------------ resolving the keys */
+
+/**
+ * The checklist guide a new project starts on, by project type.
+ *
+ * Every value must be a real TYPE_GUIDES key. This mapping used to live in the
+ * page and named two guides that do not exist — "desalination" and "zld" —
+ * so opening Prepare on a Desalination or ZLD project threw on the first render
+ * and took the whole page down. The self test now checks every entry.
+ */
+export const GUIDE_FOR_KIND: Record<string, string> = {
+  WTP: "wtp-surface",
+  WWTP: "wwtp-industrial",
+  Desalination: "desal",
+  Demineralisation: "demin",
+  "ZLD / MLD": "reuse-zld",
+  Reuse: "reuse-zld",
+};
+
+export const DEFAULT_CONDITION = "brownfield";
+export const DEFAULT_GUIDE = "wwtp-industrial";
+
+export function guideKeyForKind(kind: string | undefined): string {
+  return (kind && GUIDE_FOR_KIND[kind]) || DEFAULT_GUIDE;
+}
+
+/**
+ * Look a condition or guide up by key, falling back rather than returning
+ * undefined. The keys arrive from saved checklists as well as from code, and a
+ * saved key outlives any rename of the guide it pointed to: a checklist filled
+ * in last month must still open, on the default guide if need be, instead of
+ * crashing the page it was saved from.
+ */
+export function resolveCondition(key: string | undefined): SiteCondition {
+  return SITE_CONDITIONS.find((c) => c.key === key)
+    ?? SITE_CONDITIONS.find((c) => c.key === DEFAULT_CONDITION)
+    ?? SITE_CONDITIONS[0];
+}
+
+/** Keys that were once written by mistake, mapped to what they meant. */
+const GUIDE_ALIASES: Record<string, string> = { desalination: "desal", zld: "reuse-zld" };
+
+export function resolveGuide(key: string | undefined): TypeGuide {
+  const k = key && GUIDE_ALIASES[key] ? GUIDE_ALIASES[key] : key;
+  return TYPE_GUIDES.find((t) => t.key === k)
+    ?? TYPE_GUIDES.find((t) => t.key === DEFAULT_GUIDE)
+    ?? TYPE_GUIDES[0];
+}

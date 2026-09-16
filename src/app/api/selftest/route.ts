@@ -6,7 +6,11 @@ import { knowledgeFor } from "@/lib/engine/knowledge";
 import { calcRowsFor } from "@/lib/report/calcsheets";
 import { inhibitionFindings, traceBalance } from "@/lib/engine/compliance";
 import { analysePrepare, numbersIn } from "@/lib/engine/prepareAnalysis";
-import { DOCUMENTS, TYPE_GUIDES, SITE_CONDITIONS, UNIVERSAL } from "@/lib/engine/sitevisit";
+import {
+  DOCUMENTS, TYPE_GUIDES, SITE_CONDITIONS, UNIVERSAL,
+  guideKeyForKind, resolveCondition, resolveGuide,
+} from "@/lib/engine/sitevisit";
+import type { ProjectKind } from "@/lib/store/types";
 import { optimise, reliabilityScore, DEFAULT_GOALS } from "@/lib/engine/optimizer";
 import { adviseProcess, validateFeed } from "@/lib/engine/diagnostics";
 import { FeedSpec, Params, Stream } from "@/lib/engine/types";
@@ -478,8 +482,33 @@ function checkPrepareAnalysis() {
   const parseOk = parse["1.200"] === 1200 && parse["1.200,5"] === 1200.5
     && parse["1.2"] === 1.2 && parse["365 mg/L"] === 365;
 
+  // Every project type must open Prepare on a guide that exists. Two of them
+  // once named guides that did not, and the page crashed on first render for
+  // every Desalination and ZLD project. Every guide must also build a question
+  // set, since that is the exact expression that threw.
+  const kinds: ProjectKind[] = ["WTP", "WWTP", "Desalination", "Demineralisation", "ZLD / MLD", "Reuse"];
+  const guideKeys = new Set(TYPE_GUIDES.map((t) => t.key));
+  const kindGuides = kinds.map((k) => {
+    const key = guideKeyForKind(k);
+    return { kind: k, guide: key, exists: guideKeys.has(key) };
+  });
+  const brokenKinds = kindGuides.filter((k) => !k.exists).map((k) => `${k.kind} -> ${k.guide}`);
+  let resolveError: string | null = null;
+  try {
+    for (const c of SITE_CONDITIONS) for (const g of TYPE_GUIDES) {
+      void [...UNIVERSAL, ...resolveCondition(c.key).groups, ...resolveGuide(g.key).groups];
+    }
+    // A key nobody recognises must fall back, not throw.
+    void resolveGuide("no-such-guide").groups;
+    void resolveCondition("no-such-condition").groups;
+  } catch (e) {
+    resolveError = (e as Error).message;
+  }
+
   return {
-    ok: expect.every((r) => rules.has(r)) && parseOk && a.readiness > 0 && a.readiness <= 100,
+    ok: expect.every((r) => rules.has(r)) && parseOk && a.readiness > 0 && a.readiness <= 100
+      && brokenKinds.length === 0 && resolveError === null,
+    kindGuides, brokenKinds, resolveError,
     guide: guide.key,
     questions: asks.length,
     expectedRules: expect,
