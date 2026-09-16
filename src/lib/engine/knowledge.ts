@@ -1033,6 +1033,51 @@ export const KNOWLEDGE: Record<string, UnitKnowledge> = {
     ],
   },
 
+  bwsettle: {
+    principle:
+      "A filter backwash produces a short, violent slug of dirty water — typically 2 to 5 % of the plant flow, all of it delivered in a quarter of an hour. The washwater recovery tank catches that slug, holds it still long enough for the floc to settle, and decants the clear water back to the head of the works slowly. It is what turns backwash from a 4 % water loss into a recovery of nearly all of it, at the cost of a bottom sludge that goes on to dewatering.",
+    whenToUse: [
+      "On any filter plant where backwash water would otherwise be discharged. Recovering it is one of the cheapest ways to raise overall recovery.",
+      "Where the discharge of washwater solids to a watercourse is not permitted, which is most of the time.",
+      "On direct or in-line filtration plants, which have no clarifier sludge line to share and need somewhere for the filter solids to go.",
+    ],
+    whenNotToUse: [
+      "Where the raw water carries algae, taste-and-odour compounds or pathogens that the filter concentrates: returning the supernatant recirculates them, and on a surface water with a bloom that can defeat the treatment. Discharge or treat the washwater separately instead.",
+      "Where a clarifier already exists upstream and has spare capacity: sending the washwater there does the same job with no new tank.",
+    ],
+    designRules: [
+      {
+        rule: "Size on one backwash event, not on the average flow.",
+        why: "Washwater arrives as a slug. A tank sized on the daily average is a fraction of the event volume, overflows on every wash, and sends turbid water straight into the coagulant dosing point it exists to protect.",
+      },
+      {
+        rule: "Hold at least 1.5 events.",
+        why: "Filters are often washed in sequence. One event of storage overflows the moment a second filter follows the first.",
+      },
+      {
+        rule: "Return the supernatant at a steady rate below about 10 % of the raw flow.",
+        why: "A slug of recycled water carries fine solids and spent coagulant. Arriving all at once it shifts the optimum dose, and the operator chases the turbidity for an hour after every wash.",
+      },
+      {
+        rule: "Do not assume the sludge compacts like a thickener.",
+        why: "PAC and alum floc from washwater settle to barely 1 % dry solids. Designing the sludge line on 3-6 % understates its volume several times over.",
+      },
+    ],
+    keyNumbers: [
+      { param: "Backwash volume", typical: "2-5 % of plant flow", why: "Set by the filter wash rate and duration, not by this tank." },
+      { param: "Quiescent settling", typical: "2-4 h", why: "Enough for PAC or alum floc; longer with algae." },
+      { param: "Events held", typical: "1.5-2", why: "Covers two filters washed back to back." },
+      { param: "Solids capture", typical: "85-92 %, 95-98 % with polymer", why: "Polymer at 0.2-1 mg/L is the usual lever when the return is too turbid." },
+      { param: "Settled sludge", typical: "0.5-1.5 % DS", why: "Light floc. The number that sizes the sludge pumps and the dewatering." },
+      { param: "Supernatant return", typical: "< 10 % of raw flow", why: "Keeps the coagulant dose stable." },
+    ],
+    failureModes: [
+      { mode: "Turbid return", symptom: "Plant turbidity rises for an hour after each wash", prevention: "Longer settling, polymer, and a slower decant rate." },
+      { mode: "Overflow", symptom: "Washwater bypassing the tank to drain", prevention: "Size for 1.5-2 events and stagger the filter washes." },
+      { mode: "Recirculated contaminants", symptom: "Algae, manganese or taste-and-odour building up in the plant", prevention: "Monitor the return; divert it to waste during a bloom." },
+    ],
+  },
+
   dewatering: {
     principle:
       "Mechanical removal of water from thickened sludge. A filter press applies pressure across a cloth, forming a cake; a centrifuge uses centrifugal force. Polymer is added first to flocculate the fine solids so that they are captured rather than passing into the filtrate.",

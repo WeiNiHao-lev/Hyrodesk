@@ -1062,6 +1062,131 @@ const thickener: UnitModel = {
   },
 };
 
+/**
+ * Backwash settling (washwater recovery) tank.
+ *
+ * A filter does not produce dirty washwater continuously. It produces a slug —
+ * several hundred cubic metres in fifteen minutes — and then nothing for a day.
+ * The tank exists to absorb that slug, let the solids settle while nothing is
+ * disturbing them, and decant the clear water back to the head of the works at
+ * a rate the coagulation can tolerate.
+ *
+ * That is why it is sized on the volume of one backwash event and not on the
+ * average flow. Sized on the average, the tank is a third of what it needs to
+ * be, overflows on every wash, and sends a turbid slug straight into the
+ * coagulant dosing point it was meant to protect.
+ *
+ * The sludge draw is set by how thick the settled solids can be drawn off, not
+ * by a volume fraction: a light alum or PAC floc from filter washwater compacts
+ * to barely 1 % dry solids, so the underflow is larger than intuition suggests.
+ */
+const backwashSettling: UnitModel = {
+  type: "bwsettle", label: "Backwash Settling Tank", short: "BWST",
+  category: "sludge", inlets: 1, outlets: ["supernatant", "sludge"],
+  description:
+    "Fill-and-draw tank that receives the dirty water from each filter backwash, settles it, and decants the clear supernatant back to the raw water line. The settled bottom sludge goes on to thickening or dewatering. Sized on the volume of one backwash event, because that is what arrives.",
+  ccepcMaturity: 5,
+  params: [
+    { key: "washesPerDay", label: "Backwash events per day", type: "number", unit: "1/d", min: 1, max: 48, step: 1, group: "Sizing",
+      help: "Number of filters times washes per filter per day. Fewer, larger events need a bigger tank." },
+    { key: "eventsHeld", label: "Events held", type: "number", unit: "-", min: 1, max: 4, step: 0.5, group: "Sizing",
+      help: "How many backwash volumes the tank holds at once. 1.5-2 lets two filters wash back to back without overflowing." },
+    { key: "settleH", label: "Quiescent settling time", type: "number", unit: "h", min: 0.5, max: 12, step: 0.5, group: "Sizing",
+      help: "Time left undisturbed before decanting. 2-4 h for PAC or alum floc." },
+    { key: "depthM", label: "Water depth", type: "number", unit: "m", min: 2, max: 6, step: 0.5, group: "Sizing" },
+    { key: "tssCapture", label: "Solids captured", type: "number", unit: "%", min: 60, max: 99, step: 0.5, group: "Performance",
+      help: "85-92 % without polymer, 95-98 % with a polymer dose." },
+    { key: "sludgeConcPct", label: "Settled sludge concentration", type: "number", unit: "% DS", min: 0.2, max: 4, step: 0.1, group: "Performance",
+      help: "Filter washwater floc is light: 0.5-1.5 % DS. Assuming the 3-6 % of a thickener here understates the sludge volume several times over." },
+    { key: "polymerDose", label: "Polymer dose", type: "number", unit: "mg/L", min: 0, max: 3, step: 0.1, group: "Chemicals" },
+  ],
+  defaults: {
+    washesPerDay: 4, eventsHeld: 1.5, settleH: 3, depthM: 3.5,
+    tssCapture: 90, sludgeConcPct: 1.0, polymerDose: 0,
+  },
+  solve: (inlet, p) => {
+    const cap = clamp(n(p, "tssCapture", 90) / 100, 0, 0.999);
+    const conc = Math.max(n(p, "sludgeConcPct", 1.0), 0.05);
+
+    // Underflow volume follows from the solids it has to carry.
+    const solidsKgH = (inlet.flow * inlet.c.TSS * cap) / 1000;
+    const sludgeFlow = Math.min(solidsKgH / (conc * 10), inlet.flow * 0.5);
+
+    const sludge = cloneStream(inlet);
+    const supernatant = cloneStream(inlet);
+    sludge.flow = sludgeFlow;
+    supernatant.flow = inlet.flow - sludgeFlow;
+
+    // Particulate species settle with the floc; dissolved ones stay in the water.
+    const particulate: Partial<Record<Component, number>> = {
+      TSS: cap, Fe: cap * 0.9, Mn: cap * 0.5, TP: cap * 0.8, COD: cap * 0.4, BOD: cap * 0.4, TOC: cap * 0.3, Oil: cap * 0.7,
+    };
+    for (const k of Object.keys(inlet.c) as Component[]) {
+      const load = inlet.flow * inlet.c[k];
+      const r = particulate[k];
+      if (r == null) {
+        sludge.c[k] = inlet.c[k];
+        supernatant.c[k] = inlet.c[k];
+        continue;
+      }
+      const toSludge = load * r;
+      sludge.c[k] = sludge.flow > 0 ? toSludge / sludge.flow : 0;
+      supernatant.c[k] = supernatant.flow > 0 ? (load - toSludge) / supernatant.flow : 0;
+    }
+    // Turbidity is scaled with the solids actually left, because the washwater
+    // stream arriving here carries no reliable turbidity of its own.
+    supernatant.extras.turbidityNTU = inlet.c.TSS > 0
+      ? inlet.extras.turbidityNTU * (supernatant.c.TSS / inlet.c.TSS) : 0;
+
+    const eventM3 = (inlet.flow * 24) / Math.max(n(p, "washesPerDay", 4), 1);
+    const volume = eventM3 * Math.max(n(p, "eventsHeld", 1.5), 1);
+    const area = volume / Math.max(n(p, "depthM", 3.5), 0.5);
+    // Decant spread over the time left in the cycle after settling.
+    const cycleH = 24 / Math.max(n(p, "washesPerDay", 4), 1);
+    const decantH = Math.max(cycleH - n(p, "settleH", 3), 0.25);
+    const decantRate = eventM3 / decantH;
+
+    const notes: string[] = [];
+    if (n(p, "settleH", 3) >= cycleH) {
+      notes.push(`Settling time ${n(p, "settleH", 3)} h is not shorter than the ${cycleH.toFixed(1)} h between washes, so the tank is still settling when the next wash arrives. Fewer washes per tank, a second tank, or a shorter settling time.`);
+    }
+    if (n(p, "eventsHeld", 1.5) < 1.5) {
+      notes.push("Holding only one backwash volume means two filters washed back to back overflow the tank. 1.5-2 events is the usual allowance.");
+    }
+    if (supernatant.c.TSS > 30) {
+      notes.push(`Decanted supernatant carries ${supernatant.c.TSS.toFixed(0)} mg/L of solids. Returned ahead of coagulation at that strength it disturbs the dose; add polymer or lengthen the settling.`);
+    }
+    if (conc > 2.5) {
+      notes.push(`A settled concentration of ${conc} % DS is optimistic for filter washwater floc, which rarely compacts past 1.5 % without a thickener. The sludge volume is probably understated.`);
+    }
+    notes.push(`Return the supernatant at a steady ${decantRate.toFixed(1)} m3/h rather than as a slug, and ideally below 10 % of the raw water flow, so the coagulant dose does not have to chase it.`);
+
+    const chem: Record<string, number> = {};
+    if (n(p, "polymerDose", 0) > 0) chem["Polymer flocculant"] = (n(p, "polymerDose", 0) * inlet.flow) / 1000;
+
+    return {
+      outlets: { supernatant, sludge },
+      aux: aux({
+        powerKW: pumpKW(decantRate, 10, 0.65) + pumpKW(sludgeFlow, 15, 0.55) + 0.5,
+        chemicals: chem,
+        drySolidsKgH: 0,
+        hrtH: volume / Math.max(inlet.flow, 1e-6),
+        sizing: [
+          { label: "Washwater per event", value: `${eventM3.toFixed(0)} m3 (${n(p, "washesPerDay", 4)} events/d)` },
+          { label: "Tank volume", value: `${volume.toFixed(0)} m3 (${n(p, "eventsHeld", 1.5)} events held)` },
+          { label: "Plan area", value: `${area.toFixed(0)} m2 at ${n(p, "depthM", 3.5)} m depth` },
+          { label: "Settling / decant", value: `${n(p, "settleH", 3)} h / ${decantH.toFixed(1)} h per cycle` },
+          { label: "Supernatant return rate", value: `${decantRate.toFixed(1)} m3/h` },
+          { label: "Bottom sludge", value: `${(sludgeFlow * 24).toFixed(1)} m3/d at ${conc} % DS (${(solidsKgH * 24).toFixed(0)} kg DS/d)` },
+          { label: "Supernatant TSS", value: `${supernatant.c.TSS.toFixed(1)} mg/L` },
+        ],
+        capexUSD: costCurve(Math.max(volume, 1), 420, 0.72),
+        notes,
+      }),
+    };
+  },
+};
+
 const dewatering: UnitModel = {
   type: "dewatering", label: "Filter Press / Dewatering", short: "FP",
   category: "sludge", inlets: 1, outlets: ["cake", "filtrate"],
@@ -1362,7 +1487,7 @@ export const UNIT_MODELS: UnitModel[] = [
   uf, nf, roBW, roSW, ceramicMF,
   edi, mixedBed, softener, degasser, chemSoftening,
   aao, msbr, mbbr, anaerobicAO, denitriFilter, disinfection,
-  thickener, dewatering, mvr, crystalliser,
+  thickener, backwashSettling, dewatering, mvr, crystalliser,
   ...ADVANCED_MODELS,
   splitter, pump, product, outfall, waste,
 ];
