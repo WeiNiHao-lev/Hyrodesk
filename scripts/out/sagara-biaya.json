@@ -53,7 +53,7 @@
       "sys": "RO",
       "item": "Tekanan umpan (bar)",
       "rumus": "(pi_umpan + pi_konsentrat)/2 + 2,5 + 1,5",
-      "hitung": 4.706238331376824,
+      "hitung": 4.695928282743585,
       "model": 4.8
     },
     {
@@ -61,7 +61,7 @@
       "item": "Pompa tekanan tinggi",
       "rumus": "pompa(64,0 m3/h @ 4,8 bar = 49 m) / 0,75",
       "hitung": 11.410934099200002,
-      "model": 11.41
+      "model": 11.13
     },
     {
       "sys": "Trim pH",
@@ -81,15 +81,15 @@
       "sys": "TOTAL",
       "item": "Daya terpasang",
       "rumus": "jumlah seluruh unit",
-      "hitung": 92.67,
-      "model": 92.7
+      "hitung": 92.39000000000001,
+      "model": 92.4
     },
     {
       "sys": "TOTAL",
       "item": "Energi spesifik (kWh/m3)",
       "rumus": "92,7 kW / 179,84 m3/jam",
-      "hitung": 0.5152913701067615,
-      "model": 0.515
+      "hitung": 0.5137344306049823,
+      "model": 0.514
     },
     {
       "sys": "Kimia",
@@ -150,9 +150,9 @@
     {
       "sys": "Kimia",
       "item": "NaOH — laju (kg/jam)",
-      "rumus": "0.555 meq/L x 1,15 x 179,84 x 40 g/eq / 1000",
-      "hitung": 4.593000000000001,
-      "model": 4.593
+      "rumus": "0.309 meq/L x 1,15 x 179,84 x 40 g/eq / 1000",
+      "hitung": 2.56,
+      "model": 2.56
     },
     {
       "sys": "CAPEX",
@@ -269,14 +269,6 @@
   ],
   "chemLines": [
     {
-      "name": "Caustic soda NaOH",
-      "kg_h": 4.593,
-      "t_y": 36.744,
-      "usd_t": 600,
-      "usd_y": 22046.4,
-      "defaulted": false
-    },
-    {
       "name": "Sulphuric acid H2SO4",
       "kg_h": 11.974,
       "t_y": 95.792,
@@ -290,6 +282,14 @@
       "t_y": 41,
       "usd_t": 350,
       "usd_y": 14350,
+      "defaulted": false
+    },
+    {
+      "name": "Caustic soda NaOH",
+      "kg_h": 2.56,
+      "t_y": 20.48,
+      "usd_t": 600,
+      "usd_y": 12288,
       "defaulted": false
     },
     {
@@ -331,16 +331,24 @@
       "usd_t": 3500,
       "usd_y": 672,
       "defaulted": false
+    },
+    {
+      "name": "Caustic soda (pH correction)",
+      "kg_h": 0.139,
+      "t_y": 1.112,
+      "usd_t": 600,
+      "usd_y": 667.2,
+      "defaulted": false
     }
   ],
-  "powerCost": 66722.4,
-  "chemCost": 63621.200000000004,
+  "powerCost": 66520.8,
+  "chemCost": 54530,
   "replacement": 23798.52,
   "labour": 40000,
-  "opex": 194142.12,
+  "opex": 184849.32,
   "m3PerY": 1438720,
-  "opexPerM3": 0.13494086410142347,
+  "opexPerM3": 0.1284817893683274,
   "capexSum": 594963,
-  "totalKW": 92.67,
-  "secKWhM3": 0.5152913701067615
+  "totalKW": 92.39000000000001,
+  "secKWhM3": 0.5137344306049823
 }

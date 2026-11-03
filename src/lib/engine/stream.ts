@@ -228,6 +228,39 @@ export function osmoticPressureBar(s: Stream): number {
   return (tds / 1000) * 0.78 * ((s.T + 273.15) / 298.15);
 }
 
+/**
+ * Keep the lumped TDS consistent with the ions, wherever the ions are known.
+ *
+ * TDS is carried as its own component so that a feed given only as "TDS 365"
+ * still runs. But it is not a substance: it is the sum of everything dissolved,
+ * and most of that is the ions sitting beside it in the same analysis. A
+ * softener that strips calcium and magnesium has removed dissolved solids
+ * whether or not it wrote to the TDS field, and a nanofiltration membrane that
+ * rejects sulphate at 97 % while passing chloride at 44 % cannot be described
+ * by a single rejection at all. Left as an independent tracer, TDS drifts away
+ * from its own ions: on a hardness-dominated water the lumped figure said NF
+ * removed 6 % where the ions said 47 %.
+ *
+ * So where the ions account for most of the entered TDS, TDS is rebuilt from
+ * them, and the remainder — silica, dissolved organics, whatever the laboratory
+ * did not name — is carried at whatever rate the unit's own TDS coefficient
+ * implies. Where the ions are absent nothing is touched: the lumped figure is
+ * then all the information there is, and replacing it with a sum of zeros would
+ * be worse than leaving it alone.
+ */
+export function reconcileTDS(inlet: Stream, ...outs: Stream[]): void {
+  const tdsIn = inlet.c.TDS;
+  const ionsIn = tdsFromIons(inlet);
+  // Below about half, the sheet is a TDS figure with a couple of ions beside
+  // it rather than a real ion set, and the ions cannot carry the total.
+  if (tdsIn <= 0 || ionsIn < tdsIn * 0.5) return;
+  const unaccounted = Math.max(tdsIn - ionsIn, 0);
+  for (const o of outs) {
+    const ratio = o.c.TDS / tdsIn;
+    o.c.TDS = tdsFromIons(o) + unaccounted * ratio;
+  }
+}
+
 export function clamp(x: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, x));
 }

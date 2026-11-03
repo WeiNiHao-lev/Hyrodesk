@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-01T04:49:57.137Z",
+  "generated": "2026-11-03T03:27:09.241Z",
   "site": {
     "landAvailable_m2": 20000,
     "capacity_m3d": 1200,
@@ -962,11 +962,11 @@
     "productFlow_m3d": 976.6,
     "wasteFlow_m3d": 223.4,
     "recovery_pct": 81.38,
-    "totalPower_kW": 343.5,
-    "energy_kWh_d": 8243,
-    "sec_kWh_m3": 8.44,
+    "totalPower_kW": 350.8,
+    "energy_kWh_d": 8419,
+    "sec_kWh_m3": 8.62,
     "capex_USD": 1446765,
-    "opex_USD_m3": 5.693,
+    "opex_USD_m3": 5.709,
     "drySolids_t_d": 5.73,
     "chemicals_t_d": [
       {
@@ -1069,7 +1069,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 1000,
-        "TDS": 20000,
+        "TDS": 22526,
         "pH": 7.4,
         "osmotic_bar": 17.9
       },
@@ -1081,7 +1081,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 970,
-        "TDS": 20000,
+        "TDS": 22526,
         "pH": 7.4,
         "osmotic_bar": 17.9
       },
@@ -1093,7 +1093,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 970,
-        "TDS": 20000,
+        "TDS": 22526,
         "pH": 7.4,
         "osmotic_bar": 17.9
       },
@@ -1105,7 +1105,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 1082.5,
-        "TDS": 20000,
+        "TDS": 22373,
         "pH": 7,
         "osmotic_bar": 17.7
       },
@@ -1117,7 +1117,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 133.9,
-        "TDS": 20000,
+        "TDS": 22368,
         "pH": 7,
         "osmotic_bar": 17.7
       },
@@ -1129,7 +1129,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 40.3,
-        "TDS": 20000,
+        "TDS": 21889,
         "pH": 7.3,
         "osmotic_bar": 17.4
       },
@@ -1141,9 +1141,9 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 580.2,
-        "TDS": 20000,
+        "TDS": 18438,
         "pH": 11,
-        "osmotic_bar": 15.9
+        "osmotic_bar": 14.6
       },
       {
         "stage": "Neutralisation pH 7",
@@ -1153,9 +1153,9 @@
         "TN": 262.5,
         "NH4_N": 262.5,
         "TSS": 580.2,
-        "TDS": 20000,
+        "TDS": 15943,
         "pH": 11,
-        "osmotic_bar": 15.9
+        "osmotic_bar": 12.6
       },
       {
         "stage": "MBR",
@@ -1165,7 +1165,7 @@
         "TN": 262.5,
         "NH4_N": 262.5,
         "TSS": 580.2,
-        "TDS": 20000,
+        "TDS": 22761,
         "pH": 7,
         "osmotic_bar": 18.1
       },
@@ -1177,7 +1177,7 @@
         "TN": 174.3,
         "NH4_N": 21,
         "TSS": 0.6,
-        "TDS": 20000,
+        "TDS": 21404,
         "pH": 7,
         "osmotic_bar": 17
       },
@@ -1189,7 +1189,7 @@
         "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
-        "TDS": 357,
+        "TDS": 594,
         "pH": 5.8,
         "osmotic_bar": 0.5
       },
@@ -1201,7 +1201,7 @@
         "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
-        "TDS": 357,
+        "TDS": 594,
         "pH": 5.8,
         "osmotic_bar": 0.5
       },
@@ -1213,7 +1213,7 @@
         "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
-        "TDS": 357,
+        "TDS": 630,
         "pH": 7,
         "osmotic_bar": 0.5
       }
@@ -1513,7 +1513,7 @@
         "label": "DTRO 2-stage",
         "type": "dtro",
         "inFlow": 47.87,
-        "power_kW": 129.53,
+        "power_kW": 136.88,
         "capex_USD": 370011,
         "area_m2": 160,
         "sizing": [
@@ -1531,23 +1531,23 @@
           },
           {
             "label": "Feed pressure",
-            "value": "73 bar (estimated)"
+            "value": "77 bar (estimated)"
           },
           {
             "label": "Feed / concentrate osmotic",
-            "value": "16 / 102 bar"
+            "value": "17 / 110 bar"
           },
           {
             "label": "Concentrate TDS",
-            "value": "131.3 g/L"
+            "value": "140.5 g/L"
           },
           {
             "label": "Specific energy",
-            "value": "3.18 kWh/m3 permeate"
+            "value": "3.36 kWh/m3 permeate"
           }
         ],
         "notes": [
-          "Concentrate reaches 131 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator."
+          "Concentrate reaches 141 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator."
         ]
       },
       {
@@ -1660,9 +1660,10 @@
       "Neutralisation pH 7: Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %.",
       "MBR: BOD:TN is 2.69, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
       "MBR: BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water.",
-      "DTRO 2-stage: Concentrate reaches 131 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator.",
+      "DTRO 2-stage: Concentrate reaches 141 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator.",
       "Catalytic AOP: Effluent BOD rises from 0 to 2 mg/L as refractory molecules are broken into biodegradable fragments. Useful ahead of a biological polishing step; a compliance problem if this is the final unit.",
-      "Mg balance shows 87.0 % less leaving than entering. Some stream carrying it is not routed to a product or waste outlet.",
+      "TDS balance shows 8.9 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error.",
+      "Mg balance shows 87.0 % less leaving than entering. Softening or high-pH dosing turns it into a precipitate that leaves as suspended solids rather than dissolved, so a shortfall here is usually the chemistry rather than a fault. Confirm it against the sludge solids before looking for an unrouted stream.",
       "SO4 balance shows 81.3 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error."
     ],
     "trace": [
@@ -1840,11 +1841,11 @@
     "productFlow_m3d": 1117.9,
     "wasteFlow_m3d": 82.1,
     "recovery_pct": 93.16,
-    "totalPower_kW": 592.5,
-    "energy_kWh_d": 14220,
-    "sec_kWh_m3": 12.72,
-    "capex_USD": 1829053,
-    "opex_USD_m3": 5.496,
+    "totalPower_kW": 606.1,
+    "energy_kWh_d": 14545,
+    "sec_kWh_m3": 13.01,
+    "capex_USD": 1838879,
+    "opex_USD_m3": 5.523,
     "drySolids_t_d": 5.73,
     "chemicals_t_d": [
       {
@@ -1947,7 +1948,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 1000,
-        "TDS": 20000,
+        "TDS": 22526,
         "pH": 7.4,
         "osmotic_bar": 17.9
       },
@@ -1959,7 +1960,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 970,
-        "TDS": 20000,
+        "TDS": 22526,
         "pH": 7.4,
         "osmotic_bar": 17.9
       },
@@ -1971,7 +1972,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 970,
-        "TDS": 20000,
+        "TDS": 22526,
         "pH": 7.4,
         "osmotic_bar": 17.9
       },
@@ -1983,7 +1984,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 1082.5,
-        "TDS": 20000,
+        "TDS": 22373,
         "pH": 7,
         "osmotic_bar": 17.7
       },
@@ -1995,7 +1996,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 133.9,
-        "TDS": 20000,
+        "TDS": 22368,
         "pH": 7,
         "osmotic_bar": 17.7
       },
@@ -2007,7 +2008,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 40.3,
-        "TDS": 20000,
+        "TDS": 21889,
         "pH": 7.3,
         "osmotic_bar": 17.4
       },
@@ -2019,9 +2020,9 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 580.2,
-        "TDS": 20000,
+        "TDS": 18438,
         "pH": 11,
-        "osmotic_bar": 15.9
+        "osmotic_bar": 14.6
       },
       {
         "stage": "Neutralisation pH 7",
@@ -2031,9 +2032,9 @@
         "TN": 262.5,
         "NH4_N": 262.5,
         "TSS": 580.2,
-        "TDS": 20000,
+        "TDS": 15943,
         "pH": 11,
-        "osmotic_bar": 15.9
+        "osmotic_bar": 12.6
       },
       {
         "stage": "MBR",
@@ -2043,7 +2044,7 @@
         "TN": 262.5,
         "NH4_N": 262.5,
         "TSS": 580.2,
-        "TDS": 20000,
+        "TDS": 22761,
         "pH": 7,
         "osmotic_bar": 18.1
       },
@@ -2055,7 +2056,7 @@
         "TN": 174.3,
         "NH4_N": 21,
         "TSS": 0.6,
-        "TDS": 20000,
+        "TDS": 21404,
         "pH": 7,
         "osmotic_bar": 17
       },
@@ -2067,7 +2068,7 @@
         "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
-        "TDS": 357,
+        "TDS": 594,
         "pH": 5.8,
         "osmotic_bar": 0.5
       },
@@ -2079,7 +2080,7 @@
         "TN": 1054.2,
         "NH4_N": 129.4,
         "TSS": 3.9,
-        "TDS": 131310,
+        "TDS": 139331,
         "pH": 7,
         "osmotic_bar": 110.5
       },
@@ -2091,7 +2092,7 @@
         "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
-        "TDS": 357,
+        "TDS": 594,
         "pH": 5.8,
         "osmotic_bar": 0.5
       },
@@ -2103,7 +2104,7 @@
         "TN": 0,
         "NH4_N": 0,
         "TSS": 0,
-        "TDS": 20,
+        "TDS": 16,
         "pH": 7,
         "osmotic_bar": 0
       },
@@ -2115,7 +2116,7 @@
         "TN": 5856.6,
         "NH4_N": 718.9,
         "TSS": 21.7,
-        "TDS": 729407,
+        "TDS": 773987,
         "pH": 7,
         "osmotic_bar": 613.8
       },
@@ -2127,7 +2128,7 @@
         "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
-        "TDS": 357,
+        "TDS": 630,
         "pH": 7,
         "osmotic_bar": 0.5
       }
@@ -2427,7 +2428,7 @@
         "label": "DTRO 2-stage",
         "type": "dtro",
         "inFlow": 47.87,
-        "power_kW": 129.53,
+        "power_kW": 136.88,
         "capex_USD": 370011,
         "area_m2": 160,
         "sizing": [
@@ -2445,23 +2446,23 @@
           },
           {
             "label": "Feed pressure",
-            "value": "73 bar (estimated)"
+            "value": "77 bar (estimated)"
           },
           {
             "label": "Feed / concentrate osmotic",
-            "value": "16 / 102 bar"
+            "value": "17 / 110 bar"
           },
           {
             "label": "Concentrate TDS",
-            "value": "131.3 g/L"
+            "value": "140.5 g/L"
           },
           {
             "label": "Specific energy",
-            "value": "3.18 kWh/m3 permeate"
+            "value": "3.36 kWh/m3 permeate"
           }
         ],
         "notes": [
-          "Concentrate reaches 131 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator."
+          "Concentrate reaches 141 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator."
         ]
       },
       {
@@ -2534,7 +2535,7 @@
           },
           {
             "label": "Concentrate TDS",
-            "value": "729407 mg/L"
+            "value": "773969 mg/L"
           }
         ],
         "notes": [
@@ -2591,13 +2592,13 @@
         "label": "Crystalliser",
         "type": "crystalliser",
         "inFlow": 1.29,
-        "power_kW": 101.82,
-        "capex_USD": 231754,
+        "power_kW": 108.04,
+        "capex_USD": 241580,
         "area_m2": 131,
         "sizing": [
           {
             "label": "Salt production",
-            "value": "0.85 t/h"
+            "value": "0.90 t/h"
           },
           {
             "label": "Mother liquor purge",
@@ -2618,10 +2619,11 @@
       "Neutralisation pH 7: Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %.",
       "MBR: BOD:TN is 2.69, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
       "MBR: BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water.",
-      "DTRO 2-stage: Concentrate reaches 131 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator.",
+      "DTRO 2-stage: Concentrate reaches 141 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator.",
       "Catalytic AOP: Effluent BOD rises from 0 to 2 mg/L as refractory molecules are broken into biodegradable fragments. Useful ahead of a biological polishing step; a compliance problem if this is the final unit.",
       "MVR Evaporator: Verify scaling and boiling point elevation with a rigorous thermal model before committing.",
-      "Mg balance shows 87.0 % less leaving than entering. Some stream carrying it is not routed to a product or waste outlet.",
+      "TDS balance shows 8.9 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error.",
+      "Mg balance shows 87.0 % less leaving than entering. Softening or high-pH dosing turns it into a precipitate that leaves as suspended solids rather than dissolved, so a shortfall here is usually the chemistry rather than a fault. Confirm it against the sludge solids before looking for an unrouted stream.",
       "SO4 balance shows 81.3 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error."
     ],
     "trace": [
@@ -2799,11 +2801,11 @@
     "productFlow_m3d": 6521,
     "wasteFlow_m3d": 479,
     "recovery_pct": 93.16,
-    "totalPower_kW": 3384.8,
-    "energy_kWh_d": 81235,
-    "sec_kWh_m3": 12.46,
-    "capex_USD": 6915632,
-    "opex_USD_m3": 5.314,
+    "totalPower_kW": 3464,
+    "energy_kWh_d": 83136,
+    "sec_kWh_m3": 12.75,
+    "capex_USD": 6949402,
+    "opex_USD_m3": 5.341,
     "drySolids_t_d": 33.42,
     "chemicals_t_d": [
       {
@@ -2906,7 +2908,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 1000,
-        "TDS": 20000,
+        "TDS": 22526,
         "pH": 7.4,
         "osmotic_bar": 17.9
       },
@@ -2918,7 +2920,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 970,
-        "TDS": 20000,
+        "TDS": 22526,
         "pH": 7.4,
         "osmotic_bar": 17.9
       },
@@ -2930,7 +2932,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 970,
-        "TDS": 20000,
+        "TDS": 22526,
         "pH": 7.4,
         "osmotic_bar": 17.9
       },
@@ -2942,7 +2944,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 1082.5,
-        "TDS": 20000,
+        "TDS": 22373,
         "pH": 7,
         "osmotic_bar": 17.7
       },
@@ -2954,7 +2956,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 133.9,
-        "TDS": 20000,
+        "TDS": 22368,
         "pH": 7,
         "osmotic_bar": 17.7
       },
@@ -2966,7 +2968,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 40.3,
-        "TDS": 20000,
+        "TDS": 21889,
         "pH": 7.3,
         "osmotic_bar": 17.4
       },
@@ -2978,9 +2980,9 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 580.2,
-        "TDS": 20000,
+        "TDS": 18438,
         "pH": 11,
-        "osmotic_bar": 15.9
+        "osmotic_bar": 14.6
       },
       {
         "stage": "Neutralisation pH 7",
@@ -2990,9 +2992,9 @@
         "TN": 262.5,
         "NH4_N": 262.5,
         "TSS": 580.2,
-        "TDS": 20000,
+        "TDS": 15943,
         "pH": 11,
-        "osmotic_bar": 15.9
+        "osmotic_bar": 12.6
       },
       {
         "stage": "MBR",
@@ -3002,7 +3004,7 @@
         "TN": 262.5,
         "NH4_N": 262.5,
         "TSS": 580.2,
-        "TDS": 20000,
+        "TDS": 22761,
         "pH": 7,
         "osmotic_bar": 18.1
       },
@@ -3014,7 +3016,7 @@
         "TN": 174.3,
         "NH4_N": 21,
         "TSS": 0.6,
-        "TDS": 20000,
+        "TDS": 21404,
         "pH": 7,
         "osmotic_bar": 17
       },
@@ -3026,7 +3028,7 @@
         "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
-        "TDS": 357,
+        "TDS": 594,
         "pH": 5.8,
         "osmotic_bar": 0.5
       },
@@ -3038,7 +3040,7 @@
         "TN": 1054.2,
         "NH4_N": 129.4,
         "TSS": 3.9,
-        "TDS": 131310,
+        "TDS": 139331,
         "pH": 7,
         "osmotic_bar": 110.5
       },
@@ -3050,7 +3052,7 @@
         "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
-        "TDS": 357,
+        "TDS": 594,
         "pH": 5.8,
         "osmotic_bar": 0.5
       },
@@ -3062,7 +3064,7 @@
         "TN": 0,
         "NH4_N": 0,
         "TSS": 0,
-        "TDS": 20,
+        "TDS": 16,
         "pH": 7,
         "osmotic_bar": 0
       },
@@ -3074,7 +3076,7 @@
         "TN": 5856.6,
         "NH4_N": 718.9,
         "TSS": 21.7,
-        "TDS": 729407,
+        "TDS": 773987,
         "pH": 7,
         "osmotic_bar": 613.8
       },
@@ -3086,7 +3088,7 @@
         "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
-        "TDS": 357,
+        "TDS": 630,
         "pH": 7,
         "osmotic_bar": 0.5
       }
@@ -3386,7 +3388,7 @@
         "label": "DTRO 2-stage",
         "type": "dtro",
         "inFlow": 279.25,
-        "power_kW": 755.58,
+        "power_kW": 798.46,
         "capex_USD": 1632404,
         "area_m2": 160,
         "sizing": [
@@ -3404,23 +3406,23 @@
           },
           {
             "label": "Feed pressure",
-            "value": "73 bar (estimated)"
+            "value": "77 bar (estimated)"
           },
           {
             "label": "Feed / concentrate osmotic",
-            "value": "16 / 102 bar"
+            "value": "17 / 110 bar"
           },
           {
             "label": "Concentrate TDS",
-            "value": "131.3 g/L"
+            "value": "140.5 g/L"
           },
           {
             "label": "Specific energy",
-            "value": "3.18 kWh/m3 permeate"
+            "value": "3.36 kWh/m3 permeate"
           }
         ],
         "notes": [
-          "Concentrate reaches 131 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator."
+          "Concentrate reaches 141 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator."
         ]
       },
       {
@@ -3493,7 +3495,7 @@
           },
           {
             "label": "Concentrate TDS",
-            "value": "729407 mg/L"
+            "value": "773969 mg/L"
           }
         ],
         "notes": [
@@ -3550,13 +3552,13 @@
         "label": "Crystalliser",
         "type": "crystalliser",
         "inFlow": 7.54,
-        "power_kW": 593.95,
-        "capex_USD": 796469,
+        "power_kW": 630.25,
+        "capex_USD": 830240,
         "area_m2": 131,
         "sizing": [
           {
             "label": "Salt production",
-            "value": "4.95 t/h"
+            "value": "5.25 t/h"
           },
           {
             "label": "Mother liquor purge",
@@ -3577,10 +3579,11 @@
       "Neutralisation pH 7: Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %.",
       "MBR: BOD:TN is 2.69, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
       "MBR: BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water.",
-      "DTRO 2-stage: Concentrate reaches 131 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator.",
+      "DTRO 2-stage: Concentrate reaches 141 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator.",
       "Catalytic AOP: Effluent BOD rises from 0 to 2 mg/L as refractory molecules are broken into biodegradable fragments. Useful ahead of a biological polishing step; a compliance problem if this is the final unit.",
       "MVR Evaporator: Verify scaling and boiling point elevation with a rigorous thermal model before committing.",
-      "Mg balance shows 87.0 % less leaving than entering. Some stream carrying it is not routed to a product or waste outlet.",
+      "TDS balance shows 8.9 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error.",
+      "Mg balance shows 87.0 % less leaving than entering. Softening or high-pH dosing turns it into a precipitate that leaves as suspended solids rather than dissolved, so a shortfall here is usually the chemistry rather than a fault. Confirm it against the sludge solids before looking for an unrouted stream.",
       "SO4 balance shows 81.3 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error."
     ],
     "trace": [
@@ -3758,11 +3761,11 @@
     "productFlow_m3d": 1956.3,
     "wasteFlow_m3d": 143.7,
     "recovery_pct": 93.16,
-    "totalPower_kW": 1025.8,
-    "energy_kWh_d": 24619,
-    "sec_kWh_m3": 12.58,
-    "capex_USD": 2784350,
-    "opex_USD_m3": 5.412,
+    "totalPower_kW": 1049.6,
+    "energy_kWh_d": 25190,
+    "sec_kWh_m3": 12.88,
+    "capex_USD": 2798889,
+    "opex_USD_m3": 5.439,
     "drySolids_t_d": 10.03,
     "chemicals_t_d": [
       {
@@ -3865,7 +3868,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 1000,
-        "TDS": 20000,
+        "TDS": 22526,
         "pH": 7.4,
         "osmotic_bar": 17.9
       },
@@ -3877,7 +3880,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 970,
-        "TDS": 20000,
+        "TDS": 22526,
         "pH": 7.4,
         "osmotic_bar": 17.9
       },
@@ -3889,7 +3892,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 970,
-        "TDS": 20000,
+        "TDS": 22526,
         "pH": 7.4,
         "osmotic_bar": 17.9
       },
@@ -3901,7 +3904,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 1082.5,
-        "TDS": 20000,
+        "TDS": 22373,
         "pH": 7,
         "osmotic_bar": 17.7
       },
@@ -3913,7 +3916,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 133.9,
-        "TDS": 20000,
+        "TDS": 22368,
         "pH": 7,
         "osmotic_bar": 17.7
       },
@@ -3925,7 +3928,7 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 40.3,
-        "TDS": 20000,
+        "TDS": 21889,
         "pH": 7.3,
         "osmotic_bar": 17.4
       },
@@ -3937,9 +3940,9 @@
         "TN": 2200,
         "NH4_N": 2200,
         "TSS": 580.2,
-        "TDS": 20000,
+        "TDS": 18438,
         "pH": 11,
-        "osmotic_bar": 15.9
+        "osmotic_bar": 14.6
       },
       {
         "stage": "Neutralisation pH 7",
@@ -3949,9 +3952,9 @@
         "TN": 262.5,
         "NH4_N": 262.5,
         "TSS": 580.2,
-        "TDS": 20000,
+        "TDS": 15943,
         "pH": 11,
-        "osmotic_bar": 15.9
+        "osmotic_bar": 12.6
       },
       {
         "stage": "MBR",
@@ -3961,7 +3964,7 @@
         "TN": 262.5,
         "NH4_N": 262.5,
         "TSS": 580.2,
-        "TDS": 20000,
+        "TDS": 22761,
         "pH": 7,
         "osmotic_bar": 18.1
       },
@@ -3973,7 +3976,7 @@
         "TN": 174.3,
         "NH4_N": 21,
         "TSS": 0.6,
-        "TDS": 20000,
+        "TDS": 21404,
         "pH": 7,
         "osmotic_bar": 17
       },
@@ -3985,7 +3988,7 @@
         "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
-        "TDS": 357,
+        "TDS": 594,
         "pH": 5.8,
         "osmotic_bar": 0.5
       },
@@ -3997,7 +4000,7 @@
         "TN": 1054.2,
         "NH4_N": 129.4,
         "TSS": 3.9,
-        "TDS": 131310,
+        "TDS": 139331,
         "pH": 7,
         "osmotic_bar": 110.5
       },
@@ -4009,7 +4012,7 @@
         "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
-        "TDS": 357,
+        "TDS": 594,
         "pH": 5.8,
         "osmotic_bar": 0.5
       },
@@ -4021,7 +4024,7 @@
         "TN": 0,
         "NH4_N": 0,
         "TSS": 0,
-        "TDS": 20,
+        "TDS": 16,
         "pH": 7,
         "osmotic_bar": 0
       },
@@ -4033,7 +4036,7 @@
         "TN": 5856.6,
         "NH4_N": 718.9,
         "TSS": 21.7,
-        "TDS": 729407,
+        "TDS": 773987,
         "pH": 7,
         "osmotic_bar": 613.8
       },
@@ -4045,7 +4048,7 @@
         "TN": 19,
         "NH4_N": 1.9,
         "TSS": 0,
-        "TDS": 357,
+        "TDS": 630,
         "pH": 7,
         "osmotic_bar": 0.5
       }
@@ -4345,7 +4348,7 @@
         "label": "DTRO 2-stage",
         "type": "dtro",
         "inFlow": 83.77,
-        "power_kW": 226.67,
+        "power_kW": 239.54,
         "capex_USD": 592074,
         "area_m2": 160,
         "sizing": [
@@ -4363,23 +4366,23 @@
           },
           {
             "label": "Feed pressure",
-            "value": "73 bar (estimated)"
+            "value": "77 bar (estimated)"
           },
           {
             "label": "Feed / concentrate osmotic",
-            "value": "16 / 102 bar"
+            "value": "17 / 110 bar"
           },
           {
             "label": "Concentrate TDS",
-            "value": "131.3 g/L"
+            "value": "140.5 g/L"
           },
           {
             "label": "Specific energy",
-            "value": "3.18 kWh/m3 permeate"
+            "value": "3.36 kWh/m3 permeate"
           }
         ],
         "notes": [
-          "Concentrate reaches 131 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator."
+          "Concentrate reaches 141 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator."
         ]
       },
       {
@@ -4452,7 +4455,7 @@
           },
           {
             "label": "Concentrate TDS",
-            "value": "729407 mg/L"
+            "value": "773969 mg/L"
           }
         ],
         "notes": [
@@ -4509,13 +4512,13 @@
         "label": "Crystalliser",
         "type": "crystalliser",
         "inFlow": 2.26,
-        "power_kW": 178.18,
-        "capex_USD": 342889,
+        "power_kW": 189.07,
+        "capex_USD": 357428,
         "area_m2": 131,
         "sizing": [
           {
             "label": "Salt production",
-            "value": "1.48 t/h"
+            "value": "1.58 t/h"
           },
           {
             "label": "Mother liquor purge",
@@ -4536,10 +4539,11 @@
       "Neutralisation pH 7: Neutralising before a membrane is not optional. At high pH the ammonia is a dissolved gas and passes reverse osmosis almost freely; at neutral pH it is the ammonium ion and is rejected above 95 %.",
       "MBR: BOD:TN is 2.69, far below the 3-4 that denitrification needs. The nitrogen removal set here is not achievable without external carbon, and on a high-TN leachate that carbon bill is usually the reason the biological route is abandoned in favour of stripping.",
       "MBR: BOD:COD is 0.13, so most of the COD is refractory and no biology will touch it. A COD removal above about 20 % is not credible on this water.",
-      "DTRO 2-stage: Concentrate reaches 131 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator.",
+      "DTRO 2-stage: Concentrate reaches 141 g/L. That is at the practical ceiling for DTRO; taking it further needs an evaporator or a brine concentrator.",
       "Catalytic AOP: Effluent BOD rises from 0 to 2 mg/L as refractory molecules are broken into biodegradable fragments. Useful ahead of a biological polishing step; a compliance problem if this is the final unit.",
       "MVR Evaporator: Verify scaling and boiling point elevation with a rigorous thermal model before committing.",
-      "Mg balance shows 87.0 % less leaving than entering. Some stream carrying it is not routed to a product or waste outlet.",
+      "TDS balance shows 8.9 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error.",
+      "Mg balance shows 87.0 % less leaving than entering. Softening or high-pH dosing turns it into a precipitate that leaves as suspended solids rather than dissolved, so a shortfall here is usually the chemistry rather than a fault. Confirm it against the sludge solids before looking for an unrouted stream.",
       "SO4 balance shows 81.3 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error."
     ],
     "trace": [

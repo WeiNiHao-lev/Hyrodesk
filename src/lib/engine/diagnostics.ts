@@ -64,6 +64,19 @@ export function validateFeed(feed: FeedSpec): Finding[] {
     }
   }
 
+  /* --- 1b. a TDS figure with no ions behind it --------------------------- */
+  if (tdsEntered > 0 && !anyIons) {
+    f.push({
+      severity: "fail",
+      title: "TDS entered with no ions behind it",
+      detail: `TDS is given as ${tdsEntered.toFixed(0)} mg/L but not one ion is entered, so nothing is known about what the dissolved solids are.`,
+      action:
+        "Enter the major ions — calcium, magnesium, sodium, bicarbonate, chloride, sulphate. A conductivity reading and a hardness and alkalinity titration already fix most of them.",
+      why:
+        "TDS is a total, and almost every decision depends on the split rather than the total. Hardness and alkalinity are computed from calcium, magnesium and bicarbonate, so with none of them entered they read zero: scaling indices, the coagulant alkalinity check and chemical softening all go quiet rather than wrong, which is harder to notice. The separation behaves differently too. Nanofiltration rejects sulphate at about 97 % and chloride at 44 %, so the same 365 mg/L removes 47 % if it is hardness and 6 % if it is salt — and with no ions the model has to assume the pessimistic case.",
+    });
+  }
+
   /* --- 2. chloride missing ---------------------------------------------- */
   if (anyIons && (feed.c.Cl ?? 0) === 0) {
     f.push({
@@ -205,7 +218,7 @@ export function validateFeed(feed: FeedSpec): Finding[] {
 export interface StructuredLimit {
   label: string;
   /** Component key, or a derived metric name. */
-  key: Component | "hardness" | "alkalinity" | "conductivity" | "turbidity" | "pH";
+  key: Component | "hardness" | "alkalinity" | "conductivity" | "turbidity" | "pH" | "NO3asN";
   op: "<=" | ">=" | "range";
   value: number;
   max?: number;
@@ -234,13 +247,22 @@ export const STANDARD_LIMITS: Record<string, StructuredLimit[]> = {
     { label: "TOC", key: "TOC", op: "<=", value: 0.2, unit: "mg/L" },
     { label: "Total hardness", key: "hardness", op: "<=", value: 0.1, unit: "mg/L CaCO₃" },
   ],
+  // Permenkes No. 2 Tahun 2023, parameter wajib air minum. The table was
+  // previously a mixture: turbidity from the 2023 standard, TDS, iron and
+  // manganese still from Permenkes 492/2010, which is the stricter-looking and
+  // more dangerous combination because it reads as one standard.
+  //
+  // Nitrate is written in the regulation as NO3-N while the model carries NO3
+  // as the nitrate ion, a factor of 4.43 apart. It is checked here on its own
+  // metric rather than by converting the limit, because a limit silently
+  // expressed in the wrong basis is exactly the error this table should catch.
   permenkes: [
     { label: "Turbidity", key: "turbidity", op: "<=", value: 3.0, unit: "NTU" },
-    { label: "TDS", key: "TDS", op: "<=", value: 500, unit: "mg/L" },
+    { label: "TDS", key: "TDS", op: "<=", value: 300, unit: "mg/L" },
     { label: "pH", key: "pH", op: "range", value: 6.5, max: 8.5, unit: "-" },
-    { label: "Iron", key: "Fe", op: "<=", value: 0.3, unit: "mg/L" },
-    { label: "Manganese", key: "Mn", op: "<=", value: 0.4, unit: "mg/L" },
-    { label: "Nitrate", key: "NO3", op: "<=", value: 50, unit: "mg/L" },
+    { label: "Iron", key: "Fe", op: "<=", value: 0.2, unit: "mg/L" },
+    { label: "Manganese", key: "Mn", op: "<=", value: 0.1, unit: "mg/L" },
+    { label: "Nitrate (as N)", key: "NO3asN", op: "<=", value: 10, unit: "mg/L" },
     { label: "Total hardness", key: "hardness", op: "<=", value: 500, unit: "mg/L CaCO₃" },
   ],
   permenlhk: [
@@ -287,6 +309,9 @@ export interface ComplianceRow {
 function metricOf(s: Stream, key: StructuredLimit["key"]): number {
   switch (key) {
     case "hardness": return hardnessAsCaCO3(s);
+    // Indonesian drinking water limits are written on the nitrogen, the model
+    // carries the nitrate ion, and the two differ by the mass ratio 14.007/62.
+    case "NO3asN": return s.c.NO3 * (14.007 / 62.004);
     case "alkalinity": return alkalinityAsCaCO3(s);
     // TDS/0.65 is the inverse of the conversion used to derive TDS from conductivity.
     case "conductivity": return Math.max(s.c.TDS, tdsFromIons(s)) / 0.65;

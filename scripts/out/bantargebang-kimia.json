@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-01T10:09:46.216Z",
+  "generated": "2026-11-03T03:27:14.036Z",
   "feed": {
     "TDS": 28000,
     "TSS": 1200,
@@ -25,10 +25,10 @@
     {
       "name": "A. Kimia-maks pH 11 + stripping + DTRO 1 pass",
       "note": "kapur mengerjakan empat hal sekaligus",
-      "power_kW": 288,
-      "sec": 7.39,
+      "power_kW": 286.6,
+      "sec": 7.36,
       "capex": 862750,
-      "opexPerM3": 8.537,
+      "opexPerM3": 8.534,
       "product_m3d": 935,
       "concentrate_m3d": 165,
       "area_m2": 707,
@@ -41,7 +41,7 @@
         "BOD": 4.2,
         "TSS": 0,
         "TN": 45.2,
-        "TDS": 500,
+        "TDS": 813,
         "pH": 7.2
       },
       "fails": [],
@@ -96,7 +96,7 @@
         },
         {
           "label": "DTRO 2 tahap",
-          "kW": 164.1,
+          "kW": 162.7,
           "capex": 356694,
           "area": 160
         },
@@ -123,10 +123,10 @@
     {
       "name": "B. Sama, kapur hanya ke pH 10,5",
       "note": "menguji harga setengah satuan pH terakhir",
-      "power_kW": 288,
-      "sec": 7.39,
+      "power_kW": 286.1,
+      "sec": 7.35,
       "capex": 862750,
-      "opexPerM3": 8.327,
+      "opexPerM3": 8.322,
       "product_m3d": 935,
       "concentrate_m3d": 165,
       "area_m2": 707,
@@ -139,7 +139,7 @@
         "BOD": 4.2,
         "TSS": 0,
         "TN": 55.8,
-        "TDS": 500,
+        "TDS": 826,
         "pH": 7.2
       },
       "fails": [],
@@ -194,7 +194,7 @@
         },
         {
           "label": "DTRO 2 tahap",
-          "kW": 164.1,
+          "kW": 162.2,
           "capex": 356694,
           "area": 160
         },
@@ -221,23 +221,23 @@
     {
       "name": "C. Sama, pH 10,0",
       "note": "amonia bebas 88,9 % — cukup?",
-      "power_kW": 286.8,
-      "sec": 7.36,
+      "power_kW": 269.6,
+      "sec": 6.92,
       "capex": 806677,
-      "opexPerM3": 7.589,
+      "opexPerM3": 7.519,
       "product_m3d": 935,
       "concentrate_m3d": 165,
       "area_m2": 707,
       "lime_t_d": 16.64,
       "acid_t_d": 19.47,
-      "naoh_t_d": 0.14,
+      "naoh_t_d": 0.09,
       "drySolids_t_d": 2.88,
       "effluent": {
         "COD": 101.4,
         "BOD": 5,
         "TSS": 0,
         "TN": 85.9,
-        "TDS": 500,
+        "TDS": 599,
         "pH": 7.2
       },
       "fails": [
@@ -294,7 +294,7 @@
         },
         {
           "label": "DTRO 2 tahap",
-          "kW": 164.1,
+          "kW": 146.9,
           "capex": 356694,
           "area": 160
         },
@@ -337,7 +337,7 @@
         "BOD": 116,
         "TSS": 2.1,
         "TN": 525,
-        "TDS": 28000,
+        "TDS": 27263,
         "pH": 7.2
       },
       "fails": [
@@ -428,10 +428,10 @@
     {
       "name": "E. Tanpa stripping — DTRO 2 pass",
       "note": "rekomendasi sebelumnya, pada umpan terkoreksi",
-      "power_kW": 209.7,
-      "sec": 5.62,
+      "power_kW": 226.5,
+      "sec": 6.07,
       "capex": 966834,
-      "opexPerM3": 1.279,
+      "opexPerM3": 1.32,
       "product_m3d": 895,
       "concentrate_m3d": 176,
       "area_m2": 756,
@@ -444,7 +444,7 @@
         "BOD": 0.1,
         "TSS": 0,
         "TN": 45.9,
-        "TDS": 10,
+        "TDS": 105,
         "pH": 7.2
       },
       "fails": [],
@@ -475,7 +475,7 @@
         },
         {
           "label": "DTRO 2 tahap",
-          "kW": 174.6,
+          "kW": 186.4,
           "capex": 375705,
           "area": 160
         },
@@ -487,7 +487,7 @@
         },
         {
           "label": "DTRO 1 tahap",
-          "kW": 20.1,
+          "kW": 25.2,
           "capex": 342143,
           "area": 160
         },
@@ -508,10 +508,10 @@
     {
       "name": "F. Kimia-maks + DTRO, stripping lebih keras",
       "note": "A/W 5000, sisa N lebih rendah",
-      "power_kW": 330,
-      "sec": 8.47,
+      "power_kW": 327,
+      "sec": 8.4,
       "capex": 875429,
-      "opexPerM3": 8.787,
+      "opexPerM3": 8.78,
       "product_m3d": 935,
       "concentrate_m3d": 165,
       "area_m2": 734,
@@ -524,7 +524,7 @@
         "BOD": 4.2,
         "TSS": 0,
         "TN": 23.1,
-        "TDS": 500,
+        "TDS": 784,
         "pH": 7.2
       },
       "fails": [],
@@ -579,7 +579,7 @@
         },
         {
           "label": "DTRO 2 tahap",
-          "kW": 164.1,
+          "kW": 161.1,
           "capex": 356694,
           "area": 160
         },

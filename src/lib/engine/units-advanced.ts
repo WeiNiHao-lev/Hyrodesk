@@ -141,9 +141,19 @@ const phAdjust: UnitModel = {
     }
 
     // Inorganic carbon changes form with the pH. Above 10.3 the bicarbonate is
-    // carbonate; below 8.3 it is bicarbonate again. Carbon is conserved either
-    // way, but which species is present decides what the next unit sees.
-    const cTotal = inlet.c.HCO3 / 61.02 + inlet.c.CO3 / 30.005;
+    // carbonate; below 8.3 it is bicarbonate again. Which species is present
+    // decides what the next unit sees.
+    //
+    // This works from `out`, not from `inlet`, and the difference is not
+    // cosmetic. Acid dosed against alkalinity destroys the bicarbonate it
+    // neutralises — H2SO4 + 2 HCO3- gives sulphate, carbon dioxide and water,
+    // and the carbon leaves as gas rather than staying as bicarbonate. Taking
+    // the carbon total from the inlet put every destroyed milliequivalent
+    // straight back, so the water gained the sulphate and kept the bicarbonate:
+    // on the Sagara feed, 57 mg/L of dissolved solids appearing out of nothing
+    // at a single pH correction. It stayed hidden while TDS was a tracer of its
+    // own; the moment TDS is summed from the ions, it shows.
+    const cTotal = out.c.HCO3 / 61.02 + out.c.CO3 / 30.005;
     if (target > 10.3) {
       out.c.CO3 = cTotal * 30.005;
       out.c.HCO3 = 0;

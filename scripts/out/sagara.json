@@ -1,5 +1,5 @@
 {
-  "generated": "2026-09-01T04:35:21.412Z",
+  "generated": "2026-11-03T03:27:11.225Z",
   "project": {
     "name": "WTP Sagara — 50 L/s ke Kawasan Industri SIER, Surabaya",
     "productTarget_m3h": 180,
@@ -28,19 +28,15 @@
     },
     "roFeed_m3h": 64.04,
     "roPermeate_m3h": 48.03,
-    "roPermeate_TDS": 16.9,
+    "roPermeate_TDS": 12.4,
     "roConcentrate_m3h": 16.01,
-    "roConcentrate_TDS": 1409,
-    "product_TDS": 272,
+    "roConcentrate_TDS": 1383,
+    "product_TDS": 271.6,
     "product_turbidity": 0.109,
     "product_pH": 7.6,
-    "power_kW": 92.7,
-    "sec_kWh_m3": 0.515,
+    "power_kW": 92.4,
+    "sec_kWh_m3": 0.514,
     "chemicals": [
-      {
-        "name": "Caustic soda NaOH",
-        "kg_h": 4.593
-      },
       {
         "name": "Sulphuric acid H2SO4",
         "kg_h": 11.974
@@ -48,6 +44,10 @@
       {
         "name": "Poly-aluminium chloride",
         "kg_h": 5.125
+      },
+      {
+        "name": "Caustic soda NaOH",
+        "kg_h": 2.56
       },
       {
         "name": "Antiscalant",
@@ -66,6 +66,10 @@
         "kg_h": 0.308
       },
       {
+        "name": "Caustic soda (pH correction)",
+        "kg_h": 0.139
+      },
+      {
         "name": "Polymer (dewatering)",
         "kg_h": 0.024
       }
@@ -82,8 +86,8 @@
       },
       {
         "p": "TDS",
-        "limit": "≤ 500 mg/L",
-        "actual": "272.0",
+        "limit": "≤ 300 mg/L",
+        "actual": "271.6",
         "pass": true,
         "scope": false
       },
@@ -96,22 +100,22 @@
       },
       {
         "p": "Iron",
-        "limit": "≤ 0.3 mg/L",
+        "limit": "≤ 0.2 mg/L",
         "actual": "0.0918",
         "pass": true,
         "scope": false
       },
       {
         "p": "Manganese",
-        "limit": "≤ 0.4 mg/L",
+        "limit": "≤ 0.1 mg/L",
         "actual": "0.0693",
         "pass": true,
         "scope": false
       },
       {
-        "p": "Nitrate",
-        "limit": "≤ 50 mg/L",
-        "actual": "2.32",
+        "p": "Nitrate (as N)",
+        "limit": "≤ 10 mg/L",
+        "actual": "0.5235",
         "pass": true,
         "scope": false
       },
@@ -125,7 +129,7 @@
     ],
     "warnings": [
       "RO Air Payau 3 train: Feed SDI15 4.0 exceeds the usual limit of 3 for RO.",
-      "Na balance shows 23.5 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error.",
+      "Na balance shows 14.6 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error.",
       "SO4 balance shows 56.0 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error."
     ],
     "units": [
@@ -313,7 +317,7 @@
         "type": "ro",
         "inFlow_m3h": 64.04,
         "hrtH": null,
-        "power_kW": 11.41,
+        "power_kW": 11.13,
         "capex_USD": 215114,
         "sizing": [
           {
@@ -334,11 +338,11 @@
           },
           {
             "label": "Feed pressure",
-            "value": "4.8 bar (estimated)"
+            "value": "4.7 bar (estimated)"
           },
           {
             "label": "Specific energy",
-            "value": "0.238 kWh/m3 permeate"
+            "value": "0.232 kWh/m3 permeate"
           }
         ],
         "notes": [
@@ -378,11 +382,11 @@
           },
           {
             "label": "Reagent demand",
-            "value": "0.6 meq/L"
+            "value": "0.3 meq/L"
           },
           {
             "label": "Caustic soda NaOH",
-            "value": "4.6 kg/h (0.11 t/d)"
+            "value": "2.6 kg/h (0.06 t/d)"
           },
           {
             "label": "Precipitated solids",
@@ -427,7 +431,7 @@
       {
         "stage": "Intake & Screen",
         "in_m3h": 205,
-        "TDS": 365,
+        "TDS": 376.5,
         "TSS": 20,
         "NTU": 15,
         "pH": 8.5
@@ -435,7 +439,7 @@
       {
         "stage": "Koreksi pH 8,5 → 6,9",
         "in_m3h": 205,
-        "TDS": 365,
+        "TDS": 376.5,
         "TSS": 19.4,
         "NTU": 14.775,
         "pH": 8.5
@@ -443,7 +447,7 @@
       {
         "stage": "Rapid Mix + Flokulasi",
         "in_m3h": 205,
-        "TDS": 365,
+        "TDS": 370.5,
         "TSS": 19.4,
         "NTU": 14.775,
         "pH": 6.9
@@ -451,7 +455,7 @@
       {
         "stage": "DAF 2 unit",
         "in_m3h": 205,
-        "TDS": 365,
+        "TDS": 355.2,
         "TSS": 30.65,
         "NTU": 14.775,
         "pH": 6.9
@@ -459,7 +463,7 @@
       {
         "stage": "Filter Dual-Media",
         "in_m3h": 202.95,
-        "TDS": 365,
+        "TDS": 355.2,
         "TSS": 2.48,
         "NTU": 1.182,
         "pH": 6.9
@@ -467,7 +471,7 @@
       {
         "stage": "Tangki Air Tersaring",
         "in_m3h": 195.85,
-        "TDS": 365,
+        "TDS": 355,
         "TSS": 0.31,
         "NTU": 0.142,
         "pH": 6.9
@@ -475,7 +479,7 @@
       {
         "stage": "Pengental Lumpur",
         "in_m3h": 9.15,
-        "TDS": 365,
+        "TDS": 360.2,
         "TSS": 679.86,
         "NTU": 4.226,
         "pH": 6.9
@@ -483,7 +487,7 @@
       {
         "stage": "Cartridge 5 µm",
         "in_m3h": 64.04,
-        "TDS": 365,
+        "TDS": 355,
         "TSS": 0.31,
         "NTU": 0.142,
         "pH": 6.9
@@ -491,7 +495,7 @@
       {
         "stage": "Screw Press",
         "in_m3h": 4.58,
-        "TDS": 365,
+        "TDS": 365.1,
         "TSS": 1291.73,
         "NTU": 4.226,
         "pH": 6.9
@@ -499,7 +503,7 @@
       {
         "stage": "RO Air Payau 3 train",
         "in_m3h": 64.04,
-        "TDS": 365,
+        "TDS": 355,
         "TSS": 0.15,
         "NTU": 0.142,
         "pH": 6.9
@@ -507,7 +511,7 @@
       {
         "stage": "Tangki Produk + Blending",
         "in_m3h": 179.84,
-        "TDS": 272,
+        "TDS": 263.5,
         "TSS": 0.23,
         "NTU": 0.109,
         "pH": 6.37
@@ -515,7 +519,7 @@
       {
         "stage": "Trim pH Produk (NaOH)",
         "in_m3h": 179.84,
-        "TDS": 272,
+        "TDS": 263.5,
         "TSS": 0.23,
         "NTU": 0.109,
         "pH": 6.37
@@ -523,7 +527,7 @@
       {
         "stage": "Pompa Distribusi ke SIER",
         "in_m3h": 179.84,
-        "TDS": 272,
+        "TDS": 271.6,
         "TSS": 0.23,
         "NTU": 0.109,
         "pH": 7.6
@@ -531,7 +535,7 @@
       {
         "stage": "Produk ke SIER",
         "in_m3h": 179.84,
-        "TDS": 272,
+        "TDS": 271.6,
         "TSS": 0.23,
         "NTU": 0.109,
         "pH": 7.6
@@ -552,22 +556,22 @@
     },
     "roFeed_m3h": 64.04,
     "roPermeate_m3h": 48.03,
-    "roPermeate_TDS": 20.8,
+    "roPermeate_TDS": 15.1,
     "roConcentrate_m3h": 16.01,
-    "roConcentrate_TDS": 1738,
-    "product_TDS": 335.4,
+    "roConcentrate_TDS": 1702,
+    "product_TDS": 334.3,
     "product_turbidity": 0.109,
     "product_pH": 7.6,
-    "power_kW": 93.1,
-    "sec_kWh_m3": 0.518,
+    "power_kW": 92.8,
+    "sec_kWh_m3": 0.516,
     "chemicals": [
-      {
-        "name": "Caustic soda NaOH",
-        "kg_h": 5.623
-      },
       {
         "name": "Sulphuric acid H2SO4",
         "kg_h": 14.399
+      },
+      {
+        "name": "Caustic soda NaOH",
+        "kg_h": 3.177
       },
       {
         "name": "Poly-aluminium chloride",
@@ -606,9 +610,9 @@
       },
       {
         "p": "TDS",
-        "limit": "≤ 500 mg/L",
-        "actual": "335.4",
-        "pass": true,
+        "limit": "≤ 300 mg/L",
+        "actual": "334.3",
+        "pass": false,
         "scope": false
       },
       {
@@ -620,22 +624,22 @@
       },
       {
         "p": "Iron",
-        "limit": "≤ 0.3 mg/L",
+        "limit": "≤ 0.2 mg/L",
         "actual": "0.0918",
         "pass": true,
         "scope": false
       },
       {
         "p": "Manganese",
-        "limit": "≤ 0.4 mg/L",
+        "limit": "≤ 0.1 mg/L",
         "actual": "0.0693",
         "pass": true,
         "scope": false
       },
       {
-        "p": "Nitrate",
-        "limit": "≤ 50 mg/L",
-        "actual": "2.32",
+        "p": "Nitrate (as N)",
+        "limit": "≤ 10 mg/L",
+        "actual": "0.5235",
         "pass": true,
         "scope": false
       },
@@ -649,7 +653,7 @@
     ],
     "warnings": [
       "RO Air Payau 3 train: Feed SDI15 4.0 exceeds the usual limit of 3 for RO.",
-      "Na balance shows 23.3 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error.",
+      "Na balance shows 14.6 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error.",
       "SO4 balance shows 54.3 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error."
     ],
     "units": [
@@ -837,7 +841,7 @@
         "type": "ro",
         "inFlow_m3h": 64.04,
         "hrtH": null,
-        "power_kW": 11.84,
+        "power_kW": 11.51,
         "capex_USD": 215114,
         "sizing": [
           {
@@ -858,11 +862,11 @@
           },
           {
             "label": "Feed pressure",
-            "value": "5.0 bar (estimated)"
+            "value": "4.8 bar (estimated)"
           },
           {
             "label": "Specific energy",
-            "value": "0.247 kWh/m3 permeate"
+            "value": "0.240 kWh/m3 permeate"
           }
         ],
         "notes": [
@@ -902,11 +906,11 @@
           },
           {
             "label": "Reagent demand",
-            "value": "0.7 meq/L"
+            "value": "0.4 meq/L"
           },
           {
             "label": "Caustic soda NaOH",
-            "value": "5.6 kg/h (0.13 t/d)"
+            "value": "3.2 kg/h (0.08 t/d)"
           },
           {
             "label": "Precipitated solids",
@@ -951,7 +955,7 @@
       {
         "stage": "Intake & Screen",
         "in_m3h": 205,
-        "TDS": 450,
+        "TDS": 459.4,
         "TSS": 20,
         "NTU": 15,
         "pH": 8.5
@@ -959,7 +963,7 @@
       {
         "stage": "Koreksi pH 8,5 → 6,9",
         "in_m3h": 205,
-        "TDS": 450,
+        "TDS": 459.4,
         "TSS": 19.4,
         "NTU": 14.775,
         "pH": 8.5
@@ -967,7 +971,7 @@
       {
         "stage": "Rapid Mix + Flokulasi",
         "in_m3h": 205,
-        "TDS": 450,
+        "TDS": 452.2,
         "TSS": 19.4,
         "NTU": 14.775,
         "pH": 6.9
@@ -975,7 +979,7 @@
       {
         "stage": "DAF 2 unit",
         "in_m3h": 205,
-        "TDS": 450,
+        "TDS": 437,
         "TSS": 30.65,
         "NTU": 14.775,
         "pH": 6.9
@@ -983,7 +987,7 @@
       {
         "stage": "Filter Dual-Media",
         "in_m3h": 202.95,
-        "TDS": 450,
+        "TDS": 437,
         "TSS": 2.48,
         "NTU": 1.182,
         "pH": 6.9
@@ -991,7 +995,7 @@
       {
         "stage": "Tangki Air Tersaring",
         "in_m3h": 195.85,
-        "TDS": 450,
+        "TDS": 436.8,
         "TSS": 0.31,
         "NTU": 0.142,
         "pH": 6.9
@@ -999,7 +1003,7 @@
       {
         "stage": "Pengental Lumpur",
         "in_m3h": 9.15,
-        "TDS": 450,
+        "TDS": 442,
         "TSS": 679.86,
         "NTU": 4.226,
         "pH": 6.9
@@ -1007,7 +1011,7 @@
       {
         "stage": "Cartridge 5 µm",
         "in_m3h": 64.04,
-        "TDS": 450,
+        "TDS": 436.8,
         "TSS": 0.31,
         "NTU": 0.142,
         "pH": 6.9
@@ -1015,7 +1019,7 @@
       {
         "stage": "Screw Press",
         "in_m3h": 4.58,
-        "TDS": 450,
+        "TDS": 446.8,
         "TSS": 1291.73,
         "NTU": 4.226,
         "pH": 6.9
@@ -1023,7 +1027,7 @@
       {
         "stage": "RO Air Payau 3 train",
         "in_m3h": 64.04,
-        "TDS": 450,
+        "TDS": 436.8,
         "TSS": 0.15,
         "NTU": 0.142,
         "pH": 6.9
@@ -1031,7 +1035,7 @@
       {
         "stage": "Tangki Produk + Blending",
         "in_m3h": 179.84,
-        "TDS": 335.4,
+        "TDS": 324.1,
         "TSS": 0.23,
         "NTU": 0.109,
         "pH": 6.37
@@ -1039,7 +1043,7 @@
       {
         "stage": "Trim pH Produk (NaOH)",
         "in_m3h": 179.84,
-        "TDS": 335.4,
+        "TDS": 324.1,
         "TSS": 0.23,
         "NTU": 0.109,
         "pH": 6.37
@@ -1047,7 +1051,7 @@
       {
         "stage": "Pompa Distribusi ke SIER",
         "in_m3h": 179.84,
-        "TDS": 335.4,
+        "TDS": 334.3,
         "TSS": 0.23,
         "NTU": 0.109,
         "pH": 7.6
@@ -1055,7 +1059,7 @@
       {
         "stage": "Produk ke SIER",
         "in_m3h": 179.84,
-        "TDS": 335.4,
+        "TDS": 334.3,
         "TSS": 0.23,
         "NTU": 0.109,
         "pH": 7.6
@@ -1063,40 +1067,40 @@
     ]
   },
   "minShareNormal": {
-    "share": 23.5,
+    "share": 23.3,
     "tds": 299.8
   },
   "minShareDry": {
-    "share": 41.8,
-    "tds": 299.7
+    "share": 41.5,
+    "tds": 299.9
   },
   "rejectionStudy": [
     {
       "label": "Model default — rejeksi TDS 97,5 %",
       "scale": 1,
-      "permeate_TDS": 16.9,
-      "product_TDS_at_32_7pct": 272,
+      "permeate_TDS": 12.4,
+      "product_TDS_at_32_7pct": 271.6,
       "shareNormal": {
-        "share": 23.5,
+        "share": 23.3,
         "tds": 299.8
       },
       "shareDry": {
-        "share": 41.8,
-        "tds": 299.7
+        "share": 41.5,
+        "tds": 299.9
       }
     },
     {
       "label": "Asumsi memo — rejeksi TDS 98,5 %",
       "scale": 1.0102564102564102,
-      "permeate_TDS": 10.1,
-      "product_TDS_at_32_7pct": 270.2,
+      "permeate_TDS": 7.6,
+      "product_TDS_at_32_7pct": 270.3,
       "shareNormal": {
-        "share": 23.1,
-        "tds": 299.7
+        "share": 23,
+        "tds": 299.8
       },
       "shareDry": {
-        "share": 41.1,
-        "tds": 299.7
+        "share": 41,
+        "tds": 299.9
       }
     }
   ],

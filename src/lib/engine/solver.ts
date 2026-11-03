@@ -4,7 +4,8 @@ import {
 } from "./types";
 import { UNIT_BY_TYPE } from "./units";
 import {
-  blendStream, cloneStream, emptyStream, makeStream, mixStreams, streamResidual,
+  blendStream, cloneStream, emptyStream, makeStream, mixStreams, reconcileTDS,
+  streamResidual,
 } from "./stream";
 import { alkToBicarbonate, hardnessToCaMg } from "./feedprofiles";
 
@@ -235,6 +236,10 @@ export function simulate(fs: Flowsheet): SimulationResult {
         solved = { outlets: {}, aux: { powerKW: 0, chemicals: {}, drySolidsKgH: 0, sizing: [], capexUSD: 0, notes: ["Model failed to evaluate."] } as UnitAux };
       }
 
+      // Dissolved solids are the sum of the ions, not a tracer running beside
+      // them. Done here rather than in each model so no unit can forget it.
+      reconcileTDS(inlet, ...Object.values(solved.outlets));
+
       results.push({ id, type: nd.type, label: nd.label, inlet, outlets: solved.outlets, aux: solved.aux });
 
       for (const e of outbound.get(id) ?? []) {
@@ -385,13 +390,21 @@ function buildSummary(
   // dosing chemicals add ions the feed never had — sulphate from acid, sodium
   // from caustic. The water balance cannot see that, so it closes while the
   // ion balance does not, and until now nothing said so.
+  // Calcium, magnesium and the dissolved solids that contain them can leave the
+  // water without leaving the plant: softening and high-pH dosing turn them
+  // into a precipitate that departs as suspended solids in the sludge. For
+  // those species a shortfall is an expected consequence of the chemistry and
+  // not evidence of an unrouted stream, so the message says both.
+  const CAN_PRECIPITATE = new Set(["TDS", "Ca", "Mg", "SO4"]);
   for (const b of saltBalance) {
     if (b.inKgH <= 1e-9 || Math.abs(b.errorPct) <= 3) continue;
-    warnings.push(
-      b.errorPct < 0
-        ? `${b.label} balance shows ${Math.abs(b.errorPct).toFixed(1)} % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error.`
-        : `${b.label} balance shows ${b.errorPct.toFixed(1)} % less leaving than entering. Some stream carrying it is not routed to a product or waste outlet.`,
-    );
+    if (b.errorPct < 0) {
+      warnings.push(`${b.label} balance shows ${Math.abs(b.errorPct).toFixed(1)} % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error.`);
+    } else if (CAN_PRECIPITATE.has(b.label)) {
+      warnings.push(`${b.label} balance shows ${b.errorPct.toFixed(1)} % less leaving than entering. Softening or high-pH dosing turns it into a precipitate that leaves as suspended solids rather than dissolved, so a shortfall here is usually the chemistry rather than a fault. Confirm it against the sludge solids before looking for an unrouted stream.`);
+    } else {
+      warnings.push(`${b.label} balance shows ${b.errorPct.toFixed(1)} % less leaving than entering. Some stream carrying it is not routed to a product or waste outlet.`);
+    }
   }
   if (products.length === 0) warnings.push("No product outlet is connected, so recovery cannot be computed. Add a Product Outlet block.");
   if (wastes.length === 0 && products.length > 0) warnings.push("No waste outlet is connected. Reject and backwash streams are unaccounted for and the balance will not close.");

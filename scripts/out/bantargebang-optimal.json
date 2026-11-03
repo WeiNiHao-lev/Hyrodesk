@@ -1,13 +1,13 @@
 {
-  "generated": "2026-09-01T04:49:55.952Z",
+  "generated": "2026-11-03T03:27:12.751Z",
   "cases": [
     {
       "name": "A. Usulan — MBBR ringan + UF",
       "note": "kereta seperti didiskusikan",
-      "power_kW": 374.4,
-      "sec": 9.97,
+      "power_kW": 385.8,
+      "sec": 10.27,
       "capex": 715222,
-      "opexPerM3": 1.434,
+      "opexPerM3": 1.461,
       "product_m3d": 901,
       "concentrate_m3d": 159,
       "recovery": 75.1,
@@ -19,13 +19,13 @@
         "TSS": 0,
         "TN": 197,
         "NH4": 252.9,
-        "TDS": 357.1,
+        "TDS": 878.1,
         "pH": 6.3
       },
       "concentrateC": {
         "COD": 65704,
         "TN": 13585,
-        "TDS": 131310
+        "TDS": 144073
       },
       "fails": [
         "Total nitrogen 197.0 vs ≤ 60 mg/L"
@@ -75,7 +75,7 @@
         },
         {
           "label": "DTRO 2-tahap",
-          "kW": 119.5,
+          "kW": 130.9,
           "capex": 345901,
           "area": 160
         },
@@ -90,10 +90,10 @@
     {
       "name": "B. UASB menggantikan MBBR",
       "note": "beban organik dibuang secara anaerob",
-      "power_kW": 148.1,
-      "sec": 3.9,
+      "power_kW": 157.3,
+      "sec": 4.14,
       "capex": 875500,
-      "opexPerM3": 0.903,
+      "opexPerM3": 0.925,
       "product_m3d": 912,
       "concentrate_m3d": 161,
       "recovery": 76,
@@ -105,13 +105,13 @@
         "TSS": 0,
         "TN": 197,
         "NH4": 252.9,
-        "TDS": 357.1,
+        "TDS": 877,
         "pH": 6.6
       },
       "concentrateC": {
         "COD": 31735,
         "TN": 13585,
-        "TDS": 131310
+        "TDS": 140886
       },
       "fails": [
         "Total nitrogen 197.0 vs ≤ 60 mg/L"
@@ -161,7 +161,7 @@
         },
         {
           "label": "DTRO 2-tahap",
-          "kW": 121,
+          "kW": 130.2,
           "capex": 349433,
           "area": 160
         },
@@ -176,10 +176,10 @@
     {
       "name": "C. UASB, tanpa UF",
       "note": "DTRO memang dibuat untuk umpan kotor",
-      "power_kW": 148.1,
-      "sec": 3.58,
+      "power_kW": 158.1,
+      "sec": 3.83,
       "capex": 833774,
-      "opexPerM3": 0.836,
+      "opexPerM3": 0.858,
       "product_m3d": 992,
       "concentrate_m3d": 175,
       "recovery": 82.6,
@@ -191,13 +191,13 @@
         "TSS": 0.1,
         "TN": 197,
         "NH4": 252.9,
-        "TDS": 357.1,
+        "TDS": 877,
         "pH": 6.6
       },
       "concentrateC": {
         "COD": 36496,
         "TN": 13585,
-        "TDS": 131310
+        "TDS": 140923
       },
       "fails": [
         "Total nitrogen 197.0 vs ≤ 60 mg/L"
@@ -235,7 +235,7 @@
         },
         {
           "label": "DTRO 2-tahap",
-          "kW": 131.5,
+          "kW": 141.5,
           "capex": 374759,
           "area": 160
         },
@@ -256,10 +256,10 @@
     {
       "name": "D. Tanpa biologi sama sekali",
       "note": "koagulasi lalu langsung membran",
-      "power_kW": 145,
-      "sec": 3.5,
+      "power_kW": 157.6,
+      "sec": 3.8,
       "capex": 605961,
-      "opexPerM3": 0.8,
+      "opexPerM3": 0.827,
       "product_m3d": 995,
       "concentrate_m3d": 176,
       "recovery": 82.9,
@@ -271,13 +271,13 @@
         "TSS": 0.2,
         "TN": 197,
         "NH4": 252.9,
-        "TDS": 357.1,
+        "TDS": 878.1,
         "pH": 6.3
       },
       "concentrateC": {
         "COD": 165392,
         "TN": 13585,
-        "TDS": 131310
+        "TDS": 144110
       },
       "fails": [
         "BOD 170.0 vs ≤ 150 mg/L",
@@ -311,7 +311,7 @@
         },
         {
           "label": "DTRO 2-tahap",
-          "kW": 131.9,
+          "kW": 144.5,
           "capex": 375705,
           "area": 160
         },
@@ -332,10 +332,10 @@
     {
       "name": "E. UASB + TUF menggantikan UF hollow-fibre",
       "note": "toleransi umpan, bukan energi",
-      "power_kW": 248.6,
-      "sec": 6.27,
+      "power_kW": 258.2,
+      "sec": 6.51,
       "capex": 1015597,
-      "opexPerM3": 1.139,
+      "opexPerM3": 1.161,
       "product_m3d": 952,
       "concentrate_m3d": 168,
       "recovery": 79.3,
@@ -347,13 +347,13 @@
         "TSS": 0,
         "TN": 197,
         "NH4": 252.9,
-        "TDS": 357.1,
+        "TDS": 877,
         "pH": 6.6
       },
       "concentrateC": {
         "COD": 28512,
         "TN": 13585,
-        "TDS": 131310
+        "TDS": 140879
       },
       "fails": [
         "Total nitrogen 197.0 vs ≤ 60 mg/L"
@@ -403,7 +403,7 @@
         },
         {
           "label": "DTRO 2-tahap",
-          "kW": 126.3,
+          "kW": 135.8,
           "capex": 362138,
           "area": 160
         },
@@ -418,10 +418,10 @@
     {
       "name": "F. Koagulasi SESUDAH UASB",
       "note": "menguji urutannya",
-      "power_kW": 147.2,
-      "sec": 3.56,
+      "power_kW": 157.3,
+      "sec": 3.81,
       "capex": 846671,
-      "opexPerM3": 0.825,
+      "opexPerM3": 0.847,
       "product_m3d": 992,
       "concentrate_m3d": 175,
       "recovery": 82.6,
@@ -433,13 +433,13 @@
         "TSS": 0.1,
         "TN": 197,
         "NH4": 252.9,
-        "TDS": 357.1,
+        "TDS": 877,
         "pH": 6.3
       },
       "concentrateC": {
         "COD": 36496,
         "TN": 13585,
-        "TDS": 131310
+        "TDS": 140923
       },
       "fails": [
         "Total nitrogen 197.0 vs ≤ 60 mg/L"
@@ -477,7 +477,7 @@
         },
         {
           "label": "DTRO 2-tahap",
-          "kW": 131.5,
+          "kW": 141.5,
           "capex": 374759,
           "area": 160
         },
@@ -498,10 +498,10 @@
     {
       "name": "G. C dengan DTRO 3 tahap, recovery 90 %",
       "note": "konsentrat lebih sedikit, tekanan lebih tinggi",
-      "power_kW": 199.2,
-      "sec": 4.55,
+      "power_kW": 213.5,
+      "sec": 4.88,
       "capex": 850212,
-      "opexPerM3": 0.903,
+      "opexPerM3": 0.933,
       "product_m3d": 1050,
       "concentrate_m3d": 117,
       "recovery": 87.5,
@@ -513,13 +513,13 @@
         "TSS": 0.1,
         "TN": 225.8,
         "NH4": 290,
-        "TDS": 409.3,
+        "TDS": 1005.4,
         "pH": 6.6
       },
       "concentrateC": {
         "COD": 54593,
         "TN": 20020,
-        "TDS": 196316
+        "TDS": 209791
       },
       "fails": [
         "Total nitrogen 225.8 vs ≤ 60 mg/L"
@@ -557,7 +557,7 @@
         },
         {
           "label": "DTRO 3-tahap",
-          "kW": 182.6,
+          "kW": 196.9,
           "capex": 391197,
           "area": 160
         },
@@ -578,10 +578,10 @@
     {
       "name": "H. C + DTRO pass-2",
       "note": "nitrogen diselesaikan oleh membran kedua",
-      "power_kW": 166.5,
-      "sec": 4.48,
+      "power_kW": 176.5,
+      "sec": 4.75,
       "capex": 1127822,
-      "opexPerM3": 1.048,
+      "opexPerM3": 1.072,
       "product_m3d": 892,
       "concentrate_m3d": 175,
       "recovery": 74.4,
@@ -593,13 +593,13 @@
         "TSS": 0,
         "TN": 20.2,
         "NH4": 25.9,
-        "TDS": 7.3,
+        "TDS": 62.6,
         "pH": 6.31
       },
       "concentrateC": {
         "COD": 36496,
         "TN": 13585,
-        "TDS": 131310
+        "TDS": 140923
       },
       "fails": [],
       "units": [
@@ -635,7 +635,7 @@
         },
         {
           "label": "DTRO 2-tahap",
-          "kW": 131.5,
+          "kW": 141.5,
           "capex": 374759,
           "area": 160
         },
@@ -662,10 +662,10 @@
     {
       "name": "I. Tanpa biologi + DTRO pass-2",
       "note": "CAPEX terendah yang masih lolos?",
-      "power_kW": 163.5,
-      "sec": 4.38,
+      "power_kW": 176.1,
+      "sec": 4.72,
       "capex": 900749,
-      "opexPerM3": 1.008,
+      "opexPerM3": 1.038,
       "product_m3d": 895,
       "concentrate_m3d": 176,
       "recovery": 74.6,
@@ -677,13 +677,13 @@
         "TSS": 0,
         "TN": 20.2,
         "NH4": 25.9,
-        "TDS": 7.3,
+        "TDS": 62.6,
         "pH": 6.01
       },
       "concentrateC": {
         "COD": 165392,
         "TN": 13585,
-        "TDS": 131310
+        "TDS": 144110
       },
       "fails": [],
       "units": [
@@ -713,7 +713,7 @@
         },
         {
           "label": "DTRO 2-tahap",
-          "kW": 131.9,
+          "kW": 144.5,
           "capex": 375705,
           "area": 160
         },
@@ -740,10 +740,10 @@
     {
       "name": "J. Stripping amonia lalu DTRO",
       "note": "rute analisis Bantargebang terdahulu",
-      "power_kW": 241.5,
-      "sec": 5.85,
+      "power_kW": 255.3,
+      "sec": 6.18,
       "capex": 977047,
-      "opexPerM3": 5.028,
+      "opexPerM3": 5.058,
       "product_m3d": 992,
       "concentrate_m3d": 175,
       "recovery": 82.6,
@@ -755,13 +755,13 @@
         "TSS": 1.3,
         "TN": 28.5,
         "NH4": 36,
-        "TDS": 357.1,
+        "TDS": 666.6,
         "pH": 5.8
       },
       "concentrateC": {
         "COD": 33631,
         "TN": 1958,
-        "TDS": 131310
+        "TDS": 146876
       },
       "fails": [
         "pH 5.80 vs 6 – 9 -"
@@ -829,7 +829,7 @@
         },
         {
           "label": "DTRO 2-tahap",
-          "kW": 131.5,
+          "kW": 145.3,
           "capex": 374759,
           "area": 160
         }
@@ -838,10 +838,10 @@
     {
       "name": "K. H + konsentrat pass-2 dikembalikan",
       "note": "air bersih tidak dibuang",
-      "power_kW": 172.1,
-      "sec": 4.24,
+      "power_kW": 184.4,
+      "sec": 4.54,
       "capex": 1179519,
-      "opexPerM3": 0.996,
+      "opexPerM3": 1.023,
       "product_m3d": 975,
       "concentrate_m3d": 191,
       "recovery": 81.3,
@@ -853,13 +853,13 @@
         "TSS": 0,
         "TN": 19.8,
         "NH4": 25.4,
-        "TDS": 6.8,
+        "TDS": 60.7,
         "pH": 4.94
       },
       "concentrateC": {
         "COD": 33817,
         "TN": 13351,
-        "TDS": 121965
+        "TDS": 133182
       },
       "fails": [
         "pH 4.94 vs 6 – 9 -"
@@ -909,7 +909,7 @@
         },
         {
           "label": "DTRO 2-tahap",
-          "kW": 135.5,
+          "kW": 147.8,
           "capex": 403772,
           "area": 160
         },
@@ -924,10 +924,10 @@
     {
       "name": "L. I + konsentrat pass-2 dikembalikan",
       "note": "tanpa biologi, air bersih tidak dibuang",
-      "power_kW": 169.1,
-      "sec": 4.15,
+      "power_kW": 184,
+      "sec": 4.52,
       "capex": 952577,
-      "opexPerM3": 0.959,
+      "opexPerM3": 0.992,
       "product_m3d": 978,
       "concentrate_m3d": 192,
       "recovery": 81.5,
@@ -939,13 +939,13 @@
         "TSS": 0,
         "TN": 19.8,
         "NH4": 25.4,
-        "TDS": 6.8,
+        "TDS": 60.7,
         "pH": 4.64
       },
       "concentrateC": {
         "COD": 153252,
         "TN": 13351,
-        "TDS": 121965
+        "TDS": 136104
       },
       "fails": [
         "pH 4.64 vs 6 – 9 -"
@@ -989,7 +989,7 @@
         },
         {
           "label": "DTRO 2-tahap",
-          "kW": 135.9,
+          "kW": 150.8,
           "capex": 404791,
           "area": 160
         },
@@ -1004,10 +1004,10 @@
     {
       "name": "M. K + trim pH  <- KANDIDAT",
       "note": "lengkap: UASB, 2 pass, konsentrat balik, pH",
-      "power_kW": 173.8,
-      "sec": 4.28,
+      "power_kW": 186.1,
+      "sec": 4.58,
       "capex": 1185335,
-      "opexPerM3": 1.007,
+      "opexPerM3": 1.034,
       "product_m3d": 975,
       "concentrate_m3d": 191,
       "recovery": 81.3,
@@ -1019,13 +1019,13 @@
         "TSS": 0,
         "TN": 19.8,
         "NH4": 25.4,
-        "TDS": 6.8,
+        "TDS": 66.9,
         "pH": 7
       },
       "concentrateC": {
         "COD": 33817,
         "TN": 13351,
-        "TDS": 121965
+        "TDS": 133182
       },
       "fails": [],
       "units": [
@@ -1073,7 +1073,7 @@
         },
         {
           "label": "DTRO 2-tahap",
-          "kW": 135.5,
+          "kW": 147.8,
           "capex": 403772,
           "area": 160
         },
@@ -1094,10 +1094,10 @@
     {
       "name": "N. L + trim pH",
       "note": "sama tanpa UASB",
-      "power_kW": 170.8,
-      "sec": 4.19,
+      "power_kW": 185.7,
+      "sec": 4.56,
       "capex": 958405,
-      "opexPerM3": 0.97,
+      "opexPerM3": 1.003,
       "product_m3d": 978,
       "concentrate_m3d": 192,
       "recovery": 81.5,
@@ -1109,13 +1109,13 @@
         "TSS": 0,
         "TN": 19.8,
         "NH4": 25.4,
-        "TDS": 6.8,
+        "TDS": 66.9,
         "pH": 7
       },
       "concentrateC": {
         "COD": 153252,
         "TN": 13351,
-        "TDS": 121965
+        "TDS": 136104
       },
       "fails": [],
       "units": [
@@ -1157,7 +1157,7 @@
         },
         {
           "label": "DTRO 2-tahap",
-          "kW": 135.9,
+          "kW": 150.8,
           "capex": 404792,
           "area": 160
         },
@@ -1177,8 +1177,8 @@
     }
   ],
   "saltLoad_t_d": 24,
-  "saltOutPermeate_t_d": 0.006511599999999999,
-  "saltToAccount_t_d": 23.9934884,
+  "saltOutPermeate_t_d": 0.055839200000000005,
+  "saltToAccount_t_d": 23.9441608,
   "pondCases": [
     {
       "netMmY": 400,
