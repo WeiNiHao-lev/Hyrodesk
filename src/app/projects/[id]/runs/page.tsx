@@ -7,6 +7,7 @@ import { getProject, saveProject, StudyRun } from "@/lib/store/db";
 import { useStudy } from "@/lib/store/useStudy";
 import { useWorkspace } from "@/components/workspace/WorkspaceContext";
 import { ResultsView } from "@/components/ResultsView";
+import { InlineName } from "@/components/InlineName";
 import { Workflow, Trash2, Save, ChevronRight } from "lucide-react";
 
 const VERDICT_TONE: Record<string, string> = {
@@ -42,6 +43,15 @@ export default function ProjectRuns() {
     router.push(`${base}/simulate`);
   };
 
+  const renameRun = async (runId: string, name: string) => {
+    // Fresh copy, for the same reason as deleting: another tab may have saved
+    // a run since this list was loaded.
+    const fresh = await getProject(id);
+    if (!fresh) return;
+    await saveProject({ ...fresh, runs: fresh.runs.map((r) => (r.id === runId ? { ...r, name } : r)) });
+    await reload();
+  };
+
   const deleteRun = async (runId: string) => {
     if (!confirm("Delete this run?")) return;
     // Fresh copy, so a run saved elsewhere in the meantime is not lost with it.
@@ -75,22 +85,30 @@ export default function ProjectRuns() {
           {project.runs.map((r) => (
             <div
               key={r.id}
-              className={`card p-3 transition ${activeRun?.id === r.id ? "ring-2 ring-aqua-400" : "hover:shadow-md"}`}
+              role="button"
+              tabIndex={0}
+              onClick={() => setActiveId(r.id)}
+              onKeyDown={(e) => { if (e.key === "Enter" && e.target === e.currentTarget) setActiveId(r.id); }}
+              className={`card cursor-pointer p-3 transition ${activeRun?.id === r.id ? "ring-2 ring-aqua-400" : "hover:shadow-md"}`}
             >
-              <button onClick={() => setActiveId(r.id)} className="w-full text-left">
-                <div className="flex items-start justify-between gap-2">
-                  <span className="min-w-0 flex-1 text-[0.82rem] font-semibold text-ink-900">{r.name}</span>
-                  <ChevronRight className="h-3.5 w-3.5 shrink-0 text-ink-300" />
-                </div>
-                <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                  {r.verdict && <span className={`chip ${VERDICT_TONE[r.verdict]}`}>{VERDICT_LABEL[r.verdict]}</span>}
-                  <span className="chip bg-aqua-50 text-aqua-700">{r.result.summary.recoveryPct.toFixed(1)} % rec.</span>
-                </div>
-                <div className="mt-1.5 text-[0.65rem] text-ink-500">{new Date(r.createdAt).toLocaleString("en-GB")}</div>
-              </button>
+              <div className="flex items-start justify-between gap-2">
+                <InlineName
+                  value={r.name}
+                  onSave={(n) => renameRun(r.id, n)}
+                  className="text-[0.82rem] font-semibold text-ink-900"
+                  title="Rename this run"
+                />
+                <ChevronRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-300" />
+              </div>
+              <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                {r.verdict && <span className={`chip ${VERDICT_TONE[r.verdict]}`}>{VERDICT_LABEL[r.verdict]}</span>}
+                <span className="chip bg-aqua-50 text-aqua-700">{r.result.summary.recoveryPct.toFixed(1)} % rec.</span>
+                <span className="chip bg-aqua-50 text-aqua-700">{r.result.summary.productFlow.toFixed(0)} m³/h</span>
+              </div>
+              <div className="mt-1.5 text-[0.65rem] text-ink-500">{new Date(r.createdAt).toLocaleString("en-GB")}</div>
               <button
                 className="mt-2 inline-flex items-center gap-1 text-[0.7rem] font-semibold text-aqua-700 hover:underline"
-                onClick={() => openInSimulator(r)}
+                onClick={(e) => { e.stopPropagation(); openInSimulator(r); }}
               >
                 <Workflow className="h-3 w-3" /> Open in simulator
               </button>
@@ -103,7 +121,15 @@ export default function ProjectRuns() {
             <>
               <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <h2 className="text-[1.05rem] font-bold text-ink-900">{activeRun.name}</h2>
+                  <h2 className="flex text-[1.05rem] font-bold text-ink-900">
+                    <InlineName
+                      key={activeRun.id}
+                      value={activeRun.name}
+                      onSave={(n) => renameRun(activeRun.id, n)}
+                      className="text-[1.05rem] font-bold text-ink-900"
+                      title="Rename this run"
+                    />
+                  </h2>
                   {activeRun.engineerNote && (
                     <p className="mt-0.5 max-w-3xl text-[0.75rem] leading-relaxed text-ink-500">{activeRun.engineerNote}</p>
                   )}

@@ -14,7 +14,7 @@ const KINDS: ProjectKind[] = ["WTP", "WWTP", "Desalination", "Demineralisation",
 
 export function SaveStudyDialog({ onClose }: { onClose: () => void }) {
   const router = useRouter();
-  const { flowsheet, result, optimizerReport, studyName, projectId, setProjectId } = useStudy();
+  const { flowsheet, result, optimizerReport, studyName, projectId, setProjectId, setStudyName } = useStudy();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   // Inside a project the run goes to that project and there is no choice to
   // make. Offering one is how a study drawn in one project ended up filed in
@@ -157,8 +157,17 @@ export function SaveStudyDialog({ onClose }: { onClose: () => void }) {
         )}
 
         <div>
-          <label className="label">Study name</label>
-          <input className="field mt-1" value={studyName} readOnly />
+          <label className="label">Run name</label>
+          <input
+            className="field mt-1"
+            value={studyName}
+            placeholder="e.g. Pellet softening split 60 %"
+            onChange={(e) => setStudyName(e.target.value)}
+            autoFocus
+          />
+          <p className="mt-1 text-[0.66rem] text-ink-500">
+            How this run will appear in the project. It can be renamed later from the Runs tab.
+          </p>
         </div>
 
         <div>

@@ -8,6 +8,7 @@ import { ParamPanel } from "@/components/flow/ParamPanel";
 import { FeedPanel, BasisPanel } from "@/components/flow/ConfigPanels";
 import { LearnPanel } from "@/components/flow/LearnPanel";
 import { SavedRunsOverlay } from "@/components/flow/SavedRunsOverlay";
+import { InlineName } from "@/components/InlineName";
 import { useOptionalWorkspace } from "@/components/workspace/WorkspaceContext";
 import { OptimizerDialog } from "@/components/OptimizerDialog";
 import { SaveStudyDialog } from "@/components/SaveStudyDialog";
@@ -42,7 +43,7 @@ function SimulateInner() {
   const params = useSearchParams();
   const {
     flowsheet, result, reliability, dirty, run, addNode, loadTemplate, setProjectId,
-    newStudy, resetAllParams, clearCanvas, selectedId,
+    newStudy, resetAllParams, clearCanvas, selectedId, studyName, setStudyName,
   } = useStudy();
   // Clicking the Raw Water Feed block edits the water, not a set of unit
   // parameters. The feed is a property of the plant rather than of a machine,
@@ -93,6 +94,16 @@ function SimulateInner() {
       {/* toolbar */}
       <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-ink-900/8 bg-white/70 px-4 py-2 backdrop-blur">
         <DraftIndicator />
+        <div className="flex min-w-0 max-w-[280px] items-center" title="The name this study is saved under">
+          <InlineName
+            value={studyName}
+            onSave={setStudyName}
+            className="text-[0.8rem] font-semibold text-ink-900"
+            placeholder="Untitled study"
+            title="Rename this study"
+          />
+        </div>
+        <div className="h-5 w-px bg-ink-900/10" />
         <div className="flex items-center gap-1.5">
           <LayoutTemplate className="h-3.5 w-3.5 text-ink-300" />
           <select

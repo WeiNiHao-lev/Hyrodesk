@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getProject, Project } from "@/lib/store/db";
+import { getProject, Project, saveProject } from "@/lib/store/db";
+import { InlineName } from "@/components/InlineName";
 import { useProject } from "@/lib/store/useProject";
 import { useStudy } from "@/lib/store/useStudy";
 import { FolderOpen, FileText, ArrowRight, X } from "lucide-react";
@@ -46,6 +47,16 @@ export function SavedRunsOverlay() {
 
   if (!wanted || !project || project.id !== id || project.runs.length === 0) return null;
 
+  // Renamed here because this is where an unhelpful name is first noticed:
+  // a list of four "Untitled study" rows is unusable as a choice.
+  const rename = async (runId: string, name: string) => {
+    const fresh = await getProject(project.id);
+    if (!fresh) return;
+    const next = { ...fresh, runs: fresh.runs.map((r) => (r.id === runId ? { ...r, name } : r)) };
+    await saveProject(next);
+    setProject(next);
+  };
+
   const open = (runId: string) => {
     const r = project.runs.find((x) => x.id === runId);
     if (!r) return;
@@ -84,14 +95,24 @@ export function SavedRunsOverlay() {
             const v = r.verdict ? VERDICT[r.verdict] : null;
             const s = r.result?.summary;
             return (
-              <button
+              <div
                 key={r.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => open(r.id)}
-                className="group flex w-full items-center gap-3 rounded-lg border border-ink-900/8 bg-white px-3 py-2.5 text-left transition hover:border-aqua-300 hover:bg-aqua-50/60"
+                onKeyDown={(e) => { if (e.key === "Enter" && e.target === e.currentTarget) open(r.id); }}
+                className="group flex w-full cursor-pointer items-center gap-3 rounded-lg border border-ink-900/8 bg-white px-3 py-2.5 text-left transition hover:border-aqua-300 hover:bg-aqua-50/60"
               >
                 <FileText className="h-4 w-4 shrink-0 text-ink-300 group-hover:text-aqua-600" />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-[0.8rem] font-semibold text-ink-900">{r.name}</div>
+                  <div className="flex min-w-0">
+                    <InlineName
+                      value={r.name}
+                      onSave={(n) => rename(r.id, n)}
+                      className="text-[0.8rem] font-semibold text-ink-900"
+                      title="Rename this run"
+                    />
+                  </div>
                   <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[0.66rem] text-ink-500">
                     {v && <span className={`chip !py-0 ${v.tone}`}>{v.label}</span>}
                     {s && (
@@ -102,7 +123,7 @@ export function SavedRunsOverlay() {
                   </div>
                 </div>
                 <ArrowRight className="h-3.5 w-3.5 shrink-0 text-ink-300 group-hover:text-aqua-600" />
-              </button>
+              </div>
             );
           })}
         </div>
