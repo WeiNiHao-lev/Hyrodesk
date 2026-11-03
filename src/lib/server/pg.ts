@@ -1,6 +1,6 @@
 import "server-only";
 import { neon } from "@neondatabase/serverless";
-import { Project } from "../store/types";
+import { Project, ProjectSummary, RunSummary } from "../store/types";
 
 /**
  * Server-side Postgres access.
@@ -49,6 +49,13 @@ export async function ensureSchema(): Promise<void> {
   `;
   await q`create index if not exists projects_updated_at_idx on projects (updated_at desc)`;
   await q`create index if not exists projects_share_token_idx on projects (share_token)`;
+  // The site-visit checklist was added to the project after this table was
+  // first created, and nobody added a column for it. Every Prepare answer
+  // given in cloud mode was accepted, shown as "Saved to project", and then
+  // dropped on the way to the database — the page kept its own copy, so the
+  // loss only appeared on the next reload. Added in place so an existing
+  // database gains the column on its next request without a manual migration.
+  await q`alter table projects add column if not exists prepare jsonb`;
   schemaReady = true;
 }
 
@@ -56,6 +63,7 @@ type Row = {
   id: string; name: string; client: string; location: string; kind: string;
   status: string; capacity_note: string; marketing_contact: string; notes: string;
   created_at: Date | string; updated_at: Date | string; runs: unknown; share_token: string | null;
+  prepare?: unknown;
 };
 
 function toProject(r: Row): Project {
@@ -72,6 +80,7 @@ function toProject(r: Row): Project {
     createdAt: new Date(r.created_at).toISOString(),
     updatedAt: new Date(r.updated_at).toISOString(),
     runs: (Array.isArray(r.runs) ? r.runs : []) as Project["runs"],
+    prepare: (r.prepare && typeof r.prepare === "object" ? r.prepare : undefined) as Project["prepare"],
     shareToken: r.share_token ?? undefined,
   };
 }
@@ -81,6 +90,44 @@ export async function listProjectsDb(): Promise<Project[]> {
   const q = sql();
   const rows = (await q`select * from projects order by updated_at desc`) as unknown as Row[];
   return rows.map(toProject);
+}
+
+/**
+ * The project list, without the work inside it.
+ *
+ * Each saved run carries its whole flowsheet and its whole simulation result —
+ * every stream, every unit's sizing, every warning — and a single project with
+ * a handful of runs is half a megabyte. Listing projects used to select all of
+ * it, send it to the function, and send it on to the browser, to draw cards
+ * that show a name, a status and three numbers. The summary is built inside the
+ * database so the bulk never leaves it.
+ */
+export async function listProjectSummariesDb(): Promise<ProjectSummary[]> {
+  await ensureSchema();
+  const q = sql();
+  const rows = (await q`
+    select id, name, client, location, kind, status, capacity_note, marketing_contact,
+           notes, created_at, updated_at, share_token,
+           coalesce((
+             select jsonb_agg(jsonb_build_object(
+               'id', r->'id',
+               'name', r->'name',
+               'createdAt', r->'createdAt',
+               'verdict', r->'verdict',
+               'recoveryPct', coalesce(r->'result'->'summary'->'recoveryPct', '0'::jsonb),
+               'secKWhPerM3', coalesce(r->'result'->'summary'->'secKWhPerM3', '0'::jsonb),
+               'productFlow', coalesce(r->'result'->'summary'->'productFlow', '0'::jsonb)
+             ) order by ord)
+             from jsonb_array_elements(runs) with ordinality as t(r, ord)
+           ), '[]'::jsonb) as runs
+      from projects
+     order by updated_at desc
+  `) as unknown as Row[];
+  return rows.map((r) => ({
+    ...toProject(r),
+    runs: (Array.isArray(r.runs) ? r.runs : []) as RunSummary[],
+    prepare: undefined,
+  })) as ProjectSummary[];
 }
 
 export async function getProjectDb(id: string): Promise<Project | null> {
@@ -101,13 +148,18 @@ export async function saveProjectDb(p: Project): Promise<Project> {
   await ensureSchema();
   const q = sql();
   const runs = JSON.stringify(p.runs ?? []);
+  // A save that does not carry a checklist must not erase one already stored.
+  // Only an explicit record — which a reset still is, with empty answers —
+  // replaces what is there.
+  const prepare = p.prepare ? JSON.stringify(p.prepare) : null;
   const rows = (await q`
     insert into projects (
       id, name, client, location, kind, status, capacity_note,
-      marketing_contact, notes, created_at, updated_at, runs, share_token
+      marketing_contact, notes, created_at, updated_at, runs, share_token, prepare
     ) values (
       ${p.id}, ${p.name}, ${p.client}, ${p.location}, ${p.kind}, ${p.status}, ${p.capacityNote},
-      ${p.marketingContact}, ${p.notes}, ${p.createdAt}, now(), ${runs}::jsonb, ${p.shareToken ?? null}
+      ${p.marketingContact}, ${p.notes}, ${p.createdAt}, now(), ${runs}::jsonb, ${p.shareToken ?? null},
+      ${prepare}::jsonb
     )
     on conflict (id) do update set
       name = excluded.name,
@@ -120,7 +172,8 @@ export async function saveProjectDb(p: Project): Promise<Project> {
       notes = excluded.notes,
       updated_at = now(),
       runs = excluded.runs,
-      share_token = coalesce(excluded.share_token, projects.share_token)
+      share_token = coalesce(excluded.share_token, projects.share_token),
+      prepare = coalesce(excluded.prepare, projects.prepare)
     returning *
   `) as unknown as Row[];
   return toProject(rows[0]);

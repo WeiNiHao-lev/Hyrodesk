@@ -73,6 +73,30 @@ export interface PrepareRecord {
   visitLog?: string;
 }
 
+/**
+ * A saved run as the project list needs it: enough to draw a card, nothing
+ * that has to be downloaded to draw one.
+ */
+export interface RunSummary {
+  id: string;
+  name: string;
+  createdAt: string;
+  verdict?: "feasible" | "conditional" | "not-feasible";
+  recoveryPct: number;
+  secKWhPerM3: number;
+  productFlow: number;
+}
+
+/**
+ * A project without the work inside it.
+ *
+ * Deliberately a different type from Project rather than a Project with some
+ * fields left empty. A summary saved back as a project would overwrite every
+ * run with its summary and erase the checklist, and the compiler is the only
+ * thing that can promise that never happens.
+ */
+export type ProjectSummary = Omit<Project, "runs" | "prepare"> & { runs: RunSummary[] };
+
 export interface Project {
   id: string;
   name: string;

@@ -2,7 +2,7 @@
 
 import { get, set, del, keys } from "idb-keyval";
 import {
-  emptyProject, HealthReport, newId, Project, StorageMode,
+  emptyProject, HealthReport, newId, Project, ProjectSummary, RunSummary, StorageMode,
 } from "./types";
 
 export * from "./types";
@@ -75,6 +75,39 @@ export async function listProjects(): Promise<Project[]> {
     }
   }
   return listLocal();
+}
+
+/** What a card needs from a run, taken from a full one. */
+function summariseRun(r: Project["runs"][number]): RunSummary {
+  const s = r.result?.summary;
+  return {
+    id: r.id, name: r.name, createdAt: r.createdAt, verdict: r.verdict,
+    recoveryPct: s?.recoveryPct ?? 0,
+    secKWhPerM3: s?.secKWhPerM3 ?? 0,
+    productFlow: s?.productFlow ?? 0,
+  };
+}
+
+/**
+ * Projects as every list on screen needs them: the names, the statuses and the
+ * three numbers on each card. In cloud mode the database builds this itself, so
+ * the runs inside never cross the network. Use listProjects only where the
+ * runs themselves are wanted — export, and importing a feed from a saved run.
+ */
+export async function listProjectSummaries(): Promise<ProjectSummary[]> {
+  if ((await mode()) === "cloud") {
+    try {
+      return await api<ProjectSummary[]>("/api/projects?summary=1");
+    } catch {
+      /* fall through to the local copy */
+    }
+  }
+  const all = await listLocal();
+  return all.map((p) => {
+    const { runs, ...rest } = p;
+    delete (rest as Partial<Project>).prepare;
+    return { ...rest, runs: runs.map(summariseRun) };
+  });
 }
 
 export async function getProject(id: string): Promise<Project | undefined> {

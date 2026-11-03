@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { listProjects, Project, STATUS_LABEL, STATUS_TONE } from "@/lib/store/db";
+import { listProjectSummaries, ProjectSummary, STATUS_LABEL, STATUS_TONE } from "@/lib/store/db";
 import { TEMPLATES } from "@/lib/engine/templates";
 import {
   Workflow, FolderKanban, ArrowRight, Beaker, Gauge, FileText, Recycle, Waves,
 } from "lucide-react";
 
 export default function Home() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<ProjectSummary[]>([]);
   useEffect(() => {
-    listProjects().then(setProjects);
+    listProjectSummaries().then(setProjects);
   }, []);
 
   const runs = projects.reduce((a, p) => a + p.runs.length, 0);

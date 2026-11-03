@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useProject } from "@/lib/store/useProject";
 import { useStudy } from "@/lib/store/useStudy";
-import { listProjects, Project, STATUS_LABEL } from "@/lib/store/db";
+import { listProjectSummaries, ProjectSummary, STATUS_LABEL } from "@/lib/store/db";
 import { FolderKanban, ChevronDown, X, ExternalLink, Check } from "lucide-react";
 
 /**
@@ -19,7 +19,7 @@ export function ProjectBadge() {
   const { active, hydrated, hydrate, setFromProject, clear } = useProject();
   const setProjectId = useStudy((s) => s.setProjectId);
   const [open, setOpen] = useState(false);
-  const [projects, setProjects] = useState<Project[] | null>(null);
+  const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
   const box = useRef<HTMLDivElement>(null);
 
   useEffect(() => { hydrate(); }, [hydrate]);
@@ -30,7 +30,7 @@ export function ProjectBadge() {
 
   useEffect(() => {
     if (!open || projects) return;
-    listProjects().then(setProjects);
+    listProjectSummaries().then(setProjects);
   }, [open, projects]);
 
   useEffect(() => {

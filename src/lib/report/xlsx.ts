@@ -1,5 +1,5 @@
 import ExcelJS from "exceljs";
-import { Component, Flowsheet, SimulationResult } from "../engine/types";
+import { Component, Flowsheet, IONS, SimulationResult, StreamRow } from "../engine/types";
 import { alkalinityAsCaCO3, hardnessAsCaCO3, ionicBalanceErrorPct } from "../engine/stream";
 import { feedStream } from "../engine/solver";
 import { UNIT_BY_TYPE } from "../engine/units";
@@ -475,49 +475,284 @@ function sheetBalanceDiagram(
 
 /* -------------------------------------------------------- 3. stream table */
 
+/** Excel column letter for a 1-based index. */
+function colLetter(n: number): string {
+  let s = "";
+  while (n > 0) {
+    const m = (n - 1) % 26;
+    s = String.fromCharCode(65 + m) + s;
+    n = Math.floor((n - 1) / 26);
+  }
+  return s;
+}
+
+/** A percentage written so Excel reads it as one, to enough places to reproduce the model. */
+function pct(x: number): string {
+  return `${Number(x.toFixed(4))}%`;
+}
+
+/**
+ * The stream table, written as the arithmetic that produced it.
+ *
+ * Every stream is an edge on the flowsheet: it leaves one unit and enters
+ * another. What leaves a unit is what entered it, mixed, and then changed by
+ * the unit. So each cell is a formula of the rows that fed its unit — a
+ * flow-weighted average where several streams meet, then a removal written as
+ * a percentage, a concentration factor where water was drawn off, or a mass
+ * added where a reagent was dosed. Click a cell and the formula bar says what
+ * the unit did to that component, and the cell it came from says where it was
+ * before.
+ *
+ * Dissolved solids get the most honest formula of all: where the ions are
+ * known, TDS is SUM over the ion columns, because that is what TDS is. A unit
+ * that removes calcium and bicarbonate lowers TDS by exactly what it took out,
+ * and the formula shows it rather than asserting it.
+ *
+ * Recycle streams are the one exception. A filtrate returned to the head of
+ * the works makes the arithmetic circular, which Excel cannot evaluate. Those
+ * streams are written as the value the solver converged to and marked — the
+ * standard "tear stream" of process simulation — and everything downstream of
+ * them is a formula again.
+ */
 function sheetStreamTable(wb: ExcelJS.Workbook, fs: Flowsheet, result: SimulationResult) {
   const ws = wb.addWorksheet("3. Stream Table", { properties: { tabColor: { argb: "FF74D7FB" } } });
-  const cols: Component[] = [...ION_COLS, ...BIO_COLS];
-  title(ws, "Stream table", "Every stream in the flowsheet with its full composition. Concentrations in mg/L, flow in m³/h.", 6);
 
-  const head = ["Type", "Stream", "From", "To", "Flow", "T", "pH", "NTU", "Hardness", "Alk.",
-    ...cols.map((c) => String(c))];
-  const row = ws.getRow(4);
-  row.values = head;
-  styleHeader(row, head.length);
+  type Kind = "Feed" | "Internal" | "Product" | "Waste";
+  const all: (StreamRow & { kind: Kind })[] = [
+    ...result.feedStreams.map((x) => ({ ...x, kind: "Feed" as Kind })),
+    ...result.streams.map((x) => ({ ...x, kind: "Internal" as Kind })),
+    ...result.productStreams.map((x) => ({ ...x, kind: "Product" as Kind })),
+    ...result.wasteStreams.map((x) => ({ ...x, kind: "Waste" as Kind })),
+  ];
+
+  // Every ion that appears anywhere, so the TDS sum sees all of them.
+  const ionCols = (IONS as readonly Component[]).filter((k) =>
+    all.some((s) => (s.stream.c[k] ?? 0) > 1e-9));
+  const bioCols = BIO_COLS.filter((k) => !(IONS as readonly string[]).includes(k)
+    && (k === "TSS" || all.some((s) => (s.stream.c[k] ?? 0) > 1e-9)));
+  const compCols: Component[] = [...ionCols, ...bioCols];
+
+  // Column map.
+  const C_FLOW = 5, C_T = 6, C_PH = 7, C_NTU = 8, C_HARD = 9, C_ALK = 10, C_TDS = 11;
+  const C_ION0 = 12;
+  const colOfComp = new Map<Component, number>();
+  compCols.forEach((k, i) => colOfComp.set(k, C_ION0 + i));
+  const C_NOTE = C_ION0 + compCols.length;
+  const L = (c: number) => colLetter(c);
+  const ionFirst = ionCols.length ? L(C_ION0) : "";
+  const ionLast = ionCols.length ? L(C_ION0 + ionCols.length - 1) : "";
+
+  title(ws, "Stream table",
+    "Every stream as the arithmetic that produced it. Click a cell: the formula bar shows the rows that fed its unit and what the unit did — a removal percentage, a concentration factor, or a dose added. TDS is the sum of the ion columns wherever the ions are known. Amber = raw water as entered, blue = formula, violet = recycle stream (converged value, so the formulas do not loop).", 10);
+
+  const head = ["Type", "Stream", "From", "To", "Flow", "T", "pH", "NTU", "Hardness", "Alk.", "TDS",
+    ...compCols.map((c) => String(c)), "What the unit did"];
+  const hr = ws.getRow(4);
+  hr.values = head;
+  styleHeader(hr, head.length);
   ws.columns = [
-    { width: 9 }, { width: 12 }, { width: 26 }, { width: 20 },
-    { width: 10 }, { width: 7 }, { width: 7 }, { width: 8 }, { width: 11 }, { width: 9 },
-    ...cols.map(() => ({ width: 9 })),
+    { width: 9 }, { width: 10 }, { width: 28 }, { width: 22 },
+    { width: 10 }, { width: 6 }, { width: 6 }, { width: 8 }, { width: 10 }, { width: 9 }, { width: 10 },
+    ...compCols.map(() => ({ width: 9 })),
+    { width: 70 },
   ];
 
-  const all = [
-    ...result.feedStreams.map((x) => ({ ...x, kind: "Feed" })),
-    ...result.streams.map((x) => ({ ...x, kind: "Internal" })),
-    ...result.productStreams.map((x) => ({ ...x, kind: "Product" })),
-    ...result.wasteStreams.map((x) => ({ ...x, kind: "Waste" })),
-  ];
-  let r = 5;
+  const rowOf = new Map<string, number>();
+  all.forEach((s, i) => rowOf.set(s.id, 5 + i));
+
+  // Solve order: an edge into a unit solved no later than its source closes a
+  // loop, and that is where the arithmetic has to be torn.
+  const pos = new Map<string, number>();
+  result.nodes.forEach((n, i) => pos.set(n.id, i));
+  const edgeById = new Map(fs.edges.map((e) => [e.id, e]));
+  const nodeById = new Map(result.nodes.map((n) => [n.id, n]));
+  const isTear = (rowId: string) => {
+    const e = edgeById.get(rowId);
+    if (!e) return false;
+    return (pos.get(e.target) ?? 0) <= (pos.get(e.source) ?? 0);
+  };
+
+  /** Rows of the streams that enter a unit, the feed included. */
+  const inboundRows = (nodeId: string): number[] => {
+    const rows: number[] = [];
+    for (const e of fs.edges) if (e.target === nodeId && rowOf.has(e.id)) rows.push(rowOf.get(e.id)!);
+    const fr = rowOf.get(`feed-${nodeId}`);
+    if (fr) rows.push(fr);
+    return rows;
+  };
+
+  const mixFlow = (rows: number[]) =>
+    rows.length === 1 ? `${L(C_FLOW)}${rows[0]}` : `(${rows.map((r) => `${L(C_FLOW)}${r}`).join("+")})`;
+  const mixConc = (rows: number[], col: number) =>
+    rows.length === 1
+      ? `${L(col)}${rows[0]}`
+      : `(${rows.map((r) => `${L(C_FLOW)}${r}*${L(col)}${r}`).join("+")})/${mixFlow(rows)}`;
+
+  /** The formula for one component leaving a unit, and a phrase for the note column. */
+  const change = (mix: string, cin: number, cout: number, flowFrac: number, name: string) => {
+    if (cin <= 1e-12) {
+      if (cout <= 1e-12) return { f: null as string | null, v: 0, note: "" };
+      return { f: `${mix}+${Number(cout.toFixed(4))}`, v: cout, note: `${name} +${cout.toFixed(1)} added` };
+    }
+    const ratio = cout / cin;
+    if (Math.abs(ratio - 1) < 1e-5) return { f: mix, v: cout, note: "" };
+    if (ratio < 1) {
+      const r = (1 - ratio) * 100;
+      return { f: `${mix}*(1-${pct(r)})`, v: cout, note: r >= 0.5 ? `${name} −${r.toFixed(1)} %` : "" };
+    }
+    // More leaving than arrived: either water was drawn off and this stayed
+    // behind, which is a concentration factor, or a reagent put it there,
+    // which is a mass added.
+    if (flowFrac < 0.98) {
+      return { f: `${mix}*${Number(ratio.toFixed(6))}`, v: cout, note: `${name} ×${ratio.toFixed(2)} concentrated` };
+    }
+    const d = cout - cin;
+    return { f: `${mix}+${Number(d.toFixed(4))}`, v: cout, note: d >= 0.05 ? `${name} +${d.toFixed(1)} dosed` : "" };
+  };
+
+  const FORMULA_BG = "FFEAF4FB";
+  const FEED_BG = "FFFFF6DA";
+  const TEAR_BG = "FFF1EAFB";
+
   for (const s of all) {
+    const r = rowOf.get(s.id)!;
     const rw = ws.getRow(r);
-    rw.values = [
-      s.kind, s.label, s.from, s.to,
-      Number(s.stream.flow.toFixed(4)), Number(s.stream.T.toFixed(1)), Number(s.stream.pH.toFixed(2)),
-      Number(s.stream.extras.turbidityNTU.toFixed(3)),
-      Number(hardnessAsCaCO3(s.stream).toFixed(3)),
-      Number(alkalinityAsCaCO3(s.stream).toFixed(3)),
-      ...cols.map((c) => Number(s.stream.c[c].toFixed(4))),
-    ];
-    const bg = s.kind === "Product" ? OKBG : s.kind === "Waste" ? WARNBG : r % 2 === 0 ? ALT : undefined;
-    for (let i = 1; i <= head.length; i++) {
+    rw.getCell(1).value = s.kind;
+    rw.getCell(2).value = s.label;
+    rw.getCell(3).value = s.from;
+    rw.getCell(4).value = s.to;
+    rw.getCell(C_T).value = Number(s.stream.T.toFixed(1));
+    rw.getCell(C_PH).value = Number(s.stream.pH.toFixed(2));
+
+    const st = s.stream;
+    let note = "";
+    let bg: string | undefined;
+
+    // Which cells carry a formula and which a value.
+    const setVal = (c: number, v: number) => { rw.getCell(c).value = Number(v.toFixed(6)); };
+    const setF = (c: number, f: string, v: number) => {
+      rw.getCell(c).value = { formula: f, result: Number(v.toFixed(6)) };
+    };
+
+    const tear = isTear(s.id);
+    const edge = edgeById.get(s.id);
+
+    if (s.kind === "Feed" || tear || (s.kind === "Internal" && !edge)) {
+      // Raw water as entered, or a recycle written as its converged value.
+      setVal(C_FLOW, st.flow);
+      setVal(C_NTU, st.extras.turbidityNTU);
+      for (const k of compCols) setVal(colOfComp.get(k)!, st.c[k] ?? 0);
+      bg = s.kind === "Feed" ? FEED_BG : TEAR_BG;
+      note = s.kind === "Feed"
+        ? "Raw water as entered."
+        : "Recycle stream — the value the solver converged to, written as a number so the formulas downstream do not loop back on themselves.";
+    } else if (s.kind === "Internal" && edge) {
+      const src = nodeById.get(edge.source);
+      const rows = inboundRows(edge.source);
+      if (!src || rows.length === 0) {
+        setVal(C_FLOW, st.flow);
+        setVal(C_NTU, st.extras.turbidityNTU);
+        for (const k of compCols) setVal(colOfComp.get(k)!, st.c[k] ?? 0);
+      } else {
+        const inlet = src.inlet;
+        const out = src.outlets[edge.sourceHandle] ?? st;
+        const flowFrac = inlet.flow > 0 ? out.flow / inlet.flow : 1;
+        const mf = mixFlow(rows);
+        setF(C_FLOW, Math.abs(flowFrac - 1) < 1e-6 ? mf : `${mf}*${pct(flowFrac * 100)}`, st.flow);
+
+        const ntu = change(mixConc(rows, C_NTU), inlet.extras.turbidityNTU, out.extras.turbidityNTU, flowFrac, "NTU");
+        if (ntu.f) setF(C_NTU, ntu.f, ntu.v); else setVal(C_NTU, ntu.v);
+
+        const notes: { n: string; mag: number }[] = [];
+        for (const k of compCols) {
+          const col = colOfComp.get(k)!;
+          const cin = inlet.c[k] ?? 0;
+          const cout = out.c[k] ?? 0;
+          const ch = change(mixConc(rows, col), cin, cout, flowFrac, String(k));
+          if (ch.f) setF(col, ch.f, ch.v); else setVal(col, ch.v);
+          if (ch.note) notes.push({ n: ch.note, mag: cin > 0 ? Math.abs(cout / cin - 1) : 1 });
+        }
+        notes.sort((a, b) => b.mag - a.mag);
+        const head = flowFrac < 0.999 ? `${(flowFrac * 100).toFixed(1)} % of the water. ` : "";
+        note = `${src.label} → ${edge.sourceHandle}: ${head}${notes.length ? notes.slice(0, 6).map((x) => x.n).join(", ") : "nothing changed — passes straight through"}.`;
+        bg = FORMULA_BG;
+      }
+    } else {
+      // Product and waste terminals receive streams and change nothing.
+      const sinkId = s.id.replace(/^sink-/, "");
+      const rows = inboundRows(sinkId);
+      if (rows.length === 0) {
+        setVal(C_FLOW, st.flow);
+        setVal(C_NTU, st.extras.turbidityNTU);
+        for (const k of compCols) setVal(colOfComp.get(k)!, st.c[k] ?? 0);
+      } else {
+        setF(C_FLOW, mixFlow(rows), st.flow);
+        setF(C_NTU, mixConc(rows, C_NTU), st.extras.turbidityNTU);
+        for (const k of compCols) setF(colOfComp.get(k)!, mixConc(rows, colOfComp.get(k)!), st.c[k] ?? 0);
+        note = rows.length > 1 ? "Sum of the streams arriving, flow-weighted." : "The stream arriving, unchanged.";
+      }
+      bg = s.kind === "Product" ? OKBG : WARNBG;
+    }
+
+    // Derived columns are formulas of the row itself, on every row: they
+    // teach what hardness, alkalinity and TDS are made of.
+    const ca = colOfComp.get("Ca"), mg = colOfComp.get("Mg");
+    const hco3 = colOfComp.get("HCO3"), co3 = colOfComp.get("CO3");
+    const hardF = [ca ? `${L(ca)}${r}/20.04` : "", mg ? `${L(mg)}${r}/12.15` : ""].filter(Boolean).join("+");
+    if (hardF) setF(C_HARD, `(${hardF})*50`, hardnessAsCaCO3(st)); else setVal(C_HARD, hardnessAsCaCO3(st));
+    const alkF = [hco3 ? `${L(hco3)}${r}/61.02` : "", co3 ? `${L(co3)}${r}/30` : ""].filter(Boolean).join("+");
+    if (alkF) setF(C_ALK, `(${alkF})*50`, alkalinityAsCaCO3(st)); else setVal(C_ALK, alkalinityAsCaCO3(st));
+
+    // TDS: the sum of the ions where they are known, which is what the solver
+    // itself does. The remainder is what the analysis did not name.
+    const ionSum = ionCols.reduce((a, k) => a + (st.c[k] ?? 0), 0);
+    const tracked = ionCols.length > 0 && ionSum >= 0.5 * st.c.TDS && st.c.TDS > 0;
+    if (s.kind === "Feed") {
+      setVal(C_TDS, st.c.TDS);
+      if (tracked && Math.abs(st.c.TDS - ionSum) > 0.5) {
+        note += ` The entered TDS (${st.c.TDS.toFixed(1)}) differs from the sum of the entered ions (${ionSum.toFixed(1)}); from the first unit on, TDS is the sum of the ions.`;
+      }
+    } else if (tracked) {
+      const rem = st.c.TDS - ionSum;
+      setF(C_TDS, `SUM(${ionFirst}${r}:${ionLast}${r})${rem > 0.01 ? `+${Number(rem.toFixed(4))}` : ""}`, st.c.TDS);
+    } else if (s.kind === "Internal" && edge && !tear) {
+      const src = nodeById.get(edge.source);
+      const rows = inboundRows(edge.source);
+      if (src && rows.length) {
+        const out = src.outlets[edge.sourceHandle] ?? st;
+        const ff = src.inlet.flow > 0 ? out.flow / src.inlet.flow : 1;
+        const ch = change(mixConc(rows, C_TDS), src.inlet.c.TDS, out.c.TDS, ff, "TDS");
+        if (ch.f) setF(C_TDS, ch.f, ch.v); else setVal(C_TDS, ch.v);
+      } else setVal(C_TDS, st.c.TDS);
+    } else {
+      const rows = s.kind === "Product" || s.kind === "Waste" ? inboundRows(s.id.replace(/^sink-/, "")) : [];
+      if (rows.length) setF(C_TDS, mixConc(rows, C_TDS), st.c.TDS); else setVal(C_TDS, st.c.TDS);
+    }
+
+    rw.getCell(C_NOTE).value = note.trim();
+
+    for (let i = 1; i <= C_NOTE; i++) {
       const c = rw.getCell(i);
       c.font = { size: 9, name: "Calibri" };
-      if (i >= 5) c.numFmt = "0.###";
-      if (bg) c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: bg } };
+      if (i >= C_FLOW && i < C_NOTE) c.numFmt = "0.###";
+      if (i === C_NOTE) {
+        c.font = { size: 8, italic: true, color: { argb: "FF4A5A68" }, name: "Calibri" };
+        c.alignment = { wrapText: false };
+      }
+      // Inputs and recycles are shaded across the numbers; formula rows only
+      // on the cells that hold formulas, so the eye finds them.
+      if (bg && i >= C_FLOW && i < C_NOTE) {
+        const isFormula = typeof c.value === "object" && c.value !== null && "formula" in c.value;
+        const shade = bg === FORMULA_BG ? (isFormula ? FORMULA_BG : undefined) : bg;
+        if (shade) c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: shade } };
+      } else if (bg && (bg === OKBG || bg === WARNBG) && i < C_FLOW) {
+        c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: bg } };
+      }
     }
-    r++;
   }
-  ws.autoFilter = { from: { row: 4, column: 1 }, to: { row: r - 1, column: head.length } };
+
+  const last = 4 + all.length;
+  ws.autoFilter = { from: { row: 4, column: 1 }, to: { row: last, column: C_NOTE } };
   ws.views = [{ state: "frozen", xSplit: 4, ySplit: 4 }];
 }
 

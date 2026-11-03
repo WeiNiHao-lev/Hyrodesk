@@ -7,6 +7,7 @@ import { Palette } from "@/components/flow/Palette";
 import { ParamPanel } from "@/components/flow/ParamPanel";
 import { FeedPanel, BasisPanel } from "@/components/flow/ConfigPanels";
 import { LearnPanel } from "@/components/flow/LearnPanel";
+import { SavedRunsOverlay } from "@/components/flow/SavedRunsOverlay";
 import { OptimizerDialog } from "@/components/OptimizerDialog";
 import { SaveStudyDialog } from "@/components/SaveStudyDialog";
 import { useStudy } from "@/lib/store/useStudy";
@@ -190,8 +191,9 @@ function SimulateInner() {
           <Palette onAdd={(t) => addNode(t, { x: 260 + Math.random() * 200, y: 140 + Math.random() * 160 })} />
         </aside>
 
-        <div className="min-w-0 flex-1">
+        <div className="relative min-w-0 flex-1">
           <Canvas />
+          <SavedRunsOverlay />
         </div>
 
         <aside className="hidden w-[300px] shrink-0 border-l border-ink-900/8 bg-white/55 xl:flex xl:flex-col">

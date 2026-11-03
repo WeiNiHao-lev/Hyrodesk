@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
-  deleteProject, emptyProject, exportAll, importAll, listProjects, Project,
+  deleteProject, emptyProject, exportAll, importAll, listProjectSummaries, Project, ProjectSummary,
   ProjectKind, ProjectStatus, saveProject, STATUS_LABEL, STATUS_TONE, downloadText,
 } from "@/lib/store/db";
 import { Modal } from "@/components/Modal";
@@ -15,14 +15,14 @@ import {
 const KINDS: ProjectKind[] = ["WTP", "WWTP", "Desalination", "Demineralisation", "ZLD / MLD", "Reuse"];
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [showNew, setShowNew] = useState(false);
   const [draft, setDraft] = useState<Project>(emptyProject());
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const reload = () => listProjects().then(setProjects);
+  const reload = () => listProjectSummaries().then(setProjects);
   useEffect(() => { reload(); }, []);
 
   const filtered = projects.filter((p) => {
@@ -147,9 +147,9 @@ export default function ProjectsPage() {
 
                 {last && (
                   <dl className="mt-3 grid grid-cols-3 gap-2 rounded-lg bg-aqua-50/70 p-2.5">
-                    <Mini k="Recovery" v={`${last.result.summary.recoveryPct.toFixed(1)}%`} />
-                    <Mini k="SEC" v={`${last.result.summary.secKWhPerM3.toFixed(2)}`} />
-                    <Mini k="Product" v={`${last.result.summary.productFlow.toFixed(0)}`} />
+                    <Mini k="Recovery" v={`${last.recoveryPct.toFixed(1)}%`} />
+                    <Mini k="SEC" v={`${last.secKWhPerM3.toFixed(2)}`} />
+                    <Mini k="Product" v={`${last.productFlow.toFixed(0)}`} />
                   </dl>
                 )}
 

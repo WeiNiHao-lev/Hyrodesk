@@ -30,7 +30,8 @@ interface ProjectState {
   /** False until the browser value has been read, so the bar does not flicker. */
   hydrated: boolean;
   setActive: (p: ActiveProject | null) => void;
-  setFromProject: (p: Project) => void;
+  /** Reads only the identifying fields, so a list summary is enough. */
+  setFromProject: (p: Pick<Project, "id" | "name" | "client" | "kind" | "status">) => void;
   clear: () => void;
   hydrate: () => void;
 }

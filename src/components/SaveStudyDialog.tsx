@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Modal } from "./Modal";
 import { useStudy } from "@/lib/store/useStudy";
 import {
-  emptyProject, getProject, listProjects, Project, ProjectKind, saveProject, newId, STATUS_LABEL, ProjectStatus,
+  emptyProject, getProject, listProjectSummaries, Project, ProjectKind, ProjectSummary, saveProject, newId, STATUS_LABEL, ProjectStatus,
 } from "@/lib/store/db";
 import { Save } from "lucide-react";
 
@@ -14,7 +14,7 @@ const KINDS: ProjectKind[] = ["WTP", "WWTP", "Desalination", "Demineralisation",
 export function SaveStudyDialog({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   const { flowsheet, result, optimizerReport, studyName, projectId, setProjectId } = useStudy();
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [target, setTarget] = useState<string>(projectId ?? "__new__");
   // Suggest a verdict from the result at mount. Derived once, then the engineer
   // owns it — the tool proposes, it does not decide.
@@ -29,7 +29,7 @@ export function SaveStudyDialog({ onClose }: { onClose: () => void }) {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    listProjects().then(setProjects);
+    listProjectSummaries().then(setProjects);
   }, []);
 
   const submit = async () => {
