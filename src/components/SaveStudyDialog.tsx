@@ -7,7 +7,8 @@ import { useStudy } from "@/lib/store/useStudy";
 import {
   emptyProject, getProject, listProjectSummaries, Project, ProjectKind, ProjectSummary, saveProject, newId, STATUS_LABEL, ProjectStatus,
 } from "@/lib/store/db";
-import { Save } from "lucide-react";
+import { Save, FolderKanban } from "lucide-react";
+import { useOptionalWorkspace } from "./workspace/WorkspaceContext";
 
 const KINDS: ProjectKind[] = ["WTP", "WWTP", "Desalination", "Demineralisation", "ZLD / MLD", "Reuse"];
 
@@ -15,7 +16,11 @@ export function SaveStudyDialog({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   const { flowsheet, result, optimizerReport, studyName, projectId, setProjectId } = useStudy();
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
-  const [target, setTarget] = useState<string>(projectId ?? "__new__");
+  // Inside a project the run goes to that project and there is no choice to
+  // make. Offering one is how a study drawn in one project ended up filed in
+  // another.
+  const ws = useOptionalWorkspace();
+  const [target, setTarget] = useState<string>(ws?.id ?? projectId ?? "__new__");
   // Suggest a verdict from the result at mount. Derived once, then the engineer
   // owns it — the tool proposes, it does not decide.
   const [verdict, setVerdict] = useState<"feasible" | "conditional" | "not-feasible">(() => {
@@ -29,8 +34,9 @@ export function SaveStudyDialog({ onClose }: { onClose: () => void }) {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    if (ws) return;
     listProjectSummaries().then(setProjects);
-  }, []);
+  }, [ws]);
 
   const submit = async () => {
     if (!result) return;
@@ -65,7 +71,8 @@ export function SaveStudyDialog({ onClose }: { onClose: () => void }) {
     setProjectId(project.id);
     setBusy(false);
     onClose();
-    router.push(`/projects/${project.id}`);
+    if (ws) await ws.reload();
+    router.push(`/projects/${project.id}/runs`);
   };
 
   return (
@@ -83,6 +90,14 @@ export function SaveStudyDialog({ onClose }: { onClose: () => void }) {
       }
     >
       <div className="space-y-3.5">
+        {ws ? (
+          <div className="flex items-center gap-2 rounded-xl bg-violet-50 px-3 py-2.5">
+            <FolderKanban className="h-4 w-4 text-violet-600" />
+            <span className="text-[0.78rem] text-ink-700">
+              Saving to <strong>{ws.project?.name || "this project"}</strong>
+            </span>
+          </div>
+        ) : (
         <div>
           <label className="label">Project</label>
           <select
@@ -98,8 +113,9 @@ export function SaveStudyDialog({ onClose }: { onClose: () => void }) {
             ))}
           </select>
         </div>
+        )}
 
-        {target === "__new__" && (
+        {!ws && target === "__new__" && (
           <div className="space-y-2.5 rounded-xl border border-ink-900/8 bg-white p-3">
             <div className="grid grid-cols-2 gap-2">
               <Field label="Project name" value={draft.name}

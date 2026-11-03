@@ -1,18 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  createShareLink, getProject, health, Project, ProjectStatus, revokeShareLink,
-  saveProject, STATUS_LABEL, STATUS_TONE, StudyRun,
+  createShareLink, health, ProjectStatus, revokeShareLink, STATUS_LABEL, STATUS_TONE,
 } from "@/lib/store/db";
-import { useStudy } from "@/lib/store/useStudy";
-import { useProject } from "@/lib/store/useProject";
-import { ResultsView } from "@/components/ResultsView";
+import { useWorkspace } from "@/components/workspace/WorkspaceContext";
 import {
-  ArrowLeft, Workflow, Trash2, Save, ChevronRight, Share2, Copy, Check, XCircle,
-  ClipboardList,
+  Workflow, Share2, Copy, Check, XCircle, ClipboardList, History, ArrowRight,
 } from "lucide-react";
 
 const VERDICT_TONE: Record<string, string> = {
@@ -26,83 +21,40 @@ const VERDICT_LABEL: Record<string, string> = {
   "not-feasible": "Not feasible",
 };
 
-export default function ProjectDetail() {
-  const { id } = useParams<{ id: string }>();
-  const router = useRouter();
-  const [project, setProject] = useState<Project | null>(null);
-  const [activeRun, setActiveRun] = useState<StudyRun | null>(null);
-  const [saving, setSaving] = useState(false);
+/** The project itself: who it is for, where it stands, and what has been done. */
+export default function ProjectOverview() {
+  const { base, project, saving, patch, reload } = useWorkspace();
   const [cloud, setCloud] = useState(false);
-  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  // The link follows the stored token, except just after it is created or
+  // revoked here, when the local answer is newer than the stored copy.
+  const [shareOverride, setShareOverride] = useState<string | null | undefined>(undefined);
   const [copied, setCopied] = useState(false);
   const [sharing, setSharing] = useState(false);
-  const { setFlowsheet, setStudyName, setProjectId, run } = useStudy();
-  const setActiveProject = useProject((s) => s.setFromProject);
 
-  useEffect(() => {
-    getProject(id).then((p) => {
-      if (!p) return;
-      setProject(p);
-      setActiveRun(p.runs[0] ?? null);
-      // Opening a project is what puts you inside it. Every other page then
-      // says so in the header, and anything saved lands here.
-      setActiveProject(p);
-      if (p.shareToken) setShareUrl(`${window.location.origin}/share/${p.shareToken}`);
-    });
-    health().then((h) => setCloud(h.storage === "cloud" && h.ok));
-  }, [id, setActiveProject]);
+  // Runs may have been saved from the Simulate tab since this was loaded.
+  useEffect(() => { void reload(); }, [reload]);
+  useEffect(() => { health().then((h) => setCloud(h.storage === "cloud" && h.ok)); }, []);
+  if (!project) return <div className="p-10 text-center text-[0.85rem] text-ink-500">Loading the project…</div>;
 
-  if (!project) {
-    return (
-      <div className="mx-auto w-full max-w-3xl px-4 py-16 text-center">
-        <p className="text-[0.9rem] text-ink-500">Project not found.</p>
-        <Link href="/projects" className="btn btn-ghost mt-4">
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to projects
-        </Link>
-      </div>
-    );
-  }
-
-  const patch = async (p: Partial<Project>) => {
-    const next = { ...project, ...p };
-    setProject(next);
-    setSaving(true);
-    await saveProject(next);
-    setSaving(false);
-  };
-
-  const openInSimulator = (r: StudyRun) => {
-    setFlowsheet(JSON.parse(JSON.stringify(r.flowsheet)));
-    setStudyName(r.name);
-    setProjectId(project.id);
-    run();
-    router.push("/simulate");
-  };
-
-  const deleteRun = async (runId: string) => {
-    if (!confirm("Delete this run?")) return;
-    const next = { ...project, runs: project.runs.filter((r) => r.id !== runId) };
-    setProject(next);
-    setActiveRun(next.runs[0] ?? null);
-    await saveProject(next);
-  };
+  const shareUrl = shareOverride !== undefined
+    ? shareOverride
+    : project.shareToken ? `${window.location.origin}/share/${project.shareToken}` : null;
+  const latest = project.runs[0];
+  const prep = project.prepare;
+  const answered = prep ? Object.values(prep.checked ?? {}).filter(Boolean).length : 0;
 
   return (
-    <div className="mx-auto w-full max-w-[1500px] px-4 py-6 sm:px-6">
-      <Link href="/projects" className="mb-3 inline-flex items-center gap-1 text-[0.75rem] font-semibold text-ink-500 hover:text-ink-900">
-        <ArrowLeft className="h-3.5 w-3.5" /> All projects
-      </Link>
-
-      {/* header */}
+    <div className="mx-auto w-full max-w-[1200px] px-4 py-5 sm:px-6">
       <div className="card p-4 sm:p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
+            <label className="label">Project name</label>
             <input
-              className="w-full border-0 bg-transparent p-0 text-[1.4rem] font-bold tracking-tight text-ink-900 outline-none"
+              className="mt-0.5 w-full border-0 bg-transparent p-0 text-[1.3rem] font-bold tracking-tight text-ink-900 outline-none"
               value={project.name}
               onChange={(e) => patch({ name: e.target.value })}
             />
-            <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
               <Inline label="Client" value={project.client} onChange={(v) => patch({ client: v })} />
               <Inline label="Location" value={project.location} onChange={(v) => patch({ location: v })} />
               <Inline label="Capacity" value={project.capacityNote} onChange={(v) => patch({ capacityNote: v })} />
@@ -120,38 +72,30 @@ export default function ProjectDetail() {
             <span className="text-[0.65rem] text-ink-300">
               {saving ? "Saving…" : `Updated ${new Date(project.updatedAt).toLocaleString("en-GB")}`}
             </span>
-            <div className="flex gap-2">
-              {cloud && (
-                <button
-                  className="btn btn-ghost"
-                  disabled={sharing}
-                  onClick={async () => {
-                    setSharing(true);
-                    try {
-                      if (shareUrl) {
-                        await revokeShareLink(project.id);
-                        setShareUrl(null);
-                      } else {
-                        const t = await createShareLink(project.id);
-                        setShareUrl(`${window.location.origin}/share/${t}`);
-                      }
-                    } catch (e) {
-                      alert((e as Error).message);
+            {cloud && (
+              <button
+                className="btn btn-ghost"
+                disabled={sharing}
+                onClick={async () => {
+                  setSharing(true);
+                  try {
+                    if (shareUrl) {
+                      await revokeShareLink(project.id);
+                      setShareOverride(null);
+                    } else {
+                      const t = await createShareLink(project.id);
+                      setShareOverride(`${window.location.origin}/share/${t}`);
                     }
-                    setSharing(false);
-                  }}
-                >
-                  {shareUrl ? <XCircle className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
-                  {shareUrl ? "Revoke link" : "Share link"}
-                </button>
-              )}
-              <Link href={`/prepare?project=${project.id}`} className="btn btn-ghost">
-                <ClipboardList className="h-3.5 w-3.5" /> Site visit
-              </Link>
-              <Link href={`/simulate?project=${project.id}&new=1`} className="btn btn-primary">
-                <Workflow className="h-3.5 w-3.5" /> New study
-              </Link>
-            </div>
+                  } catch (e) {
+                    alert((e as Error).message);
+                  }
+                  setSharing(false);
+                }}
+              >
+                {shareUrl ? <XCircle className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
+                {shareUrl ? "Revoke link" : "Share link"}
+              </button>
+            )}
           </div>
         </div>
 
@@ -177,17 +121,13 @@ export default function ProjectDetail() {
                 {copied ? "Copied" : "Copy"}
               </button>
             </div>
-            <p className="mt-1.5 text-[0.66rem] leading-snug text-ink-500">
-              Send this to the engineering director — no account needed, and the link cannot be used
-              to change anything. Revoke it at any time and it stops working immediately.
-            </p>
           </div>
         )}
 
         <div className="mt-3">
           <label className="label">Notes</label>
           <textarea
-            className="field mt-1 min-h-[60px] resize-y"
+            className="field mt-1 min-h-[110px] resize-y"
             value={project.notes}
             placeholder="What the client asked for, what data is still missing, who is chasing it."
             onChange={(e) => patch({ notes: e.target.value })}
@@ -195,93 +135,52 @@ export default function ProjectDetail() {
         </div>
       </div>
 
-      {/* runs */}
-      <div className="mt-5 grid gap-4 lg:grid-cols-[300px_1fr]">
-        <div>
-          <h2 className="mb-2 text-[0.9rem] font-bold text-ink-900">
-            Saved runs ({project.runs.length})
-          </h2>
-          <div className="space-y-2">
-            {project.runs.map((r) => (
-              <button
-                key={r.id}
-                onClick={() => setActiveRun(r)}
-                className={`card w-full p-3 text-left transition ${
-                  activeRun?.id === r.id ? "ring-2 ring-aqua-400" : "hover:shadow-md"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <span className="min-w-0 flex-1 truncate text-[0.82rem] font-semibold text-ink-900">
-                    {r.name}
-                  </span>
-                  <ChevronRight className="h-3.5 w-3.5 shrink-0 text-ink-300" />
-                </div>
-                <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                  {r.verdict && (
-                    <span className={`chip ${VERDICT_TONE[r.verdict]}`}>{VERDICT_LABEL[r.verdict]}</span>
-                  )}
-                  <span className="chip bg-aqua-50 text-aqua-700">
-                    {r.result.summary.recoveryPct.toFixed(1)} % rec.
-                  </span>
-                </div>
-                <div className="mt-1.5 text-[0.65rem] text-ink-500">
-                  {new Date(r.createdAt).toLocaleString("en-GB")}
-                </div>
-                {r.engineerNote && (
-                  <p className="mt-1.5 line-clamp-2 text-[0.68rem] leading-snug text-ink-500">
-                    {r.engineerNote}
-                  </p>
-                )}
-              </button>
-            ))}
-            {project.runs.length === 0 && (
-              <p className="card px-3 py-8 text-center text-[0.78rem] text-ink-300">
-                No runs saved yet.
-              </p>
-            )}
+      {/* where the work stands */}
+      <div className="mt-4 grid gap-3 md:grid-cols-3">
+        <Link href={`${base}/prepare`} className="card group p-4 transition hover:shadow-md">
+          <div className="flex items-center gap-2 text-[0.8rem] font-bold text-ink-900">
+            <ClipboardList className="h-4 w-4 text-violet-600" /> Site visit
           </div>
-        </div>
+          <p className="mt-1.5 text-[0.75rem] text-ink-500">
+            {prep ? `${answered} item${answered === 1 ? "" : "s"} answered` : "Not started"}
+          </p>
+          <span className="mt-2 inline-flex items-center gap-1 text-[0.72rem] font-semibold text-aqua-700 group-hover:underline">
+            Open checklist <ArrowRight className="h-3 w-3" />
+          </span>
+        </Link>
 
-        <div className="min-w-0">
-          {activeRun ? (
+        <Link href={`${base}/simulate`} className="card group p-4 transition hover:shadow-md">
+          <div className="flex items-center gap-2 text-[0.8rem] font-bold text-ink-900">
+            <Workflow className="h-4 w-4 text-aqua-600" /> Simulation
+          </div>
+          <p className="mt-1.5 text-[0.75rem] text-ink-500">
+            {project.runs.length === 0 ? "No runs saved yet" : `${project.runs.length} run${project.runs.length === 1 ? "" : "s"} saved`}
+          </p>
+          <span className="mt-2 inline-flex items-center gap-1 text-[0.72rem] font-semibold text-aqua-700 group-hover:underline">
+            Open the canvas <ArrowRight className="h-3 w-3" />
+          </span>
+        </Link>
+
+        <Link href={`${base}/runs`} className="card group p-4 transition hover:shadow-md">
+          <div className="flex items-center gap-2 text-[0.8rem] font-bold text-ink-900">
+            <History className="h-4 w-4 text-mint-600" /> Latest run
+          </div>
+          {latest ? (
             <>
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <h2 className="text-[1.05rem] font-bold text-ink-900">{activeRun.name}</h2>
-                  {activeRun.engineerNote && (
-                    <p className="mt-0.5 max-w-2xl text-[0.75rem] leading-relaxed text-ink-500">
-                      {activeRun.engineerNote}
-                    </p>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <button className="btn btn-ghost" onClick={() => openInSimulator(activeRun)}>
-                    <Workflow className="h-3.5 w-3.5" /> Open in simulator
-                  </button>
-                  <button className="btn btn-danger" onClick={() => deleteRun(activeRun.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+              <p className="mt-1.5 truncate text-[0.75rem] font-semibold text-ink-700">{latest.name}</p>
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                {latest.verdict && <span className={`chip ${VERDICT_TONE[latest.verdict]}`}>{VERDICT_LABEL[latest.verdict]}</span>}
+                <span className="chip bg-aqua-50 text-aqua-700">{latest.result.summary.productFlow.toFixed(0)} m³/h</span>
+                <span className="chip bg-aqua-50 text-aqua-700">{latest.result.summary.recoveryPct.toFixed(1)} %</span>
               </div>
-              <ResultsView
-                flowsheet={activeRun.flowsheet}
-                result={activeRun.result}
-                studyName={`${project.name} — ${activeRun.name}`}
-              />
             </>
           ) : (
-            <div className="card flex flex-col items-center gap-2 px-4 py-16 text-center">
-              <Save className="h-7 w-7 text-ink-300" />
-              <h3 className="text-[0.92rem] font-bold text-ink-900">No run selected</h3>
-              <p className="max-w-sm text-[0.8rem] text-ink-500">
-                Run a simulation and save it to this project, or select an existing run on the left.
-              </p>
-              <Link href={`/simulate?project=${project.id}&new=1`} className="btn btn-primary mt-2">
-                <Workflow className="h-4 w-4" /> Start a study
-              </Link>
-            </div>
+            <p className="mt-1.5 text-[0.75rem] text-ink-500">Nothing saved yet</p>
           )}
-        </div>
+          <span className="mt-2 inline-flex items-center gap-1 text-[0.72rem] font-semibold text-aqua-700 group-hover:underline">
+            All runs <ArrowRight className="h-3 w-3" />
+          </span>
+        </Link>
       </div>
     </div>
   );

@@ -108,8 +108,8 @@ export function SavedRunsOverlay() {
         </div>
 
         <div className="mt-4 flex items-center justify-between border-t border-ink-900/8 pt-3">
-          <Link href={`/projects/${project.id}`} className="text-[0.72rem] font-semibold text-aqua-700 hover:underline">
-            Open the project page
+          <Link href={`/projects/${project.id}/runs`} className="text-[0.72rem] font-semibold text-aqua-700 hover:underline">
+            See all runs with their results
           </Link>
           <button className="btn btn-ghost !text-[0.72rem]" onClick={() => setDismissedFor(id)}>
             Start blank

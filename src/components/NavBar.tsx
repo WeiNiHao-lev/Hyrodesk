@@ -2,19 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Droplets, FolderKanban, Workflow, BarChart3, BookOpen, Compass, ClipboardList,
-} from "lucide-react";
+import { Droplets, FolderKanban, BookOpen } from "lucide-react";
 import { StorageBadge } from "./StorageBadge";
-import { ProjectBadge } from "./ProjectBadge";
 
+// Two places only. Everything that belongs to a project — preparation,
+// simulation, results, saved runs — is reached from inside that project, so
+// the bar has no project selector to fall out of step with the page.
 const LINKS = [
-  { href: "/", label: "Overview", icon: Droplets },
   { href: "/projects", label: "Projects", icon: FolderKanban },
-  { href: "/prepare", label: "Prepare", icon: ClipboardList },
-  { href: "/advisor", label: "Advisor", icon: Compass },
-  { href: "/simulate", label: "Simulate", icon: Workflow },
-  { href: "/results", label: "Results", icon: BarChart3 },
   { href: "/library", label: "Library", icon: BookOpen },
 ];
 
@@ -23,7 +18,7 @@ export function NavBar() {
   return (
     <header className="sticky top-0 z-40 border-b border-ink-900/8 bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex h-14 max-w-[1600px] items-center gap-6 px-4 sm:px-6">
-        <Link href="/" className="flex items-center gap-2.5 shrink-0">
+        <Link href="/projects" className="flex items-center gap-2.5 shrink-0">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-b from-aqua-400 to-aqua-600 shadow-sm">
             <Droplets className="h-4.5 w-4.5 text-white" strokeWidth={2.4} />
           </span>
@@ -39,7 +34,7 @@ export function NavBar() {
 
         <nav className="flex items-center gap-1 overflow-x-auto">
           {LINKS.map(({ href, label, icon: Icon }) => {
-            const active = href === "/" ? path === "/" : path.startsWith(href);
+            const active = path.startsWith(href);
             return (
               <Link
                 key={href}
@@ -58,7 +53,6 @@ export function NavBar() {
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          <ProjectBadge />
           <span className="hidden sm:flex"><StorageBadge /></span>
         </div>
       </div>
