@@ -1003,6 +1003,57 @@ export const KNOWLEDGE: Record<string, UnitKnowledge> = {
   },
 
   /* ============================================================ SLUDGE / THERMAL */
+  limesoft: {
+    principle:
+      "The only way to lower dissolved solids without a membrane, and it works by taking two ions out at once. Calcium bicarbonate meets lime and both calciums leave as calcium carbonate: Ca(HCO3)2 + Ca(OH)2 gives two CaCO3 and water. The water loses one calcium and two bicarbonates and gains nothing, because the calcium that arrived with the lime leaves in the precipitate too. That is 81 mg/L of dissolved solids per milliequivalent of carbonate hardness. It is why a bicarbonate-dominated water can be brought down chemically while a saline one cannot be touched at any price.",
+    whenToUse: [
+      "Where the dissolved solids are mostly carbonate hardness and the reduction needed is modest. Removing 20 % of the TDS from such a water is a lime dose, not a membrane plant.",
+      "Where capital is the binding constraint. A pellet reactor is a fraction of the cost of a reverse osmosis train and has no membranes to replace.",
+      "Ahead of a membrane, to let it run at a higher recovery without scaling.",
+      "Where a concentrate has nowhere to go. Softening produces a solid, not a brine.",
+    ],
+    whenNotToUse: [
+      "On a sodium chloride water. There is no carbonate hardness to precipitate and nothing will happen.",
+      "Where the target is very low TDS. The floor is set by the non-carbonate hardness and by the carbonate solubility, and below about 40-50 mg/L as CaCO3 the reaction stops paying.",
+      "Where the sludge has nowhere to go and a clarifier is chosen. A pellet reactor avoids this; a clarifier does not.",
+    ],
+    designRules: [
+      {
+        rule: "Only the carbonate hardness counts.",
+        why: "Calcium needs bicarbonate to precipitate against. Whichever of the two runs out first sets the limit, so compare hardness and alkalinity before assuming a dose. Non-carbonate hardness takes soda ash, and soda ash leaves two sodiums for every calcium, so it lowers hardness without lowering dissolved solids. That is the opposite of the point.",
+      },
+      {
+        rule: "Lime over caustic where the aim is TDS.",
+        why: "Lime removes 81 mg/L per milliequivalent because the calcium it brings precipitates as well. Caustic removes 39, because the sodium it brings stays in the water. Caustic is the easier reagent to handle and the worse one for the salt balance; choose it knowingly.",
+      },
+      {
+        rule: "A pellet reactor where land or sludge is the problem.",
+        why: "It fluidises at 60-100 m/h against 1.5-3 m/h in a clarifier, so the plan area is roughly thirty times smaller, and it discharges dry grains at about 90 % solids instead of a sludge at a few per cent. The thickener and the filter press disappear with it.",
+      },
+      {
+        rule: "Always filter afterwards, and always neutralise.",
+        why: "Five to ten per cent of the precipitate leaves as fine crystals with the water, and the water leaves at pH 10. Both have to be dealt with before distribution, and the recarbonation that does it also stabilises the water against dissolving the carbonate again.",
+      },
+    ],
+    keyNumbers: [
+      { param: "TDS removed per meq", typical: "81 mg/L with lime, 39 with caustic", why: "Calcium 20 and bicarbonate 61 leaving together, less the sodium if caustic is used." },
+      { param: "Lime dose", typical: "37 mg/L per meq of carbonate hardness", why: "One equivalent of lime per equivalent of calcium removed." },
+      { param: "Precipitate", typical: "100 mg/L per meq with lime", why: "Two moles of CaCO3 per mole of calcium, because the calcium in the lime precipitates too." },
+      { param: "Upflow velocity", typical: "60-100 m/h pellet, 1.5-3 m/h clarifier", why: "The whole difference in footprint." },
+      { param: "Discharged solids", typical: "90 % DS pellets, 2-6 % sludge", why: "Decides whether a sludge line is needed at all." },
+      { param: "Practical residual", typical: "40-60 mg/L as CaCO3", why: "Carbonate solubility and contact time. Chasing below it costs reagent for very little." },
+      { param: "Carry-over", typical: "5-10 % of the precipitate", why: "Fine crystals that the downstream filter has to catch." },
+    ],
+    failureModes: [
+      { mode: "Nothing happens", symptom: "Hardness barely moves despite the dose", prevention: "Check alkalinity against hardness. If the alkalinity is low the calcium has nothing to precipitate against." },
+      { mode: "Post-precipitation", symptom: "Carbonate scaling in the filter and the clear well", prevention: "Recarbonate to stabilise before filtration rather than after." },
+      { mode: "Bed washout", symptom: "Pellets carried over, bed depth falling", prevention: "Hold the upflow in the fluidisation window and draw pellets on a schedule." },
+      { mode: "Caustic chosen by habit", symptom: "Hardness on target, dissolved solids barely moved", prevention: "Count the sodium. Half the TDS benefit is given back with it." },
+    ],
+    upstream: "Coagulation and clarification or filtration, so the reactor is fed a low-turbidity water. Pellet beds in particular foul on suspended solids.",
+    downstream: "Filtration without exception, then recarbonation or acid to bring the pH back and stabilise the water.",
+  },
+
   thickener: {
     principle:
       "Gravity concentration. Sludge is allowed to compact under its own weight so that the water above can be drawn off, typically taking sludge from under 1 % dry solids to 3 to 6 %. Halving the volume halves everything downstream — dewatering, transport, disposal.",

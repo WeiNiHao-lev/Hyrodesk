@@ -1,0 +1,63 @@
+SIER — 205 m3/jam, target TDS < 300, OPEX maks Rp 2.500/m3, CAPEX serendahnya
+====================================================================================================================================
+Umpan: TDS 365 · alkalinitas 130 mg/L CaCO3 (= HCO3 158, 42 % dari jumlah ion) · TSS 20 · 15 NTU · pH 8,5
+Perlu disisihkan 65 mg/L = 17,8 %. Kesadahan karbonat tersedia 129 mg/L CaCO3 = 2,6 meq = 211 mg/L TDS.
+
+OPSI                                       daya  kWh/m3  CAPEX Rp M  OPEX Rp/m3     TDS    pH    NTU  hasil
+------------------------------------------------------------------------------------------------------------------------------------
+0. Konvensional saja (tanpa penurun TDS)     73    0,38        5,45       1.302   360,8  7,20   0,14  TDS 360.8 vs ≤ 300 mg/L
+1. Pellet softening — target 150             86    0,44        6,77       1.600   220,8  7,60   0,71  MEMENUHI
+2. Pellet softening — target 120             86    0,44        6,79       1.623   191,3  7,60   0,91  MEMENUHI
+3. Lime clarifier — target 150               80    0,41        8,76       1.617   219,7  7,60   1,99  MEMENUHI
+4. Pellet softening pakai NaOH — target 150     86    0,44        6,74       1.757   300,6  7,60   0,42  TDS 300.6 vs ≤ 300 mg/L
+5. NF penuh, recovery 85 %                  103    0,63       14,78       2.515   232,3  7,40   0,02  OPEX Rp 2.515 > 2.500
+6. Pellet target 180 — dosis minimum         86    0,44        6,73       1.599   303,0  7,60   0,36  TDS 303.0 vs ≤ 300 mg/L
+S. Pelunakan split 40 %                      78    0,40        6,13       1.434   293,0  7,42   0,45  MEMENUHI
+S. Pelunakan split 50 %                      79    0,41        6,21       1.461   276,1  7,50   0,53  MEMENUHI
+S. Pelunakan split 60 %                      80    0,41        6,29       1.488   259,1  7,60   0,61  MEMENUHI
+S. Pelunakan split 70 %                      81    0,42        6,37       1.515   242,1  7,72   0,68  MEMENUHI
+
+REAGEN, LUMPUR, DAN LAHAN REAKTOR
+------------------------------------------------------------------------------------------------------------------------------------
+OPSI                                     kapur t/hr  NaOH t/hr  asam t/hr padatan t/hr  konsentrat m3/hr  luas reaktor
+0. Konvensional saja (tanpa penurun TDS)       0,00       0,00       0,00         0,27                 —  
+1. Pellet softening — target 150               0,19       0,00       0,05         0,74                 —  2.5 m2 at 80 m/h
+2. Pellet softening — target 120               0,26       0,00       0,00         0,91                 —  2.5 m2 at 80 m/h
+3. Lime clarifier — target 150                 0,21       0,00       0,10         1,03                 —  82.0 m2 at 2.5 m/h
+4. Pellet softening pakai NaOH — target 150       0,00       0,10       0,16         0,51                 —  2.5 m2 at 80 m/h
+5. NF penuh, recovery 85 %                     0,00       0,07       0,00         0,27               698  
+6. Pellet target 180 — dosis minimum           0,07       0,00       0,19         0,45                 —  2.5 m2 at 80 m/h
+S. Pelunakan split 40 %                        0,11       0,00       0,00         0,53                 —  1.0 m2 at 80 m/h
+S. Pelunakan split 50 %                        0,13       0,00       0,00         0,59                 —  1.3 m2 at 80 m/h
+S. Pelunakan split 60 %                        0,16       0,00       0,00         0,66                 —  1.5 m2 at 80 m/h
+S. Pelunakan split 70 %                        0,18       0,00       0,00         0,72                 —  1.8 m2 at 80 m/h
+
+KUALITAS PRODUK
+------------------------------------------------------------------------------------------------------------------------------------
+OPSI                                         TDS  kesadahan  alkalinitas     pH  produk m3/jam  recovery %
+0. Konvensional saja (tanpa penurun TDS)   360,8        199          117   7,20          193,9        94,6
+1. Pellet softening — target 150           220,8        150           11   7,60          193,8        94,6
+2. Pellet softening — target 120           191,3        132            0   7,60          193,8        94,6
+3. Lime clarifier — target 150             219,7        150            0   7,60          197,4        96,3
+4. Pellet softening pakai NaOH — target 150   300,6        150           38   7,60          193,9        94,6
+5. NF penuh, recovery 85 %                 232,3         52           65   7,40          164,8        80,4
+6. Pellet target 180 — dosis minimum       303,0        180           45   7,60          193,9        94,6
+S. Pelunakan split 40 %                    293,0        172           70   7,42          193,9        94,6
+S. Pelunakan split 50 %                    276,1        165           58   7,50          193,9        94,6
+S. Pelunakan split 60 %                    259,1        159           47   7,60          193,9        94,6
+S. Pelunakan split 70 %                    242,1        152           35   7,72          193,8        94,6
+
+CATATAN MODEL
+------------------------------------------------------------------------------------------------------------------------------------
+1. Pellet softening — target 150
+   Dissolved solids fall 139 mg/L: calcium 20 and bicarbonate 119 leaving together. The water leaves at pH 10.0 and must be neutralised before distribution.
+2. Pellet softening — target 120
+   The target of 120 mg/L asks for 79 mg/L of hardness removal but only 67 is carbonate hardness above the floor. The rest is non-carbonate and needs soda ash, which replaces each calcium with two sodiums and so lowers hardness without lowering dissolved solids.
+   Dissolved solids fall 170 mg/L: calcium 27 and bicarbonate 143 leaving together. The water leaves at pH 10.0 and must be neutralised before distribution.
+3. Lime clarifier — target 150
+   Dissolved solids fall 139 mg/L: calcium 20 and bicarbonate 119 leaving together. The water leaves at pH 10.3 and must be neutralised before distribution.
+4. Pellet softening pakai NaOH — target 150
+   Caustic leaves 23 mg/L of sodium in the water, so the dissolved solids fall by 57 mg/L where lime would have taken out 139. Choose it for handling, not for the salt balance.
+   Dissolved solids fall 57 mg/L: calcium 20 and bicarbonate 60 leaving together, less 23 of sodium added. The water leaves at pH 10.0 and must be neutralised before distribution.
+6. Pellet target 180 — dosis minimum
+   Dissolved solids fall 54 mg/L: calcium 8 and bicarbonate 46 leaving together. The water leaves at pH 10.0 and must be neutralised before distribution.

@@ -81,6 +81,7 @@ export async function buildWorkbook(
   const inputRefs = sheetInputs(wb, fs, result);
   const arrows = sheetBalanceDiagram(wb, fs, result, inputRefs);
   sheetStreamTable(wb, fs, result);
+  sheetRemoval(wb, result);
   sheetCalcs(wb, fs, result);
   sheetEnergyChem(wb, fs, result, inputRefs);
   // A short derivations sheet stays in the workbook as quick reference while you
@@ -518,6 +519,136 @@ function sheetStreamTable(wb: ExcelJS.Workbook, fs: Flowsheet, result: Simulatio
   }
   ws.autoFilter = { from: { row: 4, column: 1 }, to: { row: r - 1, column: head.length } };
   ws.views = [{ state: "frozen", xSplit: 4, ySplit: 4 }];
+}
+
+/* ------------------------------------------- 3b. what each unit removes */
+
+/**
+ * Removal by unit, written as live arithmetic rather than as results.
+ *
+ * The stream table says what every stream contains. It does not say what any
+ * unit did, and that is the thing an engineer is trying to learn: this process
+ * removes these components, by these percentages, and leaves the rest alone.
+ * Reading it off two columns of a wide table means doing the subtraction in
+ * your head for every component, and the components a unit does nothing to are
+ * the ones most worth noticing.
+ *
+ * So each unit gets a block, and the outlet is a formula of the inlet and the
+ * percentage rather than a number printed beside it. Change the percentage and
+ * the outlet and the mass follow, which is where the consequence shows up: a
+ * removal percentage is a ratio of concentrations, and concentration is not
+ * what leaves the plant. Where water is drawn off as well, the mass removed and
+ * the percentage disagree, and the mass is the one that pays for the sludge.
+ */
+function sheetRemoval(wb: ExcelJS.Workbook, result: SimulationResult) {
+  const ws = wb.addWorksheet("3b. Removal by Unit", { properties: { tabColor: { argb: "FF9AD5F5" } } });
+  const cols: Component[] = [...ION_COLS, ...BIO_COLS];
+  title(ws, "What each unit removes",
+    "One block per unit, in the order the water flows. The outlet column is a formula of the inlet and the removal percentage, and the percentage is an input: change it and the outlet and the mass recalculate. Components a unit leaves alone are listed too, at 0 %, because knowing what a process does not touch is half of knowing what it is for.", 7);
+
+  ws.columns = [
+    { width: 24 }, { width: 13 }, { width: 12 }, { width: 13 },
+    { width: 13 }, { width: 14 }, { width: 46 },
+  ];
+
+  let r = 4;
+  for (const nd of result.nodes) {
+    if (["product", "waste", "splitter", "feedsource", "outfall"].includes(nd.type)) continue;
+    const outlets = Object.entries(nd.outlets);
+    if (outlets.length === 0) continue;
+    // Removal is measured against the treated stream. A side stream concentrates
+    // rather than removes, so it is named in the water row instead.
+    const mainKey = outlets.find(([k]) => k === "out" || k === "permeate" || k === "product")?.[0]
+      ?? outlets[0][0];
+    const main = nd.outlets[mainKey];
+    if (!main) continue;
+    const model = UNIT_BY_TYPE[nd.type];
+
+    const hdr = ws.getRow(r);
+    hdr.getCell(1).value = nd.label;
+    hdr.getCell(2).value = model ? model.label : nd.type;
+    for (let i = 1; i <= 7; i++) {
+      const c = hdr.getCell(i);
+      c.font = { bold: true, size: 10, color: { argb: "FFFFFFFF" }, name: "Calibri" };
+      c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: HDRBG } };
+    }
+    r++;
+
+    const sub = ws.getRow(r);
+    sub.values = ["Component", "Inlet, mg/L", "Removal, %", "Outlet, mg/L",
+      "Inlet load, kg/h", "Removed, kg/h", "Note"];
+    for (let i = 1; i <= 7; i++) {
+      const c = sub.getCell(i);
+      c.font = { bold: true, size: 9, name: "Calibri" };
+      c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: ALT } };
+      c.border = { bottom: { style: "thin", color: { argb: "FFC9D6E2" } } };
+    }
+    r++;
+
+    // Water first, and its row is what every mass below refers to: a
+    // concentration only becomes a load once it is multiplied by a flow.
+    const rFlow = r;
+    const qIn = nd.inlet.flow;
+    const qOut = main.flow;
+    const wr = ws.getRow(r);
+    wr.getCell(1).value = "Water, m³/h";
+    wr.getCell(2).value = Number(qIn.toFixed(4));
+    wr.getCell(3).value = Number((qIn > 0 ? (1 - qOut / qIn) * 100 : 0).toFixed(3));
+    wr.getCell(4).value = { formula: `B${r}*(1-C${r}/100)` };
+    wr.getCell(7).value = outlets.length > 1
+      ? `The balance leaves on ${outlets.filter(([k]) => k !== mainKey).map(([k]) => k).join(", ")}.`
+      : "One outlet: no water is drawn off.";
+    for (let i = 1; i <= 7; i++) {
+      const c = wr.getCell(i);
+      c.font = { size: 9, bold: i <= 4, name: "Calibri" };
+      if (i >= 2 && i <= 6) c.numFmt = "0.###";
+      if (i === 3) c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFF6DA" } };
+      if (i === 7) c.font = { size: 8, italic: true, color: { argb: "FF6A7A88" }, name: "Calibri" };
+    }
+    r++;
+
+    const removes: string[] = [];
+    for (const k of cols) {
+      const cin = nd.inlet.c[k] ?? 0;
+      if (cin <= 0) continue;
+      const cout = main.c[k] ?? 0;
+      const pct = (1 - cout / cin) * 100;
+      const rw = ws.getRow(r);
+      rw.getCell(1).value = String(k);
+      rw.getCell(2).value = Number(cin.toFixed(4));
+      rw.getCell(3).value = Number(pct.toFixed(3));
+      rw.getCell(4).value = { formula: `B${r}*(1-C${r}/100)` };
+      rw.getCell(5).value = { formula: `B${r}*$B$${rFlow}/1000` };
+      // Mass removed uses both flows, because the outlet carries less water.
+      rw.getCell(6).value = { formula: `(B${r}*$B$${rFlow}-D${r}*$D$${rFlow})/1000` };
+      if (Math.abs(pct) < 0.05) {
+        rw.getCell(7).value = "Passes through unchanged.";
+      } else if (pct < 0) {
+        rw.getCell(7).value = "Concentrated: water was drawn off and this stayed, or a reagent added it.";
+      } else {
+        removes.push(`${k} ${pct.toFixed(0)} %`);
+        rw.getCell(7).value = "";
+      }
+      for (let i = 1; i <= 7; i++) {
+        const c = rw.getCell(i);
+        c.font = { size: 9, name: "Calibri" };
+        if (i >= 2 && i <= 6) c.numFmt = "0.###";
+        if (i === 3) c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFFFF6DA" } };
+        if (i === 7) c.font = { size: 8, italic: true, color: { argb: "FF6A7A88" }, name: "Calibri" };
+      }
+      r++;
+    }
+
+    const sum = ws.getRow(r);
+    sum.getCell(1).value = removes.length
+      ? `Removes ${removes.join(", ")}.`
+      : "Removes nothing measurable: this unit earns its place on hydraulics, storage, pressure or contact time.";
+    sum.getCell(1).font = { size: 9, italic: true, color: { argb: "FF0E7C5A" }, name: "Calibri" };
+    ws.mergeCells(r, 1, r, 7);
+    r += 2;
+  }
+
+  ws.views = [{ state: "frozen", xSplit: 1, ySplit: 3 }];
 }
 
 /* ------------------------------------------------------ 4. design calcs */

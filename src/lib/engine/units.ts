@@ -725,14 +725,38 @@ const degasser: UnitModel = {
   solve: (inlet, p) => {
     const out = cloneStream(inlet);
     const rem = n(p, "co2Removal", 90) / 100;
-    out.c.HCO3 *= 1 - rem * 0.6;
-    out.pH = clamp(inlet.pH + 1.2 * rem, 4, 9);
+
+    // A decarbonator strips a gas. It cannot strip an ion, and bicarbonate is
+    // an ion: only the inorganic carbon that is already present as free carbon
+    // dioxide can leave with the air. That fraction is set by the pH, through
+    // the first carbonate dissociation, and it collapses as the pH rises —
+    // 98 % at pH 4.5, half at pH 6.3, under 1 % at pH 8.5.
+    //
+    // Removing a fixed share regardless of pH made this block appear to take
+    // 85 mg/L of dissolved solids out of a pH 8.5 surface water for the cost of
+    // a blower. It does that after a strong-acid cation exchanger, where the pH
+    // is near 3 and the carbon really is all gas, and nowhere else.
+    const pK1 = 6.35 - 0.011 * (inlet.T - 25);
+    const freeCO2Frac = 1 / (1 + Math.pow(10, inlet.pH - pK1));
+    const strippable = inlet.c.HCO3 * freeCO2Frac;
+    out.c.HCO3 = Math.max(inlet.c.HCO3 - strippable * rem, 0);
+    out.pH = clamp(inlet.pH + 1.2 * rem * freeCO2Frac, 4, 9);
+
+    const notes: string[] = [];
+    if (freeCO2Frac < 0.1) {
+      notes.push(`At pH ${inlet.pH.toFixed(1)} only ${(freeCO2Frac * 100).toFixed(1)} % of the inorganic carbon is free carbon dioxide, so this tower removes about ${(strippable * rem).toFixed(1)} mg/L of bicarbonate and little else. A decarbonator belongs after acidification or after a strong-acid cation exchanger, where the pH is low enough for the carbon to be a gas.`);
+    }
     return {
       outlets: { out },
       aux: aux({
         powerKW: 0.0004 * inlet.flow * n(p, "airRatio", 60) + 2,
-        sizing: [{ label: "Air flow", value: `${(inlet.flow * n(p, "airRatio", 60)).toFixed(0)} m3/h` }],
+        sizing: [
+          { label: "Air flow", value: `${(inlet.flow * n(p, "airRatio", 60)).toFixed(0)} m3/h` },
+          { label: "Free CO2 at inlet pH", value: `${(freeCO2Frac * 100).toFixed(1)} % of inorganic carbon` },
+          { label: "Bicarbonate removed", value: `${(strippable * rem).toFixed(1)} mg/L` },
+        ],
         capexUSD: costCurve(inlet.flow, 900, 0.68),
+        notes,
       }),
     };
   },
@@ -777,6 +801,181 @@ const chemSoftening: UnitModel = {
           { label: "Precipitate", value: `${ds.toFixed(1)} kg/h dry solids` },
         ],
         capexUSD: costCurve(inlet.flow, 2100, 0.7),
+      }),
+    };
+  },
+};
+
+/**
+ * Carbonate softening — lime or caustic, in a clarifier or a pellet reactor.
+ *
+ * This is the one process that lowers dissolved solids without a membrane, and
+ * it does it by taking two ions out together. Calcium bicarbonate meets lime
+ * and both calciums leave as calcium carbonate:
+ *
+ *     Ca(HCO3)2 + Ca(OH)2  ->  2 CaCO3 (solid) + 2 H2O
+ *
+ * The water loses one calcium and two bicarbonates and gains nothing, because
+ * the calcium that arrived with the lime leaves in the precipitate as well.
+ * That is 81 mg/L of dissolved solids per milliequivalent of carbonate
+ * hardness, and it is why a bicarbonate-dominated water can be brought down
+ * chemically when a saline one cannot be touched.
+ *
+ * Caustic does the same job by a different route — it converts bicarbonate to
+ * carbonate and the calcium precipitates against that — but it leaves its
+ * sodium behind, so it removes 39 mg/L per milliequivalent instead of 81. It
+ * is chosen for handling rather than for chemistry: no slaking, no lime dust,
+ * no grit.
+ *
+ * The two reactor types differ in everything except the chemistry. A clarifier
+ * settles the precipitate at 1.5 to 3 m/h and produces a wet sludge at a few
+ * per cent solids that still has to be thickened and pressed. A pellet reactor
+ * fluidises seed grains at 60 to 100 m/h, the carbonate crystallises onto them,
+ * and what is drawn off is a dry pellet at around 90 % solids needing no
+ * dewatering at all. Thirty times the upflow velocity is thirty times less
+ * plan area, and the sludge line disappears — which is usually the whole
+ * argument.
+ *
+ * Non-carbonate hardness is deliberately not removed here. It takes soda ash,
+ * and soda ash leaves two sodiums behind for every calcium it takes out, so it
+ * lowers hardness without lowering dissolved solids. Where the aim is TDS,
+ * only the carbonate fraction is worth chasing.
+ */
+const limeSoftening: UnitModel = {
+  type: "limesoft", label: "Lime / Pellet Softening", short: "LSOFT",
+  category: "pretreatment", inlets: 1, outlets: ["out", "solids"],
+  description:
+    "Removes carbonate hardness by precipitating calcium carbonate, which takes the calcium and the bicarbonate out together and is the only way to lower dissolved solids without a membrane. In a pellet reactor the precipitate comes off as dry grains and there is no sludge line; in a clarifier it comes off as a wet sludge that has to be thickened and pressed.",
+  ccepcMaturity: 4,
+  params: [
+    { key: "reactor", label: "Reactor type", type: "select", group: "Sizing",
+      options: [
+        { value: "pellet", label: "Pellet reactor (fluidised bed)" },
+        { value: "clarifier", label: "Solids-contact clarifier" },
+      ],
+      help: "A pellet reactor runs at 60-100 m/h against 1.5-3 m/h, so it occupies a fraction of the area and discharges dry pellets instead of sludge." },
+    { key: "reagent", label: "Reagent", type: "select", group: "Chemicals",
+      options: [
+        { value: "lime", label: "Hydrated lime, Ca(OH)2" },
+        { value: "naoh", label: "Caustic soda, NaOH" },
+      ],
+      help: "Lime removes 81 mg/L of dissolved solids per meq of carbonate hardness; caustic removes 39, because its sodium stays in the water. Caustic is chosen for handling, not for chemistry." },
+    { key: "targetHardness", label: "Target total hardness", type: "number", unit: "mg/L CaCO3", min: 40, max: 400, step: 5, group: "Performance",
+      help: "What the softened water should leave at. The block removes only as much carbonate hardness as this needs, so a modest target costs a modest dose." },
+    { key: "residualFloor", label: "Practical residual", type: "number", unit: "mg/L CaCO3", min: 20, max: 120, step: 5, group: "Performance",
+      help: "How close to zero the reactor can actually get. 40-60 for a pellet reactor, 35-50 for a well-run clarifier. Below this the reaction stops paying." },
+    { key: "excessPct", label: "Reagent excess", type: "number", unit: "%", min: 0, max: 40, step: 5, group: "Chemicals" },
+    { key: "upflowMH", label: "Upflow velocity", type: "number", unit: "m/h", min: 1, max: 120, step: 1, group: "Sizing",
+      help: "60-100 m/h in a pellet reactor, 1.5-3 m/h in a clarifier. Set it to match the reactor chosen above." },
+    { key: "seedDose", label: "Seed sand (pellet)", type: "number", unit: "g/m3", min: 0, max: 60, step: 1, group: "Chemicals",
+      help: "Garnet or silica sand carried out with the pellets and replaced. Nil for a clarifier." },
+    { key: "solidsPct", label: "Discharged solids", type: "number", unit: "% DS", min: 1, max: 95, step: 1, group: "Performance",
+      help: "Around 90 % for pellets, 2-6 % for clarifier sludge. This is what decides whether a sludge line is needed at all." },
+    { key: "carryoverPct", label: "Carry-over to the filter", type: "number", unit: "% of precipitate", min: 0, max: 20, step: 1, group: "Performance",
+      help: "Fine crystals that leave with the water and have to be caught downstream. 5-10 % from a pellet reactor, which is why it is always followed by filtration." },
+  ],
+  defaults: {
+    reactor: "pellet", reagent: "lime", targetHardness: 150, residualFloor: 50,
+    excessPct: 10, upflowMH: 80, seedDose: 12, solidsPct: 90, carryoverPct: 8,
+  },
+  solve: (inlet, p) => {
+    const out = cloneStream(inlet);
+    const pellet = s(p, "reactor", "pellet") === "pellet";
+    const useLime = s(p, "reagent", "lime") === "lime";
+
+    const hardIn = hardnessAsCaCO3(inlet);           // mg/L as CaCO3
+    const alkIn = alkalinityAsCaCO3(inlet);
+    // Only the hardness that has bicarbonate to pair with can be precipitated.
+    const carbonateHardness = Math.min(hardIn, alkIn);
+    const floor = n(p, "residualFloor", 50);
+    const wanted = Math.max(hardIn - n(p, "targetHardness", 150), 0);
+    const removableCaCO3 = Math.max(Math.min(carbonateHardness - floor, wanted), 0);
+    const meq = removableCaCO3 / 50;                 // meq/L of calcium removed
+
+    // Calcium and bicarbonate leave together; that pairing is the whole point.
+    const caRemoved = Math.min(meq * 20.04, inlet.c.Ca);
+    const hco3Removed = Math.min(useLime ? meq * 61.02 * 2 : meq * 61.02, inlet.c.HCO3);
+    out.c.Ca = inlet.c.Ca - caRemoved;
+    out.c.HCO3 = inlet.c.HCO3 - hco3Removed;
+    // Caustic leaves its sodium behind. Lime leaves nothing: the calcium it
+    // brought precipitates with the calcium that was already there.
+    const naAdded = useLime ? 0 : meq * 22.99;
+    out.c.Na = inlet.c.Na + naAdded;
+    out.pH = clamp(pellet ? 10.0 : 10.3, 7, 12);
+
+    // Precipitate: both calciums with lime, only the water's with caustic.
+    const caco3MgL = useLime ? meq * 100.09 : meq * 50.04;
+    const carry = clamp(n(p, "carryoverPct", 8) / 100, 0, 0.5);
+    out.c.TSS = inlet.c.TSS + caco3MgL * carry;
+    out.extras.turbidityNTU = inlet.extras.turbidityNTU + caco3MgL * carry * 0.6;
+
+    const solidsKgH = (inlet.flow * caco3MgL * (1 - carry)) / 1000;
+    const ds = clamp(n(p, "solidsPct", pellet ? 90 : 4) / 100, 0.01, 0.95);
+    const solidsFlow = Math.min(solidsKgH / (ds * 1000), inlet.flow * 0.3);
+
+    const solids = cloneStream(inlet);
+    solids.flow = solidsFlow;
+    solids.c.TSS = solidsFlow > 0 ? (solidsKgH * 1000) / solidsFlow : 0;
+    out.flow = inlet.flow - solidsFlow;
+
+    const reagentKgH = useLime
+      ? (meq * (1 + n(p, "excessPct", 10) / 100) * inlet.flow * 37.05) / 1000
+      : (meq * 0.5 * (1 + n(p, "excessPct", 10) / 100) * inlet.flow * 40.0) / 1000;
+
+    const area = inlet.flow / Math.max(n(p, "upflowMH", pellet ? 80 : 2.5), 0.5);
+    const tdsDrop = caRemoved + hco3Removed - naAdded;
+
+    const notes: string[] = [];
+    if (carbonateHardness <= floor) {
+      notes.push(`Carbonate hardness is ${carbonateHardness.toFixed(0)} mg/L as CaCO3 against a practical floor of ${floor}, so there is nothing here to soften. Carbonate softening needs calcium and bicarbonate together: whichever runs out first sets the limit.`);
+    } else if (wanted > removableCaCO3) {
+      notes.push(`The target of ${n(p, "targetHardness", 150)} mg/L asks for ${wanted.toFixed(0)} mg/L of hardness removal but only ${removableCaCO3.toFixed(0)} is carbonate hardness above the floor. The rest is non-carbonate and needs soda ash, which replaces each calcium with two sodiums and so lowers hardness without lowering dissolved solids.`);
+    }
+    if (!useLime) {
+      notes.push(`Caustic leaves ${naAdded.toFixed(0)} mg/L of sodium in the water, so the dissolved solids fall by ${tdsDrop.toFixed(0)} mg/L where lime would have taken out ${(caRemoved + Math.min(meq * 61.02 * 2, inlet.c.HCO3)).toFixed(0)}. Choose it for handling, not for the salt balance.`);
+    }
+    if (pellet && n(p, "upflowMH", 80) < 40) {
+      notes.push(`An upflow velocity of ${n(p, "upflowMH", 80)} m/h will not fluidise a pellet bed. Either raise it to 60-100 or change the reactor type to a clarifier.`);
+    }
+    if (!pellet && n(p, "upflowMH", 80) > 5) {
+      notes.push(`A solids-contact clarifier settles at 1.5-3 m/h. At ${n(p, "upflowMH", 80)} m/h the precipitate leaves with the water.`);
+    }
+    if (pellet && ds < 0.5) {
+      notes.push("A pellet reactor discharges grains at around 90 % solids. Set below 50 % it is being costed as a sludge, which removes the main reason to choose it.");
+    }
+    notes.push(`Dissolved solids fall ${tdsDrop.toFixed(0)} mg/L: calcium ${caRemoved.toFixed(0)} and bicarbonate ${hco3Removed.toFixed(0)} leaving together${naAdded > 0 ? `, less ${naAdded.toFixed(0)} of sodium added` : ""}. The water leaves at pH ${out.pH.toFixed(1)} and must be neutralised before distribution.`);
+    if (carry > 0) {
+      notes.push(`${(carry * 100).toFixed(0)} % of the precipitate leaves as fine crystals with the water, raising suspended solids to ${out.c.TSS.toFixed(0)} mg/L. Filtration downstream is not optional.`);
+    }
+
+    const chem: Record<string, number> = {};
+    chem[useLime ? "Hydrated lime Ca(OH)2" : "Caustic soda (softening)"] = reagentKgH;
+    if (pellet && n(p, "seedDose", 12) > 0) {
+      chem["Seed sand (pellet softening)"] = (n(p, "seedDose", 12) * inlet.flow) / 1000;
+    }
+
+    return {
+      outlets: { out, solids },
+      aux: aux({
+        powerKW: pumpKW(inlet.flow, pellet ? 8 : 3, 0.7) + 0.01 * inlet.flow + 2,
+        chemicals: chem,
+        drySolidsKgH: solidsKgH,
+        hrtH: pellet ? 0.05 : 1.0,
+        sizing: [
+          { label: "Reactor", value: pellet ? "Fluidised pellet bed" : "Solids-contact clarifier" },
+          { label: "Plan area", value: `${area.toFixed(1)} m2 at ${n(p, "upflowMH", pellet ? 80 : 2.5)} m/h` },
+          { label: "Hardness", value: `${hardIn.toFixed(0)} -> ${(hardIn - removableCaCO3).toFixed(0)} mg/L as CaCO3` },
+          { label: "Carbonate hardness used", value: `${removableCaCO3.toFixed(0)} of ${carbonateHardness.toFixed(0)} mg/L available` },
+          { label: "Dissolved solids removed", value: `${tdsDrop.toFixed(0)} mg/L` },
+          { label: useLime ? "Hydrated lime" : "Caustic soda", value: `${reagentKgH.toFixed(1)} kg/h (${(reagentKgH * 24 / 1000).toFixed(2)} t/d)` },
+          { label: "Precipitate", value: `${solidsKgH.toFixed(1)} kg/h CaCO3 dry (${(solidsKgH * 24 / 1000).toFixed(2)} t/d)` },
+          { label: pellet ? "Pellets discharged" : "Sludge drawn", value: `${(solidsFlow * 24).toFixed(1)} m3/d at ${(ds * 100).toFixed(0)} % DS` },
+          { label: "Outlet pH", value: `${out.pH.toFixed(1)} — needs neutralisation` },
+        ],
+        capexUSD: pellet
+          ? costCurve(Math.max(area, 1), 26000, 0.72)
+          : costCurve(Math.max(area, 1), 5200, 0.75) + costCurve(Math.max(inlet.flow, 1), 1200, 0.7),
+        notes,
       }),
     };
   },
@@ -1485,7 +1684,7 @@ export const UNIT_MODELS: UnitModel[] = [
   tankModel("producttank", "Product Storage Tank", "PTANK", 8, "storage"),
   coagFloc, clarifier, daf, mmf, acf, cartridge,
   uf, nf, roBW, roSW, ceramicMF,
-  edi, mixedBed, softener, degasser, chemSoftening,
+  edi, mixedBed, softener, degasser, chemSoftening, limeSoftening,
   aao, msbr, mbbr, anaerobicAO, denitriFilter, disinfection,
   thickener, backwashSettling, dewatering, mvr, crystalliser,
   ...ADVANCED_MODELS,
