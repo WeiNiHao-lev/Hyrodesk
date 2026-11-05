@@ -206,6 +206,37 @@ export const FEED_PRESETS: FeedPreset[] = [
       turbidityNTU: 15, coliform: 1000,
     },
   },
+  // Batam power plant (3 x 350 MW), seawater desalination intake: Technical
+  // Specifications 2025-02-27, appendix 1. Measured (section 10.2.3): pH 7.78,
+  // Cl 18,994.11, F 1.72, COD 79.9 and NH3-N 0.36 mg/L, and nothing else.
+  //
+  // The other major ions are the Millero (2008) reference composition scaled to
+  // that chloride (practical salinity 33.65, 1.021 kg/L at 30 °C). Seawater keeps
+  // its major-ion ratios to within a per cent or two, and the result balances to
+  // +0.01 %. Bromide (66 mg/L) and boron (4.4 mg/L as B) have no component of
+  // their own and ride in the TDS. Alkalinity is the carbonate part, all as
+  // bicarbonate at pH 7.78.
+  //
+  // Section 17.3.1 is a design envelope ("we assume"), not an analysis, and is
+  // not used: at the measured chloride, real seawater already exceeds its sodium,
+  // calcium, sulphate, hardness and alkalinity limits. Its TSS bound of 100 mg/L
+  // is kept, because the pretreatment has to be sized on something. Turbidity,
+  // TOC, silica and iron were not analysed and are left out, so the validator
+  // asks for them. Flow is the phase I pretreatment design, 2 x 965 m3/h.
+  {
+    key: "seawater-batam",
+    label: "Seawater — Batam (Cl, pH, F, COD, NH3-N measured; other ions scaled from Cl)",
+    spec: {
+      name: "Seawater (Batam)",
+      sourceType: "seawater",
+      flow: 1930, T: 30, pH: 7.78,
+      c: {
+        Na: 10582, Mg: 1260, Ca: 404, K: 392, Sr: 7.8,
+        Cl: 18994, SO4: 2662, HCO3: 131.5, F: 1.72, NH4: 0.46,
+        TDS: 34528, TSS: 100, COD: 79.9,
+      },
+    },
+  },
   {
     key: "river-sumatra",
     label: "River — South Sumatra (methanol project)",

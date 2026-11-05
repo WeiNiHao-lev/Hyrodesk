@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { feedPreset, STANDARDS, TEMPLATES } from "@/lib/engine/templates";
-import { makeStream } from "@/lib/engine/stream";
+import { FEED_PRESETS, feedPreset, STANDARDS, TEMPLATES } from "@/lib/engine/templates";
+import { ionicBalanceErrorPct, makeStream } from "@/lib/engine/stream";
 import { CHEM_PRICES_USD_PER_T, feedStream, simulate, simulateForProduct } from "@/lib/engine/solver";
 import { outletsOf, UNIT_BY_TYPE, UNIT_MODELS } from "@/lib/engine/units";
 import { knowledgeFor } from "@/lib/engine/knowledge";
@@ -178,6 +178,9 @@ async function runChecks() {
 
   /* --- the CCEPC data-centre grades, on waters worked by hand --- */
   const dataCentre = checkDataCentreGrades();
+
+  /* --- the Batam seawater preset --- */
+  const batamPreset = checkBatamPreset();
 
   /* --- the site-visit analyser, against answers with known defects --- */
   const prepare = checkPrepareAnalysis();
@@ -369,9 +372,9 @@ async function runChecks() {
       ok: allClosed && allConverged && diagnosticsOk && productDrivenOk
         && xlsx.ok === true && docx.ok === true && diagrams.ok === true
         && leachate.ok && coverage.ok && markers.ok && prepare.ok && canvas.ok
-        && tankSplit.ok && dataCentre.ok,
+        && tankSplit.ok && dataCentre.ok && batamPreset.ok,
       allConverged, allClosed, diagnosticsOk, productDrivenOk,
-      coverage, leachate, markers, dataCentre, prepare, canvas, tankSplit, xlsx, docx, diagrams,
+      coverage, leachate, markers, dataCentre, batamPreset, prepare, canvas, tankSplit, xlsx, docx, diagrams,
       productDriven: pdTests,
       diagnostics: {
         fixture: KNOWN_BAD_FEED.name,
@@ -694,6 +697,35 @@ function checkDataCentreGrades() {
     corrosive_fails: failing(corrosive, "dc-d"),
     gradeS_water_fails_gradeD_on: dFailsOnS,
     standards_without_dropdown_entry: unpickable,
+  };
+}
+
+/**
+ * The Batam seawater preset: five measured parameters, the rest scaled from the
+ * chloride. It must balance, it must solve on the seawater train, and its COD,
+ * which the chloride alone can explain, must be flagged — while no other preset
+ * trips that rule, so it cannot turn into noise.
+ */
+function checkBatamPreset() {
+  const batam = feedPreset("seawater-batam");
+  const findings = validateFeed(batam);
+  const codFlag = "COD unreliable at this chloride";
+  const flaggedElsewhere = FEED_PRESETS
+    .filter((p) => p.key !== "seawater-batam" && validateFeed(p.spec).some((f) => f.title === codFlag))
+    .map((p) => p.key);
+  const fs = TEMPLATES.find((t) => t.key === "seawater-desal")!.make();
+  fs.feed = { ...batam };
+  const r = simulate(fs);
+  const balance = ionicBalanceErrorPct(feedStream({ ...batam, flow: 1 }));
+  return {
+    ok: findings.some((f) => f.title === codFlag) && flaggedElsewhere.length === 0
+      && Math.abs(balance) < 1 && r.converged,
+    ionBalancePct: round(balance, 2),
+    codFlagged: findings.some((f) => f.title === codFlag),
+    codFlaggedOnOtherPresets: flaggedElsewhere,
+    converged: r.converged,
+    secKWhPerM3: round(r.summary.secKWhPerM3, 2),
+    findings: findings.map((f) => `${f.severity}: ${f.title}`),
   };
 }
 

@@ -180,6 +180,24 @@ export function validateFeed(feed: FeedSpec): Finding[] {
     });
   }
 
+  /* --- 7b. COD on a saline water ---------------------------------------- */
+  // Only where the chloride could account for the whole figure, so a leachate
+  // with 9,000 mg/L of real COD and 2,500 mg/L of chloride is not flagged.
+  const clMg = feed.c.Cl ?? 0;
+  const codMg = feed.c.COD ?? 0;
+  const clCod = 0.226 * clMg;
+  if (clMg > 2000 && codMg > 20 && codMg < clCod) {
+    f.push({
+      severity: "warn",
+      title: "COD unreliable at this chloride",
+      detail: `COD ${codMg} mg/L with chloride ${clMg.toFixed(0)} mg/L. Oxidised by the dichromate, that chloride would read as up to ${clCod.toFixed(0)} mg/L of COD; ${((codMg / clCod) * 100).toFixed(1)} % of it left unmasked explains the whole result.`,
+      action:
+        "Ask for TOC, or COD after dilution by a chloride-tolerant method. Do not size organics removal or judge membrane fouling on this COD.",
+      why:
+        "The dichromate COD method masks chloride with mercuric sulphate only up to about 2,000 mg/L (Standard Methods 5220). Above that the chloride itself is oxidised, at 0.226 mg of COD per mg of Cl⁻, so on seawater the result measures the salt as much as the organics.",
+    });
+  }
+
   /* --- 8. missing parameters -------------------------------------------- */
   const missing: string[] = [];
   const prof = profileFor(feed.sourceType);
