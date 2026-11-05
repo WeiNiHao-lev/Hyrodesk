@@ -218,14 +218,74 @@ export function validateFeed(feed: FeedSpec): Finding[] {
 export interface StructuredLimit {
   label: string;
   /** Component key, or a derived metric name. */
-  key: Component | "hardness" | "alkalinity" | "conductivity" | "turbidity" | "pH" | "NO3asN";
+  key:
+    | Component | "hardness" | "alkalinity" | "conductivity" | "turbidity" | "pH" | "NO3asN"
+    | "NH4asN" | "ECions" | "LSI" | "TDS180" | "none";
   op: "<=" | ">=" | "range";
   value: number;
   max?: number;
   unit: string;
   /** True where the limit is met by equipment outside the WTP battery limit. */
   outsideScope?: boolean;
+  /**
+   * True where the standard names a parameter the mass balance does not carry
+   * (boron, free chlorine, bacteria). Such a row is shown and counted as "to
+   * verify", never as a pass: leaving it out would let the plant read compliant
+   * on parameters nobody looked at, and failing it would make the standard
+   * impossible to meet in the model.
+   */
+  notModelled?: boolean;
   note?: string;
+}
+
+/**
+ * CCEPC product water grades for data-centre customers, at the delivery point.
+ * Source: CCEPC Guidelines for Data Center Liquid Cooling System, section 5
+ * (Grade S standard, Grade D data-centre). The basis of each limit is in the
+ * guideline; the two grades differ only where the numbers below differ.
+ *
+ * Conductivity is checked on the ions, not on TDS/0.65: the guideline itself
+ * notes that RO water runs at a TDS/conductivity ratio of 0.45-0.55, so the
+ * fresh-water factor would pass Grade D water that is in fact over 350 uS/cm.
+ */
+function dataCentreGrade(g: {
+  tds: number; ec: number; cl: number; hard: [number, number]; alk: [number, number]; so4: number;
+}): StructuredLimit[] {
+  return [
+    { label: "pH", key: "pH", op: "range", value: 7.5, max: 8.2, unit: "-" },
+    {
+      label: "TDS (dried at 180 °C)", key: "TDS180", op: "<=", value: g.tds, unit: "mg/L",
+      note: "The guideline's TDS is the 180 °C residue, in which bicarbonate is left as carbonate (49 % of its mass). Counting it in full would overstate a remineralised water by about half its bicarbonate.",
+    },
+    {
+      label: "Conductivity (25 °C)", key: "ECions", op: "<=", value: g.ec, unit: "µS/cm",
+      note: "Calculated from the ions with the Standard Methods 1030 E factors, not from TDS/0.65.",
+    },
+    { label: "Chloride", key: "Cl", op: "<=", value: g.cl, unit: "mg/L" },
+    { label: "Total hardness", key: "hardness", op: "range", value: g.hard[0], max: g.hard[1], unit: "mg/L CaCO₃" },
+    { label: "Total alkalinity", key: "alkalinity", op: "range", value: g.alk[0], max: g.alk[1], unit: "mg/L CaCO₃" },
+    {
+      label: "Langelier saturation index", key: "LSI", op: "range", value: 0, max: 0.5, unit: "-",
+      note: "At the stream temperature. Below 0 the water is corrosive; the lower hardness and alkalinity limits protect galvanised towers from white rust.",
+    },
+    { label: "Sulfate", key: "SO4", op: "<=", value: g.so4, unit: "mg/L" },
+    { label: "Turbidity", key: "turbidity", op: "<=", value: 1, unit: "NTU" },
+    { label: "Total iron", key: "Fe", op: "<=", value: 0.1, unit: "mg/L" },
+    { label: "Ammonia (as N)", key: "NH4asN", op: "<=", value: 0.5, unit: "mg/L" },
+    { label: "COD", key: "COD", op: "<=", value: 3, unit: "mg/L" },
+    {
+      label: "Boron", key: "none", op: "<=", value: 1.0, unit: "mg/L", notModelled: true,
+      note: "Not carried by the mass balance. Boron passes as uncharged boric acid; a single SWRO pass rejects roughly 85-93 % at pH 8. Confirm with the membrane supplier's projection, and add a second pass at raised pH if the feed boron needs it.",
+    },
+    {
+      label: "Free chlorine at delivery", key: "none", op: "range", value: 0.2, max: 0.5, unit: "mg/L", notModelled: true,
+      note: "Set by post-chlorination dosing and the decay along the delivery main, which the model does not carry. PMK 2/2023 range where the water is also potable.",
+    },
+    {
+      label: "Bacteria (E. coli 0 / 100 mL)", key: "none", op: "<=", value: 100, unit: "CFU/mL", notModelled: true,
+      note: "Proved by disinfection design and sampling, not by the mass balance.",
+    },
+  ];
 }
 
 export const STANDARD_LIMITS: Record<string, StructuredLimit[]> = {
@@ -293,7 +353,47 @@ export const STANDARD_LIMITS: Record<string, StructuredLimit[]> = {
     { label: "Oil", key: "Oil", op: "<=", value: 1.0, unit: "mg/L" },
     { label: "Silica", key: "SiO2", op: "<=", value: 150, unit: "mg/L" },
   ],
+  "dc-s": dataCentreGrade({ tds: 250, ec: 600, cl: 100, hard: [60, 120], alk: [60, 100], so4: 100 }),
+  "dc-d": dataCentreGrade({ tds: 150, ec: 350, cl: 40, hard: [40, 80], alk: [40, 80], so4: 50 }),
 };
+
+/**
+ * Conductivity contributed per mg/L of each ion at 25 °C, uS/cm. The common
+ * ions are the Standard Methods 1030 E factors; the minor ones are the limiting
+ * equivalent conductance over the equivalent weight. Silica is left out because
+ * at neutral pH it is uncharged silicic acid. Good to a few per cent below about
+ * 1,000 uS/cm, which covers every product water this is used on.
+ */
+const EC_FACTOR: Partial<Record<Component, number>> = {
+  Ca: 2.60, Mg: 3.82, Na: 2.13, K: 1.84, NH4: 4.07,
+  HCO3: 0.715, CO3: 2.82, Cl: 2.14, SO4: 1.54, NO3: 1.15, F: 2.92,
+  Fe: 1.93, Mn: 1.95, Ba: 0.93, Sr: 1.36,
+};
+
+/** Electrical conductivity at 25 °C calculated from the ions, uS/cm. */
+export function conductivityFromIons(s: Stream): number {
+  let ec = 0;
+  for (const [k, f] of Object.entries(EC_FACTOR) as [Component, number][]) ec += (s.c[k] ?? 0) * f;
+  return ec;
+}
+
+/**
+ * Langelier saturation index, pH - pHs, with pHs from the usual four-term
+ * form (TDS, temperature, calcium hardness, alkalinity). Positive scales,
+ * negative dissolves calcium carbonate.
+ */
+export function langelierIndex(s: Stream): number {
+  const tds = Math.max(s.c.TDS, tdsFromIons(s), 1);
+  const caAsCaCO3 = s.c.Ca * (100.09 / 40.08);
+  const alk = alkalinityAsCaCO3(s);
+  if (caAsCaCO3 <= 0 || alk <= 0) return -Infinity;
+  const T = Number.isFinite(s.T) ? s.T : 25;
+  const A = (Math.log10(tds) - 1) / 10;
+  const B = -13.12 * Math.log10(T + 273.15) + 34.55;
+  const C = Math.log10(caAsCaCO3) - 0.4;
+  const D = Math.log10(alk);
+  return s.pH - (9.3 + A + B - (C + D));
+}
 
 export interface ComplianceRow {
   label: string;
@@ -303,6 +403,7 @@ export interface ComplianceRow {
   pass: boolean;
   marginText: string;
   outsideScope?: boolean;
+  notModelled?: boolean;
   note?: string;
 }
 
@@ -312,6 +413,14 @@ function metricOf(s: Stream, key: StructuredLimit["key"]): number {
     // Indonesian drinking water limits are written on the nitrogen, the model
     // carries the nitrate ion, and the two differ by the mass ratio 14.007/62.
     case "NO3asN": return s.c.NO3 * (14.007 / 62.004);
+    // The same for ammonia: NH3-N limits against the ammonium ion the model carries.
+    case "NH4asN": return s.c.NH4 * (14.007 / 18.039);
+    case "ECions": return conductivityFromIons(s);
+    // Residue at 180 °C: 2 HCO3- leave as CO3 2- + CO2 + H2O, so 60.01/122.03
+    // of the bicarbonate mass stays (Standard Methods 1030 E, "0.6 x alkalinity").
+    case "TDS180": return Math.max(s.c.TDS, tdsFromIons(s)) - s.c.HCO3 * (1 - 60.01 / 122.03);
+    case "LSI": return langelierIndex(s);
+    case "none": return NaN;
     case "alkalinity": return alkalinityAsCaCO3(s);
     // TDS/0.65 is the inverse of the conversion used to derive TDS from conductivity.
     case "conductivity": return Math.max(s.c.TDS, tdsFromIons(s)) / 0.65;
@@ -336,24 +445,28 @@ export function checkCompliance(s: Stream, standardKey: string): ComplianceRow[]
     }];
   }
   return limits.map((l) => {
+    const limitText = l.op === "range" ? `${l.value} – ${l.max} ${l.unit}`
+      : l.op === "<=" ? `≤ ${l.value} ${l.unit}` : `≥ ${l.value} ${l.unit}`;
+    if (l.notModelled) {
+      return {
+        label: l.label, limitText, actual: NaN, actualText: "—", pass: false,
+        marginText: "verify separately", notModelled: true, note: l.note,
+      };
+    }
     const actual = metricOf(s, l.key);
     let pass: boolean;
-    let limitText: string;
     let marginText: string;
     if (l.op === "range") {
       pass = actual >= l.value && actual <= (l.max ?? Infinity);
-      limitText = `${l.value} – ${l.max} ${l.unit}`;
       marginText = pass ? "within range" : actual < l.value ? "below range" : "above range";
     } else if (l.op === "<=") {
       pass = actual <= l.value;
-      limitText = `≤ ${l.value} ${l.unit}`;
       const ratio = actual > 0 ? l.value / actual : Infinity;
       marginText = pass
         ? ratio > 1000 ? "> 1000 × margin" : `${ratio.toFixed(ratio < 10 ? 1 : 0)} × margin`
         : `${(actual / l.value).toFixed(1)} × over limit`;
     } else {
       pass = actual >= l.value;
-      limitText = `≥ ${l.value} ${l.unit}`;
       marginText = pass ? "met" : "below limit";
     }
     return {
@@ -369,13 +482,20 @@ export function checkCompliance(s: Stream, standardKey: string): ComplianceRow[]
   });
 }
 
+/** In-scope rows that the model actually checked: the ones a verdict may count. */
+export function checkedRows(rows: ComplianceRow[]): ComplianceRow[] {
+  return rows.filter((r) => !r.outsideScope && !r.notModelled);
+}
+
 function fmtNum(v: number): string {
   if (!Number.isFinite(v)) return "-";
   if (v === 0) return "0";
-  if (v >= 1000) return v.toFixed(0);
-  if (v >= 10) return v.toFixed(1);
-  if (v >= 1) return v.toFixed(2);
-  if (v >= 0.001) return v.toFixed(4);
+  // On the magnitude, so a negative saturation index reads -0.31, not -3.1e-1.
+  const a = Math.abs(v);
+  if (a >= 1000) return v.toFixed(0);
+  if (a >= 10) return v.toFixed(1);
+  if (a >= 1) return v.toFixed(2);
+  if (a >= 0.001) return v.toFixed(4);
   return v.toExponential(1);
 }
 

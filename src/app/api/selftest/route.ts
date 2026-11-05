@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { feedPreset, TEMPLATES } from "@/lib/engine/templates";
+import { feedPreset, STANDARDS, TEMPLATES } from "@/lib/engine/templates";
+import { makeStream } from "@/lib/engine/stream";
 import { CHEM_PRICES_USD_PER_T, feedStream, simulate, simulateForProduct } from "@/lib/engine/solver";
 import { outletsOf, UNIT_BY_TYPE, UNIT_MODELS } from "@/lib/engine/units";
 import { knowledgeFor } from "@/lib/engine/knowledge";
 import { calcRowsFor } from "@/lib/report/calcsheets";
-import { inhibitionFindings, traceBalance } from "@/lib/engine/compliance";
+import { inhibitionFindings, TRACE_BY_KEY, traceBalance } from "@/lib/engine/compliance";
 import { analysePrepare, numbersIn } from "@/lib/engine/prepareAnalysis";
 import {
   DOCUMENTS, TYPE_GUIDES, SITE_CONDITIONS, UNIVERSAL,
@@ -12,7 +13,10 @@ import {
 } from "@/lib/engine/sitevisit";
 import type { ProjectKind } from "@/lib/store/types";
 import { optimise, reliabilityScore, DEFAULT_GOALS } from "@/lib/engine/optimizer";
-import { adviseProcess, validateFeed } from "@/lib/engine/diagnostics";
+import {
+  adviseProcess, checkCompliance, checkedRows, conductivityFromIons, langelierIndex,
+  STANDARD_LIMITS, validateFeed,
+} from "@/lib/engine/diagnostics";
 import { FeedSpec, Params, Stream } from "@/lib/engine/types";
 
 /**
@@ -171,6 +175,9 @@ async function runChecks() {
 
   /* --- compliance markers, on the leachate characterisation as reported --- */
   const markers = checkComplianceMarkers();
+
+  /* --- the CCEPC data-centre grades, on waters worked by hand --- */
+  const dataCentre = checkDataCentreGrades();
 
   /* --- the site-visit analyser, against answers with known defects --- */
   const prepare = checkPrepareAnalysis();
@@ -362,9 +369,9 @@ async function runChecks() {
       ok: allClosed && allConverged && diagnosticsOk && productDrivenOk
         && xlsx.ok === true && docx.ok === true && diagrams.ok === true
         && leachate.ok && coverage.ok && markers.ok && prepare.ok && canvas.ok
-        && tankSplit.ok,
+        && tankSplit.ok && dataCentre.ok,
       allConverged, allClosed, diagnosticsOk, productDrivenOk,
-      coverage, leachate, markers, prepare, canvas, tankSplit, xlsx, docx, diagrams,
+      coverage, leachate, markers, dataCentre, prepare, canvas, tankSplit, xlsx, docx, diagrams,
       productDriven: pdTests,
       diagnostics: {
         fixture: KNOWN_BAD_FEED.name,
@@ -637,6 +644,56 @@ function checkComplianceMarkers() {
       process: f.process, relevantToThisTrain: f.present,
     })),
     notes: m.filter((r) => r.note).map((r) => `${r.label}: ${r.note}`),
+  };
+}
+
+/**
+ * The CCEPC data-centre grades (S and D). Three remineralised waters with known
+ * answers, worked by hand: one that meets Grade D, the same water at a pH that
+ * leaves it corrosive, and a Grade S water that must fail Grade D on exactly the
+ * parameters where the grades differ. Also guards the two ways a standard has
+ * silently passed before: a parameter the model does not carry being counted as
+ * met, and a checkable standard that cannot be picked in the dropdown.
+ */
+function checkDataCentreGrades() {
+  const water = (c: Partial<Record<string, number>>, pH: number) => {
+    const ions = Object.values(c).reduce((a: number, b) => a + (b ?? 0), 0);
+    return makeStream(100, { ...c, TDS: ions }, { pH, T: 30, turbidityNTU: 0.2 });
+  };
+  const gradeD = water({ Na: 12, Cl: 18, Ca: 30, HCO3: 92, SO4: 3 }, 8.15);
+  const corrosive = water({ Na: 12, Cl: 18, Ca: 30, HCO3: 92, SO4: 3 }, 7.8);
+  const gradeS = water({ Na: 35, Cl: 55, Ca: 40, HCO3: 110, SO4: 20 }, 8.0);
+
+  const failing = (s: Stream, std: string) =>
+    checkedRows(checkCompliance(s, std)).filter((r) => !r.pass).map((r) => r.label).sort();
+
+  // By hand at 30 °C: pHs = 9.3 + 0.119 + 1.991 - (1.474 + 1.877) = 8.058.
+  const lsi = langelierIndex(gradeD);
+  // NaCl at 2.135 uS/cm per mg/L, the figure the guideline itself uses for RO water.
+  const ecNaCl = conductivityFromIons(makeStream(1, { Na: 39.34, Cl: 60.66 }));
+  const rowsD = checkCompliance(gradeD, "dc-d");
+  const notModelled = rowsD.filter((r) => r.notModelled);
+  const unpickable = Object.keys(STANDARD_LIMITS).filter((k) => !STANDARDS.some((s) => s.key === k));
+
+  const dFailsOnS = failing(gradeS, "dc-d");
+  const expectDFails = ["Chloride", "Conductivity (25 °C)", "TDS (dried at 180 °C)", "Total alkalinity", "Total hardness"];
+
+  return {
+    ok: failing(gradeD, "dc-d").length === 0 && failing(gradeD, "dc-s").length === 0
+      && JSON.stringify(failing(corrosive, "dc-d")) === JSON.stringify(["Langelier saturation index"])
+      && failing(gradeS, "dc-s").length === 0
+      && JSON.stringify(dFailsOnS) === JSON.stringify(expectDFails)
+      && Math.abs(lsi - 0.092) < 0.005
+      && Math.abs(ecNaCl - 213.6) < 0.5
+      && notModelled.length === 3 && notModelled.every((r) => !checkedRows(rowsD).includes(r))
+      && unpickable.length === 0
+      && TRACE_BY_KEY.Hg.limits?.permen59 === 0.005 && TRACE_BY_KEY.Cd.limits?.permen59 === 0.1,
+    lsi_gradeD: round(lsi, 3),
+    ec_NaCl_100mgL: round(ecNaCl, 1),
+    gradeD_table: rowsD.map((r) => ({ p: r.label, limit: r.limitText, value: r.actualText, status: r.notModelled ? "verify" : r.pass ? "pass" : "fail" })),
+    corrosive_fails: failing(corrosive, "dc-d"),
+    gradeS_water_fails_gradeD_on: dFailsOnS,
+    standards_without_dropdown_entry: unpickable,
   };
 }
 

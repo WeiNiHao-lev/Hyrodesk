@@ -5,7 +5,7 @@ import { Flowsheet, SimulationResult, Component } from "@/lib/engine/types";
 import { alkalinityAsCaCO3, hardnessAsCaCO3 } from "@/lib/engine/stream";
 import { downloadText, downloadBlob } from "@/lib/store/db";
 import { buildReport } from "@/lib/report/docx";
-import { checkCompliance, STANDARD_LIMITS } from "@/lib/engine/diagnostics";
+import { checkCompliance, checkedRows, STANDARD_LIMITS } from "@/lib/engine/diagnostics";
 import { inhibitionFindings, traceBalance } from "@/lib/engine/compliance";
 import { STANDARDS } from "@/lib/engine/templates";
 import { sweep, sweepCandidates, SweepResult } from "@/lib/engine/sensitivity";
@@ -448,8 +448,9 @@ function Compliance({ result, flowsheet }: { result: SimulationResult; flowsheet
   const stream = products[sel]?.stream;
   const rows = stream ? checkCompliance(stream, std) : [];
   const stdInfo = STANDARDS.find((s) => s.key === std);
-  const inScope = rows.filter((r) => !r.outsideScope);
+  const inScope = checkedRows(rows);
   const failed = inScope.filter((r) => !r.pass).length;
+  const toVerify = rows.filter((r) => r.notModelled);
 
   if (products.length === 0) {
     return <p className="py-8 text-center text-[0.8rem] text-ink-300">No product outlet connected.</p>;
@@ -480,8 +481,13 @@ function Compliance({ result, flowsheet }: { result: SimulationResult; flowsheet
         <StdPicker std={std} setStd={setStd} />
         <div className={`ml-auto chip ${failed === 0 ? "bg-mint-100 text-mint-700" : "bg-coral-100 text-coral-700"}`}>
           {failed === 0 ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
-          {failed === 0 ? "All in-scope parameters met" : `${failed} parameter${failed > 1 ? "s" : ""} not met`}
+          {failed === 0 ? "All modelled parameters met" : `${failed} parameter${failed > 1 ? "s" : ""} not met`}
         </div>
+        {toVerify.length > 0 && (
+          <div className="chip bg-ink-900/[0.06] text-ink-700">
+            {toVerify.length} to verify outside the model
+          </div>
+        )}
       </div>
 
       {stdInfo && <p className="mb-2 text-[0.7rem] text-ink-500">{stdInfo.scope}</p>}
@@ -496,13 +502,18 @@ function Compliance({ result, flowsheet }: { result: SimulationResult; flowsheet
         <tbody>
           {rows.map((r) => (
             <tr key={r.label}>
-              <td className="font-semibold">{r.label}</td>
+              <td>
+                <div className="font-semibold">{r.label}</div>
+                {r.note && <div className="mt-0.5 max-w-md text-[0.66rem] font-normal leading-snug text-ink-500">{r.note}</div>}
+              </td>
               <td>{r.limitText}</td>
               <td className="num">{r.actualText}</td>
               <td className="num text-ink-500">{r.marginText}</td>
               <td>
                 {r.outsideScope ? (
                   <span className="chip bg-sun-100 text-sun-700">Outside WTP scope</span>
+                ) : r.notModelled ? (
+                  <span className="chip bg-ink-900/[0.06] text-ink-700">Not modelled</span>
                 ) : r.pass ? (
                   <span className="chip bg-mint-100 text-mint-700">Pass</span>
                 ) : (

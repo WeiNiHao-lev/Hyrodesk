@@ -72,13 +72,13 @@ export const TRACE_PARAMETERS: TraceParameter[] = [
   {
     key: "Hg", label: "Mercury", unit: "mg/L", group: "Heavy metals",
     removal: { coagulation: 0.6, biological: 0.5, membraneLoose: 0.4, membraneTight: 0.97, carbon: 0.85, evaporation: 0.9 },
-    limits: { permenlhk: 0.005, pp22: 0.002 },
+    limits: { permenlhk: 0.005, permen59: 0.005, pp22: 0.002 },
     why: "One of the seven parameters Permen LHK P.59/2016 regulates for landfill leachate, and the limit is very low. It must be measured, not assumed.",
   },
   {
     key: "Cd", label: "Cadmium", unit: "mg/L", group: "Heavy metals",
     removal: { coagulation: 0.75, biological: 0.6, membraneLoose: 0.45, membraneTight: 0.985, carbon: 0.6, evaporation: 0.95 },
-    limits: { permenlhk: 0.1, pp22: 0.01 },
+    limits: { permenlhk: 0.1, permen59: 0.1, pp22: 0.01 },
     why: "The second regulated metal in P.59/2016. Mobile at low pH, which matters where an acid step precedes discharge.",
   },
   {
