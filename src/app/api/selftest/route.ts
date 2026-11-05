@@ -6,6 +6,7 @@ import { outletsOf, UNIT_BY_TYPE, UNIT_MODELS } from "@/lib/engine/units";
 import { knowledgeFor } from "@/lib/engine/knowledge";
 import { calcRowsFor } from "@/lib/report/calcsheets";
 import { inhibitionFindings, TRACE_BY_KEY, traceBalance } from "@/lib/engine/compliance";
+import { indicativeCapex } from "@/lib/engine/capex";
 import { analysePrepare, numbersIn } from "@/lib/engine/prepareAnalysis";
 import {
   DOCUMENTS, TYPE_GUIDES, SITE_CONDITIONS, UNIVERSAL,
@@ -728,6 +729,18 @@ function checkBatamPreset() {
     && tplProducts.length === 1 && !tplProducts.some((l) => /brine/i.test(l))
     && tr.result.summary.recoveryPct < 50;
 
+  // Indicative CAPEX: on the default factors the plant is 2.15 x 1.23 x 1.2 =
+  // 3.17 times its equipment on seawater, and 1.95 x 1.23 x 1.2 = 2.88 without
+  // the marine works; and the lines must add up to the total they report.
+  const cxSea = indicativeCapex(tpl, tr.result);
+  const fresh = TEMPLATES.find((t) => t.key === "wtp-sagara-split")!.make();
+  const cxFresh = indicativeCapex(fresh, simulate(fresh));
+  const line = (k: string) => cxSea.lines.find((l) => l.key === k)!.usd;
+  const capexOk = Math.abs(cxSea.overallFactor - 3.1734) < 0.001
+    && Math.abs(cxFresh.overallFactor - 2.8782) < 0.001
+    && !cxFresh.lines.some((l) => l.key === "marine")
+    && Math.abs(line("indirect") + line("contingency") - cxSea.totalUSD) < 1;
+
   // Remineralisation on an RO permeate, worked by hand: 70 mg/L as CaCO3 adds
   // 28.0 mg/L of calcium and 85.3 mg/L of bicarbonate, and the caustic trim
   // must land the pH on target with the alkalinity a few mg/L above the hardness.
@@ -750,7 +763,12 @@ function checkBatamPreset() {
 
   return {
     ok: findings.some((f) => f.title === codFlag) && flaggedElsewhere.length === 0
-      && Math.abs(balance) < 1 && r.converged && tplOk && reminOk && passageOk,
+      && Math.abs(balance) < 1 && r.converged && tplOk && reminOk && passageOk && capexOk,
+    indicativeCapex: {
+      ok: capexOk,
+      seawaterFactor: round(cxSea.overallFactor, 4), freshwaterFactor: round(cxFresh.overallFactor, 4),
+      totalUSD: Math.round(cxSea.totalUSD), usdPerM3d: Math.round(cxSea.usdPerM3d),
+    },
     template: {
       ok: tplOk, productFlow: round(tr.result.summary.productFlow, 1), products: tplProducts,
       recoveryPct: round(tr.result.summary.recoveryPct, 1),

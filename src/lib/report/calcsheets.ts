@@ -43,6 +43,7 @@ const n = (p: Params, k: string, d = 0): number => {
   const v = p[k];
   return typeof v === "number" && Number.isFinite(v) ? v : d;
 };
+const flag = (p: Params, k: string): boolean => p[k] === true;
 
 type Builder = (r: NodeResult, p: Params) => CalcRow[];
 
@@ -479,16 +480,23 @@ function roBuilder(defRec: number, defFlux: number, label: string): Builder {
       theory: "Van 't Hoff: osmotic pressure is proportional to the molar concentration of dissolved species. For a mixed natural water, 1000 mg/L gives roughly 0.78 bar at 25 °C. Seawater at 35,000 mg/L is therefore about 27 bar before any driving force is applied." },
     { key: "osmc", no: "16", item: "Concentrate osmotic pressure", symbol: "π_c", unit: "bar", expr: "${osm}*${cf}", formula: "π_c = π_f × CF" },
     { key: "ndp", no: "17", item: "Net driving pressure", symbol: "NDP", unit: "bar", val: 2.5, input: true, note: "The excess over osmotic pressure that actually produces flow." },
-    { key: "press", no: "18", item: "Feed pressure required", symbol: "p", unit: "bar", expr: "(${osm}+${osmc})/2+${ndp}+1.5", formula: "p = (π_f + π_c)/2 + NDP + Δp_loss",
-      theory: "The pump must overcome the average osmotic pressure along the vessel, provide the net driving pressure, and cover friction losses. This is why recovery and pressure are coupled: pushing recovery up raises the concentrate osmotic pressure and therefore the pressure needed." },
+    n(p, "feedPressureBar", 0) > 0
+      ? { key: "press", no: "18", item: "Feed pressure (from projection)", symbol: "p", unit: "bar", val: n(p, "feedPressureBar", 0), input: true,
+          note: "Entered on the block, so the estimate above is shown for comparison only." }
+      : { key: "press", no: "18", item: "Feed pressure required", symbol: "p", unit: "bar", expr: "(${osm}+${osmc})/2+${ndp}+1.5", formula: "p = (π_f + π_c)/2 + NDP + Δp_loss",
+          theory: "The pump must overcome the average osmotic pressure along the vessel, provide the net driving pressure, and cover friction losses. This is why recovery and pressure are coupled: pushing recovery up raises the concentrate osmotic pressure and therefore the pressure needed." },
     { key: "peff", no: "19", item: "High pressure pump efficiency", symbol: "η_p", unit: "-", val: n(p, "pumpEff", 0.75), input: true },
-    { key: "kw", no: "20", item: "Pump shaft power", symbol: "P", unit: "kW", expr: "1000*9.81*(${Qin}/3600)*(${press}*10.2)/${peff}/1000", formula: "P = ρ g Q (p × 10.2) / η_p",
+    { key: "kw0", no: "20", item: "Pump shaft power, no energy recovery", symbol: "P_0", unit: "kW", expr: "1000*9.81*(${Qin}/3600)*(${press}*10.2)/${peff}/1000", formula: "P_0 = ρ g Q (p × 10.2) / η_p",
       note: "10.2 converts bar to metres of head." },
-    { key: "sec", no: "21", item: "Specific energy", symbol: "e", unit: "kWh/m³ permeate", expr: "${kw}/${Qp}", formula: "e = P / Q_p",
-      note: "The number to compare designs on. Add an energy recovery device on seawater duty and this roughly halves." },
+    { key: "erd", no: "21", item: "ERD efficiency (0 = no ERD)", symbol: "η_ERD", unit: "-", val: flag(p, "erd") ? n(p, "erdEffPct", 55) / 100 : 0, input: true,
+      note: "Set on the block under Hydraulics. Isobaric pressure exchangers 0.93-0.96; turbochargers 0.7-0.8." },
+    { key: "kw", no: "22", item: "Pump shaft power", symbol: "P", unit: "kW", expr: "${kw0}*(1-${erd}*(1-${rec}/100))", formula: "P = P_0 × (1 − η_ERD × (1 − η))",
+      theory: "The concentrate leaves at nearly the feed pressure and carries a share (1 − η) of the hydraulic power. An energy recovery device hands η_ERD of that back to the incoming feed, so the high-pressure pump only supplies the rest. At 45 % recovery and 95 % ERD efficiency that is a saving of more than half." },
+    { key: "sec", no: "23", item: "Specific energy", symbol: "e", unit: "kWh/m³ permeate", expr: "${kw}/${Qp}", formula: "e = P / Q_p",
+      note: "The number to compare designs on." },
     { section: "Scaling check" },
-    { key: "hardf", no: "22", item: "Feed hardness", symbol: "H_f", unit: "mg/L CaCO₃", val: hardnessAsCaCO3(r.inlet), input: true },
-    { key: "hardc", no: "23", item: "Concentrate hardness", symbol: "H_c", unit: "mg/L CaCO₃", expr: "${hardf}*${cf}", formula: "H_c = H_f × CF",
+    { key: "hardf", no: "24", item: "Feed hardness", symbol: "H_f", unit: "mg/L CaCO₃", val: hardnessAsCaCO3(r.inlet), input: true },
+    { key: "hardc", no: "25", item: "Concentrate hardness", symbol: "H_c", unit: "mg/L CaCO₃", expr: "${hardf}*${cf}", formula: "H_c = H_f × CF",
       note: "Above roughly 900 mg/L as CaCO₃ a competent antiscalant is essential, and a full scaling projection should be run in the membrane supplier's software." },
   ];
 }

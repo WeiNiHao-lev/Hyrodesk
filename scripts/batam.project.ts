@@ -5,6 +5,7 @@ import { defaultParams } from "../src/lib/engine/units";
 import { checkCompliance, checkedRows, conductivityFromIons, langelierIndex } from "../src/lib/engine/diagnostics";
 import { alkalinityAsCaCO3, hardnessAsCaCO3 } from "../src/lib/engine/stream";
 import { feedPreset } from "../src/lib/engine/templates";
+import { indicativeCapex } from "../src/lib/engine/capex";
 import type { Project, StudyRun } from "../src/lib/store/types";
 
 /**
@@ -63,41 +64,63 @@ function build(specs: Spec[], links: [number, string, number][], standard: strin
  * into alkalinity when it is neutralised later; and boron is borate, which the
  * membrane rejects, instead of boric acid, which it does not.
  */
+/**
+ * Layout: the canvas puts every inlet on the left of a block and every outlet on
+ * the right, so the drawing must run left to right. A U-shaped layout copied
+ * from the process diagram sent the return row right to left, and every link
+ * there had to double back behind the blocks, which is what made the run look
+ * disconnected. The only link drawn backwards here is the real recycle.
+ */
+const DX = 260;
+const ROW = 200;
+
 function fsProcess(pass2Pct: number, rm: Remin, passage: number, standard: string): Flowsheet {
   const s: Spec[] = [
-    { type: "intake", label: "Seawater Intake + Screening", params: { cl2Dose: 0, headM: 25 }, x: 0, y: 200 },
+    { type: "feedsource", label: "Seawater (Batam)", x: 0, y: ROW },
+    { type: "intake", label: "Intake + Screening", params: { cl2Dose: 0, headM: 25 }, x: DX, y: ROW },
     // In-line coagulation onto the filter: a light PAC dose, no settling.
-    { type: "coagfloc", label: "Coagulation & Flocculation", params: { coagDose: 10 }, x: 200, y: 200 },
-    { type: "mmf", label: "Multimedia Filter", params: { backwashPct: 4 }, x: 400, y: 200 },
-    { type: "selfclean", label: "Self-cleaning Filter", x: 600, y: 200 },
-    { type: "uf", label: "UF", x: 800, y: 200 },
-    { type: "cartridge", label: "Cartridge Filter (antiscalant + SBS)", x: 1000, y: 340 },
+    { type: "coagfloc", label: "Coagulation & Floc.", params: { coagDose: 10 }, x: 2 * DX, y: ROW },
+    { type: "mmf", label: "Multimedia Filter", params: { backwashPct: 4 }, x: 3 * DX, y: ROW },
+    { type: "selfclean", label: "Self-cleaning Filter", x: 4 * DX, y: ROW },
+    { type: "uf", label: "UF", x: 5 * DX, y: ROW },
+    { type: "cartridge", label: "Cartridge Filter", x: 6 * DX, y: ROW },
     {
-      type: "swro", label: "SWRO 1st pass (HP pump + ERD)",
-      params: { recovery: 45, erd: true, antiscalantDose: 3, smbsDose: 2, passageFactor: passage }, x: 800, y: 340,
+      type: "swro", label: "SWRO 1st pass + ERD",
+      params: { recovery: 45, erd: true, erdEffPct: 55, antiscalantDose: 3, smbsDose: 2, passageFactor: passage }, x: 7 * DX, y: ROW,
     },
-    { type: "splitter", label: "Permeate split (A = 2nd pass, B = bypass)", params: { fractionA: pass2Pct }, x: 600, y: 340 },
-    { type: "phadjust", label: "NaOH to pH 10", params: { targetPH: 10, reagentUp: "naoh", codCoPrecipPct: 0, hrtMin: 2 }, x: 500, y: 460 },
-    { type: "ro", label: "2nd Pass RO (BWRO)", params: { recovery: 90, erd: false, antiscalantDose: 0, passageFactor: passage }, x: 400, y: 340 },
+    { type: "splitter", label: "Permeate split", params: { fractionA: pass2Pct }, x: 8 * DX, y: ROW },
+    { type: "phadjust", label: "NaOH (pH 10)", params: { targetPH: 10, reagentUp: "naoh", codCoPrecipPct: 0, hrtMin: 2 }, x: 9 * DX, y: ROW - 150 },
+    { type: "ro", label: "2nd Pass BWRO", params: { recovery: 90, erd: false, antiscalantDose: 0, passageFactor: passage }, x: 10 * DX, y: ROW - 150 },
     {
-      type: "remin", label: "Remineralization (lime + CO2)",
-      params: { method: "lime", ...rm, turbidityAddNTU: 0.2, contactMin: 5 }, x: 200, y: 340,
+      type: "remin", label: "Remineralization",
+      params: { method: "lime", ...rm, turbidityAddNTU: 0.2, contactMin: 5 }, x: 11 * DX, y: ROW,
     },
-    { type: "disinfection", label: "NaOCl dosing", params: { method: "naocl", dose: 1.0, contactMin: 30 }, x: 100, y: 460 },
-    { type: "producttank", label: "Product water tank", x: 0, y: 340 },
-    { type: "product", label: "Product water to data centre (300 L/s)", params: { name: "process" }, x: -200, y: 340 },
-    { type: "eqtank", label: "Drainage collection pit", params: { hrtH: 4 }, x: 400, y: 40 },
-    { type: "waste", label: "Discharge to sea", params: { name: "reject" }, x: 700, y: 40 },
+    { type: "disinfection", label: "NaOCl dosing", params: { method: "naocl", dose: 1.0, contactMin: 30 }, x: 12 * DX, y: ROW },
+    { type: "producttank", label: "Product water tank", x: 13 * DX, y: ROW },
+    { type: "product", label: "Product (300 L/s)", params: { name: "process" }, x: 14 * DX, y: ROW },
+    { type: "eqtank", label: "Drainage pit", params: { hrtH: 4 }, x: 6 * DX, y: ROW + 230 },
+    { type: "waste", label: "Discharge to sea", params: { name: "reject" }, x: 8 * DX, y: ROW + 230 },
   ];
   return build(s, [
-    [0, "out", 1], [1, "out", 2], [2, "out", 3], [3, "out", 4], [4, "out", 5], [5, "out", 6],
-    [6, "permeate", 7], [7, "a", 8], [8, "out", 9], [7, "b", 10], [9, "permeate", 10],
+    [0, "out", 1], [1, "out", 2], [2, "out", 3], [3, "out", 4], [4, "out", 5], [5, "out", 6], [6, "out", 7],
+    [7, "permeate", 8], [8, "a", 9], [9, "out", 10], [8, "b", 11], [10, "permeate", 11],
     // Second-pass concentrate back to the UF filtrate, ahead of the cartridge.
-    [9, "concentrate", 5],
-    [10, "out", 11], [11, "out", 12], [12, "out", 13],
-    [2, "backwash", 14], [3, "flush", 14], [4, "backwash", 14], [14, "out", 15],
-    [6, "concentrate", 15],
+    [10, "concentrate", 6],
+    [11, "out", 12], [12, "out", 13], [13, "out", 14],
+    [3, "backwash", 15], [4, "flush", 15], [5, "backwash", 15], [15, "out", 16],
+    [7, "concentrate", 16],
   ], standard);
+}
+
+/** Every link except the recycle must run left to right with room for the block between. */
+function layoutProblems(fs: Flowsheet): string[] {
+  const at = new Map(fs.nodes.map((n) => [n.id, n]));
+  return fs.edges.flatMap((e) => {
+    const a = at.get(e.source)!;
+    const b = at.get(e.target)!;
+    const recycle = a.type === "ro" && e.sourceHandle === "concentrate";
+    return !recycle && b.position.x - a.position.x < 230 ? [`${a.label} -> ${b.label}`] : [];
+  });
 }
 
 /* ------------------------------------------------------------ evaluate */
@@ -173,6 +196,7 @@ const gradeName = (std: string) => (std === "dc-s" ? "Grade S" : "Grade D");
 function describe(fs: Flowsheet, sol: ReturnType<typeof solve>) {
   const p = productOf(sol);
   const s = sol.result.summary;
+  const capex = indicativeCapex(fs, sol.result);
   const swro = sol.result.nodes.find((n) => n.type === "swro")!;
   const perm = swro.outlets.permeate;
   // Boron is not a component, so it is estimated rather than modelled: 4.41 mg/L
@@ -198,7 +222,9 @@ function describe(fs: Flowsheet, sol: ReturnType<typeof solve>) {
     + `kesadahan ${fmt(hardnessAsCaCO3(p))}, alkalinitas ${fmt(alkalinityAsCaCO3(p))} mg/L CaCO3, LSI ${fmt(langelierIndex(p), 2)}. `
     + `${verdicts.join("; ")}. `
     + `Daya ${fmt(s.totalPowerKW)} kW (${fmt(s.secKWhPerM3, 2)} kWh/m3). `
-    + `CAPEX peralatan USD ${fmt(s.capexUSD / 1e6, 2)} juta = Rp ${fmt((s.capexUSD * FX) / 1e9, 1)} miliar (angka screening). `
+    + `Indicative CAPEX USD ${fmt(capex.totalUSD / 1e6, 1)} juta = Rp ${fmt((capex.totalUSD * FX) / 1e9, 0)} miliar `
+    + `(rentang ${fmt(capex.lowUSD / 1e6, 1)}–${fmt(capex.highUSD / 1e6, 1)} juta USD; ${fmt(capex.usdPerM3d)} USD per m3/hari; `
+    + `${fmt(capex.overallFactor, 2)} × peralatan proses USD ${fmt(capex.equipmentUSD / 1e6, 1)} juta). `
     + `OPEX Rp ${fmt(s.opexUSDPerM3 * FX)}/m3. `
     + `Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk ${fmt(boron(0.9), 2)}–${fmt(boron(0.85), 2)} mg/L, batas 1,0), klor bebas di titik serah, dan bakteri.`;
 }
@@ -264,6 +290,11 @@ const project: Project = {
   runs,
 };
 
+for (const r of runs) {
+  const bad = layoutProblems(r.flowsheet);
+  if (bad.length) throw new Error(`${r.name}: links drawn backwards: ${bad.join(", ")}`);
+}
+
 const payload = { version: 1, exportedAt: now, projects: [project] };
 const file = "scripts/out/batam-swro-hydrodesk-project.json";
 writeFileSync(file, JSON.stringify(payload, null, 2));
@@ -273,3 +304,7 @@ console.log(`Diagram 50 %: nominal ${JSON.stringify(asDrawnNominal)}; desain ${J
 console.log(`Grade S: pass 2 ${dS.pass2} % (nominal ${dSnom.pass2} %), ${JSON.stringify(dS.rm)}`);
 console.log(`Grade D: pass 2 ${dD.pass2} % (nominal ${dDnom.pass2} %), ${JSON.stringify(dD.rm)}\n`);
 for (const r of runs) console.log(`${r.name}  [${r.verdict}]\n  ${r.engineerNote}\n`);
+console.log("indicative CAPEX build-up, run D:");
+for (const l of indicativeCapex(runs[3].flowsheet, runs[3].result).lines) {
+  console.log(`  ${l.label.padEnd(56)} ${l.factor != null ? `${Math.round(l.factor * 100)} %`.padStart(5) : "     "} ${fmt(l.usd).padStart(14)} USD  ${fmt((l.usd * FX) / 1e9, 1).padStart(7)} Rp M`);
+}

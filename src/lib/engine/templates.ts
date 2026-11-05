@@ -437,39 +437,43 @@ export const TEMPLATES: Template[] = [
     make: () =>
       build(
         [
-          { type: "intake", label: "Seawater Intake + Screening", params: { cl2Dose: 0, headM: 25 }, x: 0, y: 200 },
+          // Left to right throughout: the canvas puts inlets on the left of a block
+          // and outlets on the right, so a U-shaped layout makes links double back
+          // behind the blocks. Only the second-pass recycle runs backwards.
+          { type: "feedsource", label: "Seawater (Batam)", x: 0, y: 200 },
+          { type: "intake", label: "Intake + Screening", params: { cl2Dose: 0, headM: 25 }, x: 260, y: 200 },
           // No sedimentation: in-line coagulation with a light PAC dose straight onto the filter.
-          { type: "coagfloc", label: "Coagulation & Flocculation", params: { coagDose: 10 }, x: 200, y: 200 },
-          { type: "mmf", label: "Multimedia Filter", params: { backwashPct: 4 }, x: 400, y: 200 },
-          { type: "selfclean", label: "Self-cleaning Filter", x: 600, y: 200 },
-          { type: "uf", label: "UF", x: 800, y: 200 },
-          { type: "cartridge", label: "Cartridge Filter (antiscalant + SBS)", x: 1000, y: 340 },
+          { type: "coagfloc", label: "Coagulation & Floc.", params: { coagDose: 10 }, x: 520, y: 200 },
+          { type: "mmf", label: "Multimedia Filter", params: { backwashPct: 4 }, x: 780, y: 200 },
+          { type: "selfclean", label: "Self-cleaning Filter", x: 1040, y: 200 },
+          { type: "uf", label: "UF", x: 1300, y: 200 },
+          { type: "cartridge", label: "Cartridge Filter", x: 1560, y: 200 },
           {
-            type: "swro", label: "SWRO 1st pass (HP pump + ERD)",
-            params: { recovery: 45, erd: true, antiscalantDose: 3, smbsDose: 2 }, x: 800, y: 340,
+            type: "swro", label: "SWRO 1st pass + ERD",
+            params: { recovery: 45, erd: true, erdEffPct: 55, antiscalantDose: 3, smbsDose: 2 }, x: 1820, y: 200,
           },
-          { type: "splitter", label: "Permeate split (A = 2nd pass, B = bypass)", params: { fractionA: 50 }, x: 600, y: 340 },
+          { type: "splitter", label: "Permeate split", params: { fractionA: 50 }, x: 2080, y: 200 },
           // Caustic to pH 10: the CO2 and the boron are then ions, and the second pass rejects them.
-          { type: "phadjust", label: "NaOH to pH 10", params: { targetPH: 10, reagentUp: "naoh", codCoPrecipPct: 0, hrtMin: 2 }, x: 500, y: 460 },
-          { type: "ro", label: "2nd Pass RO (BWRO)", params: { recovery: 90, erd: false, antiscalantDose: 0 }, x: 400, y: 340 },
+          { type: "phadjust", label: "NaOH (pH 10)", params: { targetPH: 10, reagentUp: "naoh", codCoPrecipPct: 0, hrtMin: 2 }, x: 2340, y: 50 },
+          { type: "ro", label: "2nd Pass BWRO", params: { recovery: 90, erd: false, antiscalantDose: 0 }, x: 2600, y: 50 },
           {
-            type: "remin", label: "Remineralization (lime + CO2)",
-            params: { method: "lime", hardnessAdd: 90, targetPH: 8.1, co2ExcessPct: 5 }, x: 200, y: 340,
+            type: "remin", label: "Remineralization",
+            params: { method: "lime", hardnessAdd: 90, targetPH: 8.1, co2ExcessPct: 5 }, x: 2860, y: 200,
           },
-          { type: "disinfection", label: "NaOCl dosing", params: { method: "naocl", dose: 1.0, contactMin: 30 }, x: 100, y: 460 },
-          { type: "producttank", label: "Product water tank", x: 0, y: 340 },
-          { type: "product", label: "Product water to data centre", params: { name: "process" }, x: -200, y: 340 },
-          { type: "eqtank", label: "Drainage collection pit", params: { hrtH: 4 }, x: 400, y: 40 },
+          { type: "disinfection", label: "NaOCl dosing", params: { method: "naocl", dose: 1.0, contactMin: 30 }, x: 3120, y: 200 },
+          { type: "producttank", label: "Product water tank", x: 3380, y: 200 },
+          { type: "product", label: "Product (300 L/s)", params: { name: "process" }, x: 3640, y: 200 },
+          { type: "eqtank", label: "Drainage pit", params: { hrtH: 4 }, x: 1560, y: 430 },
           // A waste outlet, not an outfall: an outfall counts as product in the balance.
-          { type: "waste", label: "Discharge to sea", params: { name: "reject" }, x: 700, y: 40 },
+          { type: "waste", label: "Discharge to sea", params: { name: "reject" }, x: 2080, y: 430 },
         ],
         [
-          [0, "out", 1], [1, "out", 2], [2, "out", 3], [3, "out", 4], [4, "out", 5], [5, "out", 6],
-          [6, "permeate", 7], [7, "a", 8], [8, "out", 9], [7, "b", 10], [9, "permeate", 10],
-          [9, "concentrate", 5],
-          [10, "out", 11], [11, "out", 12], [12, "out", 13],
-          [2, "backwash", 14], [3, "flush", 14], [4, "backwash", 14], [14, "out", 15],
-          [6, "concentrate", 15],
+          [0, "out", 1], [1, "out", 2], [2, "out", 3], [3, "out", 4], [4, "out", 5], [5, "out", 6], [6, "out", 7],
+          [7, "permeate", 8], [8, "a", 9], [9, "out", 10], [8, "b", 11], [10, "permeate", 11],
+          [10, "concentrate", 6],
+          [11, "out", 12], [12, "out", 13], [13, "out", 14],
+          [3, "backwash", 15], [4, "flush", 15], [5, "backwash", 15], [15, "out", 16],
+          [7, "concentrate", 16],
         ],
         feedPreset("seawater-batam"),
         {

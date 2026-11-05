@@ -10,6 +10,7 @@ import { feedStream } from "../engine/solver";
 import { UNIT_BY_TYPE } from "../engine/units";
 import { STANDARDS } from "../engine/templates";
 import { inhibitionFindings, traceBalance } from "../engine/compliance";
+import { indicativeCapex } from "../engine/capex";
 
 const NAVY = "0F2942";
 const GREY = "4A7694";
@@ -94,6 +95,7 @@ export async function buildReport(
   fs: Flowsheet, result: SimulationResult, studyName: string,
 ): Promise<Blob> {
   const s = result.summary;
+  const capex = indicativeCapex(fs, result);
   const std = STANDARDS.find((x) => x.key === fs.basis.standard);
   // Use the same conversion the solver uses, so alkalinity and hardness entered
   // as CaCO3 are reflected in the report exactly as they are in the balance.
@@ -168,7 +170,12 @@ export async function buildReport(
       ["Specific energy (SEC)", `${num(s.secKWhPerM3, 3)} kWh/m³`, "Per m³ of product"],
       ["Dry solids", `${num(s.drySolidsKgH, 2)} kg/h`, "Clarification, biology and softening"],
       ["Total retention", `${num(s.hrtTotalH, 2)} h`, "Sum of tank and reactor HRT"],
-      ["Indicative installed cost", `${Math.round(s.capexUSD).toLocaleString()} USD`, "Order of magnitude only"],
+      ["Process equipment", `${Math.round(s.capexUSD).toLocaleString()} USD`, "Unit cost curves; equipment only"],
+      [
+        { v: "Indicative CAPEX", bg: OK },
+        { v: `${Math.round(capex.totalUSD).toLocaleString()} USD`, bg: OK },
+        { v: `Factored, -30 % / +50 %; ${num(capex.overallFactor, 2)} × equipment, ${Math.round(capex.usdPerM3d).toLocaleString()} USD per m³/d`, bg: OK },
+      ],
       ["Indicative OPEX", `${Math.round(s.opexUSDPerY).toLocaleString()} USD/y`, `${num(s.opexUSDPerM3, 3)} USD/m³`],
     ],
     [3000, 2600, 3760],

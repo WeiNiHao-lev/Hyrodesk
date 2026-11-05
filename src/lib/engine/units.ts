@@ -545,6 +545,8 @@ function membraneUnit(
       { key: "pumpEff", label: "HP pump efficiency", type: "number", unit: "-", min: 0.5, max: 0.88, step: 0.01, group: "Hydraulics" },
       { key: "erd", label: "Energy recovery device", type: "boolean", group: "Hydraulics",
         help: "Recovers pressure from the concentrate. Worthwhile on seawater duty, rarely on brackish." },
+      { key: "erdEffPct", label: "ERD efficiency", type: "number", unit: "%", min: 30, max: 98, step: 1, group: "Hydraulics",
+        help: "Net share of the concentrate's pressure energy handed back to the feed. 55 % is the long-standing default here (an older turbine); turbochargers reach 70-80 %, isobaric pressure exchangers 93-96 %. Pair a high figure with the feed pressure from the membrane projection: the estimated pressure is on the low side for seawater, so a high ERD efficiency on an estimated pressure understates the energy." },
       { key: "antiscalantDose", label: "Antiscalant dose", type: "number", unit: "mg/L", min: 0, max: 10, step: 0.5, group: "Chemicals" },
       { key: "smbsDose", label: "SMBS dose", type: "number", unit: "mg/L", min: 0, max: 10, step: 0.5, group: "Chemicals" },
       { key: "rejectionScale", label: "Rejection adjustment", type: "number", unit: "x", min: 0.9, max: 1.02, step: 0.005, group: "Performance",
@@ -555,7 +557,7 @@ function membraneUnit(
     defaults: {
       recovery: d.recovery, flux: d.flux, elementArea: 37.2, elementsPerVessel: 6,
       trains: 2, feedPressureBar: 0, pumpEff: 0.75, erd: false,
-      antiscalantDose: 3, smbsDose: 0, rejectionScale: 1, passageFactor: 1,
+      antiscalantDose: 3, smbsDose: 0, rejectionScale: 1, passageFactor: 1, erdEffPct: 55,
     },
     solve: (inlet, p) => {
       const Y = clamp(n(p, "recovery", d.recovery) / 100, 0.05, 0.95);
@@ -580,7 +582,11 @@ function membraneUnit(
       const estPressure = (osmFeed + osmConc) / 2 + ndp + 1.5;
       const pressure = n(p, "feedPressureBar", 0) > 0 ? n(p, "feedPressureBar", 0) : estPressure;
       let kw = pumpKW(inlet.flow, pressure * 10.2, n(p, "pumpEff", 0.75));
-      if (b(p, "erd")) kw *= 1 - 0.55 * (1 - Y);
+      // With an ERD the high-pressure pump only has to supply what the
+      // concentrate's pressure energy does not: the concentrate carries a share
+      // (1 - Y) of the hydraulic power, of which the device returns erdEff.
+      const erdEff = b(p, "erd") ? clamp(n(p, "erdEffPct", 55), 0, 99) / 100 : 0;
+      kw *= 1 - erdEff * (1 - Y);
 
       const area = (permeate.flow * 1000) / Math.max(n(p, "flux", d.flux), 1);
       const elements = Math.ceil(area / n(p, "elementArea", 37.2));
@@ -609,6 +615,7 @@ function membraneUnit(
             { label: "Trains", value: `${n(p, "trains", 2)} x ${(100 / Math.max(n(p, "trains", 2), 1)).toFixed(0)} %` },
             { label: "Actual flux", value: `${actualFlux.toFixed(1)} LMH` },
             { label: "Feed pressure", value: `${pressure.toFixed(1)} bar${n(p, "feedPressureBar", 0) > 0 ? " (user)" : " (estimated)"}` },
+            { label: "Energy recovery", value: erdEff > 0 ? `ERD, ${(erdEff * 100).toFixed(0)} % net` : "none" },
             { label: "Specific energy", value: `${(kw / Math.max(permeate.flow, 0.01)).toFixed(3)} kWh/m3 permeate` },
           ],
           capexUSD: costCurve(area, 210, 0.86) + costCurve(inlet.flow, 1600, 0.7),

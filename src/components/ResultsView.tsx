@@ -7,6 +7,7 @@ import { downloadText, downloadBlob } from "@/lib/store/db";
 import { buildReport } from "@/lib/report/docx";
 import { checkCompliance, checkedRows, STANDARD_LIMITS } from "@/lib/engine/diagnostics";
 import { inhibitionFindings, traceBalance } from "@/lib/engine/compliance";
+import { IDR_PER_USD, indicativeCapex } from "@/lib/engine/capex";
 import { STANDARDS } from "@/lib/engine/templates";
 import { sweep, sweepCandidates, SweepResult } from "@/lib/engine/sensitivity";
 import {
@@ -416,9 +417,9 @@ function Energy({ result, flowsheet }: { result: SimulationResult; flowsheet: Fl
               <td className="text-ink-500">indicative unit rates</td>
             </tr>
             <tr>
-              <td>Installed equipment (order of magnitude)</td>
+              <td>Process equipment (order of magnitude)</td>
               <td className="num">{Math.round(s.capexUSD).toLocaleString()} USD</td>
-              <td className="text-ink-500">capacity cost curves — NOT a quotation</td>
+              <td className="text-ink-500">capacity cost curves; the plant cost is below</td>
             </tr>
             <tr>
               <td className="font-semibold">Total indicative OPEX</td>
@@ -437,6 +438,79 @@ function Energy({ result, flowsheet }: { result: SimulationResult; flowsheet: Fl
           They are for ranking options against each other, not for quoting a client.
         </p>
       </div>
+
+      <IndicativeCapex result={result} flowsheet={flowsheet} />
+    </div>
+  );
+}
+
+const usd = (v: number) => Math.round(v).toLocaleString("en-US");
+const idrBn = (v: number) => ((v * IDR_PER_USD) / 1e9).toLocaleString("id-ID", { maximumFractionDigits: 1 });
+
+/**
+ * The plant cost, not just the equipment: the equipment from the unit cost
+ * curves, built up by the factors of a concept-stage estimate. Every factor is
+ * on the page so it can be argued with.
+ */
+function IndicativeCapex({ result, flowsheet }: { result: SimulationResult; flowsheet: Flowsheet }) {
+  const est = useMemo(() => indicativeCapex(flowsheet, result), [flowsheet, result]);
+  const [showUnits, setShowUnits] = useState(false);
+  if (est.equipmentUSD <= 0) return null;
+  return (
+    <div>
+      <h3 className="mb-1 text-[0.85rem] font-bold text-ink-900">
+        Indicative CAPEX — USD {(est.totalUSD / 1e6).toFixed(1)} M (Rp {idrBn(est.totalUSD)} miliar)
+      </h3>
+      <p className="mb-2 text-[0.7rem] text-ink-500">
+        Factored concept estimate, AACE Class 5: USD {(est.lowUSD / 1e6).toFixed(1)}–{(est.highUSD / 1e6).toFixed(1)} M
+        (−30 % / +50 %). {usd(est.usdPerM3d)} USD per m³/d of product capacity; {est.overallFactor.toFixed(2)} × the process equipment.
+      </p>
+      <table className="data">
+        <thead>
+          <tr>
+            <th>Item</th><th className="num">Factor</th><th>Applied to</th><th>Typical</th>
+            <th className="num">USD</th><th className="num">Rp miliar</th>
+          </tr>
+        </thead>
+        <tbody>
+          {est.lines.map((l) => {
+            const strong = l.kind === "subtotal" || l.kind === "total" || l.kind === "equipment";
+            return (
+              <tr key={l.key} className={l.kind === "total" ? "bg-aqua-50/70" : l.kind === "subtotal" ? "bg-ink-900/[0.03]" : ""}>
+                <td className={strong ? "font-semibold" : ""}>{l.label}</td>
+                <td className="num">{l.factor != null ? `${Math.round(l.factor * 100)} %` : ""}</td>
+                <td className="text-ink-500">{l.basis}</td>
+                <td className="text-[0.68rem] text-ink-500">{l.range ?? ""}</td>
+                <td className={`num ${strong ? "font-bold" : ""}`}>{usd(l.usd)}</td>
+                <td className={`num ${strong ? "font-bold" : ""}`}>{idrBn(l.usd)}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+
+      <button className="mt-2 text-[0.72rem] font-semibold text-aqua-700 hover:underline" onClick={() => setShowUnits((v) => !v)}>
+        {showUnits ? "Hide" : "Show"} the process equipment by unit ({est.equipment.length})
+      </button>
+      {showUnits && (
+        <table className="data mt-1">
+          <thead><tr><th>Unit</th><th className="num">USD</th><th className="num">Share</th></tr></thead>
+          <tbody>
+            {est.equipment.map((x, i) => (
+              <tr key={`${x.label}-${i}`}>
+                <td>{x.label}</td>
+                <td className="num">{usd(x.usd)}</td>
+                <td className="num text-ink-500">{((x.usd / est.equipmentUSD) * 100).toFixed(0)} %</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      <p className="mt-2 text-[0.66rem] leading-snug text-ink-500">
+        Rupiah at {IDR_PER_USD.toLocaleString("id-ID")} per USD. Not included: {est.exclusions.join("; ").toLowerCase()}.
+        {est.seawater ? " The marine works are a single factor here; on a real seawater site they depend on the distance offshore and the depth, and are often the largest single item to firm up." : ""}
+      </p>
     </div>
   );
 }

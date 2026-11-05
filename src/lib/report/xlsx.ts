@@ -4,6 +4,7 @@ import { alkalinityAsCaCO3, hardnessAsCaCO3, ionicBalanceErrorPct } from "../eng
 import { feedStream } from "../engine/solver";
 import { UNIT_BY_TYPE } from "../engine/units";
 import { STANDARDS } from "../engine/templates";
+import { DEFAULT_CAPEX_FACTORS, IDR_PER_USD, indicativeCapex } from "../engine/capex";
 import { calcRowsFor, CalcRow } from "./calcsheets";
 import { ArrowSpec, injectArrows } from "./xlsxArrows";
 
@@ -84,6 +85,7 @@ export async function buildWorkbook(
   sheetRemoval(wb, result);
   sheetCalcs(wb, fs, result);
   sheetEnergyChem(wb, fs, result, inputRefs);
+  sheetCapex(wb, fs, result, inputRefs);
   // A short derivations sheet stays in the workbook as quick reference while you
   // are in the numbers; the full treatment is in the companion document.
   sheetTheory(wb);
@@ -1080,6 +1082,137 @@ function sheetEnergyChem(
       cr.getCell(i).font = { bold: true, name: "Calibri" };
       cr.getCell(i).fill = { type: "pattern", pattern: "solid", fgColor: { argb: OKBG } };
     }
+  }
+  ws.views = [{ state: "frozen", ySplit: 3 }];
+}
+
+/* ------------------------------------------------------- 5b. indicative CAPEX */
+
+/**
+ * The factored CAPEX as live formulas: change a factor or an equipment price
+ * and the total follows, which is the only way a concept estimate can be
+ * discussed rather than just quoted.
+ */
+function sheetCapex(wb: ExcelJS.Workbook, fs: Flowsheet, result: SimulationResult, refs: InputRefs) {
+  const est = indicativeCapex(fs, result);
+  const ws = wb.addWorksheet("5b. Indicative CAPEX", { properties: { tabColor: { argb: "FFF2A516" } } });
+  ws.columns = [{ width: 46 }, { width: 11 }, { width: 18 }, { width: 16 }, { width: 14 }, { width: 44 }];
+  title(ws, "Indicative CAPEX (factored concept estimate)",
+    "Process equipment from the unit cost curves, built up by factors to a plant cost. AACE Class 5, accuracy about -30 % / +50 %. Yellow cells are assumptions: change them and every total follows.", 6);
+
+  let r = 4;
+  const hdr = (vals: string[]) => {
+    const row = ws.getRow(r);
+    row.values = vals;
+    styleHeader(row, vals.length);
+    r++;
+  };
+  const input = (c: ExcelJS.Cell) => { c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: INPUT } }; };
+  const strong = (row: ExcelJS.Row, n: number) => {
+    for (let i = 1; i <= n; i++) {
+      row.getCell(i).font = { bold: true, name: "Calibri" };
+      row.getCell(i).fill = { type: "pattern", pattern: "solid", fgColor: { argb: OKBG } };
+    }
+  };
+
+  // 1. Equipment by unit
+  hdr(["Process equipment by unit", "", "", "", "USD", "Note"]);
+  const firstEq = r;
+  for (const x of est.equipment) {
+    const row = ws.getRow(r);
+    row.getCell(1).value = x.label;
+    row.getCell(5).value = Math.round(x.usd);
+    row.getCell(5).numFmt = "#,##0";
+    input(row.getCell(5));
+    row.getCell(6).value = "Capacity cost curve. Replace with a quotation when there is one.";
+    row.getCell(6).font = { size: 9, name: "Calibri" };
+    r++;
+  }
+  const eqRow = ws.getRow(r);
+  eqRow.getCell(1).value = "Process equipment, total (E)";
+  eqRow.getCell(5).value = { formula: `SUM(E${firstEq}:E${r - 1})` };
+  eqRow.getCell(5).numFmt = "#,##0";
+  strong(eqRow, 5);
+  const E = `E${r}`;
+  r += 2;
+
+  // 2. The build-up
+  hdr(["Item", "Factor", "Applied to", "Typical", "USD", "Formula"]);
+  const lineRow = (label: string, factor: number, appliedTo: string, ref: string, typical: string) => {
+    const row = ws.getRow(r);
+    row.getCell(1).value = label;
+    row.getCell(2).value = factor;
+    row.getCell(2).numFmt = "0%";
+    input(row.getCell(2));
+    row.getCell(3).value = appliedTo;
+    row.getCell(4).value = typical;
+    row.getCell(5).value = { formula: `B${r}*${ref}` };
+    row.getCell(5).numFmt = "#,##0";
+    row.getCell(6).value = `= factor × ${appliedTo}`;
+    row.getCell(6).font = { size: 9, name: "Calibri", color: { argb: "FF4A7694" } };
+    return r++;
+  };
+  const f = DEFAULT_CAPEX_FACTORS;
+  const firstDirect = r;
+  lineRow("Installation, piping and valves", f.installation, "E", E, "30-50 %");
+  lineRow("Electrical, instrumentation and control", f.electrical, "E", E, "15-25 %");
+  lineRow("Civil works, structures and buildings", f.civil, "E", E, "25-45 %");
+  lineRow("Seawater intake and outfall (marine works)", est.seawater ? f.marine : 0, "E", E,
+    est.seawater ? "10-40 %, distance offshore and depth" : "0 — not a seawater feed");
+  const lastDirect = r - 1;
+  const dRow = ws.getRow(r);
+  dRow.getCell(1).value = "Direct cost (D)";
+  dRow.getCell(5).value = { formula: `${E}+SUM(E${firstDirect}:E${lastDirect})` };
+  dRow.getCell(5).numFmt = "#,##0";
+  dRow.getCell(6).value = "= E + direct items";
+  strong(dRow, 5);
+  const D = `E${r}`;
+  r++;
+  const firstInd = r;
+  lineRow("Engineering, procurement and construction management", f.engineering, "D", D, "8-15 %");
+  lineRow("Contractor overheads and profit", f.contractor, "D", D, "8-15 %");
+  lineRow("Commissioning, start-up and first spares", f.commissioning, "D", D, "2-5 %");
+  const lastInd = r - 1;
+  const diRow = ws.getRow(r);
+  diRow.getCell(1).value = "Direct plus indirect (D + I)";
+  diRow.getCell(5).value = { formula: `${D}+SUM(E${firstInd}:E${lastInd})` };
+  diRow.getCell(5).numFmt = "#,##0";
+  strong(diRow, 5);
+  const DI = `E${r}`;
+  r++;
+  const cRow = lineRow("Contingency", f.contingency, "D + I", DI, "15-30 % at concept stage");
+  const tRow = ws.getRow(r);
+  tRow.getCell(1).value = "INDICATIVE CAPEX";
+  tRow.getCell(5).value = { formula: `${DI}+E${cRow}` };
+  tRow.getCell(5).numFmt = "#,##0";
+  strong(tRow, 5);
+  const T = `E${r}`;
+  r += 2;
+
+  // 3. What it means
+  const kv = (label: string, value: ExcelJS.CellValue, fmt: string, note: string, isInput = false) => {
+    ws.getCell(r, 1).value = label;
+    ws.getCell(r, 5).value = value;
+    ws.getCell(r, 5).numFmt = fmt;
+    if (isInput) input(ws.getCell(r, 5));
+    ws.getCell(r, 6).value = note;
+    ws.getCell(r, 6).font = { size: 9, name: "Calibri" };
+    return r++;
+  };
+  const fxRow = kv("Rupiah per USD", IDR_PER_USD, "#,##0", "Exchange rate assumed.", true);
+  kv("Indicative CAPEX, Rp miliar", { formula: `${T}*E${fxRow}/1e9` }, "#,##0.0", "");
+  kv("Low end (-30 %), USD", { formula: `${T}*0.7` }, "#,##0", "AACE Class 5 band.");
+  kv("High end (+50 %), USD", { formula: `${T}*1.5` }, "#,##0", "");
+  kv("USD per m³/d of product capacity", { formula: `${T}/(${refs.targetProduct}*24)` }, "#,##0", "The figure to compare against reference plants.");
+  kv("Overall factor on equipment", { formula: `${T}/${E}` }, "0.00", "Total ÷ process equipment.");
+  r++;
+  ws.getCell(r, 1).value = "Not included";
+  ws.getCell(r, 1).font = { bold: true, name: "Calibri" };
+  r++;
+  for (const x of est.exclusions) {
+    ws.getCell(r, 1).value = `• ${x}`;
+    ws.getCell(r, 1).font = { size: 9, name: "Calibri" };
+    r++;
   }
   ws.views = [{ state: "frozen", ySplit: 3 }];
 }

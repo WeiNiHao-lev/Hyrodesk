@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-05T04:22:09.944Z",
+  "exportedAt": "2026-11-05T04:48:40.988Z",
   "projects": [
     {
-      "id": "batam-mw31hamw",
+      "id": "batam-mw32feal",
       "name": "Batam SWRO — data centre 300 L/s (Grade S & D)",
       "client": "Data centre, Batam",
       "location": "Batam",
@@ -11,22 +11,32 @@
       "status": "simulation",
       "capacityNote": "300 L/s produk (25.920 m³/hari) · air laut Batam · CCEPC Grade S dan Grade D di titik serah",
       "marketingContact": "",
-      "createdAt": "2026-11-05T04:22:09.944Z",
-      "updatedAt": "2026-11-05T04:22:09.944Z",
+      "createdAt": "2026-11-05T04:48:40.988Z",
+      "updatedAt": "2026-11-05T04:48:40.988Z",
       "notes": "Air baku: preset \"Seawater — Batam\". Yang terukur hanya pH 7,78, Cl 18.994, F 1,72, COD 79,9 dan NH3-N 0,36 mg/L (Appendix 1 §10.2.3); ion mayor lainnya diskalakan dari Cl dengan komposisi air laut referensi. Turbiditas, TSS, TOC, silika, besi dan boron belum dianalisis; TSS 100 mg/L adalah batas atas asumsi spesifikasi.\n\nProses mengikuti diagram: intake + screening → koagulasi-flokulasi → MMF → self-cleaning filter → UF → cartridge (antiskalan + SBS) → HP pump + ERD → SWRO pass 1 → sebagian ke pass 2 (BWRO, NaOH di depannya), sisanya bypass → remineralisasi → tangki produk (NaOCl). Konsentrat pass 2 kembali ke air produk UF. Drainage pit dan brine ke laut.\n\nPass kedua memakai BWRO, bukan SWRO: umpannya permeat SWRO (~330 mg/L, tekanan osmotik ~0,25 bar), jadi elemen brackish pada 8–15 bar dan flux 25–35 LMH sudah cukup; elemen SWRO hanya menambah tekanan dan energi.\n\nKasus desain membran: salt passage 1,6 × nominal (parameter Salt passage factor), kira-kira 1,3 untuk 30 °C terhadap 25 °C dikali 1,25 untuk elemen umur 3 tahun. Porsi pass kedua harus dikonfirmasi dengan proyeksi vendor (ROSA/WAVE/IMSDesign) pada kondisi yang sama.\n\nDiagram tidak punya sedimentasi: koagulasi langsung ke MMF (filtrasi langsung). Ini wajar hanya untuk air laut yang jernih (kekeruhan di bawah ~10 NTU, TSS beberapa mg/L). Dengan TSS 100 mg/L — angka asumsi spesifikasi — MMF akan dicuci terus-menerus. Turbiditas/TSS terukur menentukan perlu tidaknya sedimentasi atau DAF.\n\nRisiko terbuka: boron (≤ 1,0 mg/L) tidak dimodelkan; perkiraan ada di catatan tiap run. NaOH ke pH 10 di depan pass kedua penting untuk boron. Klor bebas di titik serah (0,2–0,5 mg/L) dan bakteri dibuktikan dengan desain dosing dan sampling.",
       "runs": [
         {
-          "id": "batam-mw31hair-0",
+          "id": "batam-mw32fe6w-0",
           "name": "A. Sesuai diagram (bypass 50 %) — membran nominal",
-          "createdAt": "2026-11-05T04:22:09.795Z",
+          "createdAt": "2026-11-05T04:48:40.856Z",
           "flowsheet": {
             "nodes": [
               {
-                "id": "n0-intake",
-                "type": "intake",
-                "label": "Seawater Intake + Screening",
+                "id": "n0-feedsource",
+                "type": "feedsource",
+                "label": "Seawater (Batam)",
                 "position": {
                   "x": 0,
+                  "y": 200
+                },
+                "params": {}
+              },
+              {
+                "id": "n1-intake",
+                "type": "intake",
+                "label": "Intake + Screening",
+                "position": {
+                  "x": 260,
                   "y": 200
                 },
                 "params": {
@@ -38,11 +48,11 @@
                 }
               },
               {
-                "id": "n1-coagfloc",
+                "id": "n2-coagfloc",
                 "type": "coagfloc",
-                "label": "Coagulation & Flocculation",
+                "label": "Coagulation & Floc.",
                 "position": {
-                  "x": 200,
+                  "x": 520,
                   "y": 200
                 },
                 "params": {
@@ -54,11 +64,11 @@
                 }
               },
               {
-                "id": "n2-mmf",
+                "id": "n3-mmf",
                 "type": "mmf",
                 "label": "Multimedia Filter",
                 "position": {
-                  "x": 400,
+                  "x": 780,
                   "y": 200
                 },
                 "params": {
@@ -70,11 +80,11 @@
                 }
               },
               {
-                "id": "n3-selfclean",
+                "id": "n4-selfclean",
                 "type": "selfclean",
                 "label": "Self-cleaning Filter",
                 "position": {
-                  "x": 600,
+                  "x": 1040,
                   "y": 200
                 },
                 "params": {
@@ -87,11 +97,11 @@
                 }
               },
               {
-                "id": "n4-uf",
+                "id": "n5-uf",
                 "type": "uf",
                 "label": "UF",
                 "position": {
-                  "x": 800,
+                  "x": 1300,
                   "y": 200
                 },
                 "params": {
@@ -106,12 +116,12 @@
                 }
               },
               {
-                "id": "n5-cartridge",
+                "id": "n6-cartridge",
                 "type": "cartridge",
-                "label": "Cartridge Filter (antiscalant + SBS)",
+                "label": "Cartridge Filter",
                 "position": {
-                  "x": 1000,
-                  "y": 340
+                  "x": 1560,
+                  "y": 200
                 },
                 "params": {
                   "micron": 5,
@@ -119,12 +129,12 @@
                 }
               },
               {
-                "id": "n6-swro",
+                "id": "n7-swro",
                 "type": "swro",
-                "label": "SWRO 1st pass (HP pump + ERD)",
+                "label": "SWRO 1st pass + ERD",
                 "position": {
-                  "x": 800,
-                  "y": 340
+                  "x": 1820,
+                  "y": 200
                 },
                 "params": {
                   "recovery": 45,
@@ -138,28 +148,29 @@
                   "antiscalantDose": 3,
                   "smbsDose": 2,
                   "rejectionScale": 1,
-                  "passageFactor": 1
+                  "passageFactor": 1,
+                  "erdEffPct": 55
                 }
               },
               {
-                "id": "n7-splitter",
+                "id": "n8-splitter",
                 "type": "splitter",
-                "label": "Permeate split (A = 2nd pass, B = bypass)",
+                "label": "Permeate split",
                 "position": {
-                  "x": 600,
-                  "y": 340
+                  "x": 2080,
+                  "y": 200
                 },
                 "params": {
                   "fractionA": 50
                 }
               },
               {
-                "id": "n8-phadjust",
+                "id": "n9-phadjust",
                 "type": "phadjust",
-                "label": "NaOH to pH 10",
+                "label": "NaOH (pH 10)",
                 "position": {
-                  "x": 500,
-                  "y": 460
+                  "x": 2340,
+                  "y": 50
                 },
                 "params": {
                   "targetPH": 10,
@@ -172,12 +183,12 @@
                 }
               },
               {
-                "id": "n9-ro",
+                "id": "n10-ro",
                 "type": "ro",
-                "label": "2nd Pass RO (BWRO)",
+                "label": "2nd Pass BWRO",
                 "position": {
-                  "x": 400,
-                  "y": 340
+                  "x": 2600,
+                  "y": 50
                 },
                 "params": {
                   "recovery": 90,
@@ -191,16 +202,17 @@
                   "antiscalantDose": 0,
                   "smbsDose": 0,
                   "rejectionScale": 1,
-                  "passageFactor": 1
+                  "passageFactor": 1,
+                  "erdEffPct": 55
                 }
               },
               {
-                "id": "n10-remin",
+                "id": "n11-remin",
                 "type": "remin",
-                "label": "Remineralization (lime + CO2)",
+                "label": "Remineralization",
                 "position": {
-                  "x": 200,
-                  "y": 340
+                  "x": 2860,
+                  "y": 200
                 },
                 "params": {
                   "method": "lime",
@@ -212,12 +224,12 @@
                 }
               },
               {
-                "id": "n11-disinfection",
+                "id": "n12-disinfection",
                 "type": "disinfection",
                 "label": "NaOCl dosing",
                 "position": {
-                  "x": 100,
-                  "y": 460
+                  "x": 3120,
+                  "y": 200
                 },
                 "params": {
                   "method": "naocl",
@@ -226,12 +238,12 @@
                 }
               },
               {
-                "id": "n12-producttank",
+                "id": "n13-producttank",
                 "type": "producttank",
                 "label": "Product water tank",
                 "position": {
-                  "x": 0,
-                  "y": 340
+                  "x": 3380,
+                  "y": 200
                 },
                 "params": {
                   "hrtH": 8,
@@ -245,24 +257,24 @@
                 }
               },
               {
-                "id": "n13-product",
+                "id": "n14-product",
                 "type": "product",
-                "label": "Product water to data centre (300 L/s)",
+                "label": "Product (300 L/s)",
                 "position": {
-                  "x": -200,
-                  "y": 340
+                  "x": 3640,
+                  "y": 200
                 },
                 "params": {
                   "name": "process"
                 }
               },
               {
-                "id": "n14-eqtank",
+                "id": "n15-eqtank",
                 "type": "eqtank",
-                "label": "Drainage collection pit",
+                "label": "Drainage pit",
                 "position": {
-                  "x": 400,
-                  "y": 40
+                  "x": 1560,
+                  "y": 430
                 },
                 "params": {
                   "hrtH": 4,
@@ -276,12 +288,12 @@
                 }
               },
               {
-                "id": "n15-waste",
+                "id": "n16-waste",
                 "type": "waste",
                 "label": "Discharge to sea",
                 "position": {
-                  "x": 700,
-                  "y": 40
+                  "x": 2080,
+                  "y": 430
                 },
                 "params": {
                   "name": "reject"
@@ -291,142 +303,149 @@
             "edges": [
               {
                 "id": "e0",
-                "source": "n0-intake",
+                "source": "n0-feedsource",
                 "sourceHandle": "out",
-                "target": "n1-coagfloc",
+                "target": "n1-intake",
                 "targetHandle": "in"
               },
               {
                 "id": "e1",
-                "source": "n1-coagfloc",
+                "source": "n1-intake",
                 "sourceHandle": "out",
-                "target": "n2-mmf",
+                "target": "n2-coagfloc",
                 "targetHandle": "in"
               },
               {
                 "id": "e2",
-                "source": "n2-mmf",
+                "source": "n2-coagfloc",
                 "sourceHandle": "out",
-                "target": "n3-selfclean",
+                "target": "n3-mmf",
                 "targetHandle": "in"
               },
               {
                 "id": "e3",
-                "source": "n3-selfclean",
+                "source": "n3-mmf",
                 "sourceHandle": "out",
-                "target": "n4-uf",
+                "target": "n4-selfclean",
                 "targetHandle": "in"
               },
               {
                 "id": "e4",
-                "source": "n4-uf",
+                "source": "n4-selfclean",
                 "sourceHandle": "out",
-                "target": "n5-cartridge",
+                "target": "n5-uf",
                 "targetHandle": "in"
               },
               {
                 "id": "e5",
-                "source": "n5-cartridge",
+                "source": "n5-uf",
                 "sourceHandle": "out",
-                "target": "n6-swro",
+                "target": "n6-cartridge",
                 "targetHandle": "in"
               },
               {
                 "id": "e6",
-                "source": "n6-swro",
-                "sourceHandle": "permeate",
-                "target": "n7-splitter",
+                "source": "n6-cartridge",
+                "sourceHandle": "out",
+                "target": "n7-swro",
                 "targetHandle": "in"
               },
               {
                 "id": "e7",
-                "source": "n7-splitter",
-                "sourceHandle": "a",
-                "target": "n8-phadjust",
+                "source": "n7-swro",
+                "sourceHandle": "permeate",
+                "target": "n8-splitter",
                 "targetHandle": "in"
               },
               {
                 "id": "e8",
-                "source": "n8-phadjust",
-                "sourceHandle": "out",
-                "target": "n9-ro",
+                "source": "n8-splitter",
+                "sourceHandle": "a",
+                "target": "n9-phadjust",
                 "targetHandle": "in"
               },
               {
                 "id": "e9",
-                "source": "n7-splitter",
-                "sourceHandle": "b",
-                "target": "n10-remin",
+                "source": "n9-phadjust",
+                "sourceHandle": "out",
+                "target": "n10-ro",
                 "targetHandle": "in"
               },
               {
                 "id": "e10",
-                "source": "n9-ro",
-                "sourceHandle": "permeate",
-                "target": "n10-remin",
+                "source": "n8-splitter",
+                "sourceHandle": "b",
+                "target": "n11-remin",
                 "targetHandle": "in"
               },
               {
                 "id": "e11",
-                "source": "n9-ro",
-                "sourceHandle": "concentrate",
-                "target": "n5-cartridge",
+                "source": "n10-ro",
+                "sourceHandle": "permeate",
+                "target": "n11-remin",
                 "targetHandle": "in"
               },
               {
                 "id": "e12",
-                "source": "n10-remin",
-                "sourceHandle": "out",
-                "target": "n11-disinfection",
+                "source": "n10-ro",
+                "sourceHandle": "concentrate",
+                "target": "n6-cartridge",
                 "targetHandle": "in"
               },
               {
                 "id": "e13",
-                "source": "n11-disinfection",
+                "source": "n11-remin",
                 "sourceHandle": "out",
-                "target": "n12-producttank",
+                "target": "n12-disinfection",
                 "targetHandle": "in"
               },
               {
                 "id": "e14",
-                "source": "n12-producttank",
+                "source": "n12-disinfection",
                 "sourceHandle": "out",
-                "target": "n13-product",
+                "target": "n13-producttank",
                 "targetHandle": "in"
               },
               {
                 "id": "e15",
-                "source": "n2-mmf",
-                "sourceHandle": "backwash",
-                "target": "n14-eqtank",
+                "source": "n13-producttank",
+                "sourceHandle": "out",
+                "target": "n14-product",
                 "targetHandle": "in"
               },
               {
                 "id": "e16",
-                "source": "n3-selfclean",
-                "sourceHandle": "flush",
-                "target": "n14-eqtank",
+                "source": "n3-mmf",
+                "sourceHandle": "backwash",
+                "target": "n15-eqtank",
                 "targetHandle": "in"
               },
               {
                 "id": "e17",
-                "source": "n4-uf",
-                "sourceHandle": "backwash",
-                "target": "n14-eqtank",
+                "source": "n4-selfclean",
+                "sourceHandle": "flush",
+                "target": "n15-eqtank",
                 "targetHandle": "in"
               },
               {
                 "id": "e18",
-                "source": "n14-eqtank",
-                "sourceHandle": "out",
-                "target": "n15-waste",
+                "source": "n5-uf",
+                "sourceHandle": "backwash",
+                "target": "n15-eqtank",
                 "targetHandle": "in"
               },
               {
                 "id": "e19",
-                "source": "n6-swro",
+                "source": "n15-eqtank",
+                "sourceHandle": "out",
+                "target": "n16-waste",
+                "targetHandle": "in"
+              },
+              {
+                "id": "e20",
+                "source": "n7-swro",
                 "sourceHandle": "concentrate",
-                "target": "n15-waste",
+                "target": "n16-waste",
                 "targetHandle": "in"
               }
             ],
@@ -471,9 +490,9 @@
             "messages": [],
             "nodes": [
               {
-                "id": "n0-intake",
-                "type": "intake",
-                "label": "Seawater Intake + Screening",
+                "id": "n0-feedsource",
+                "type": "feedsource",
+                "label": "Seawater (Batam)",
                 "inlet": {
                   "flow": 2721.3723416253574,
                   "T": 30,
@@ -533,6 +552,93 @@
                       "Ba": 0,
                       "Sr": 7.8,
                       "TDS": 34528,
+                      "TSS": 100,
+                      "BOD": 0,
+                      "COD": 79.9,
+                      "TOC": 0,
+                      "TN": 0,
+                      "TP": 0,
+                      "Oil": 0
+                    },
+                    "extras": {
+                      "turbidityNTU": 0,
+                      "coliform": 0,
+                      "sdi15": 6
+                    }
+                  }
+                },
+                "aux": {
+                  "powerKW": 0,
+                  "chemicals": {},
+                  "drySolidsKgH": 0,
+                  "sizing": [],
+                  "capexUSD": 0,
+                  "notes": []
+                }
+              },
+              {
+                "id": "n1-intake",
+                "type": "intake",
+                "label": "Intake + Screening",
+                "inlet": {
+                  "flow": 2721.3723416253574,
+                  "T": 30,
+                  "pH": 7.78,
+                  "c": {
+                    "Na": 10582,
+                    "K": 392,
+                    "Ca": 404,
+                    "Mg": 1260,
+                    "NH4": 0.4600000000000001,
+                    "Cl": 18994,
+                    "SO4": 2662,
+                    "HCO3": 131.5,
+                    "CO3": 0,
+                    "NO3": 0,
+                    "F": 1.72,
+                    "SiO2": 0,
+                    "Fe": 0,
+                    "Mn": 0,
+                    "Ba": 0,
+                    "Sr": 7.800000000000001,
+                    "TDS": 34528,
+                    "TSS": 100,
+                    "BOD": 0,
+                    "COD": 79.9,
+                    "TOC": 0,
+                    "TN": 0,
+                    "TP": 0,
+                    "Oil": 0
+                  },
+                  "extras": {
+                    "turbidityNTU": 0,
+                    "coliform": 0,
+                    "sdi15": 6
+                  }
+                },
+                "outlets": {
+                  "out": {
+                    "flow": 2721.3723416253574,
+                    "T": 30,
+                    "pH": 7.78,
+                    "c": {
+                      "Na": 10582,
+                      "K": 392,
+                      "Ca": 404,
+                      "Mg": 1260,
+                      "NH4": 0.4600000000000001,
+                      "Cl": 18994,
+                      "SO4": 2662,
+                      "HCO3": 131.5,
+                      "CO3": 0,
+                      "NO3": 0,
+                      "F": 1.72,
+                      "SiO2": 0,
+                      "Fe": 0,
+                      "Mn": 0,
+                      "Ba": 0,
+                      "Sr": 7.800000000000001,
+                      "TDS": 34528,
                       "TSS": 97,
                       "BOD": 0,
                       "COD": 79.9,
@@ -567,9 +673,9 @@
                 }
               },
               {
-                "id": "n1-coagfloc",
+                "id": "n2-coagfloc",
                 "type": "coagfloc",
-                "label": "Coagulation & Flocculation",
+                "label": "Coagulation & Floc.",
                 "inlet": {
                   "flow": 2721.3723416253574,
                   "T": 30,
@@ -667,7 +773,7 @@
                 }
               },
               {
-                "id": "n2-mmf",
+                "id": "n3-mmf",
                 "type": "mmf",
                 "label": "Multimedia Filter",
                 "inlet": {
@@ -803,7 +909,7 @@
                 }
               },
               {
-                "id": "n3-selfclean",
+                "id": "n4-selfclean",
                 "type": "selfclean",
                 "label": "Self-cleaning Filter",
                 "inlet": {
@@ -935,7 +1041,7 @@
                 }
               },
               {
-                "id": "n4-uf",
+                "id": "n5-uf",
                 "type": "uf",
                 "label": "UF",
                 "inlet": {
@@ -1078,9 +1184,9 @@
                 }
               },
               {
-                "id": "n14-eqtank",
+                "id": "n15-eqtank",
                 "type": "eqtank",
-                "label": "Drainage collection pit",
+                "label": "Drainage pit",
                 "inlet": {
                   "flow": 251.89022394084319,
                   "T": 30,
@@ -1175,9 +1281,9 @@
                 }
               },
               {
-                "id": "n5-cartridge",
+                "id": "n6-cartridge",
                 "type": "cartridge",
-                "label": "Cartridge Filter (antiscalant + SBS)",
+                "label": "Cartridge Filter",
                 "inlet": {
                   "flow": 2526.3243140704417,
                   "T": 30,
@@ -1267,9 +1373,9 @@
                 }
               },
               {
-                "id": "n6-swro",
+                "id": "n7-swro",
                 "type": "swro",
-                "label": "SWRO 1st pass (HP pump + ERD)",
+                "label": "SWRO 1st pass + ERD",
                 "inlet": {
                   "flow": 2526.324226440885,
                   "T": 30,
@@ -1409,6 +1515,10 @@
                       "value": "41.7 bar (estimated)"
                     },
                     {
+                      "label": "Energy recovery",
+                      "value": "ERD, 55 % net"
+                    },
+                    {
                       "label": "Specific energy",
                       "value": "2.395 kWh/m3 permeate"
                     }
@@ -1418,9 +1528,9 @@
                 }
               },
               {
-                "id": "n7-splitter",
+                "id": "n8-splitter",
                 "type": "splitter",
-                "label": "Permeate split (A = 2nd pass, B = bypass)",
+                "label": "Permeate split",
                 "inlet": {
                   "flow": 1136.8458291577829,
                   "T": 30,
@@ -1541,9 +1651,9 @@
                 }
               },
               {
-                "id": "n8-phadjust",
+                "id": "n9-phadjust",
                 "type": "phadjust",
-                "label": "NaOH to pH 10",
+                "label": "NaOH (pH 10)",
                 "inlet": {
                   "flow": 568.4228476795711,
                   "T": 30,
@@ -1648,9 +1758,9 @@
                 }
               },
               {
-                "id": "n9-ro",
+                "id": "n10-ro",
                 "type": "ro",
-                "label": "2nd Pass RO (BWRO)",
+                "label": "2nd Pass BWRO",
                 "inlet": {
                   "flow": 568.4227243749276,
                   "T": 30,
@@ -1790,6 +1900,10 @@
                       "value": "4.9 bar (estimated)"
                     },
                     {
+                      "label": "Energy recovery",
+                      "value": "none"
+                    },
+                    {
                       "label": "Specific energy",
                       "value": "0.201 kWh/m3 permeate"
                     }
@@ -1799,9 +1913,9 @@
                 }
               },
               {
-                "id": "n10-remin",
+                "id": "n11-remin",
                 "type": "remin",
-                "label": "Remineralization (lime + CO2)",
+                "label": "Remineralization",
                 "inlet": {
                   "flow": 1080.0030942777805,
                   "T": 30.000000000000004,
@@ -1907,7 +2021,7 @@
                 }
               },
               {
-                "id": "n11-disinfection",
+                "id": "n12-disinfection",
                 "type": "disinfection",
                 "label": "NaOCl dosing",
                 "inlet": {
@@ -2002,7 +2116,7 @@
                 }
               },
               {
-                "id": "n12-producttank",
+                "id": "n13-producttank",
                 "type": "producttank",
                 "label": "Product water tank",
                 "inlet": {
@@ -2099,9 +2213,9 @@
                 }
               },
               {
-                "id": "n13-product",
+                "id": "n14-product",
                 "type": "product",
-                "label": "Product water to data centre (300 L/s)",
+                "label": "Product (300 L/s)",
                 "inlet": {
                   "flow": 1079.9999999999995,
                   "T": 30,
@@ -2149,7 +2263,7 @@
                 }
               },
               {
-                "id": "n15-waste",
+                "id": "n16-waste",
                 "type": "waste",
                 "label": "Discharge to sea",
                 "inlet": {
@@ -2203,8 +2317,50 @@
               {
                 "id": "e0",
                 "label": "S1",
-                "from": "Seawater Intake + Screening (out)",
-                "to": "Coagulation & Flocculation",
+                "from": "Seawater (Batam) (out)",
+                "to": "Intake + Screening",
+                "stream": {
+                  "flow": 2721.3723416253574,
+                  "T": 30,
+                  "pH": 7.78,
+                  "c": {
+                    "Na": 10582,
+                    "K": 392,
+                    "Ca": 404,
+                    "Mg": 1260,
+                    "NH4": 0.4600000000000001,
+                    "Cl": 18994,
+                    "SO4": 2662,
+                    "HCO3": 131.5,
+                    "CO3": 0,
+                    "NO3": 0,
+                    "F": 1.72,
+                    "SiO2": 0,
+                    "Fe": 0,
+                    "Mn": 0,
+                    "Ba": 0,
+                    "Sr": 7.800000000000001,
+                    "TDS": 34528,
+                    "TSS": 100,
+                    "BOD": 0,
+                    "COD": 79.9,
+                    "TOC": 0,
+                    "TN": 0,
+                    "TP": 0,
+                    "Oil": 0
+                  },
+                  "extras": {
+                    "turbidityNTU": 0,
+                    "coliform": 0,
+                    "sdi15": 6
+                  }
+                }
+              },
+              {
+                "id": "e1",
+                "label": "S2",
+                "from": "Intake + Screening (out)",
+                "to": "Coagulation & Floc.",
                 "stream": {
                   "flow": 2721.3723416253574,
                   "T": 30,
@@ -2243,9 +2399,9 @@
                 }
               },
               {
-                "id": "e1",
-                "label": "S2",
-                "from": "Coagulation & Flocculation (out)",
+                "id": "e2",
+                "label": "S3",
+                "from": "Coagulation & Floc. (out)",
                 "to": "Multimedia Filter",
                 "stream": {
                   "flow": 2721.3723416253574,
@@ -2285,8 +2441,8 @@
                 }
               },
               {
-                "id": "e2",
-                "label": "S3",
+                "id": "e3",
+                "label": "S4",
                 "from": "Multimedia Filter (out)",
                 "to": "Self-cleaning Filter",
                 "stream": {
@@ -2327,8 +2483,8 @@
                 }
               },
               {
-                "id": "e3",
-                "label": "S4",
+                "id": "e4",
+                "label": "S5",
                 "from": "Self-cleaning Filter (out)",
                 "to": "UF",
                 "stream": {
@@ -2369,10 +2525,10 @@
                 }
               },
               {
-                "id": "e4",
-                "label": "S5",
+                "id": "e5",
+                "label": "S6",
                 "from": "UF (out)",
-                "to": "Cartridge Filter (antiscalant + SBS)",
+                "to": "Cartridge Filter",
                 "stream": {
                   "flow": 2469.482117684514,
                   "T": 30,
@@ -2411,10 +2567,10 @@
                 }
               },
               {
-                "id": "e5",
-                "label": "S6",
-                "from": "Cartridge Filter (antiscalant + SBS) (out)",
-                "to": "SWRO 1st pass (HP pump + ERD)",
+                "id": "e6",
+                "label": "S7",
+                "from": "Cartridge Filter (out)",
+                "to": "SWRO 1st pass + ERD",
                 "stream": {
                   "flow": 2526.324226440885,
                   "T": 30,
@@ -2453,10 +2609,10 @@
                 }
               },
               {
-                "id": "e6",
-                "label": "S7",
-                "from": "SWRO 1st pass (HP pump + ERD) (permeate)",
-                "to": "Permeate split (A = 2nd pass, B = bypass)",
+                "id": "e7",
+                "label": "S8",
+                "from": "SWRO 1st pass + ERD (permeate)",
+                "to": "Permeate split",
                 "stream": {
                   "flow": 1136.8458291577829,
                   "T": 30,
@@ -2495,10 +2651,10 @@
                 }
               },
               {
-                "id": "e7",
-                "label": "S8",
-                "from": "Permeate split (A = 2nd pass, B = bypass) (a)",
-                "to": "NaOH to pH 10",
+                "id": "e8",
+                "label": "S9",
+                "from": "Permeate split (a)",
+                "to": "NaOH (pH 10)",
                 "stream": {
                   "flow": 568.4228476795711,
                   "T": 30,
@@ -2537,10 +2693,10 @@
                 }
               },
               {
-                "id": "e8",
-                "label": "S9",
-                "from": "NaOH to pH 10 (out)",
-                "to": "2nd Pass RO (BWRO)",
+                "id": "e9",
+                "label": "S10",
+                "from": "NaOH (pH 10) (out)",
+                "to": "2nd Pass BWRO",
                 "stream": {
                   "flow": 568.4227243749276,
                   "T": 30,
@@ -2579,10 +2735,10 @@
                 }
               },
               {
-                "id": "e9",
-                "label": "S10",
-                "from": "Permeate split (A = 2nd pass, B = bypass) (b)",
-                "to": "Remineralization (lime + CO2)",
+                "id": "e10",
+                "label": "S11",
+                "from": "Permeate split (b)",
+                "to": "Remineralization",
                 "stream": {
                   "flow": 568.4228476795711,
                   "T": 30,
@@ -2621,10 +2777,10 @@
                 }
               },
               {
-                "id": "e10",
-                "label": "S11",
-                "from": "2nd Pass RO (BWRO) (permeate)",
-                "to": "Remineralization (lime + CO2)",
+                "id": "e11",
+                "label": "S12",
+                "from": "2nd Pass BWRO (permeate)",
+                "to": "Remineralization",
                 "stream": {
                   "flow": 511.5802465982095,
                   "T": 30,
@@ -2663,10 +2819,10 @@
                 }
               },
               {
-                "id": "e11",
-                "label": "S12",
-                "from": "2nd Pass RO (BWRO) (concentrate)",
-                "to": "Cartridge Filter (antiscalant + SBS)",
+                "id": "e12",
+                "label": "S13",
+                "from": "2nd Pass BWRO (concentrate)",
+                "to": "Cartridge Filter",
                 "stream": {
                   "flow": 56.84224962202326,
                   "T": 30,
@@ -2705,9 +2861,9 @@
                 }
               },
               {
-                "id": "e12",
-                "label": "S13",
-                "from": "Remineralization (lime + CO2) (out)",
+                "id": "e13",
+                "label": "S14",
+                "from": "Remineralization (out)",
                 "to": "NaOCl dosing",
                 "stream": {
                   "flow": 1080.0025912816677,
@@ -2747,8 +2903,8 @@
                 }
               },
               {
-                "id": "e13",
-                "label": "S14",
+                "id": "e14",
+                "label": "S15",
                 "from": "NaOCl dosing (out)",
                 "to": "Product water tank",
                 "stream": {
@@ -2789,10 +2945,10 @@
                 }
               },
               {
-                "id": "e14",
-                "label": "S15",
+                "id": "e15",
+                "label": "S16",
                 "from": "Product water tank (out)",
-                "to": "Product water to data centre (300 L/s)",
+                "to": "Product (300 L/s)",
                 "stream": {
                   "flow": 1079.9999999999995,
                   "T": 30,
@@ -2831,10 +2987,10 @@
                 }
               },
               {
-                "id": "e15",
-                "label": "S16",
+                "id": "e16",
+                "label": "S17",
                 "from": "Multimedia Filter (backwash)",
-                "to": "Drainage collection pit",
+                "to": "Drainage pit",
                 "stream": {
                   "flow": 108.8548936650143,
                   "T": 30,
@@ -2873,10 +3029,10 @@
                 }
               },
               {
-                "id": "e16",
-                "label": "S17",
+                "id": "e17",
+                "label": "S18",
                 "from": "Self-cleaning Filter (flush)",
-                "to": "Drainage collection pit",
+                "to": "Drainage pit",
                 "stream": {
                   "flow": 13.062587239801715,
                   "T": 30,
@@ -2915,10 +3071,10 @@
                 }
               },
               {
-                "id": "e17",
-                "label": "S18",
+                "id": "e18",
+                "label": "S19",
                 "from": "UF (backwash)",
-                "to": "Drainage collection pit",
+                "to": "Drainage pit",
                 "stream": {
                   "flow": 129.97274303602717,
                   "T": 30,
@@ -2957,9 +3113,9 @@
                 }
               },
               {
-                "id": "e18",
-                "label": "S19",
-                "from": "Drainage collection pit (out)",
+                "id": "e19",
+                "label": "S20",
+                "from": "Drainage pit (out)",
                 "to": "Discharge to sea",
                 "stream": {
                   "flow": 251.89022394084319,
@@ -2999,9 +3155,9 @@
                 }
               },
               {
-                "id": "e19",
-                "label": "S20",
-                "from": "SWRO 1st pass (HP pump + ERD) (concentrate)",
+                "id": "e20",
+                "label": "S21",
+                "from": "SWRO 1st pass + ERD (concentrate)",
                 "to": "Discharge to sea",
                 "stream": {
                   "flow": 1389.4782356372903,
@@ -3043,10 +3199,10 @@
             ],
             "feedStreams": [
               {
-                "id": "feed-n0-intake",
+                "id": "feed-n0-feedsource",
                 "label": "F1",
                 "from": "Seawater (Batam)",
-                "to": "Seawater Intake + Screening",
+                "to": "Seawater (Batam)",
                 "stream": {
                   "flow": 2721.3723416253574,
                   "T": 30,
@@ -3087,10 +3243,10 @@
             ],
             "productStreams": [
               {
-                "id": "sink-n13-product",
-                "label": "Product water to data centre (300 L/s)",
+                "id": "sink-n14-product",
+                "label": "Product (300 L/s)",
                 "from": "Product water tank",
-                "to": "Product water to data centre (300 L/s)",
+                "to": "Product (300 L/s)",
                 "stream": {
                   "flow": 1079.9999999999995,
                   "T": 30,
@@ -3131,9 +3287,9 @@
             ],
             "wasteStreams": [
               {
-                "id": "sink-n15-waste",
+                "id": "sink-n16-waste",
                 "label": "Discharge to sea",
-                "from": "Drainage collection pit, SWRO 1st pass (HP pump + ERD)",
+                "from": "Drainage pit, SWRO 1st pass + ERD",
                 "to": "Discharge to sea",
                 "stream": {
                   "flow": 1641.3684595781335,
@@ -3331,20 +3487,30 @@
             }
           },
           "verdict": "conditional",
-          "engineerNote": "Diagram apa adanya, 50 % permeat SWRO lewat pass kedua (BWRO, recovery 90 %, NaOH ke pH 10), 50 % bypass. Membran baru pada 25 °C. remineralisasi kapur + CO2 menambah kesadahan 90 mg/L CaCO3, CO2 berlebih 5 %, trim NaOH ke pH 8.1. Produk 1.080 m3/jam (300 L/s) dari air laut 2.721 m3/jam, recovery keseluruhan 39,7 %. Permeat SWRO: Cl 124 mg/L, jumlah ion 208 mg/L. Produk: pH 8,10, TDS (180 °C) 207, Cl 67,3, konduktivitas 419 µS/cm, kesadahan 98, alkalinitas 95 mg/L CaCO3, LSI 0,21. Grade S terpenuhi untuk semua parameter yang dimodelkan; Grade D GAGAL pada TDS (dried at 180 °C) 206.9, Conductivity (25 °C) 419.5, Chloride 67.3, Total hardness 98.5, Total alkalinity 95.5. Daya 3.544 kW (3,28 kWh/m3). CAPEX peralatan USD 8,86 juta = Rp 144,5 miliar (angka screening). OPEX Rp 6.841/m3. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,32–0,47 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
+          "engineerNote": "Diagram apa adanya, 50 % permeat SWRO lewat pass kedua (BWRO, recovery 90 %, NaOH ke pH 10), 50 % bypass. Membran baru pada 25 °C. remineralisasi kapur + CO2 menambah kesadahan 90 mg/L CaCO3, CO2 berlebih 5 %, trim NaOH ke pH 8.1. Produk 1.080 m3/jam (300 L/s) dari air laut 2.721 m3/jam, recovery keseluruhan 39,7 %. Permeat SWRO: Cl 124 mg/L, jumlah ion 208 mg/L. Produk: pH 8,10, TDS (180 °C) 207, Cl 67,3, konduktivitas 419 µS/cm, kesadahan 98, alkalinitas 95 mg/L CaCO3, LSI 0,21. Grade S terpenuhi untuk semua parameter yang dimodelkan; Grade D GAGAL pada TDS (dried at 180 °C) 206.9, Conductivity (25 °C) 419.5, Chloride 67.3, Total hardness 98.5, Total alkalinity 95.5. Daya 3.544 kW (3,28 kWh/m3). Indicative CAPEX USD 28,1 juta = Rp 459 miliar (rentang 19,7–42,2 juta USD; 1.085 USD per m3/hari; 3,17 × peralatan proses USD 8,9 juta). OPEX Rp 6.841/m3. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,32–0,47 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
         },
         {
-          "id": "batam-mw31hal8-1",
+          "id": "batam-mw32fe9c-1",
           "name": "B. Sesuai diagram (bypass 50 %) — kasus desain 30 °C, 3 tahun",
-          "createdAt": "2026-11-05T04:22:09.884Z",
+          "createdAt": "2026-11-05T04:48:40.944Z",
           "flowsheet": {
             "nodes": [
               {
-                "id": "n0-intake",
-                "type": "intake",
-                "label": "Seawater Intake + Screening",
+                "id": "n0-feedsource",
+                "type": "feedsource",
+                "label": "Seawater (Batam)",
                 "position": {
                   "x": 0,
+                  "y": 200
+                },
+                "params": {}
+              },
+              {
+                "id": "n1-intake",
+                "type": "intake",
+                "label": "Intake + Screening",
+                "position": {
+                  "x": 260,
                   "y": 200
                 },
                 "params": {
@@ -3356,11 +3522,11 @@
                 }
               },
               {
-                "id": "n1-coagfloc",
+                "id": "n2-coagfloc",
                 "type": "coagfloc",
-                "label": "Coagulation & Flocculation",
+                "label": "Coagulation & Floc.",
                 "position": {
-                  "x": 200,
+                  "x": 520,
                   "y": 200
                 },
                 "params": {
@@ -3372,11 +3538,11 @@
                 }
               },
               {
-                "id": "n2-mmf",
+                "id": "n3-mmf",
                 "type": "mmf",
                 "label": "Multimedia Filter",
                 "position": {
-                  "x": 400,
+                  "x": 780,
                   "y": 200
                 },
                 "params": {
@@ -3388,11 +3554,11 @@
                 }
               },
               {
-                "id": "n3-selfclean",
+                "id": "n4-selfclean",
                 "type": "selfclean",
                 "label": "Self-cleaning Filter",
                 "position": {
-                  "x": 600,
+                  "x": 1040,
                   "y": 200
                 },
                 "params": {
@@ -3405,11 +3571,11 @@
                 }
               },
               {
-                "id": "n4-uf",
+                "id": "n5-uf",
                 "type": "uf",
                 "label": "UF",
                 "position": {
-                  "x": 800,
+                  "x": 1300,
                   "y": 200
                 },
                 "params": {
@@ -3424,12 +3590,12 @@
                 }
               },
               {
-                "id": "n5-cartridge",
+                "id": "n6-cartridge",
                 "type": "cartridge",
-                "label": "Cartridge Filter (antiscalant + SBS)",
+                "label": "Cartridge Filter",
                 "position": {
-                  "x": 1000,
-                  "y": 340
+                  "x": 1560,
+                  "y": 200
                 },
                 "params": {
                   "micron": 5,
@@ -3437,12 +3603,12 @@
                 }
               },
               {
-                "id": "n6-swro",
+                "id": "n7-swro",
                 "type": "swro",
-                "label": "SWRO 1st pass (HP pump + ERD)",
+                "label": "SWRO 1st pass + ERD",
                 "position": {
-                  "x": 800,
-                  "y": 340
+                  "x": 1820,
+                  "y": 200
                 },
                 "params": {
                   "recovery": 45,
@@ -3456,28 +3622,29 @@
                   "antiscalantDose": 3,
                   "smbsDose": 2,
                   "rejectionScale": 1,
-                  "passageFactor": 1.6
+                  "passageFactor": 1.6,
+                  "erdEffPct": 55
                 }
               },
               {
-                "id": "n7-splitter",
+                "id": "n8-splitter",
                 "type": "splitter",
-                "label": "Permeate split (A = 2nd pass, B = bypass)",
+                "label": "Permeate split",
                 "position": {
-                  "x": 600,
-                  "y": 340
+                  "x": 2080,
+                  "y": 200
                 },
                 "params": {
                   "fractionA": 50
                 }
               },
               {
-                "id": "n8-phadjust",
+                "id": "n9-phadjust",
                 "type": "phadjust",
-                "label": "NaOH to pH 10",
+                "label": "NaOH (pH 10)",
                 "position": {
-                  "x": 500,
-                  "y": 460
+                  "x": 2340,
+                  "y": 50
                 },
                 "params": {
                   "targetPH": 10,
@@ -3490,12 +3657,12 @@
                 }
               },
               {
-                "id": "n9-ro",
+                "id": "n10-ro",
                 "type": "ro",
-                "label": "2nd Pass RO (BWRO)",
+                "label": "2nd Pass BWRO",
                 "position": {
-                  "x": 400,
-                  "y": 340
+                  "x": 2600,
+                  "y": 50
                 },
                 "params": {
                   "recovery": 90,
@@ -3509,16 +3676,17 @@
                   "antiscalantDose": 0,
                   "smbsDose": 0,
                   "rejectionScale": 1,
-                  "passageFactor": 1.6
+                  "passageFactor": 1.6,
+                  "erdEffPct": 55
                 }
               },
               {
-                "id": "n10-remin",
+                "id": "n11-remin",
                 "type": "remin",
-                "label": "Remineralization (lime + CO2)",
+                "label": "Remineralization",
                 "position": {
-                  "x": 200,
-                  "y": 340
+                  "x": 2860,
+                  "y": 200
                 },
                 "params": {
                   "method": "lime",
@@ -3530,12 +3698,12 @@
                 }
               },
               {
-                "id": "n11-disinfection",
+                "id": "n12-disinfection",
                 "type": "disinfection",
                 "label": "NaOCl dosing",
                 "position": {
-                  "x": 100,
-                  "y": 460
+                  "x": 3120,
+                  "y": 200
                 },
                 "params": {
                   "method": "naocl",
@@ -3544,12 +3712,12 @@
                 }
               },
               {
-                "id": "n12-producttank",
+                "id": "n13-producttank",
                 "type": "producttank",
                 "label": "Product water tank",
                 "position": {
-                  "x": 0,
-                  "y": 340
+                  "x": 3380,
+                  "y": 200
                 },
                 "params": {
                   "hrtH": 8,
@@ -3563,24 +3731,24 @@
                 }
               },
               {
-                "id": "n13-product",
+                "id": "n14-product",
                 "type": "product",
-                "label": "Product water to data centre (300 L/s)",
+                "label": "Product (300 L/s)",
                 "position": {
-                  "x": -200,
-                  "y": 340
+                  "x": 3640,
+                  "y": 200
                 },
                 "params": {
                   "name": "process"
                 }
               },
               {
-                "id": "n14-eqtank",
+                "id": "n15-eqtank",
                 "type": "eqtank",
-                "label": "Drainage collection pit",
+                "label": "Drainage pit",
                 "position": {
-                  "x": 400,
-                  "y": 40
+                  "x": 1560,
+                  "y": 430
                 },
                 "params": {
                   "hrtH": 4,
@@ -3594,12 +3762,12 @@
                 }
               },
               {
-                "id": "n15-waste",
+                "id": "n16-waste",
                 "type": "waste",
                 "label": "Discharge to sea",
                 "position": {
-                  "x": 700,
-                  "y": 40
+                  "x": 2080,
+                  "y": 430
                 },
                 "params": {
                   "name": "reject"
@@ -3609,142 +3777,149 @@
             "edges": [
               {
                 "id": "e0",
-                "source": "n0-intake",
+                "source": "n0-feedsource",
                 "sourceHandle": "out",
-                "target": "n1-coagfloc",
+                "target": "n1-intake",
                 "targetHandle": "in"
               },
               {
                 "id": "e1",
-                "source": "n1-coagfloc",
+                "source": "n1-intake",
                 "sourceHandle": "out",
-                "target": "n2-mmf",
+                "target": "n2-coagfloc",
                 "targetHandle": "in"
               },
               {
                 "id": "e2",
-                "source": "n2-mmf",
+                "source": "n2-coagfloc",
                 "sourceHandle": "out",
-                "target": "n3-selfclean",
+                "target": "n3-mmf",
                 "targetHandle": "in"
               },
               {
                 "id": "e3",
-                "source": "n3-selfclean",
+                "source": "n3-mmf",
                 "sourceHandle": "out",
-                "target": "n4-uf",
+                "target": "n4-selfclean",
                 "targetHandle": "in"
               },
               {
                 "id": "e4",
-                "source": "n4-uf",
+                "source": "n4-selfclean",
                 "sourceHandle": "out",
-                "target": "n5-cartridge",
+                "target": "n5-uf",
                 "targetHandle": "in"
               },
               {
                 "id": "e5",
-                "source": "n5-cartridge",
+                "source": "n5-uf",
                 "sourceHandle": "out",
-                "target": "n6-swro",
+                "target": "n6-cartridge",
                 "targetHandle": "in"
               },
               {
                 "id": "e6",
-                "source": "n6-swro",
-                "sourceHandle": "permeate",
-                "target": "n7-splitter",
+                "source": "n6-cartridge",
+                "sourceHandle": "out",
+                "target": "n7-swro",
                 "targetHandle": "in"
               },
               {
                 "id": "e7",
-                "source": "n7-splitter",
-                "sourceHandle": "a",
-                "target": "n8-phadjust",
+                "source": "n7-swro",
+                "sourceHandle": "permeate",
+                "target": "n8-splitter",
                 "targetHandle": "in"
               },
               {
                 "id": "e8",
-                "source": "n8-phadjust",
-                "sourceHandle": "out",
-                "target": "n9-ro",
+                "source": "n8-splitter",
+                "sourceHandle": "a",
+                "target": "n9-phadjust",
                 "targetHandle": "in"
               },
               {
                 "id": "e9",
-                "source": "n7-splitter",
-                "sourceHandle": "b",
-                "target": "n10-remin",
+                "source": "n9-phadjust",
+                "sourceHandle": "out",
+                "target": "n10-ro",
                 "targetHandle": "in"
               },
               {
                 "id": "e10",
-                "source": "n9-ro",
-                "sourceHandle": "permeate",
-                "target": "n10-remin",
+                "source": "n8-splitter",
+                "sourceHandle": "b",
+                "target": "n11-remin",
                 "targetHandle": "in"
               },
               {
                 "id": "e11",
-                "source": "n9-ro",
-                "sourceHandle": "concentrate",
-                "target": "n5-cartridge",
+                "source": "n10-ro",
+                "sourceHandle": "permeate",
+                "target": "n11-remin",
                 "targetHandle": "in"
               },
               {
                 "id": "e12",
-                "source": "n10-remin",
-                "sourceHandle": "out",
-                "target": "n11-disinfection",
+                "source": "n10-ro",
+                "sourceHandle": "concentrate",
+                "target": "n6-cartridge",
                 "targetHandle": "in"
               },
               {
                 "id": "e13",
-                "source": "n11-disinfection",
+                "source": "n11-remin",
                 "sourceHandle": "out",
-                "target": "n12-producttank",
+                "target": "n12-disinfection",
                 "targetHandle": "in"
               },
               {
                 "id": "e14",
-                "source": "n12-producttank",
+                "source": "n12-disinfection",
                 "sourceHandle": "out",
-                "target": "n13-product",
+                "target": "n13-producttank",
                 "targetHandle": "in"
               },
               {
                 "id": "e15",
-                "source": "n2-mmf",
-                "sourceHandle": "backwash",
-                "target": "n14-eqtank",
+                "source": "n13-producttank",
+                "sourceHandle": "out",
+                "target": "n14-product",
                 "targetHandle": "in"
               },
               {
                 "id": "e16",
-                "source": "n3-selfclean",
-                "sourceHandle": "flush",
-                "target": "n14-eqtank",
+                "source": "n3-mmf",
+                "sourceHandle": "backwash",
+                "target": "n15-eqtank",
                 "targetHandle": "in"
               },
               {
                 "id": "e17",
-                "source": "n4-uf",
-                "sourceHandle": "backwash",
-                "target": "n14-eqtank",
+                "source": "n4-selfclean",
+                "sourceHandle": "flush",
+                "target": "n15-eqtank",
                 "targetHandle": "in"
               },
               {
                 "id": "e18",
-                "source": "n14-eqtank",
-                "sourceHandle": "out",
-                "target": "n15-waste",
+                "source": "n5-uf",
+                "sourceHandle": "backwash",
+                "target": "n15-eqtank",
                 "targetHandle": "in"
               },
               {
                 "id": "e19",
-                "source": "n6-swro",
+                "source": "n15-eqtank",
+                "sourceHandle": "out",
+                "target": "n16-waste",
+                "targetHandle": "in"
+              },
+              {
+                "id": "e20",
+                "source": "n7-swro",
                 "sourceHandle": "concentrate",
-                "target": "n15-waste",
+                "target": "n16-waste",
                 "targetHandle": "in"
               }
             ],
@@ -3789,9 +3964,9 @@
             "messages": [],
             "nodes": [
               {
-                "id": "n0-intake",
-                "type": "intake",
-                "label": "Seawater Intake + Screening",
+                "id": "n0-feedsource",
+                "type": "feedsource",
+                "label": "Seawater (Batam)",
                 "inlet": {
                   "flow": 2721.3723416253574,
                   "T": 30,
@@ -3851,6 +4026,93 @@
                       "Ba": 0,
                       "Sr": 7.8,
                       "TDS": 34528,
+                      "TSS": 100,
+                      "BOD": 0,
+                      "COD": 79.9,
+                      "TOC": 0,
+                      "TN": 0,
+                      "TP": 0,
+                      "Oil": 0
+                    },
+                    "extras": {
+                      "turbidityNTU": 0,
+                      "coliform": 0,
+                      "sdi15": 6
+                    }
+                  }
+                },
+                "aux": {
+                  "powerKW": 0,
+                  "chemicals": {},
+                  "drySolidsKgH": 0,
+                  "sizing": [],
+                  "capexUSD": 0,
+                  "notes": []
+                }
+              },
+              {
+                "id": "n1-intake",
+                "type": "intake",
+                "label": "Intake + Screening",
+                "inlet": {
+                  "flow": 2721.3723416253574,
+                  "T": 30,
+                  "pH": 7.78,
+                  "c": {
+                    "Na": 10582,
+                    "K": 392,
+                    "Ca": 404,
+                    "Mg": 1260,
+                    "NH4": 0.4600000000000001,
+                    "Cl": 18994,
+                    "SO4": 2662,
+                    "HCO3": 131.5,
+                    "CO3": 0,
+                    "NO3": 0,
+                    "F": 1.72,
+                    "SiO2": 0,
+                    "Fe": 0,
+                    "Mn": 0,
+                    "Ba": 0,
+                    "Sr": 7.800000000000001,
+                    "TDS": 34528,
+                    "TSS": 100,
+                    "BOD": 0,
+                    "COD": 79.9,
+                    "TOC": 0,
+                    "TN": 0,
+                    "TP": 0,
+                    "Oil": 0
+                  },
+                  "extras": {
+                    "turbidityNTU": 0,
+                    "coliform": 0,
+                    "sdi15": 6
+                  }
+                },
+                "outlets": {
+                  "out": {
+                    "flow": 2721.3723416253574,
+                    "T": 30,
+                    "pH": 7.78,
+                    "c": {
+                      "Na": 10582,
+                      "K": 392,
+                      "Ca": 404,
+                      "Mg": 1260,
+                      "NH4": 0.4600000000000001,
+                      "Cl": 18994,
+                      "SO4": 2662,
+                      "HCO3": 131.5,
+                      "CO3": 0,
+                      "NO3": 0,
+                      "F": 1.72,
+                      "SiO2": 0,
+                      "Fe": 0,
+                      "Mn": 0,
+                      "Ba": 0,
+                      "Sr": 7.800000000000001,
+                      "TDS": 34528,
                       "TSS": 97,
                       "BOD": 0,
                       "COD": 79.9,
@@ -3885,9 +4147,9 @@
                 }
               },
               {
-                "id": "n1-coagfloc",
+                "id": "n2-coagfloc",
                 "type": "coagfloc",
-                "label": "Coagulation & Flocculation",
+                "label": "Coagulation & Floc.",
                 "inlet": {
                   "flow": 2721.3723416253574,
                   "T": 30,
@@ -3985,7 +4247,7 @@
                 }
               },
               {
-                "id": "n2-mmf",
+                "id": "n3-mmf",
                 "type": "mmf",
                 "label": "Multimedia Filter",
                 "inlet": {
@@ -4121,7 +4383,7 @@
                 }
               },
               {
-                "id": "n3-selfclean",
+                "id": "n4-selfclean",
                 "type": "selfclean",
                 "label": "Self-cleaning Filter",
                 "inlet": {
@@ -4253,7 +4515,7 @@
                 }
               },
               {
-                "id": "n4-uf",
+                "id": "n5-uf",
                 "type": "uf",
                 "label": "UF",
                 "inlet": {
@@ -4396,9 +4658,9 @@
                 }
               },
               {
-                "id": "n14-eqtank",
+                "id": "n15-eqtank",
                 "type": "eqtank",
-                "label": "Drainage collection pit",
+                "label": "Drainage pit",
                 "inlet": {
                   "flow": 251.89022394084319,
                   "T": 30,
@@ -4493,9 +4755,9 @@
                 }
               },
               {
-                "id": "n5-cartridge",
+                "id": "n6-cartridge",
                 "type": "cartridge",
-                "label": "Cartridge Filter (antiscalant + SBS)",
+                "label": "Cartridge Filter",
                 "inlet": {
                   "flow": 2526.3243140704417,
                   "T": 30,
@@ -4585,9 +4847,9 @@
                 }
               },
               {
-                "id": "n6-swro",
+                "id": "n7-swro",
                 "type": "swro",
-                "label": "SWRO 1st pass (HP pump + ERD)",
+                "label": "SWRO 1st pass + ERD",
                 "inlet": {
                   "flow": 2526.324226440885,
                   "T": 30,
@@ -4727,6 +4989,10 @@
                       "value": "41.7 bar (estimated)"
                     },
                     {
+                      "label": "Energy recovery",
+                      "value": "ERD, 55 % net"
+                    },
+                    {
                       "label": "Specific energy",
                       "value": "2.394 kWh/m3 permeate"
                     }
@@ -4736,9 +5002,9 @@
                 }
               },
               {
-                "id": "n7-splitter",
+                "id": "n8-splitter",
                 "type": "splitter",
-                "label": "Permeate split (A = 2nd pass, B = bypass)",
+                "label": "Permeate split",
                 "inlet": {
                   "flow": 1136.8458291577829,
                   "T": 30,
@@ -4859,9 +5125,9 @@
                 }
               },
               {
-                "id": "n8-phadjust",
+                "id": "n9-phadjust",
                 "type": "phadjust",
-                "label": "NaOH to pH 10",
+                "label": "NaOH (pH 10)",
                 "inlet": {
                   "flow": 568.4228476795711,
                   "T": 30,
@@ -4966,9 +5232,9 @@
                 }
               },
               {
-                "id": "n9-ro",
+                "id": "n10-ro",
                 "type": "ro",
-                "label": "2nd Pass RO (BWRO)",
+                "label": "2nd Pass BWRO",
                 "inlet": {
                   "flow": 568.4227243749276,
                   "T": 30,
@@ -5108,6 +5374,10 @@
                       "value": "5.4 bar (estimated)"
                     },
                     {
+                      "label": "Energy recovery",
+                      "value": "none"
+                    },
+                    {
                       "label": "Specific energy",
                       "value": "0.222 kWh/m3 permeate"
                     }
@@ -5117,9 +5387,9 @@
                 }
               },
               {
-                "id": "n10-remin",
+                "id": "n11-remin",
                 "type": "remin",
-                "label": "Remineralization (lime + CO2)",
+                "label": "Remineralization",
                 "inlet": {
                   "flow": 1080.0030942777805,
                   "T": 30.000000000000004,
@@ -5225,7 +5495,7 @@
                 }
               },
               {
-                "id": "n11-disinfection",
+                "id": "n12-disinfection",
                 "type": "disinfection",
                 "label": "NaOCl dosing",
                 "inlet": {
@@ -5320,7 +5590,7 @@
                 }
               },
               {
-                "id": "n12-producttank",
+                "id": "n13-producttank",
                 "type": "producttank",
                 "label": "Product water tank",
                 "inlet": {
@@ -5417,9 +5687,9 @@
                 }
               },
               {
-                "id": "n13-product",
+                "id": "n14-product",
                 "type": "product",
-                "label": "Product water to data centre (300 L/s)",
+                "label": "Product (300 L/s)",
                 "inlet": {
                   "flow": 1079.9999999999995,
                   "T": 30,
@@ -5467,7 +5737,7 @@
                 }
               },
               {
-                "id": "n15-waste",
+                "id": "n16-waste",
                 "type": "waste",
                 "label": "Discharge to sea",
                 "inlet": {
@@ -5521,8 +5791,50 @@
               {
                 "id": "e0",
                 "label": "S1",
-                "from": "Seawater Intake + Screening (out)",
-                "to": "Coagulation & Flocculation",
+                "from": "Seawater (Batam) (out)",
+                "to": "Intake + Screening",
+                "stream": {
+                  "flow": 2721.3723416253574,
+                  "T": 30,
+                  "pH": 7.78,
+                  "c": {
+                    "Na": 10582,
+                    "K": 392,
+                    "Ca": 404,
+                    "Mg": 1260,
+                    "NH4": 0.4600000000000001,
+                    "Cl": 18994,
+                    "SO4": 2662,
+                    "HCO3": 131.5,
+                    "CO3": 0,
+                    "NO3": 0,
+                    "F": 1.72,
+                    "SiO2": 0,
+                    "Fe": 0,
+                    "Mn": 0,
+                    "Ba": 0,
+                    "Sr": 7.800000000000001,
+                    "TDS": 34528,
+                    "TSS": 100,
+                    "BOD": 0,
+                    "COD": 79.9,
+                    "TOC": 0,
+                    "TN": 0,
+                    "TP": 0,
+                    "Oil": 0
+                  },
+                  "extras": {
+                    "turbidityNTU": 0,
+                    "coliform": 0,
+                    "sdi15": 6
+                  }
+                }
+              },
+              {
+                "id": "e1",
+                "label": "S2",
+                "from": "Intake + Screening (out)",
+                "to": "Coagulation & Floc.",
                 "stream": {
                   "flow": 2721.3723416253574,
                   "T": 30,
@@ -5561,9 +5873,9 @@
                 }
               },
               {
-                "id": "e1",
-                "label": "S2",
-                "from": "Coagulation & Flocculation (out)",
+                "id": "e2",
+                "label": "S3",
+                "from": "Coagulation & Floc. (out)",
                 "to": "Multimedia Filter",
                 "stream": {
                   "flow": 2721.3723416253574,
@@ -5603,8 +5915,8 @@
                 }
               },
               {
-                "id": "e2",
-                "label": "S3",
+                "id": "e3",
+                "label": "S4",
                 "from": "Multimedia Filter (out)",
                 "to": "Self-cleaning Filter",
                 "stream": {
@@ -5645,8 +5957,8 @@
                 }
               },
               {
-                "id": "e3",
-                "label": "S4",
+                "id": "e4",
+                "label": "S5",
                 "from": "Self-cleaning Filter (out)",
                 "to": "UF",
                 "stream": {
@@ -5687,10 +5999,10 @@
                 }
               },
               {
-                "id": "e4",
-                "label": "S5",
+                "id": "e5",
+                "label": "S6",
                 "from": "UF (out)",
-                "to": "Cartridge Filter (antiscalant + SBS)",
+                "to": "Cartridge Filter",
                 "stream": {
                   "flow": 2469.482117684514,
                   "T": 30,
@@ -5729,10 +6041,10 @@
                 }
               },
               {
-                "id": "e5",
-                "label": "S6",
-                "from": "Cartridge Filter (antiscalant + SBS) (out)",
-                "to": "SWRO 1st pass (HP pump + ERD)",
+                "id": "e6",
+                "label": "S7",
+                "from": "Cartridge Filter (out)",
+                "to": "SWRO 1st pass + ERD",
                 "stream": {
                   "flow": 2526.324226440885,
                   "T": 30,
@@ -5771,10 +6083,10 @@
                 }
               },
               {
-                "id": "e6",
-                "label": "S7",
-                "from": "SWRO 1st pass (HP pump + ERD) (permeate)",
-                "to": "Permeate split (A = 2nd pass, B = bypass)",
+                "id": "e7",
+                "label": "S8",
+                "from": "SWRO 1st pass + ERD (permeate)",
+                "to": "Permeate split",
                 "stream": {
                   "flow": 1136.8458291577829,
                   "T": 30,
@@ -5813,10 +6125,10 @@
                 }
               },
               {
-                "id": "e7",
-                "label": "S8",
-                "from": "Permeate split (A = 2nd pass, B = bypass) (a)",
-                "to": "NaOH to pH 10",
+                "id": "e8",
+                "label": "S9",
+                "from": "Permeate split (a)",
+                "to": "NaOH (pH 10)",
                 "stream": {
                   "flow": 568.4228476795711,
                   "T": 30,
@@ -5855,10 +6167,10 @@
                 }
               },
               {
-                "id": "e8",
-                "label": "S9",
-                "from": "NaOH to pH 10 (out)",
-                "to": "2nd Pass RO (BWRO)",
+                "id": "e9",
+                "label": "S10",
+                "from": "NaOH (pH 10) (out)",
+                "to": "2nd Pass BWRO",
                 "stream": {
                   "flow": 568.4227243749276,
                   "T": 30,
@@ -5897,10 +6209,10 @@
                 }
               },
               {
-                "id": "e9",
-                "label": "S10",
-                "from": "Permeate split (A = 2nd pass, B = bypass) (b)",
-                "to": "Remineralization (lime + CO2)",
+                "id": "e10",
+                "label": "S11",
+                "from": "Permeate split (b)",
+                "to": "Remineralization",
                 "stream": {
                   "flow": 568.4228476795711,
                   "T": 30,
@@ -5939,10 +6251,10 @@
                 }
               },
               {
-                "id": "e10",
-                "label": "S11",
-                "from": "2nd Pass RO (BWRO) (permeate)",
-                "to": "Remineralization (lime + CO2)",
+                "id": "e11",
+                "label": "S12",
+                "from": "2nd Pass BWRO (permeate)",
+                "to": "Remineralization",
                 "stream": {
                   "flow": 511.5802465982095,
                   "T": 30,
@@ -5981,10 +6293,10 @@
                 }
               },
               {
-                "id": "e11",
-                "label": "S12",
-                "from": "2nd Pass RO (BWRO) (concentrate)",
-                "to": "Cartridge Filter (antiscalant + SBS)",
+                "id": "e12",
+                "label": "S13",
+                "from": "2nd Pass BWRO (concentrate)",
+                "to": "Cartridge Filter",
                 "stream": {
                   "flow": 56.84224962202326,
                   "T": 30,
@@ -6023,9 +6335,9 @@
                 }
               },
               {
-                "id": "e12",
-                "label": "S13",
-                "from": "Remineralization (lime + CO2) (out)",
+                "id": "e13",
+                "label": "S14",
+                "from": "Remineralization (out)",
                 "to": "NaOCl dosing",
                 "stream": {
                   "flow": 1080.0025912816677,
@@ -6065,8 +6377,8 @@
                 }
               },
               {
-                "id": "e13",
-                "label": "S14",
+                "id": "e14",
+                "label": "S15",
                 "from": "NaOCl dosing (out)",
                 "to": "Product water tank",
                 "stream": {
@@ -6107,10 +6419,10 @@
                 }
               },
               {
-                "id": "e14",
-                "label": "S15",
+                "id": "e15",
+                "label": "S16",
                 "from": "Product water tank (out)",
-                "to": "Product water to data centre (300 L/s)",
+                "to": "Product (300 L/s)",
                 "stream": {
                   "flow": 1079.9999999999995,
                   "T": 30,
@@ -6149,10 +6461,10 @@
                 }
               },
               {
-                "id": "e15",
-                "label": "S16",
+                "id": "e16",
+                "label": "S17",
                 "from": "Multimedia Filter (backwash)",
-                "to": "Drainage collection pit",
+                "to": "Drainage pit",
                 "stream": {
                   "flow": 108.8548936650143,
                   "T": 30,
@@ -6191,10 +6503,10 @@
                 }
               },
               {
-                "id": "e16",
-                "label": "S17",
+                "id": "e17",
+                "label": "S18",
                 "from": "Self-cleaning Filter (flush)",
-                "to": "Drainage collection pit",
+                "to": "Drainage pit",
                 "stream": {
                   "flow": 13.062587239801715,
                   "T": 30,
@@ -6233,10 +6545,10 @@
                 }
               },
               {
-                "id": "e17",
-                "label": "S18",
+                "id": "e18",
+                "label": "S19",
                 "from": "UF (backwash)",
-                "to": "Drainage collection pit",
+                "to": "Drainage pit",
                 "stream": {
                   "flow": 129.97274303602717,
                   "T": 30,
@@ -6275,9 +6587,9 @@
                 }
               },
               {
-                "id": "e18",
-                "label": "S19",
-                "from": "Drainage collection pit (out)",
+                "id": "e19",
+                "label": "S20",
+                "from": "Drainage pit (out)",
                 "to": "Discharge to sea",
                 "stream": {
                   "flow": 251.89022394084319,
@@ -6317,9 +6629,9 @@
                 }
               },
               {
-                "id": "e19",
-                "label": "S20",
-                "from": "SWRO 1st pass (HP pump + ERD) (concentrate)",
+                "id": "e20",
+                "label": "S21",
+                "from": "SWRO 1st pass + ERD (concentrate)",
                 "to": "Discharge to sea",
                 "stream": {
                   "flow": 1389.4782356372903,
@@ -6361,10 +6673,10 @@
             ],
             "feedStreams": [
               {
-                "id": "feed-n0-intake",
+                "id": "feed-n0-feedsource",
                 "label": "F1",
                 "from": "Seawater (Batam)",
-                "to": "Seawater Intake + Screening",
+                "to": "Seawater (Batam)",
                 "stream": {
                   "flow": 2721.3723416253574,
                   "T": 30,
@@ -6405,10 +6717,10 @@
             ],
             "productStreams": [
               {
-                "id": "sink-n13-product",
-                "label": "Product water to data centre (300 L/s)",
+                "id": "sink-n14-product",
+                "label": "Product (300 L/s)",
                 "from": "Product water tank",
-                "to": "Product water to data centre (300 L/s)",
+                "to": "Product (300 L/s)",
                 "stream": {
                   "flow": 1079.9999999999995,
                   "T": 30,
@@ -6449,9 +6761,9 @@
             ],
             "wasteStreams": [
               {
-                "id": "sink-n15-waste",
+                "id": "sink-n16-waste",
                 "label": "Discharge to sea",
-                "from": "Drainage collection pit, SWRO 1st pass (HP pump + ERD)",
+                "from": "Drainage pit, SWRO 1st pass + ERD",
                 "to": "Discharge to sea",
                 "stream": {
                   "flow": 1641.3684595781335,
@@ -6649,20 +6961,30 @@
             }
           },
           "verdict": "not-feasible",
-          "engineerNote": "Diagram yang sama pada kasus desain: salt passage 1,6 × nominal (30 °C, elemen umur 3 tahun). remineralisasi kapur + CO2 menambah kesadahan 85 mg/L CaCO3, CO2 berlebih 0 %, trim NaOH ke pH 8.15. Produk 1.080 m3/jam (300 L/s) dari air laut 2.721 m3/jam, recovery keseluruhan 39,7 %. Permeat SWRO: Cl 198 mg/L, jumlah ion 333 mg/L. Produk: pH 8,15, TDS (180 °C) 269, Cl 109,8, konduktivitas 555 µS/cm, kesadahan 99, alkalinitas 88 mg/L CaCO3, LSI 0,19. Grade S GAGAL pada TDS (dried at 180 °C) 269.3, Chloride 109.8, COD 3.76; Grade D GAGAL pada TDS (dried at 180 °C) 269.3, Conductivity (25 °C) 555.5, Chloride 109.8, Total hardness 98.7, Total alkalinity 88.1, COD 3.76. Daya 3.554 kW (3,29 kWh/m3). CAPEX peralatan USD 8,86 juta = Rp 144,5 miliar (angka screening). OPEX Rp 6.797/m3. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,32–0,47 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
+          "engineerNote": "Diagram yang sama pada kasus desain: salt passage 1,6 × nominal (30 °C, elemen umur 3 tahun). remineralisasi kapur + CO2 menambah kesadahan 85 mg/L CaCO3, CO2 berlebih 0 %, trim NaOH ke pH 8.15. Produk 1.080 m3/jam (300 L/s) dari air laut 2.721 m3/jam, recovery keseluruhan 39,7 %. Permeat SWRO: Cl 198 mg/L, jumlah ion 333 mg/L. Produk: pH 8,15, TDS (180 °C) 269, Cl 109,8, konduktivitas 555 µS/cm, kesadahan 99, alkalinitas 88 mg/L CaCO3, LSI 0,19. Grade S GAGAL pada TDS (dried at 180 °C) 269.3, Chloride 109.8, COD 3.76; Grade D GAGAL pada TDS (dried at 180 °C) 269.3, Conductivity (25 °C) 555.5, Chloride 109.8, Total hardness 98.7, Total alkalinity 88.1, COD 3.76. Daya 3.554 kW (3,29 kWh/m3). Indicative CAPEX USD 28,1 juta = Rp 459 miliar (rentang 19,7–42,2 juta USD; 1.085 USD per m3/hari; 3,17 × peralatan proses USD 8,9 juta). OPEX Rp 6.797/m3. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,32–0,47 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
         },
         {
-          "id": "batam-mw31halw-2",
+          "id": "batam-mw32fe9w-2",
           "name": "C. Grade S — pass 2 70 % (bypass 30 %)",
-          "createdAt": "2026-11-05T04:22:09.908Z",
+          "createdAt": "2026-11-05T04:48:40.964Z",
           "flowsheet": {
             "nodes": [
               {
-                "id": "n0-intake",
-                "type": "intake",
-                "label": "Seawater Intake + Screening",
+                "id": "n0-feedsource",
+                "type": "feedsource",
+                "label": "Seawater (Batam)",
                 "position": {
                   "x": 0,
+                  "y": 200
+                },
+                "params": {}
+              },
+              {
+                "id": "n1-intake",
+                "type": "intake",
+                "label": "Intake + Screening",
+                "position": {
+                  "x": 260,
                   "y": 200
                 },
                 "params": {
@@ -6674,11 +6996,11 @@
                 }
               },
               {
-                "id": "n1-coagfloc",
+                "id": "n2-coagfloc",
                 "type": "coagfloc",
-                "label": "Coagulation & Flocculation",
+                "label": "Coagulation & Floc.",
                 "position": {
-                  "x": 200,
+                  "x": 520,
                   "y": 200
                 },
                 "params": {
@@ -6690,11 +7012,11 @@
                 }
               },
               {
-                "id": "n2-mmf",
+                "id": "n3-mmf",
                 "type": "mmf",
                 "label": "Multimedia Filter",
                 "position": {
-                  "x": 400,
+                  "x": 780,
                   "y": 200
                 },
                 "params": {
@@ -6706,11 +7028,11 @@
                 }
               },
               {
-                "id": "n3-selfclean",
+                "id": "n4-selfclean",
                 "type": "selfclean",
                 "label": "Self-cleaning Filter",
                 "position": {
-                  "x": 600,
+                  "x": 1040,
                   "y": 200
                 },
                 "params": {
@@ -6723,11 +7045,11 @@
                 }
               },
               {
-                "id": "n4-uf",
+                "id": "n5-uf",
                 "type": "uf",
                 "label": "UF",
                 "position": {
-                  "x": 800,
+                  "x": 1300,
                   "y": 200
                 },
                 "params": {
@@ -6742,12 +7064,12 @@
                 }
               },
               {
-                "id": "n5-cartridge",
+                "id": "n6-cartridge",
                 "type": "cartridge",
-                "label": "Cartridge Filter (antiscalant + SBS)",
+                "label": "Cartridge Filter",
                 "position": {
-                  "x": 1000,
-                  "y": 340
+                  "x": 1560,
+                  "y": 200
                 },
                 "params": {
                   "micron": 5,
@@ -6755,12 +7077,12 @@
                 }
               },
               {
-                "id": "n6-swro",
+                "id": "n7-swro",
                 "type": "swro",
-                "label": "SWRO 1st pass (HP pump + ERD)",
+                "label": "SWRO 1st pass + ERD",
                 "position": {
-                  "x": 800,
-                  "y": 340
+                  "x": 1820,
+                  "y": 200
                 },
                 "params": {
                   "recovery": 45,
@@ -6774,28 +7096,29 @@
                   "antiscalantDose": 3,
                   "smbsDose": 2,
                   "rejectionScale": 1,
-                  "passageFactor": 1.6
+                  "passageFactor": 1.6,
+                  "erdEffPct": 55
                 }
               },
               {
-                "id": "n7-splitter",
+                "id": "n8-splitter",
                 "type": "splitter",
-                "label": "Permeate split (A = 2nd pass, B = bypass)",
+                "label": "Permeate split",
                 "position": {
-                  "x": 600,
-                  "y": 340
+                  "x": 2080,
+                  "y": 200
                 },
                 "params": {
                   "fractionA": 70
                 }
               },
               {
-                "id": "n8-phadjust",
+                "id": "n9-phadjust",
                 "type": "phadjust",
-                "label": "NaOH to pH 10",
+                "label": "NaOH (pH 10)",
                 "position": {
-                  "x": 500,
-                  "y": 460
+                  "x": 2340,
+                  "y": 50
                 },
                 "params": {
                   "targetPH": 10,
@@ -6808,12 +7131,12 @@
                 }
               },
               {
-                "id": "n9-ro",
+                "id": "n10-ro",
                 "type": "ro",
-                "label": "2nd Pass RO (BWRO)",
+                "label": "2nd Pass BWRO",
                 "position": {
-                  "x": 400,
-                  "y": 340
+                  "x": 2600,
+                  "y": 50
                 },
                 "params": {
                   "recovery": 90,
@@ -6827,16 +7150,17 @@
                   "antiscalantDose": 0,
                   "smbsDose": 0,
                   "rejectionScale": 1,
-                  "passageFactor": 1.6
+                  "passageFactor": 1.6,
+                  "erdEffPct": 55
                 }
               },
               {
-                "id": "n10-remin",
+                "id": "n11-remin",
                 "type": "remin",
-                "label": "Remineralization (lime + CO2)",
+                "label": "Remineralization",
                 "position": {
-                  "x": 200,
-                  "y": 340
+                  "x": 2860,
+                  "y": 200
                 },
                 "params": {
                   "method": "lime",
@@ -6848,12 +7172,12 @@
                 }
               },
               {
-                "id": "n11-disinfection",
+                "id": "n12-disinfection",
                 "type": "disinfection",
                 "label": "NaOCl dosing",
                 "position": {
-                  "x": 100,
-                  "y": 460
+                  "x": 3120,
+                  "y": 200
                 },
                 "params": {
                   "method": "naocl",
@@ -6862,12 +7186,12 @@
                 }
               },
               {
-                "id": "n12-producttank",
+                "id": "n13-producttank",
                 "type": "producttank",
                 "label": "Product water tank",
                 "position": {
-                  "x": 0,
-                  "y": 340
+                  "x": 3380,
+                  "y": 200
                 },
                 "params": {
                   "hrtH": 8,
@@ -6881,24 +7205,24 @@
                 }
               },
               {
-                "id": "n13-product",
+                "id": "n14-product",
                 "type": "product",
-                "label": "Product water to data centre (300 L/s)",
+                "label": "Product (300 L/s)",
                 "position": {
-                  "x": -200,
-                  "y": 340
+                  "x": 3640,
+                  "y": 200
                 },
                 "params": {
                   "name": "process"
                 }
               },
               {
-                "id": "n14-eqtank",
+                "id": "n15-eqtank",
                 "type": "eqtank",
-                "label": "Drainage collection pit",
+                "label": "Drainage pit",
                 "position": {
-                  "x": 400,
-                  "y": 40
+                  "x": 1560,
+                  "y": 430
                 },
                 "params": {
                   "hrtH": 4,
@@ -6912,12 +7236,12 @@
                 }
               },
               {
-                "id": "n15-waste",
+                "id": "n16-waste",
                 "type": "waste",
                 "label": "Discharge to sea",
                 "position": {
-                  "x": 700,
-                  "y": 40
+                  "x": 2080,
+                  "y": 430
                 },
                 "params": {
                   "name": "reject"
@@ -6927,142 +7251,149 @@
             "edges": [
               {
                 "id": "e0",
-                "source": "n0-intake",
+                "source": "n0-feedsource",
                 "sourceHandle": "out",
-                "target": "n1-coagfloc",
+                "target": "n1-intake",
                 "targetHandle": "in"
               },
               {
                 "id": "e1",
-                "source": "n1-coagfloc",
+                "source": "n1-intake",
                 "sourceHandle": "out",
-                "target": "n2-mmf",
+                "target": "n2-coagfloc",
                 "targetHandle": "in"
               },
               {
                 "id": "e2",
-                "source": "n2-mmf",
+                "source": "n2-coagfloc",
                 "sourceHandle": "out",
-                "target": "n3-selfclean",
+                "target": "n3-mmf",
                 "targetHandle": "in"
               },
               {
                 "id": "e3",
-                "source": "n3-selfclean",
+                "source": "n3-mmf",
                 "sourceHandle": "out",
-                "target": "n4-uf",
+                "target": "n4-selfclean",
                 "targetHandle": "in"
               },
               {
                 "id": "e4",
-                "source": "n4-uf",
+                "source": "n4-selfclean",
                 "sourceHandle": "out",
-                "target": "n5-cartridge",
+                "target": "n5-uf",
                 "targetHandle": "in"
               },
               {
                 "id": "e5",
-                "source": "n5-cartridge",
+                "source": "n5-uf",
                 "sourceHandle": "out",
-                "target": "n6-swro",
+                "target": "n6-cartridge",
                 "targetHandle": "in"
               },
               {
                 "id": "e6",
-                "source": "n6-swro",
-                "sourceHandle": "permeate",
-                "target": "n7-splitter",
+                "source": "n6-cartridge",
+                "sourceHandle": "out",
+                "target": "n7-swro",
                 "targetHandle": "in"
               },
               {
                 "id": "e7",
-                "source": "n7-splitter",
-                "sourceHandle": "a",
-                "target": "n8-phadjust",
+                "source": "n7-swro",
+                "sourceHandle": "permeate",
+                "target": "n8-splitter",
                 "targetHandle": "in"
               },
               {
                 "id": "e8",
-                "source": "n8-phadjust",
-                "sourceHandle": "out",
-                "target": "n9-ro",
+                "source": "n8-splitter",
+                "sourceHandle": "a",
+                "target": "n9-phadjust",
                 "targetHandle": "in"
               },
               {
                 "id": "e9",
-                "source": "n7-splitter",
-                "sourceHandle": "b",
-                "target": "n10-remin",
+                "source": "n9-phadjust",
+                "sourceHandle": "out",
+                "target": "n10-ro",
                 "targetHandle": "in"
               },
               {
                 "id": "e10",
-                "source": "n9-ro",
-                "sourceHandle": "permeate",
-                "target": "n10-remin",
+                "source": "n8-splitter",
+                "sourceHandle": "b",
+                "target": "n11-remin",
                 "targetHandle": "in"
               },
               {
                 "id": "e11",
-                "source": "n9-ro",
-                "sourceHandle": "concentrate",
-                "target": "n5-cartridge",
+                "source": "n10-ro",
+                "sourceHandle": "permeate",
+                "target": "n11-remin",
                 "targetHandle": "in"
               },
               {
                 "id": "e12",
-                "source": "n10-remin",
-                "sourceHandle": "out",
-                "target": "n11-disinfection",
+                "source": "n10-ro",
+                "sourceHandle": "concentrate",
+                "target": "n6-cartridge",
                 "targetHandle": "in"
               },
               {
                 "id": "e13",
-                "source": "n11-disinfection",
+                "source": "n11-remin",
                 "sourceHandle": "out",
-                "target": "n12-producttank",
+                "target": "n12-disinfection",
                 "targetHandle": "in"
               },
               {
                 "id": "e14",
-                "source": "n12-producttank",
+                "source": "n12-disinfection",
                 "sourceHandle": "out",
-                "target": "n13-product",
+                "target": "n13-producttank",
                 "targetHandle": "in"
               },
               {
                 "id": "e15",
-                "source": "n2-mmf",
-                "sourceHandle": "backwash",
-                "target": "n14-eqtank",
+                "source": "n13-producttank",
+                "sourceHandle": "out",
+                "target": "n14-product",
                 "targetHandle": "in"
               },
               {
                 "id": "e16",
-                "source": "n3-selfclean",
-                "sourceHandle": "flush",
-                "target": "n14-eqtank",
+                "source": "n3-mmf",
+                "sourceHandle": "backwash",
+                "target": "n15-eqtank",
                 "targetHandle": "in"
               },
               {
                 "id": "e17",
-                "source": "n4-uf",
-                "sourceHandle": "backwash",
-                "target": "n14-eqtank",
+                "source": "n4-selfclean",
+                "sourceHandle": "flush",
+                "target": "n15-eqtank",
                 "targetHandle": "in"
               },
               {
                 "id": "e18",
-                "source": "n14-eqtank",
-                "sourceHandle": "out",
-                "target": "n15-waste",
+                "source": "n5-uf",
+                "sourceHandle": "backwash",
+                "target": "n15-eqtank",
                 "targetHandle": "in"
               },
               {
                 "id": "e19",
-                "source": "n6-swro",
+                "source": "n15-eqtank",
+                "sourceHandle": "out",
+                "target": "n16-waste",
+                "targetHandle": "in"
+              },
+              {
+                "id": "e20",
+                "source": "n7-swro",
                 "sourceHandle": "concentrate",
-                "target": "n15-waste",
+                "target": "n16-waste",
                 "targetHandle": "in"
               }
             ],
@@ -7107,9 +7438,9 @@
             "messages": [],
             "nodes": [
               {
-                "id": "n0-intake",
-                "type": "intake",
-                "label": "Seawater Intake + Screening",
+                "id": "n0-feedsource",
+                "type": "feedsource",
+                "label": "Seawater (Batam)",
                 "inlet": {
                   "flow": 2754.302799434202,
                   "T": 30,
@@ -7169,6 +7500,93 @@
                       "Ba": 0,
                       "Sr": 7.8,
                       "TDS": 34528,
+                      "TSS": 100,
+                      "BOD": 0,
+                      "COD": 79.9,
+                      "TOC": 0,
+                      "TN": 0,
+                      "TP": 0,
+                      "Oil": 0
+                    },
+                    "extras": {
+                      "turbidityNTU": 0,
+                      "coliform": 0,
+                      "sdi15": 6
+                    }
+                  }
+                },
+                "aux": {
+                  "powerKW": 0,
+                  "chemicals": {},
+                  "drySolidsKgH": 0,
+                  "sizing": [],
+                  "capexUSD": 0,
+                  "notes": []
+                }
+              },
+              {
+                "id": "n1-intake",
+                "type": "intake",
+                "label": "Intake + Screening",
+                "inlet": {
+                  "flow": 2754.302799434202,
+                  "T": 30,
+                  "pH": 7.78,
+                  "c": {
+                    "Na": 10582,
+                    "K": 392,
+                    "Ca": 404,
+                    "Mg": 1260,
+                    "NH4": 0.4600000000000001,
+                    "Cl": 18994,
+                    "SO4": 2662,
+                    "HCO3": 131.5,
+                    "CO3": 0,
+                    "NO3": 0,
+                    "F": 1.72,
+                    "SiO2": 0,
+                    "Fe": 0,
+                    "Mn": 0,
+                    "Ba": 0,
+                    "Sr": 7.800000000000001,
+                    "TDS": 34528,
+                    "TSS": 100,
+                    "BOD": 0,
+                    "COD": 79.9,
+                    "TOC": 0,
+                    "TN": 0,
+                    "TP": 0,
+                    "Oil": 0
+                  },
+                  "extras": {
+                    "turbidityNTU": 0,
+                    "coliform": 0,
+                    "sdi15": 6
+                  }
+                },
+                "outlets": {
+                  "out": {
+                    "flow": 2754.302799434202,
+                    "T": 30,
+                    "pH": 7.78,
+                    "c": {
+                      "Na": 10582,
+                      "K": 392,
+                      "Ca": 404,
+                      "Mg": 1260,
+                      "NH4": 0.4600000000000001,
+                      "Cl": 18994,
+                      "SO4": 2662,
+                      "HCO3": 131.5,
+                      "CO3": 0,
+                      "NO3": 0,
+                      "F": 1.72,
+                      "SiO2": 0,
+                      "Fe": 0,
+                      "Mn": 0,
+                      "Ba": 0,
+                      "Sr": 7.800000000000001,
+                      "TDS": 34528,
                       "TSS": 97,
                       "BOD": 0,
                       "COD": 79.9,
@@ -7203,9 +7621,9 @@
                 }
               },
               {
-                "id": "n1-coagfloc",
+                "id": "n2-coagfloc",
                 "type": "coagfloc",
-                "label": "Coagulation & Flocculation",
+                "label": "Coagulation & Floc.",
                 "inlet": {
                   "flow": 2754.302799434202,
                   "T": 30,
@@ -7303,7 +7721,7 @@
                 }
               },
               {
-                "id": "n2-mmf",
+                "id": "n3-mmf",
                 "type": "mmf",
                 "label": "Multimedia Filter",
                 "inlet": {
@@ -7439,7 +7857,7 @@
                 }
               },
               {
-                "id": "n3-selfclean",
+                "id": "n4-selfclean",
                 "type": "selfclean",
                 "label": "Self-cleaning Filter",
                 "inlet": {
@@ -7571,7 +7989,7 @@
                 }
               },
               {
-                "id": "n4-uf",
+                "id": "n5-uf",
                 "type": "uf",
                 "label": "UF",
                 "inlet": {
@@ -7714,9 +8132,9 @@
                 }
               },
               {
-                "id": "n14-eqtank",
+                "id": "n15-eqtank",
                 "type": "eqtank",
-                "label": "Drainage collection pit",
+                "label": "Drainage pit",
                 "inlet": {
                   "flow": 254.93826711562986,
                   "T": 30,
@@ -7811,9 +8229,9 @@
                 }
               },
               {
-                "id": "n5-cartridge",
+                "id": "n6-cartridge",
                 "type": "cartridge",
-                "label": "Cartridge Filter (antiscalant + SBS)",
+                "label": "Cartridge Filter",
                 "inlet": {
                   "flow": 2580.655017206469,
                   "T": 30,
@@ -7903,9 +8321,9 @@
                 }
               },
               {
-                "id": "n6-swro",
+                "id": "n7-swro",
                 "type": "swro",
-                "label": "SWRO 1st pass (HP pump + ERD)",
+                "label": "SWRO 1st pass + ERD",
                 "inlet": {
                   "flow": 2580.6549039307997,
                   "T": 30,
@@ -8045,6 +8463,10 @@
                       "value": "41.4 bar (estimated)"
                     },
                     {
+                      "label": "Energy recovery",
+                      "value": "ERD, 55 % net"
+                    },
+                    {
                       "label": "Specific energy",
                       "value": "2.376 kWh/m3 permeate"
                     }
@@ -8054,9 +8476,9 @@
                 }
               },
               {
-                "id": "n7-splitter",
+                "id": "n8-splitter",
                 "type": "splitter",
-                "label": "Permeate split (A = 2nd pass, B = bypass)",
+                "label": "Permeate split",
                 "inlet": {
                   "flow": 1161.2946180016709,
                   "T": 30,
@@ -8177,9 +8599,9 @@
                 }
               },
               {
-                "id": "n8-phadjust",
+                "id": "n9-phadjust",
                 "type": "phadjust",
-                "label": "NaOH to pH 10",
+                "label": "NaOH (pH 10)",
                 "inlet": {
                   "flow": 812.9061245729554,
                   "T": 30,
@@ -8284,9 +8706,9 @@
                 }
               },
               {
-                "id": "n9-ro",
+                "id": "n10-ro",
                 "type": "ro",
-                "label": "2nd Pass RO (BWRO)",
+                "label": "2nd Pass BWRO",
                 "inlet": {
                   "flow": 812.9059368818957,
                   "T": 30,
@@ -8426,6 +8848,10 @@
                       "value": "5.4 bar (estimated)"
                     },
                     {
+                      "label": "Energy recovery",
+                      "value": "none"
+                    },
+                    {
                       "label": "Specific energy",
                       "value": "0.221 kWh/m3 permeate"
                     }
@@ -8435,9 +8861,9 @@
                 }
               },
               {
-                "id": "n10-remin",
+                "id": "n11-remin",
                 "type": "remin",
-                "label": "Remineralization (lime + CO2)",
+                "label": "Remineralization",
                 "inlet": {
                   "flow": 1080.0033885356115,
                   "T": 30,
@@ -8543,7 +8969,7 @@
                 }
               },
               {
-                "id": "n11-disinfection",
+                "id": "n12-disinfection",
                 "type": "disinfection",
                 "label": "NaOCl dosing",
                 "inlet": {
@@ -8638,7 +9064,7 @@
                 }
               },
               {
-                "id": "n12-producttank",
+                "id": "n13-producttank",
                 "type": "producttank",
                 "label": "Product water tank",
                 "inlet": {
@@ -8735,9 +9161,9 @@
                 }
               },
               {
-                "id": "n13-product",
+                "id": "n14-product",
                 "type": "product",
-                "label": "Product water to data centre (300 L/s)",
+                "label": "Product (300 L/s)",
                 "inlet": {
                   "flow": 1080.0000000000002,
                   "T": 30,
@@ -8785,7 +9211,7 @@
                 }
               },
               {
-                "id": "n15-waste",
+                "id": "n16-waste",
                 "type": "waste",
                 "label": "Discharge to sea",
                 "inlet": {
@@ -8839,8 +9265,50 @@
               {
                 "id": "e0",
                 "label": "S1",
-                "from": "Seawater Intake + Screening (out)",
-                "to": "Coagulation & Flocculation",
+                "from": "Seawater (Batam) (out)",
+                "to": "Intake + Screening",
+                "stream": {
+                  "flow": 2754.302799434202,
+                  "T": 30,
+                  "pH": 7.78,
+                  "c": {
+                    "Na": 10582,
+                    "K": 392,
+                    "Ca": 404,
+                    "Mg": 1260,
+                    "NH4": 0.4600000000000001,
+                    "Cl": 18994,
+                    "SO4": 2662,
+                    "HCO3": 131.5,
+                    "CO3": 0,
+                    "NO3": 0,
+                    "F": 1.72,
+                    "SiO2": 0,
+                    "Fe": 0,
+                    "Mn": 0,
+                    "Ba": 0,
+                    "Sr": 7.800000000000001,
+                    "TDS": 34528,
+                    "TSS": 100,
+                    "BOD": 0,
+                    "COD": 79.9,
+                    "TOC": 0,
+                    "TN": 0,
+                    "TP": 0,
+                    "Oil": 0
+                  },
+                  "extras": {
+                    "turbidityNTU": 0,
+                    "coliform": 0,
+                    "sdi15": 6
+                  }
+                }
+              },
+              {
+                "id": "e1",
+                "label": "S2",
+                "from": "Intake + Screening (out)",
+                "to": "Coagulation & Floc.",
                 "stream": {
                   "flow": 2754.302799434202,
                   "T": 30,
@@ -8879,9 +9347,9 @@
                 }
               },
               {
-                "id": "e1",
-                "label": "S2",
-                "from": "Coagulation & Flocculation (out)",
+                "id": "e2",
+                "label": "S3",
+                "from": "Coagulation & Floc. (out)",
                 "to": "Multimedia Filter",
                 "stream": {
                   "flow": 2754.302799434202,
@@ -8921,8 +9389,8 @@
                 }
               },
               {
-                "id": "e2",
-                "label": "S3",
+                "id": "e3",
+                "label": "S4",
                 "from": "Multimedia Filter (out)",
                 "to": "Self-cleaning Filter",
                 "stream": {
@@ -8963,8 +9431,8 @@
                 }
               },
               {
-                "id": "e3",
-                "label": "S4",
+                "id": "e4",
+                "label": "S5",
                 "from": "Self-cleaning Filter (out)",
                 "to": "UF",
                 "stream": {
@@ -9005,10 +9473,10 @@
                 }
               },
               {
-                "id": "e4",
-                "label": "S5",
+                "id": "e5",
+                "label": "S6",
                 "from": "UF (out)",
-                "to": "Cartridge Filter (antiscalant + SBS)",
+                "to": "Cartridge Filter",
                 "stream": {
                   "flow": 2499.364532318572,
                   "T": 30,
@@ -9047,10 +9515,10 @@
                 }
               },
               {
-                "id": "e5",
-                "label": "S6",
-                "from": "Cartridge Filter (antiscalant + SBS) (out)",
-                "to": "SWRO 1st pass (HP pump + ERD)",
+                "id": "e6",
+                "label": "S7",
+                "from": "Cartridge Filter (out)",
+                "to": "SWRO 1st pass + ERD",
                 "stream": {
                   "flow": 2580.6549039307997,
                   "T": 30,
@@ -9089,10 +9557,10 @@
                 }
               },
               {
-                "id": "e6",
-                "label": "S7",
-                "from": "SWRO 1st pass (HP pump + ERD) (permeate)",
-                "to": "Permeate split (A = 2nd pass, B = bypass)",
+                "id": "e7",
+                "label": "S8",
+                "from": "SWRO 1st pass + ERD (permeate)",
+                "to": "Permeate split",
                 "stream": {
                   "flow": 1161.2946180016709,
                   "T": 30,
@@ -9131,10 +9599,10 @@
                 }
               },
               {
-                "id": "e7",
-                "label": "S8",
-                "from": "Permeate split (A = 2nd pass, B = bypass) (a)",
-                "to": "NaOH to pH 10",
+                "id": "e8",
+                "label": "S9",
+                "from": "Permeate split (a)",
+                "to": "NaOH (pH 10)",
                 "stream": {
                   "flow": 812.9061245729554,
                   "T": 30,
@@ -9173,10 +9641,10 @@
                 }
               },
               {
-                "id": "e8",
-                "label": "S9",
-                "from": "NaOH to pH 10 (out)",
-                "to": "2nd Pass RO (BWRO)",
+                "id": "e9",
+                "label": "S10",
+                "from": "NaOH (pH 10) (out)",
+                "to": "2nd Pass BWRO",
                 "stream": {
                   "flow": 812.9059368818957,
                   "T": 30,
@@ -9215,10 +9683,10 @@
                 }
               },
               {
-                "id": "e9",
-                "label": "S10",
-                "from": "Permeate split (A = 2nd pass, B = bypass) (b)",
-                "to": "Remineralization (lime + CO2)",
+                "id": "e10",
+                "label": "S11",
+                "from": "Permeate split (b)",
+                "to": "Remineralization",
                 "stream": {
                   "flow": 348.3883391026952,
                   "T": 30,
@@ -9257,10 +9725,10 @@
                 }
               },
               {
-                "id": "e10",
-                "label": "S11",
-                "from": "2nd Pass RO (BWRO) (permeate)",
-                "to": "Remineralization (lime + CO2)",
+                "id": "e11",
+                "label": "S12",
+                "from": "2nd Pass BWRO (permeate)",
+                "to": "Remineralization",
                 "stream": {
                   "flow": 731.6150494329163,
                   "T": 30,
@@ -9299,10 +9767,10 @@
                 }
               },
               {
-                "id": "e11",
-                "label": "S12",
-                "from": "2nd Pass RO (BWRO) (concentrate)",
-                "to": "Cartridge Filter (antiscalant + SBS)",
+                "id": "e12",
+                "label": "S13",
+                "from": "2nd Pass BWRO (concentrate)",
+                "to": "Cartridge Filter",
                 "stream": {
                   "flow": 81.29056104810178,
                   "T": 30,
@@ -9341,9 +9809,9 @@
                 }
               },
               {
-                "id": "e12",
-                "label": "S13",
-                "from": "Remineralization (lime + CO2) (out)",
+                "id": "e13",
+                "label": "S14",
+                "from": "Remineralization (out)",
                 "to": "NaOCl dosing",
                 "stream": {
                   "flow": 1080.0027968942409,
@@ -9383,8 +9851,8 @@
                 }
               },
               {
-                "id": "e13",
-                "label": "S14",
+                "id": "e14",
+                "label": "S15",
                 "from": "NaOCl dosing (out)",
                 "to": "Product water tank",
                 "stream": {
@@ -9425,10 +9893,10 @@
                 }
               },
               {
-                "id": "e14",
-                "label": "S15",
+                "id": "e15",
+                "label": "S16",
                 "from": "Product water tank (out)",
-                "to": "Product water to data centre (300 L/s)",
+                "to": "Product (300 L/s)",
                 "stream": {
                   "flow": 1080.0000000000002,
                   "T": 30,
@@ -9467,10 +9935,10 @@
                 }
               },
               {
-                "id": "e15",
-                "label": "S16",
+                "id": "e16",
+                "label": "S17",
                 "from": "Multimedia Filter (backwash)",
-                "to": "Drainage collection pit",
+                "to": "Drainage pit",
                 "stream": {
                   "flow": 110.17211197736808,
                   "T": 30,
@@ -9509,10 +9977,10 @@
                 }
               },
               {
-                "id": "e16",
-                "label": "S17",
+                "id": "e17",
+                "label": "S18",
                 "from": "Self-cleaning Filter (flush)",
-                "to": "Drainage collection pit",
+                "to": "Drainage pit",
                 "stream": {
                   "flow": 13.220653437284168,
                   "T": 30,
@@ -9551,10 +10019,10 @@
                 }
               },
               {
-                "id": "e17",
-                "label": "S18",
+                "id": "e18",
+                "label": "S19",
                 "from": "UF (backwash)",
-                "to": "Drainage collection pit",
+                "to": "Drainage pit",
                 "stream": {
                   "flow": 131.5455017009776,
                   "T": 30,
@@ -9593,9 +10061,9 @@
                 }
               },
               {
-                "id": "e18",
-                "label": "S19",
-                "from": "Drainage collection pit (out)",
+                "id": "e19",
+                "label": "S20",
+                "from": "Drainage pit (out)",
                 "to": "Discharge to sea",
                 "stream": {
                   "flow": 254.93826711562986,
@@ -9635,9 +10103,9 @@
                 }
               },
               {
-                "id": "e19",
-                "label": "S20",
-                "from": "SWRO 1st pass (HP pump + ERD) (concentrate)",
+                "id": "e20",
+                "label": "S21",
+                "from": "SWRO 1st pass + ERD (concentrate)",
                 "to": "Discharge to sea",
                 "stream": {
                   "flow": 1419.360088668709,
@@ -9679,10 +10147,10 @@
             ],
             "feedStreams": [
               {
-                "id": "feed-n0-intake",
+                "id": "feed-n0-feedsource",
                 "label": "F1",
                 "from": "Seawater (Batam)",
-                "to": "Seawater Intake + Screening",
+                "to": "Seawater (Batam)",
                 "stream": {
                   "flow": 2754.302799434202,
                   "T": 30,
@@ -9723,10 +10191,10 @@
             ],
             "productStreams": [
               {
-                "id": "sink-n13-product",
-                "label": "Product water to data centre (300 L/s)",
+                "id": "sink-n14-product",
+                "label": "Product (300 L/s)",
                 "from": "Product water tank",
-                "to": "Product water to data centre (300 L/s)",
+                "to": "Product (300 L/s)",
                 "stream": {
                   "flow": 1080.0000000000002,
                   "T": 30,
@@ -9767,9 +10235,9 @@
             ],
             "wasteStreams": [
               {
-                "id": "sink-n15-waste",
+                "id": "sink-n16-waste",
                 "label": "Discharge to sea",
-                "from": "Drainage collection pit, SWRO 1st pass (HP pump + ERD)",
+                "from": "Drainage pit, SWRO 1st pass + ERD",
                 "to": "Discharge to sea",
                 "stream": {
                   "flow": 1674.298355784339,
@@ -9967,20 +10435,30 @@
             }
           },
           "verdict": "conditional",
-          "engineerNote": "Porsi pass kedua terkecil yang memenuhi Grade S dengan margin pada kasus desain (Cl ≤ 85 %, TDS dan konduktivitas ≤ 90 % batas, LSI 0,05–0,45); pada membran nominal cukup 40 %. remineralisasi kapur + CO2 menambah kesadahan 90 mg/L CaCO3, CO2 berlebih 5 %, trim NaOH ke pH 8.1. Produk 1.080 m3/jam (300 L/s) dari air laut 2.754 m3/jam, recovery keseluruhan 39,2 %. Permeat SWRO: Cl 196 mg/L, jumlah ion 330 mg/L. Produk: pH 8,10, TDS (180 °C) 214, Cl 71,4, konduktivitas 434 µS/cm, kesadahan 99, alkalinitas 96 mg/L CaCO3, LSI 0,21. Grade S terpenuhi untuk semua parameter yang dimodelkan; Grade D GAGAL pada TDS (dried at 180 °C) 213.7, Conductivity (25 °C) 433.8, Chloride 71.4, Total hardness 98.5, Total alkalinity 95.6. Daya 3.648 kW (3,38 kWh/m3). CAPEX peralatan USD 9,52 juta = Rp 155,1 miliar (angka screening). OPEX Rp 7.058/m3. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,21–0,31 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
+          "engineerNote": "Porsi pass kedua terkecil yang memenuhi Grade S dengan margin pada kasus desain (Cl ≤ 85 %, TDS dan konduktivitas ≤ 90 % batas, LSI 0,05–0,45); pada membran nominal cukup 40 %. remineralisasi kapur + CO2 menambah kesadahan 90 mg/L CaCO3, CO2 berlebih 5 %, trim NaOH ke pH 8.1. Produk 1.080 m3/jam (300 L/s) dari air laut 2.754 m3/jam, recovery keseluruhan 39,2 %. Permeat SWRO: Cl 196 mg/L, jumlah ion 330 mg/L. Produk: pH 8,10, TDS (180 °C) 214, Cl 71,4, konduktivitas 434 µS/cm, kesadahan 99, alkalinitas 96 mg/L CaCO3, LSI 0,21. Grade S terpenuhi untuk semua parameter yang dimodelkan; Grade D GAGAL pada TDS (dried at 180 °C) 213.7, Conductivity (25 °C) 433.8, Chloride 71.4, Total hardness 98.5, Total alkalinity 95.6. Daya 3.648 kW (3,38 kWh/m3). Indicative CAPEX USD 30,2 juta = Rp 492 miliar (rentang 21,1–45,3 juta USD; 1.165 USD per m3/hari; 3,17 × peralatan proses USD 9,5 juta). OPEX Rp 7.058/m3. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,21–0,31 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
         },
         {
-          "id": "batam-mw31hams-3",
+          "id": "batam-mw32feai-3",
           "name": "D. Grade D — pass 2 90 % (bypass 10 %)",
-          "createdAt": "2026-11-05T04:22:09.940Z",
+          "createdAt": "2026-11-05T04:48:40.986Z",
           "flowsheet": {
             "nodes": [
               {
-                "id": "n0-intake",
-                "type": "intake",
-                "label": "Seawater Intake + Screening",
+                "id": "n0-feedsource",
+                "type": "feedsource",
+                "label": "Seawater (Batam)",
                 "position": {
                   "x": 0,
+                  "y": 200
+                },
+                "params": {}
+              },
+              {
+                "id": "n1-intake",
+                "type": "intake",
+                "label": "Intake + Screening",
+                "position": {
+                  "x": 260,
                   "y": 200
                 },
                 "params": {
@@ -9992,11 +10470,11 @@
                 }
               },
               {
-                "id": "n1-coagfloc",
+                "id": "n2-coagfloc",
                 "type": "coagfloc",
-                "label": "Coagulation & Flocculation",
+                "label": "Coagulation & Floc.",
                 "position": {
-                  "x": 200,
+                  "x": 520,
                   "y": 200
                 },
                 "params": {
@@ -10008,11 +10486,11 @@
                 }
               },
               {
-                "id": "n2-mmf",
+                "id": "n3-mmf",
                 "type": "mmf",
                 "label": "Multimedia Filter",
                 "position": {
-                  "x": 400,
+                  "x": 780,
                   "y": 200
                 },
                 "params": {
@@ -10024,11 +10502,11 @@
                 }
               },
               {
-                "id": "n3-selfclean",
+                "id": "n4-selfclean",
                 "type": "selfclean",
                 "label": "Self-cleaning Filter",
                 "position": {
-                  "x": 600,
+                  "x": 1040,
                   "y": 200
                 },
                 "params": {
@@ -10041,11 +10519,11 @@
                 }
               },
               {
-                "id": "n4-uf",
+                "id": "n5-uf",
                 "type": "uf",
                 "label": "UF",
                 "position": {
-                  "x": 800,
+                  "x": 1300,
                   "y": 200
                 },
                 "params": {
@@ -10060,12 +10538,12 @@
                 }
               },
               {
-                "id": "n5-cartridge",
+                "id": "n6-cartridge",
                 "type": "cartridge",
-                "label": "Cartridge Filter (antiscalant + SBS)",
+                "label": "Cartridge Filter",
                 "position": {
-                  "x": 1000,
-                  "y": 340
+                  "x": 1560,
+                  "y": 200
                 },
                 "params": {
                   "micron": 5,
@@ -10073,12 +10551,12 @@
                 }
               },
               {
-                "id": "n6-swro",
+                "id": "n7-swro",
                 "type": "swro",
-                "label": "SWRO 1st pass (HP pump + ERD)",
+                "label": "SWRO 1st pass + ERD",
                 "position": {
-                  "x": 800,
-                  "y": 340
+                  "x": 1820,
+                  "y": 200
                 },
                 "params": {
                   "recovery": 45,
@@ -10092,28 +10570,29 @@
                   "antiscalantDose": 3,
                   "smbsDose": 2,
                   "rejectionScale": 1,
-                  "passageFactor": 1.6
+                  "passageFactor": 1.6,
+                  "erdEffPct": 55
                 }
               },
               {
-                "id": "n7-splitter",
+                "id": "n8-splitter",
                 "type": "splitter",
-                "label": "Permeate split (A = 2nd pass, B = bypass)",
+                "label": "Permeate split",
                 "position": {
-                  "x": 600,
-                  "y": 340
+                  "x": 2080,
+                  "y": 200
                 },
                 "params": {
                   "fractionA": 90
                 }
               },
               {
-                "id": "n8-phadjust",
+                "id": "n9-phadjust",
                 "type": "phadjust",
-                "label": "NaOH to pH 10",
+                "label": "NaOH (pH 10)",
                 "position": {
-                  "x": 500,
-                  "y": 460
+                  "x": 2340,
+                  "y": 50
                 },
                 "params": {
                   "targetPH": 10,
@@ -10126,12 +10605,12 @@
                 }
               },
               {
-                "id": "n9-ro",
+                "id": "n10-ro",
                 "type": "ro",
-                "label": "2nd Pass RO (BWRO)",
+                "label": "2nd Pass BWRO",
                 "position": {
-                  "x": 400,
-                  "y": 340
+                  "x": 2600,
+                  "y": 50
                 },
                 "params": {
                   "recovery": 90,
@@ -10145,16 +10624,17 @@
                   "antiscalantDose": 0,
                   "smbsDose": 0,
                   "rejectionScale": 1,
-                  "passageFactor": 1.6
+                  "passageFactor": 1.6,
+                  "erdEffPct": 55
                 }
               },
               {
-                "id": "n10-remin",
+                "id": "n11-remin",
                 "type": "remin",
-                "label": "Remineralization (lime + CO2)",
+                "label": "Remineralization",
                 "position": {
-                  "x": 200,
-                  "y": 340
+                  "x": 2860,
+                  "y": 200
                 },
                 "params": {
                   "method": "lime",
@@ -10166,12 +10646,12 @@
                 }
               },
               {
-                "id": "n11-disinfection",
+                "id": "n12-disinfection",
                 "type": "disinfection",
                 "label": "NaOCl dosing",
                 "position": {
-                  "x": 100,
-                  "y": 460
+                  "x": 3120,
+                  "y": 200
                 },
                 "params": {
                   "method": "naocl",
@@ -10180,12 +10660,12 @@
                 }
               },
               {
-                "id": "n12-producttank",
+                "id": "n13-producttank",
                 "type": "producttank",
                 "label": "Product water tank",
                 "position": {
-                  "x": 0,
-                  "y": 340
+                  "x": 3380,
+                  "y": 200
                 },
                 "params": {
                   "hrtH": 8,
@@ -10199,24 +10679,24 @@
                 }
               },
               {
-                "id": "n13-product",
+                "id": "n14-product",
                 "type": "product",
-                "label": "Product water to data centre (300 L/s)",
+                "label": "Product (300 L/s)",
                 "position": {
-                  "x": -200,
-                  "y": 340
+                  "x": 3640,
+                  "y": 200
                 },
                 "params": {
                   "name": "process"
                 }
               },
               {
-                "id": "n14-eqtank",
+                "id": "n15-eqtank",
                 "type": "eqtank",
-                "label": "Drainage collection pit",
+                "label": "Drainage pit",
                 "position": {
-                  "x": 400,
-                  "y": 40
+                  "x": 1560,
+                  "y": 430
                 },
                 "params": {
                   "hrtH": 4,
@@ -10230,12 +10710,12 @@
                 }
               },
               {
-                "id": "n15-waste",
+                "id": "n16-waste",
                 "type": "waste",
                 "label": "Discharge to sea",
                 "position": {
-                  "x": 700,
-                  "y": 40
+                  "x": 2080,
+                  "y": 430
                 },
                 "params": {
                   "name": "reject"
@@ -10245,142 +10725,149 @@
             "edges": [
               {
                 "id": "e0",
-                "source": "n0-intake",
+                "source": "n0-feedsource",
                 "sourceHandle": "out",
-                "target": "n1-coagfloc",
+                "target": "n1-intake",
                 "targetHandle": "in"
               },
               {
                 "id": "e1",
-                "source": "n1-coagfloc",
+                "source": "n1-intake",
                 "sourceHandle": "out",
-                "target": "n2-mmf",
+                "target": "n2-coagfloc",
                 "targetHandle": "in"
               },
               {
                 "id": "e2",
-                "source": "n2-mmf",
+                "source": "n2-coagfloc",
                 "sourceHandle": "out",
-                "target": "n3-selfclean",
+                "target": "n3-mmf",
                 "targetHandle": "in"
               },
               {
                 "id": "e3",
-                "source": "n3-selfclean",
+                "source": "n3-mmf",
                 "sourceHandle": "out",
-                "target": "n4-uf",
+                "target": "n4-selfclean",
                 "targetHandle": "in"
               },
               {
                 "id": "e4",
-                "source": "n4-uf",
+                "source": "n4-selfclean",
                 "sourceHandle": "out",
-                "target": "n5-cartridge",
+                "target": "n5-uf",
                 "targetHandle": "in"
               },
               {
                 "id": "e5",
-                "source": "n5-cartridge",
+                "source": "n5-uf",
                 "sourceHandle": "out",
-                "target": "n6-swro",
+                "target": "n6-cartridge",
                 "targetHandle": "in"
               },
               {
                 "id": "e6",
-                "source": "n6-swro",
-                "sourceHandle": "permeate",
-                "target": "n7-splitter",
+                "source": "n6-cartridge",
+                "sourceHandle": "out",
+                "target": "n7-swro",
                 "targetHandle": "in"
               },
               {
                 "id": "e7",
-                "source": "n7-splitter",
-                "sourceHandle": "a",
-                "target": "n8-phadjust",
+                "source": "n7-swro",
+                "sourceHandle": "permeate",
+                "target": "n8-splitter",
                 "targetHandle": "in"
               },
               {
                 "id": "e8",
-                "source": "n8-phadjust",
-                "sourceHandle": "out",
-                "target": "n9-ro",
+                "source": "n8-splitter",
+                "sourceHandle": "a",
+                "target": "n9-phadjust",
                 "targetHandle": "in"
               },
               {
                 "id": "e9",
-                "source": "n7-splitter",
-                "sourceHandle": "b",
-                "target": "n10-remin",
+                "source": "n9-phadjust",
+                "sourceHandle": "out",
+                "target": "n10-ro",
                 "targetHandle": "in"
               },
               {
                 "id": "e10",
-                "source": "n9-ro",
-                "sourceHandle": "permeate",
-                "target": "n10-remin",
+                "source": "n8-splitter",
+                "sourceHandle": "b",
+                "target": "n11-remin",
                 "targetHandle": "in"
               },
               {
                 "id": "e11",
-                "source": "n9-ro",
-                "sourceHandle": "concentrate",
-                "target": "n5-cartridge",
+                "source": "n10-ro",
+                "sourceHandle": "permeate",
+                "target": "n11-remin",
                 "targetHandle": "in"
               },
               {
                 "id": "e12",
-                "source": "n10-remin",
-                "sourceHandle": "out",
-                "target": "n11-disinfection",
+                "source": "n10-ro",
+                "sourceHandle": "concentrate",
+                "target": "n6-cartridge",
                 "targetHandle": "in"
               },
               {
                 "id": "e13",
-                "source": "n11-disinfection",
+                "source": "n11-remin",
                 "sourceHandle": "out",
-                "target": "n12-producttank",
+                "target": "n12-disinfection",
                 "targetHandle": "in"
               },
               {
                 "id": "e14",
-                "source": "n12-producttank",
+                "source": "n12-disinfection",
                 "sourceHandle": "out",
-                "target": "n13-product",
+                "target": "n13-producttank",
                 "targetHandle": "in"
               },
               {
                 "id": "e15",
-                "source": "n2-mmf",
-                "sourceHandle": "backwash",
-                "target": "n14-eqtank",
+                "source": "n13-producttank",
+                "sourceHandle": "out",
+                "target": "n14-product",
                 "targetHandle": "in"
               },
               {
                 "id": "e16",
-                "source": "n3-selfclean",
-                "sourceHandle": "flush",
-                "target": "n14-eqtank",
+                "source": "n3-mmf",
+                "sourceHandle": "backwash",
+                "target": "n15-eqtank",
                 "targetHandle": "in"
               },
               {
                 "id": "e17",
-                "source": "n4-uf",
-                "sourceHandle": "backwash",
-                "target": "n14-eqtank",
+                "source": "n4-selfclean",
+                "sourceHandle": "flush",
+                "target": "n15-eqtank",
                 "targetHandle": "in"
               },
               {
                 "id": "e18",
-                "source": "n14-eqtank",
-                "sourceHandle": "out",
-                "target": "n15-waste",
+                "source": "n5-uf",
+                "sourceHandle": "backwash",
+                "target": "n15-eqtank",
                 "targetHandle": "in"
               },
               {
                 "id": "e19",
-                "source": "n6-swro",
+                "source": "n15-eqtank",
+                "sourceHandle": "out",
+                "target": "n16-waste",
+                "targetHandle": "in"
+              },
+              {
+                "id": "e20",
+                "source": "n7-swro",
                 "sourceHandle": "concentrate",
-                "target": "n15-waste",
+                "target": "n16-waste",
                 "targetHandle": "in"
               }
             ],
@@ -10425,9 +10912,9 @@
             "messages": [],
             "nodes": [
               {
-                "id": "n0-intake",
-                "type": "intake",
-                "label": "Seawater Intake + Screening",
+                "id": "n0-feedsource",
+                "type": "feedsource",
+                "label": "Seawater (Batam)",
                 "inlet": {
                   "flow": 2788.6797257051867,
                   "T": 30,
@@ -10487,6 +10974,93 @@
                       "Ba": 0,
                       "Sr": 7.8,
                       "TDS": 34528,
+                      "TSS": 100,
+                      "BOD": 0,
+                      "COD": 79.9,
+                      "TOC": 0,
+                      "TN": 0,
+                      "TP": 0,
+                      "Oil": 0
+                    },
+                    "extras": {
+                      "turbidityNTU": 0,
+                      "coliform": 0,
+                      "sdi15": 6
+                    }
+                  }
+                },
+                "aux": {
+                  "powerKW": 0,
+                  "chemicals": {},
+                  "drySolidsKgH": 0,
+                  "sizing": [],
+                  "capexUSD": 0,
+                  "notes": []
+                }
+              },
+              {
+                "id": "n1-intake",
+                "type": "intake",
+                "label": "Intake + Screening",
+                "inlet": {
+                  "flow": 2788.6797257051867,
+                  "T": 30,
+                  "pH": 7.78,
+                  "c": {
+                    "Na": 10582,
+                    "K": 392,
+                    "Ca": 404,
+                    "Mg": 1260,
+                    "NH4": 0.4600000000000001,
+                    "Cl": 18994,
+                    "SO4": 2662,
+                    "HCO3": 131.5,
+                    "CO3": 0,
+                    "NO3": 0,
+                    "F": 1.72,
+                    "SiO2": 0,
+                    "Fe": 0,
+                    "Mn": 0,
+                    "Ba": 0,
+                    "Sr": 7.800000000000001,
+                    "TDS": 34528,
+                    "TSS": 100,
+                    "BOD": 0,
+                    "COD": 79.9,
+                    "TOC": 0,
+                    "TN": 0,
+                    "TP": 0,
+                    "Oil": 0
+                  },
+                  "extras": {
+                    "turbidityNTU": 0,
+                    "coliform": 0,
+                    "sdi15": 6
+                  }
+                },
+                "outlets": {
+                  "out": {
+                    "flow": 2788.6797257051867,
+                    "T": 30,
+                    "pH": 7.78,
+                    "c": {
+                      "Na": 10582,
+                      "K": 392,
+                      "Ca": 404,
+                      "Mg": 1260,
+                      "NH4": 0.4600000000000001,
+                      "Cl": 18994,
+                      "SO4": 2662,
+                      "HCO3": 131.5,
+                      "CO3": 0,
+                      "NO3": 0,
+                      "F": 1.72,
+                      "SiO2": 0,
+                      "Fe": 0,
+                      "Mn": 0,
+                      "Ba": 0,
+                      "Sr": 7.800000000000001,
+                      "TDS": 34528,
                       "TSS": 97,
                       "BOD": 0,
                       "COD": 79.9,
@@ -10521,9 +11095,9 @@
                 }
               },
               {
-                "id": "n1-coagfloc",
+                "id": "n2-coagfloc",
                 "type": "coagfloc",
-                "label": "Coagulation & Flocculation",
+                "label": "Coagulation & Floc.",
                 "inlet": {
                   "flow": 2788.6797257051867,
                   "T": 30,
@@ -10621,7 +11195,7 @@
                 }
               },
               {
-                "id": "n2-mmf",
+                "id": "n3-mmf",
                 "type": "mmf",
                 "label": "Multimedia Filter",
                 "inlet": {
@@ -10757,7 +11331,7 @@
                 }
               },
               {
-                "id": "n3-selfclean",
+                "id": "n4-selfclean",
                 "type": "selfclean",
                 "label": "Self-cleaning Filter",
                 "inlet": {
@@ -10889,7 +11463,7 @@
                 }
               },
               {
-                "id": "n4-uf",
+                "id": "n5-uf",
                 "type": "uf",
                 "label": "UF",
                 "inlet": {
@@ -11032,9 +11606,9 @@
                 }
               },
               {
-                "id": "n14-eqtank",
+                "id": "n15-eqtank",
                 "type": "eqtank",
-                "label": "Drainage collection pit",
+                "label": "Drainage pit",
                 "inlet": {
                   "flow": 258.1201954112722,
                   "T": 30,
@@ -11129,9 +11703,9 @@
                 }
               },
               {
-                "id": "n5-cartridge",
+                "id": "n6-cartridge",
                 "type": "cartridge",
-                "label": "Cartridge Filter (antiscalant + SBS)",
+                "label": "Cartridge Filter",
                 "inlet": {
                   "flow": 2637.3729504743083,
                   "T": 29.999999999999993,
@@ -11221,9 +11795,9 @@
                 }
               },
               {
-                "id": "n6-swro",
+                "id": "n7-swro",
                 "type": "swro",
-                "label": "SWRO 1st pass (HP pump + ERD)",
+                "label": "SWRO 1st pass + ERD",
                 "inlet": {
                   "flow": 2637.3728228226373,
                   "T": 29.999999999999993,
@@ -11363,6 +11937,10 @@
                       "value": "41.0 bar (estimated)"
                     },
                     {
+                      "label": "Energy recovery",
+                      "value": "ERD, 55 % net"
+                    },
+                    {
                       "label": "Specific energy",
                       "value": "2.358 kWh/m3 permeate"
                     }
@@ -11372,9 +11950,9 @@
                 }
               },
               {
-                "id": "n7-splitter",
+                "id": "n8-splitter",
                 "type": "splitter",
-                "label": "Permeate split (A = 2nd pass, B = bypass)",
+                "label": "Permeate split",
                 "inlet": {
                   "flow": 1186.8176745901676,
                   "T": 29.999999999999993,
@@ -11495,9 +12073,9 @@
                 }
               },
               {
-                "id": "n8-phadjust",
+                "id": "n9-phadjust",
                 "type": "phadjust",
-                "label": "NaOH to pH 10",
+                "label": "NaOH (pH 10)",
                 "inlet": {
                   "flow": 1068.1357637534743,
                   "T": 29.999999999999993,
@@ -11602,9 +12180,9 @@
                 }
               },
               {
-                "id": "n9-ro",
+                "id": "n10-ro",
                 "type": "ro",
-                "label": "2nd Pass RO (BWRO)",
+                "label": "2nd Pass BWRO",
                 "inlet": {
                   "flow": 1068.1355251599084,
                   "T": 29.999999999999993,
@@ -11744,6 +12322,10 @@
                       "value": "5.4 bar (estimated)"
                     },
                     {
+                      "label": "Energy recovery",
+                      "value": "none"
+                    },
+                    {
                       "label": "Specific energy",
                       "value": "0.221 kWh/m3 permeate"
                     }
@@ -11753,9 +12335,9 @@
                 }
               },
               {
-                "id": "n10-remin",
+                "id": "n11-remin",
                 "type": "remin",
-                "label": "Remineralization (lime + CO2)",
+                "label": "Remineralization",
                 "inlet": {
                   "flow": 1080.003366865969,
                   "T": 29.99999999999999,
@@ -11861,7 +12443,7 @@
                 }
               },
               {
-                "id": "n11-disinfection",
+                "id": "n12-disinfection",
                 "type": "disinfection",
                 "label": "NaOCl dosing",
                 "inlet": {
@@ -11956,7 +12538,7 @@
                 }
               },
               {
-                "id": "n12-producttank",
+                "id": "n13-producttank",
                 "type": "producttank",
                 "label": "Product water tank",
                 "inlet": {
@@ -12053,9 +12635,9 @@
                 }
               },
               {
-                "id": "n13-product",
+                "id": "n14-product",
                 "type": "product",
-                "label": "Product water to data centre (300 L/s)",
+                "label": "Product (300 L/s)",
                 "inlet": {
                   "flow": 1080,
                   "T": 29.999999999999993,
@@ -12103,7 +12685,7 @@
                 }
               },
               {
-                "id": "n15-waste",
+                "id": "n16-waste",
                 "type": "waste",
                 "label": "Discharge to sea",
                 "inlet": {
@@ -12157,8 +12739,50 @@
               {
                 "id": "e0",
                 "label": "S1",
-                "from": "Seawater Intake + Screening (out)",
-                "to": "Coagulation & Flocculation",
+                "from": "Seawater (Batam) (out)",
+                "to": "Intake + Screening",
+                "stream": {
+                  "flow": 2788.6797257051867,
+                  "T": 30,
+                  "pH": 7.78,
+                  "c": {
+                    "Na": 10582,
+                    "K": 392,
+                    "Ca": 404,
+                    "Mg": 1260,
+                    "NH4": 0.4600000000000001,
+                    "Cl": 18994,
+                    "SO4": 2662,
+                    "HCO3": 131.5,
+                    "CO3": 0,
+                    "NO3": 0,
+                    "F": 1.72,
+                    "SiO2": 0,
+                    "Fe": 0,
+                    "Mn": 0,
+                    "Ba": 0,
+                    "Sr": 7.800000000000001,
+                    "TDS": 34528,
+                    "TSS": 100,
+                    "BOD": 0,
+                    "COD": 79.9,
+                    "TOC": 0,
+                    "TN": 0,
+                    "TP": 0,
+                    "Oil": 0
+                  },
+                  "extras": {
+                    "turbidityNTU": 0,
+                    "coliform": 0,
+                    "sdi15": 6
+                  }
+                }
+              },
+              {
+                "id": "e1",
+                "label": "S2",
+                "from": "Intake + Screening (out)",
+                "to": "Coagulation & Floc.",
                 "stream": {
                   "flow": 2788.6797257051867,
                   "T": 30,
@@ -12197,9 +12821,9 @@
                 }
               },
               {
-                "id": "e1",
-                "label": "S2",
-                "from": "Coagulation & Flocculation (out)",
+                "id": "e2",
+                "label": "S3",
+                "from": "Coagulation & Floc. (out)",
                 "to": "Multimedia Filter",
                 "stream": {
                   "flow": 2788.6797257051867,
@@ -12239,8 +12863,8 @@
                 }
               },
               {
-                "id": "e2",
-                "label": "S3",
+                "id": "e3",
+                "label": "S4",
                 "from": "Multimedia Filter (out)",
                 "to": "Self-cleaning Filter",
                 "stream": {
@@ -12281,8 +12905,8 @@
                 }
               },
               {
-                "id": "e3",
-                "label": "S4",
+                "id": "e4",
+                "label": "S5",
                 "from": "Self-cleaning Filter (out)",
                 "to": "UF",
                 "stream": {
@@ -12323,10 +12947,10 @@
                 }
               },
               {
-                "id": "e4",
-                "label": "S5",
+                "id": "e5",
+                "label": "S6",
                 "from": "UF (out)",
-                "to": "Cartridge Filter (antiscalant + SBS)",
+                "to": "Cartridge Filter",
                 "stream": {
                   "flow": 2530.5595302939146,
                   "T": 30,
@@ -12365,10 +12989,10 @@
                 }
               },
               {
-                "id": "e5",
-                "label": "S6",
-                "from": "Cartridge Filter (antiscalant + SBS) (out)",
-                "to": "SWRO 1st pass (HP pump + ERD)",
+                "id": "e6",
+                "label": "S7",
+                "from": "Cartridge Filter (out)",
+                "to": "SWRO 1st pass + ERD",
                 "stream": {
                   "flow": 2637.3728228226373,
                   "T": 29.999999999999993,
@@ -12407,10 +13031,10 @@
                 }
               },
               {
-                "id": "e6",
-                "label": "S7",
-                "from": "SWRO 1st pass (HP pump + ERD) (permeate)",
-                "to": "Permeate split (A = 2nd pass, B = bypass)",
+                "id": "e7",
+                "label": "S8",
+                "from": "SWRO 1st pass + ERD (permeate)",
+                "to": "Permeate split",
                 "stream": {
                   "flow": 1186.8176745901676,
                   "T": 29.999999999999993,
@@ -12449,10 +13073,10 @@
                 }
               },
               {
-                "id": "e7",
-                "label": "S8",
-                "from": "Permeate split (A = 2nd pass, B = bypass) (a)",
-                "to": "NaOH to pH 10",
+                "id": "e8",
+                "label": "S9",
+                "from": "Permeate split (a)",
+                "to": "NaOH (pH 10)",
                 "stream": {
                   "flow": 1068.1357637534743,
                   "T": 29.999999999999993,
@@ -12491,10 +13115,10 @@
                 }
               },
               {
-                "id": "e8",
-                "label": "S9",
-                "from": "NaOH to pH 10 (out)",
-                "to": "2nd Pass RO (BWRO)",
+                "id": "e9",
+                "label": "S10",
+                "from": "NaOH (pH 10) (out)",
+                "to": "2nd Pass BWRO",
                 "stream": {
                   "flow": 1068.1355251599084,
                   "T": 29.999999999999993,
@@ -12533,10 +13157,10 @@
                 }
               },
               {
-                "id": "e9",
-                "label": "S10",
-                "from": "Permeate split (A = 2nd pass, B = bypass) (b)",
-                "to": "Remineralization (lime + CO2)",
+                "id": "e10",
+                "label": "S11",
+                "from": "Permeate split (b)",
+                "to": "Remineralization",
                 "stream": {
                   "flow": 118.6817515281638,
                   "T": 29.999999999999993,
@@ -12575,10 +13199,10 @@
                 }
               },
               {
-                "id": "e10",
-                "label": "S11",
-                "from": "2nd Pass RO (BWRO) (permeate)",
-                "to": "Remineralization (lime + CO2)",
+                "id": "e11",
+                "label": "S12",
+                "from": "2nd Pass BWRO (permeate)",
+                "to": "Remineralization",
                 "stream": {
                   "flow": 961.321615337805,
                   "T": 29.999999999999993,
@@ -12617,10 +13241,10 @@
                 }
               },
               {
-                "id": "e11",
-                "label": "S12",
-                "from": "2nd Pass RO (BWRO) (concentrate)",
-                "to": "Cartridge Filter (antiscalant + SBS)",
+                "id": "e12",
+                "label": "S13",
+                "from": "2nd Pass BWRO (concentrate)",
+                "to": "Cartridge Filter",
                 "stream": {
                   "flow": 106.81351281531167,
                   "T": 29.999999999999993,
@@ -12659,9 +13283,9 @@
                 }
               },
               {
-                "id": "e12",
-                "label": "S13",
-                "from": "Remineralization (lime + CO2) (out)",
+                "id": "e13",
+                "label": "S14",
+                "from": "Remineralization (out)",
                 "to": "NaOCl dosing",
                 "stream": {
                   "flow": 1080.0027456889889,
@@ -12701,8 +13325,8 @@
                 }
               },
               {
-                "id": "e13",
-                "label": "S14",
+                "id": "e14",
+                "label": "S15",
                 "from": "NaOCl dosing (out)",
                 "to": "Product water tank",
                 "stream": {
@@ -12743,10 +13367,10 @@
                 }
               },
               {
-                "id": "e14",
-                "label": "S15",
+                "id": "e15",
+                "label": "S16",
                 "from": "Product water tank (out)",
-                "to": "Product water to data centre (300 L/s)",
+                "to": "Product (300 L/s)",
                 "stream": {
                   "flow": 1080,
                   "T": 29.999999999999993,
@@ -12785,10 +13409,10 @@
                 }
               },
               {
-                "id": "e15",
-                "label": "S16",
+                "id": "e16",
+                "label": "S17",
                 "from": "Multimedia Filter (backwash)",
-                "to": "Drainage collection pit",
+                "to": "Drainage pit",
                 "stream": {
                   "flow": 111.54718902820747,
                   "T": 30,
@@ -12827,10 +13451,10 @@
                 }
               },
               {
-                "id": "e16",
-                "label": "S17",
+                "id": "e17",
+                "label": "S18",
                 "from": "Self-cleaning Filter (flush)",
-                "to": "Drainage collection pit",
+                "to": "Drainage pit",
                 "stream": {
                   "flow": 13.385662683384897,
                   "T": 30,
@@ -12869,10 +13493,10 @@
                 }
               },
               {
-                "id": "e17",
-                "label": "S18",
+                "id": "e18",
+                "label": "S19",
                 "from": "UF (backwash)",
-                "to": "Drainage collection pit",
+                "to": "Drainage pit",
                 "stream": {
                   "flow": 133.18734369967984,
                   "T": 30,
@@ -12911,9 +13535,9 @@
                 }
               },
               {
-                "id": "e18",
-                "label": "S19",
-                "from": "Drainage collection pit (out)",
+                "id": "e19",
+                "label": "S20",
+                "from": "Drainage pit (out)",
                 "to": "Discharge to sea",
                 "stream": {
                   "flow": 258.1201954112722,
@@ -12953,9 +13577,9 @@
                 }
               },
               {
-                "id": "e19",
-                "label": "S20",
-                "from": "SWRO 1st pass (HP pump + ERD) (concentrate)",
+                "id": "e20",
+                "label": "S21",
+                "from": "SWRO 1st pass + ERD (concentrate)",
                 "to": "Discharge to sea",
                 "stream": {
                   "flow": 1450.554935610205,
@@ -12997,10 +13621,10 @@
             ],
             "feedStreams": [
               {
-                "id": "feed-n0-intake",
+                "id": "feed-n0-feedsource",
                 "label": "F1",
                 "from": "Seawater (Batam)",
-                "to": "Seawater Intake + Screening",
+                "to": "Seawater (Batam)",
                 "stream": {
                   "flow": 2788.6797257051867,
                   "T": 30,
@@ -13041,10 +13665,10 @@
             ],
             "productStreams": [
               {
-                "id": "sink-n13-product",
-                "label": "Product water to data centre (300 L/s)",
+                "id": "sink-n14-product",
+                "label": "Product (300 L/s)",
                 "from": "Product water tank",
-                "to": "Product water to data centre (300 L/s)",
+                "to": "Product (300 L/s)",
                 "stream": {
                   "flow": 1080,
                   "T": 29.999999999999993,
@@ -13085,9 +13709,9 @@
             ],
             "wasteStreams": [
               {
-                "id": "sink-n15-waste",
+                "id": "sink-n16-waste",
                 "label": "Discharge to sea",
-                "from": "Drainage collection pit, SWRO 1st pass (HP pump + ERD)",
+                "from": "Drainage pit, SWRO 1st pass + ERD",
                 "to": "Discharge to sea",
                 "stream": {
                   "flow": 1708.6751310214772,
@@ -13283,7 +13907,7 @@
             }
           },
           "verdict": "conditional",
-          "engineerNote": "Porsi pass kedua terkecil yang memenuhi Grade D dengan margin pada kasus desain; pada membran nominal cukup 80 %. remineralisasi kapur + CO2 menambah kesadahan 72 mg/L CaCO3, CO2 berlebih 5 %, trim NaOH ke pH 8.15. Produk 1.080 m3/jam (300 L/s) dari air laut 2.789 m3/jam, recovery keseluruhan 38,7 %. Permeat SWRO: Cl 194 mg/L, jumlah ion 327 mg/L. Produk: pH 8,15, TDS (180 °C) 129, Cl 32,0, konduktivitas 257 µS/cm, kesadahan 75, alkalinitas 76 mg/L CaCO3, LSI 0,08. Grade S terpenuhi untuk semua parameter yang dimodelkan; Grade D terpenuhi untuk semua parameter yang dimodelkan. Daya 3.747 kW (3,47 kWh/m3). CAPEX peralatan USD 10,17 juta = Rp 165,7 miliar (angka screening). OPEX Rp 7.162/m3. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,10–0,15 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
+          "engineerNote": "Porsi pass kedua terkecil yang memenuhi Grade D dengan margin pada kasus desain; pada membran nominal cukup 80 %. remineralisasi kapur + CO2 menambah kesadahan 72 mg/L CaCO3, CO2 berlebih 5 %, trim NaOH ke pH 8.15. Produk 1.080 m3/jam (300 L/s) dari air laut 2.789 m3/jam, recovery keseluruhan 38,7 %. Permeat SWRO: Cl 194 mg/L, jumlah ion 327 mg/L. Produk: pH 8,15, TDS (180 °C) 129, Cl 32,0, konduktivitas 257 µS/cm, kesadahan 75, alkalinitas 76 mg/L CaCO3, LSI 0,08. Grade S terpenuhi untuk semua parameter yang dimodelkan; Grade D terpenuhi untuk semua parameter yang dimodelkan. Daya 3.747 kW (3,47 kWh/m3). Indicative CAPEX USD 32,3 juta = Rp 526 miliar (rentang 22,6–48,4 juta USD; 1.245 USD per m3/hari; 3,17 × peralatan proses USD 10,2 juta). OPEX Rp 7.162/m3. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,10–0,15 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
         }
       ]
     }
