@@ -37,6 +37,8 @@ export const CHEM_PRICES_USD_PER_T: Record<string, number> = {
   "Caustic soda (CIP)": 600,
   "Hydrated lime Ca(OH)2": 180, "Sodium carbonate": 420,
   "Seed sand (pellet softening)": 90,
+  // Remineralisation: bulk liquid CO2, and calcite media consumed as it dissolves.
+  "Carbon dioxide": 200, "Calcite CaCO3 (remineralisation)": 300,
   // Acid.
   "Sulphuric acid H2SO4": 150, "Hydrochloric acid HCl": 300,
   "Hydrochloric acid (UF CEB)": 300, "Hydrochloric acid (regeneration)": 300,

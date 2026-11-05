@@ -396,6 +396,100 @@ export const KNOWLEDGE: Record<string, UnitKnowledge> = {
     ],
   },
 
+  remin: {
+    principle:
+      "Desalinated water has almost no calcium and no alkalinity. It is aggressive: it dissolves the calcium carbonate lining of concrete and cement-lined pipe, and strips zinc from galvanised steel. Remineralisation puts calcium bicarbonate back. Carbon dioxide is dissolved first, then either lime is added (Ca(OH)2 + 2 CO2 → Ca(HCO3)2) or the water is passed up through a bed of calcite chips (CaCO3 + CO2 + H2O → Ca(HCO3)2). The excess CO2 left over holds the pH down, and a little caustic converts it to bicarbonate to reach the target pH and a slightly positive saturation index.",
+    whenToUse: [
+      "After every desalination plant whose water goes to a network, a cooling system or people. A permeate with no buffering is not a finished product.",
+      "Where the customer specifies a hardness, alkalinity or LSI band — the CCEPC data-centre grades S and D both do.",
+      "Calcite where the plant is small or simple operation matters more than chemical cost: the bed doses itself and cannot overdose.",
+      "Lime where the plant is large: lime is the cheapest calcium source, and a saturator gives precise control.",
+    ],
+    whenNotToUse: [
+      "Where the product is boiler or process demineralised water. Adding calcium there undoes the desalination.",
+      "As a substitute for a second pass. Remineralisation adds dissolved solids; it does nothing for chloride, sodium or boron.",
+    ],
+    designRules: [
+      {
+        rule: "Design to the saturation index, not to a hardness figure alone.",
+        why: "Two waters with the same hardness can be scaling or corrosive depending on alkalinity, pH, temperature and TDS. The LSI combines them; a target of 0 to +0.5 at the delivery temperature leaves a thin protective carbonate film without scaling.",
+      },
+      {
+        rule: "Set the hardness and alkalinity at the top of the band, not the middle.",
+        why: "At 30 °C and the pH ceilings most standards set, a mid-band water is often below LSI 0. It meets each limit on its own and still fails the stability test.",
+      },
+      {
+        rule: "Use a lime saturator, not lime slurry, when the product turbidity limit is 1 NTU.",
+        why: "Commercial lime carries 2-5 % insolubles. Slurry dosing sends them into the product; a saturator settles them out and doses clear lime water.",
+      },
+      {
+        rule: "Budget the dissolved solids the remineralisation adds.",
+        why: "Every mg/L of hardness added as CaCO3 adds about 1 mg/L of TDS (180 °C) and about 2 µS/cm. Under a tight TDS or conductivity limit that comes out of the permeate's allowance, and decides how much second pass is needed.",
+      },
+    ],
+    keyNumbers: [
+      { param: "Calcium per mg/L hardness added", typical: "0.400 mg/L", why: "40.08 / 100.09." },
+      { param: "CO2, lime route", typical: "0.88 mg per mg/L hardness", why: "Two CO2 per calcium; plus 5-15 % excess." },
+      { param: "CO2, calcite route", typical: "0.44 mg per mg/L hardness", why: "One CO2 per calcium; plus 20-50 % excess for the dissolution rate." },
+      { param: "Lime, as Ca(OH)2", typical: "0.74 mg per mg/L hardness", why: "74.09 / 100.09." },
+      { param: "Target LSI", typical: "0 to +0.5", why: "Protective film without scale." },
+      { param: "Calcite EBCT", typical: "10-20 min", why: "Dissolution is slow at the low CO2 left after a lime-free route." },
+    ],
+    failureModes: [
+      { mode: "Turbidity in the product", symptom: "Product above 1 NTU, white deposit in the tank", prevention: "Lime saturator or calcite contactor, not slurry; check the lime grade." },
+      { mode: "pH overshoot", symptom: "pH above 8.5, calcium carbonate scale in the product line", prevention: "Dose caustic on a pH loop after the CO2 has fully reacted, not on flow ratio." },
+      { mode: "Corrosive product", symptom: "Red water and iron pick-up in the network", prevention: "Hold LSI at or above 0 at the warmest delivery temperature." },
+    ],
+    upstream: "RO permeate (single or partial second pass)",
+    downstream: "Product water tank",
+  },
+
+  selfclean: {
+    principle:
+      "A cylindrical wedge-wire or woven screen, or a stack of grooved discs, that water passes through from inside to outside. Particles larger than the rating collect on the screen. When the differential pressure reaches a set point, a suction scanner sweeps the screen, or the flow briefly reverses, and the cake goes to drain in a few seconds — without stopping the filtrate. It is a guard rather than a treatment step: it protects what comes after it from coarse and sharp particles, and it takes out very little turbidity.",
+    whenToUse: [
+      "Immediately ahead of UF on seawater, where shell fragments, marine growth and sand carried out of the media filters would abrade or puncture the fibres. Most UF suppliers make a 100-200 µm screen a warranty condition.",
+      "On a raw-water intake as a fine screen after the bar screen, where a full clarifier is not justified.",
+      "Wherever a downstream unit needs a positive cut-off on particle size that a media filter cannot guarantee during its backwash and ripening.",
+    ],
+    whenNotToUse: [
+      "As a substitute for clarification or media filtration. A 100 µm screen passes clay, silt and algae almost entirely; it changes the SDI hardly at all.",
+      "On a feed with a heavy solids load. It will flush almost continuously, wasting water and wearing the scanner.",
+      "Ahead of an RO without UF: the cartridge filter already does the job at 5 µm, and the screen adds nothing the cartridge does not.",
+    ],
+    designRules: [
+      {
+        rule: "Choose the rating from the UF supplier's requirement, not finer.",
+        why: "A finer screen catches more and flushes more often. 100-200 µm protects the fibres; going to 50 µm doubles the flushing for little gain, because the particles between 50 and 100 µm are what the UF removes anyway.",
+      },
+      {
+        rule: "Size on the clean-screen flux at peak flow, with one unit on standby.",
+        why: "The screen must pass the full flow while one unit is flushing or under maintenance; it has no bypass that does not defeat its purpose.",
+      },
+      {
+        rule: "Count the flush water in the balance and send it to the backwash or drainage line.",
+        why: "At 0.5-1 % of the feed it is small, but it is continuous and it carries the solids the screen exists to remove. Returning it ahead of the screen simply circulates them.",
+      },
+      {
+        rule: "Set the flush on differential pressure, with a time backup.",
+        why: "Pressure-triggered flushing follows the actual load; a timer alone either wastes water on a clean feed or lets the screen blind during an upset.",
+      },
+    ],
+    keyNumbers: [
+      { param: "Rating ahead of UF", typical: "100-200 µm", why: "The usual UF warranty condition." },
+      { param: "Flush water", typical: "0.2-1 % of feed", why: "Higher on raw seawater, lower after media filtration." },
+      { param: "Clean pressure drop", typical: "0.1-0.3 bar", why: "Flush is usually triggered at 0.5 bar." },
+      { param: "TSS removal after a sand filter", typical: "< 10 %", why: "It removes only what is larger than the rating." },
+    ],
+    failureModes: [
+      { mode: "Continuous flushing", symptom: "Flush valve cycling every few minutes, water loss rising", prevention: "Fix the upstream solids carry-over; check the media filters for fines loss after backwash." },
+      { mode: "Screen damage", symptom: "Sudden clean pressure drop and particles reaching the UF", prevention: "Inspect the screen at every maintenance; replace on any tear, however small." },
+      { mode: "Biofouling of the screen", symptom: "Slimy deposit that the scanner cannot remove", prevention: "Periodic chemical soak; keep the chlorination upstream working." },
+    ],
+    upstream: "Media filter or clarifier",
+    downstream: "Ultrafiltration",
+  },
+
   /* ============================================================ MEMBRANES */
   uf: {
     principle:

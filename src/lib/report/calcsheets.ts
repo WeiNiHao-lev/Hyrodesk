@@ -338,6 +338,50 @@ const BUILDERS: Record<string, Builder> = {
       theory: "Thirty times the velocity is thirty times less area. On a plant where land is the constraint this single line is usually the whole case for a pellet reactor." },
   ],
 
+  remin: (r, p) => {
+    const calcite = String(p.method ?? "lime") === "calcite";
+    return [
+      ...feedRows(r),
+      { section: "Calcium and bicarbonate added" },
+      { key: "dh", no: "2", item: "Hardness added", symbol: "ΔH", unit: "mg/L CaCO₃", val: n(p, "hardnessAdd", 60), input: true,
+        note: "Set from the hardness, alkalinity and LSI band of the standard." },
+      { key: "ca", no: "3", item: "Calcium added", symbol: "ΔCa", unit: "mg/L", expr: "${dh}*40.078/100.09", formula: "ΔCa = ΔH × 40.08 / 100.09" },
+      { key: "hc", no: "4", item: "Bicarbonate added", symbol: "ΔHCO₃", unit: "mg/L", expr: "${dh}*2*61.02/100.09", formula: "ΔHCO₃ = ΔH × 2 × 61.02 / 100.09",
+        theory: "Each calcium comes with two bicarbonates, which is why the alkalinity added equals the hardness added when both are written as CaCO3." },
+      { section: calcite ? "Calcite route: CaCO₃ + CO₂ + H₂O → Ca(HCO₃)₂" : "Lime route: Ca(OH)₂ + 2 CO₂ → Ca(HCO₃)₂" },
+      { key: "mw", no: "5", item: calcite ? "Calcite per mg/L hardness" : "Lime per mg/L hardness", symbol: "k_c", unit: "mg/mg", val: calcite ? 1.0 : 74.09 / 100.09, input: true },
+      { key: "dose", no: "6", item: calcite ? "Calcite dissolved" : "Lime dose, Ca(OH)₂", symbol: "D_c", unit: "kg/h", expr: "${dh}*${mw}*${Qin}/1000", formula: "D_c = ΔH × k_c × Q / 1000" },
+      { key: "kco2", no: "7", item: "CO₂ per mg/L hardness", symbol: "k_CO₂", unit: "mg/mg", val: (calcite ? 1 : 2) * 44.01 / 100.09, input: true,
+        note: calcite ? "One CO₂ per calcium." : "Two CO₂ per calcium." },
+      { key: "ex", no: "8", item: "CO₂ excess", symbol: "e", unit: "%", val: n(p, "co2ExcessPct", 10), input: true },
+      { key: "co2", no: "9", item: "CO₂ dose", symbol: "D_CO₂", unit: "kg/h", expr: "${dh}*${kco2}*(1+${ex}/100)*${Qin}/1000", formula: "D_CO₂ = ΔH × k_CO₂ × (1 + e) × Q / 1000",
+        theory: "The excess is what drives the reaction to completion. Left in the water it holds the pH down, which is why a caustic trim follows: it converts the leftover CO2 to bicarbonate and sets the final pH." },
+      { section: "Sizing" },
+      { key: "t", no: "10", item: "Contact time", symbol: "t", unit: "min", val: n(p, "contactMin", 5), input: true,
+        note: calcite ? "Calcite EBCT 10-20 min." : "Lime-water mixing 2-5 min." },
+      { key: "vol", no: "11", item: calcite ? "Calcite bed volume" : "Reaction volume", symbol: "V", unit: "m³", expr: "${Qin}*${t}/60", formula: "V = Q × t / 60" },
+    ];
+  },
+
+  selfclean: (r, p) => [
+    ...feedRows(r),
+    { section: "Units" },
+    { key: "fpu", no: "2", item: "Flow per filter", symbol: "q_1", unit: "m³/h", val: n(p, "flowPerUnit", 300), input: true,
+      note: "From the supplier's capacity at the chosen rating and a clean screen." },
+    { key: "duty", no: "3", item: "Duty filters", symbol: "N_d", unit: "-", expr: "MAX(1,ROUNDUP(${Qin}/${fpu},0))", formula: "N_d = max(1, ⌈Q_in / q_1⌉)",
+      theory: "Each filter must carry its share of the flow while another is flushing, which is why the duty count is rounded up and a standby is added on top." },
+    { key: "sb", no: "4", item: "Standby filters", symbol: "N_s", unit: "-", val: n(p, "standby", 1), input: true },
+    { key: "rat", no: "5", item: "Screen rating", symbol: "d", unit: "µm", val: n(p, "ratingUm", 100), input: true,
+      note: "100-200 µm ahead of UF." },
+    { section: "Water and energy" },
+    { key: "fl", no: "6", item: "Flush water", symbol: "f", unit: "% of feed", val: n(p, "flushPct", 0.5), input: true },
+    { key: "qf", no: "7", item: "Flush flow", symbol: "Q_f", unit: "m³/h", expr: "${Qin}*${fl}/100", formula: "Q_f = Q_in × f / 100",
+      theory: "Small but continuous, and it carries everything the screen stopped. It belongs in the drainage line, not back at the inlet." },
+    { key: "dp", no: "8", item: "Clean pressure drop", symbol: "Δp", unit: "bar", val: n(p, "headLossBar", 0.3), input: true },
+    { key: "pw", no: "9", item: "Hydraulic power", symbol: "P_h", unit: "kW", expr: "${Qin}/3600*${dp}*100/0.72", formula: "P_h = Q × Δp / η",
+      theory: "The screen costs energy only through the pressure it takes from the flow: 1 bar across 1 m³/s is 100 kW. With η 0.72 for the pump that has to make it up." },
+  ],
+
   thickener: (r, p) => [
     ...feedRows(r),
     { key: "ss", no: "2", item: "Inlet solids", symbol: "C_0", unit: "mg/L", val: r.inlet.c.TSS, input: true },

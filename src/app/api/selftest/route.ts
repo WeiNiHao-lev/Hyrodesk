@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { FEED_PRESETS, feedPreset, STANDARDS, TEMPLATES } from "@/lib/engine/templates";
-import { ionicBalanceErrorPct, makeStream } from "@/lib/engine/stream";
+import { alkalinityAsCaCO3, hardnessAsCaCO3, ionicBalanceErrorPct, makeStream } from "@/lib/engine/stream";
 import { CHEM_PRICES_USD_PER_T, feedStream, simulate, simulateForProduct } from "@/lib/engine/solver";
 import { outletsOf, UNIT_BY_TYPE, UNIT_MODELS } from "@/lib/engine/units";
 import { knowledgeFor } from "@/lib/engine/knowledge";
@@ -717,9 +717,49 @@ function checkBatamPreset() {
   fs.feed = { ...batam };
   const r = simulate(fs);
   const balance = ionicBalanceErrorPct(feedStream({ ...batam, flow: 1 }));
+
+  // The Batam SWRO template, product-driven on 300 L/s. Its brine goes to a
+  // waste outlet: an outfall counts as product, and an earlier draft of this
+  // template reported brine as product water.
+  const tpl = TEMPLATES.find((t) => t.key === "seawater-swro-batam")!.make();
+  const tr = simulateForProduct(tpl, tpl.basis.targetProductFlow!);
+  const tplProducts = tr.result.productStreams.map((p) => p.label);
+  const tplOk = tr.converged && Math.abs(tr.result.summary.productFlow - 1080) < 1
+    && tplProducts.length === 1 && !tplProducts.some((l) => /brine/i.test(l))
+    && tr.result.summary.recoveryPct < 50;
+
+  // Remineralisation on an RO permeate, worked by hand: 70 mg/L as CaCO3 adds
+  // 28.0 mg/L of calcium and 85.3 mg/L of bicarbonate, and the caustic trim
+  // must land the pH on target with the alkalinity a few mg/L above the hardness.
+  const remin = UNIT_BY_TYPE["remin"];
+  const perm = makeStream(100, { Na: 10, Cl: 15, HCO3: 2, TDS: 27 }, { pH: 6.0, T: 30 });
+  const rp = { ...remin.defaults, hardnessAdd: 70, targetPH: 8.1, co2ExcessPct: 5 };
+  const ro = remin.solve(perm, rp).outlets.out;
+  const reminOk = Math.abs(ro.c.Ca - 28.03) < 0.05 && Math.abs(ro.pH - 8.1) < 0.01
+    && alkalinityAsCaCO3(ro) > 70 && alkalinityAsCaCO3(ro) < 80;
+
+  // The salt passage factor multiplies passage, so it must raise a divalent and
+  // a monovalent ion by the same factor (the rejection adjustment does not).
+  const sw = UNIT_BY_TYPE["swro"];
+  const swIn = feedStream({ ...batam, flow: 100 });
+  const base = sw.solve(swIn, sw.defaults).outlets.permeate;
+  const aged = sw.solve(swIn, { ...sw.defaults, passageFactor: 1.6 }).outlets.permeate;
+  const naRatio = aged.c.Na / base.c.Na;
+  const mgRatio = aged.c.Mg / base.c.Mg;
+  const passageOk = Math.abs(naRatio - mgRatio) < 0.05 && naRatio > 1.4 && naRatio < 1.8;
+
   return {
     ok: findings.some((f) => f.title === codFlag) && flaggedElsewhere.length === 0
-      && Math.abs(balance) < 1 && r.converged,
+      && Math.abs(balance) < 1 && r.converged && tplOk && reminOk && passageOk,
+    template: {
+      ok: tplOk, productFlow: round(tr.result.summary.productFlow, 1), products: tplProducts,
+      recoveryPct: round(tr.result.summary.recoveryPct, 1),
+    },
+    remineralisation: {
+      ok: reminOk, Ca: round(ro.c.Ca, 2), pH: round(ro.pH, 3),
+      hardness: round(hardnessAsCaCO3(ro), 1), alkalinity: round(alkalinityAsCaCO3(ro), 1),
+    },
+    passageFactor: { ok: passageOk, naRatio: round(naRatio, 3), mgRatio: round(mgRatio, 3) },
     ionBalancePct: round(balance, 2),
     codFlagged: findings.some((f) => f.title === codFlag),
     codFlaggedOnOtherPresets: flaggedElsewhere,

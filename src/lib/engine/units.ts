@@ -1,7 +1,7 @@
 import { Component, ParamDef, Params, UnitModel } from "./types";
 import {
   alkalinityAsCaCO3, clamp, cloneStream, emptyStream, hardnessAsCaCO3,
-  osmoticPressureBar, reconcileNitrogen, removeToSideStream, splitByRejection,
+  osmoticPressureBar, reconcileNitrogen, removeToSideStream, splitByRejection, tdsFromIons,
 } from "./stream";
 import { aux, b, costCurve, n, pumpKW, s } from "./unitkit";
 import { ADVANCED_MODELS } from "./units-advanced";
@@ -379,6 +379,61 @@ const cartridge: UnitModel = {
   },
 };
 
+/**
+ * Automatic self-cleaning screen or disc filter. It is a guard, not a treatment
+ * step: it stops what is larger than its rating (shell fragments, media fines
+ * carried out of a sand filter, marine growth) before a UF whose fibres those
+ * particles would cut. On water that is already clarified and filtered it
+ * removes little measurable TSS, and its flush is a small but real water loss.
+ */
+const selfCleaning: UnitModel = {
+  type: "selfclean", label: "Self-Cleaning Screen Filter", short: "SCF",
+  category: "pretreatment", inlets: 1, outlets: ["out", "flush"],
+  description:
+    "Automatic screen or disc filter that cleans itself by a suction scanner or a short reverse flush when its differential pressure rises, without stopping the flow. The usual guard ahead of UF: it stops coarse and sharp particles above its rating, but removes little turbidity.",
+  ccepcMaturity: 4,
+  params: [
+    { key: "ratingUm", label: "Screen rating", type: "number", unit: "µm", min: 25, max: 500, step: 5, group: "Performance",
+      help: "UF suppliers normally ask for 100-200 µm ahead of the modules; 300 µm on a clean feed." },
+    { key: "tssRemoval", label: "TSS removal", type: "number", unit: "%", min: 0, max: 40, step: 1, group: "Performance",
+      help: "Only what is larger than the rating. A few per cent after a sand filter; more on raw seawater." },
+    { key: "flushPct", label: "Flush water", type: "number", unit: "% of feed", min: 0.1, max: 3, step: 0.1, group: "Performance" },
+    { key: "flowPerUnit", label: "Flow per filter", type: "number", unit: "m3/h", min: 20, max: 1500, step: 10, group: "Sizing" },
+    { key: "standby", label: "Standby units", type: "number", unit: "-", min: 0, max: 2, step: 1, group: "Sizing" },
+    { key: "headLossBar", label: "Clean pressure drop", type: "number", unit: "bar", min: 0.05, max: 1, step: 0.05, group: "Hydraulics" },
+  ],
+  defaults: { ratingUm: 100, tssRemoval: 5, flushPct: 0.5, flowPerUnit: 300, standby: 1, headLossBar: 0.3 },
+  solve: (inlet, p) => {
+    const tss = n(p, "tssRemoval", 5) / 100;
+    const { product, side } = removeToSideStream(inlet, n(p, "flushPct", 0.5) / 100, { TSS: tss });
+    // Coarse particles carry mass but little turbidity, so turbidity falls by
+    // less than the TSS does.
+    product.extras.turbidityNTU = inlet.extras.turbidityNTU * (1 - tss * 0.5);
+    const duty = Math.max(1, Math.ceil(inlet.flow / Math.max(n(p, "flowPerUnit", 300), 1)));
+    const standby = n(p, "standby", 1);
+    const notes: string[] = [];
+    if (inlet.c.TSS > 50) {
+      notes.push(`Inlet TSS ${inlet.c.TSS.toFixed(0)} mg/L is high for a screen filter: it will flush almost continuously. It is a guard, not a clarifier.`);
+    }
+    if (n(p, "ratingUm", 100) > 300) {
+      notes.push("Rating above 300 µm: check the UF supplier's requirement, which is usually 100-200 µm.");
+    }
+    return {
+      outlets: { out: product, flush: side },
+      aux: aux({
+        // Pressure drop across the screen, plus the scanner motor on each duty unit.
+        powerKW: pumpKW(inlet.flow, n(p, "headLossBar", 0.3) * 10.2, 0.72) + 0.55 * duty,
+        sizing: [
+          { label: "Filters", value: `${duty} duty + ${standby} standby x ${n(p, "flowPerUnit", 300)} m3/h, ${n(p, "ratingUm", 100)} µm` },
+          { label: "Flush water", value: `${side.flow.toFixed(2)} m3/h` },
+        ],
+        capexUSD: costCurve(inlet.flow, 480, 0.7) * (duty + standby) / duty,
+        notes,
+      }),
+    };
+  },
+};
+
 /* ================================================================= MEMBRANES */
 
 const UF_REJ: Partial<Record<Component, number>> = {
@@ -494,18 +549,21 @@ function membraneUnit(
       { key: "smbsDose", label: "SMBS dose", type: "number", unit: "mg/L", min: 0, max: 10, step: 0.5, group: "Chemicals" },
       { key: "rejectionScale", label: "Rejection adjustment", type: "number", unit: "x", min: 0.9, max: 1.02, step: 0.005, group: "Performance",
         help: "Scales every ion rejection. Use to match a vendor projection or an aged membrane." },
+      { key: "passageFactor", label: "Salt passage factor", type: "number", unit: "x", min: 0.5, max: 3, step: 0.1, group: "Performance",
+        help: "Multiplies the passage (1 - rejection) of every ion. Temperature and membrane age raise the passage of all ions in proportion: about 1.3 for 25 to 30 °C and 1.2-1.3 for three years in service. Unlike the rejection adjustment, it does not penalise the divalent ions more than the monovalent ones." },
     ],
     defaults: {
       recovery: d.recovery, flux: d.flux, elementArea: 37.2, elementsPerVessel: 6,
       trains: 2, feedPressureBar: 0, pumpEff: 0.75, erd: false,
-      antiscalantDose: 3, smbsDose: 0, rejectionScale: 1,
+      antiscalantDose: 3, smbsDose: 0, rejectionScale: 1, passageFactor: 1,
     },
     solve: (inlet, p) => {
       const Y = clamp(n(p, "recovery", d.recovery) / 100, 0.05, 0.95);
       const scale = clamp(n(p, "rejectionScale", 1), 0.5, 1.02);
+      const passage = clamp(n(p, "passageFactor", 1), 0.1, 5);
       const rej: Partial<Record<Component, number>> = {};
       for (const [k, v] of Object.entries(baseRej)) {
-        rej[k as Component] = clamp(v * scale, 0, 0.9999);
+        rej[k as Component] = clamp(1 - (1 - v * scale) * passage, 0, 0.9999);
       }
       const { product, reject } = splitByRejection(inlet, Y, rej, 0.9);
       const permeate = product;
@@ -1218,6 +1276,117 @@ const disinfection: UnitModel = {
   },
 };
 
+/**
+ * Remineralisation of desalinated water: calcium and bicarbonate put back so the
+ * water stops being corrosive and lands in a hardness, alkalinity and LSI band.
+ *
+ *   lime route:     Ca(OH)2 + 2 CO2      -> Ca(HCO3)2
+ *   calcite route:  CaCO3 + CO2 + H2O    -> Ca(HCO3)2
+ *
+ * Each mg/L of hardness added (as CaCO3) brings 0.400 mg/L of calcium, 1.219
+ * mg/L of bicarbonate and 1 mg/L of alkalinity. The pH is not set by decree: the
+ * CO2 left over — what the permeate carried through the membrane plus the dosing
+ * excess — against the bicarbonate fixes it through pKa1, and caustic turns that
+ * excess into bicarbonate until the target is reached, adding a little
+ * alkalinity and sodium on the way. That trim is why the alkalinity of a
+ * remineralised water always ends a few mg/L above its hardness.
+ */
+const remineralisation: UnitModel = {
+  type: "remin", label: "Remineralisation (CO2 + lime / calcite)", short: "REMIN",
+  category: "pretreatment", inlets: 1, outlets: ["out"],
+  description:
+    "Puts calcium and bicarbonate back into desalinated water with carbon dioxide and either lime or a calcite bed, then trims the pH with caustic. Turns an aggressive permeate into a stable water with the hardness, alkalinity and saturation index a distribution network or a cooling system needs.",
+  ccepcMaturity: 4,
+  params: [
+    { key: "method", label: "Route", type: "select", group: "Chemicals",
+      options: [
+        { value: "lime", label: "Lime + CO2 (lime saturator)" },
+        { value: "calcite", label: "Calcite contactor + CO2" },
+      ] },
+    { key: "hardnessAdd", label: "Hardness added", type: "number", unit: "mg/L CaCO3", min: 0, max: 200, step: 1, group: "Performance",
+      help: "Equal to the alkalinity added. Set it from the hardness, alkalinity and LSI band of the product standard." },
+    { key: "co2ExcessPct", label: "CO2 excess", type: "number", unit: "%", min: 0, max: 100, step: 5, group: "Chemicals",
+      help: "Above the stoichiometric dose. 5-15 % on lime; 20-50 % on calcite, which dissolves too slowly without it." },
+    { key: "targetPH", label: "Target pH", type: "number", unit: "-", min: 6.5, max: 8.3, step: 0.05, group: "Performance",
+      help: "Reached with caustic trim when the CO2 left over holds the pH below it." },
+    { key: "turbidityAddNTU", label: "Turbidity added", type: "number", unit: "NTU", min: 0, max: 2, step: 0.05, group: "Performance",
+      help: "Lime impurities or calcite fines. 0.1-0.3 NTU from a well-run saturator or contactor; lime slurry dosing can add 1 NTU or more." },
+    { key: "contactMin", label: "Contact time", type: "number", unit: "min", min: 1, max: 30, step: 1, group: "Sizing",
+      help: "Calcite bed EBCT 10-20 min; lime-water mixing 2-5 min." },
+  ],
+  defaults: { method: "lime", hardnessAdd: 60, co2ExcessPct: 10, targetPH: 8.0, turbidityAddNTU: 0.2, contactMin: 5 },
+  solve: (inlet, p) => {
+    const out = cloneStream(inlet);
+    const calcite = s(p, "method", "lime") === "calcite";
+    const mmolCa = Math.max(0, n(p, "hardnessAdd", 60)) / 100.09;
+    const TK = (Number.isFinite(inlet.T) ? inlet.T : 25) + 273.15;
+    // First dissociation constant of carbonic acid (Harned and Davis): 6.35 at 25 °C, 6.33 at 30 °C.
+    const pKa1 = 3404.71 / TK - 14.8435 + 0.032786 * TK;
+
+    // CO2 already in the water: a membrane passes it freely, so permeate carries it.
+    const hco3In = inlet.c.HCO3 / 61.02;
+    let co2 = hco3In * Math.pow(10, pKa1 - inlet.pH);
+    const co2Stoich = (calcite ? 1 : 2) * mmolCa;
+    const co2Dosed = co2Stoich * (1 + n(p, "co2ExcessPct", 10) / 100);
+    co2 += co2Dosed - co2Stoich;
+    let hco3 = hco3In + 2 * mmolCa;
+    // Any carbonate takes up CO2 and becomes bicarbonate.
+    const co3In = inlet.c.CO3 / 60.009;
+    const conv = Math.min(co3In, co2);
+    hco3 += 2 * conv;
+    co2 -= conv;
+
+    // Caustic trim: x mmol/L of NaOH moves x from CO2 to bicarbonate, and the
+    // target is met when (H + x)/(C - x) = 10^(pH - pKa1).
+    const target = Math.min(n(p, "targetPH", 8.0), 8.3);
+    const r = Math.pow(10, target - pKa1);
+    const notes: string[] = [];
+    const pHeq = co2 > 1e-9 ? pKa1 + Math.log10(hco3 / co2) : 8.3;
+    let naoh = 0;
+    if (pHeq < target && co2 > 1e-9) {
+      naoh = clamp((co2 * r - hco3) / (1 + r), 0, co2);
+      hco3 += naoh;
+      co2 -= naoh;
+    } else if (pHeq > target + 0.05) {
+      notes.push(`The CO2 left over only holds the pH at ${Math.min(pHeq, 8.3).toFixed(2)}, above the ${target.toFixed(2)} target. Raise the CO2 excess to bring it down.`);
+    }
+    out.pH = co2 > 1e-9 ? Math.min(pKa1 + Math.log10(hco3 / co2), 8.3) : 8.3;
+
+    out.c.Ca = inlet.c.Ca + mmolCa * 40.078;
+    out.c.HCO3 = hco3 * 61.02;
+    out.c.CO3 = (co3In - conv) * 60.009;
+    out.c.Na = inlet.c.Na + naoh * 22.99;
+    out.c.TDS = inlet.c.TDS + (tdsFromIons(out) - tdsFromIons(inlet));
+    out.extras.turbidityNTU = inlet.extras.turbidityNTU + n(p, "turbidityAddNTU", 0.2);
+
+    const kg = (mmolPerL: number, mw: number) => (mmolPerL * mw * inlet.flow) / 1000;
+    const chem: Record<string, number> = {
+      "Carbon dioxide": kg(co2Dosed, 44.01),
+      [calcite ? "Calcite CaCO3 (remineralisation)" : "Hydrated lime Ca(OH)2"]: kg(mmolCa, calcite ? 100.09 : 74.09),
+    };
+    if (naoh > 0) chem["Caustic soda NaOH"] = kg(naoh, 40.0);
+    if (!calcite && n(p, "turbidityAddNTU", 0.2) > 0.5) {
+      notes.push("Lime slurry dosed directly carries its insoluble impurities into the product. A lime saturator, which doses clear lime water, keeps the turbidity added to a few tenths of an NTU.");
+    }
+    const vol = (inlet.flow * n(p, "contactMin", 5)) / 60;
+    return {
+      outlets: { out },
+      aux: aux({
+        powerKW: pumpKW(inlet.flow, calcite ? 6 : 2, 0.72) + 0.002 * inlet.flow,
+        chemicals: chem,
+        sizing: [
+          { label: "Route", value: calcite ? "Calcite contactor + CO2, caustic trim" : "Lime saturator + CO2, caustic trim" },
+          { label: calcite ? "Calcite bed volume (EBCT)" : "Reaction volume", value: `${vol.toFixed(0)} m3` },
+          { label: "Calcium added", value: `${(mmolCa * 40.078).toFixed(1)} mg/L (${n(p, "hardnessAdd", 60)} mg/L as CaCO3)` },
+          { label: "Caustic trim", value: `${(naoh * 40).toFixed(1)} mg/L NaOH` },
+        ],
+        capexUSD: costCurve(inlet.flow, calcite ? 3500 : 3000, 0.7),
+        notes,
+      }),
+    };
+  },
+};
+
 /* ================================================================= SLUDGE / THERMAL */
 
 const thickener: UnitModel = {
@@ -1682,10 +1851,10 @@ export const UNIT_MODELS: UnitModel[] = [
   tankModel("rawtank", "Raw Water Pond / Tank", "TANK", 12, "storage"),
   tankModel("eqtank", "Equalisation Tank", "EQ", 8, "storage"),
   tankModel("producttank", "Product Storage Tank", "PTANK", 8, "storage"),
-  coagFloc, clarifier, daf, mmf, acf, cartridge,
+  coagFloc, clarifier, daf, mmf, acf, cartridge, selfCleaning,
   uf, nf, roBW, roSW, ceramicMF,
   edi, mixedBed, softener, degasser, chemSoftening, limeSoftening,
-  aao, msbr, mbbr, anaerobicAO, denitriFilter, disinfection,
+  aao, msbr, mbbr, anaerobicAO, denitriFilter, disinfection, remineralisation,
   thickener, backwashSettling, dewatering, mvr, crystalliser,
   ...ADVANCED_MODELS,
   splitter, pump, product, outfall, waste,

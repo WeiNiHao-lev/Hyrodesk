@@ -35,7 +35,7 @@ export type BarrierClass =
 const BARRIER_OF: Record<string, BarrierClass> = {
   coagfloc: "coagulation", clarifier: "coagulation", daf: "coagulation",
   chemsoft: "coagulation", phadjust: "coagulation",
-  mmf: "filtration", acf: "carbon", cartridge: "filtration",
+  mmf: "filtration", acf: "carbon", cartridge: "filtration", selfclean: "filtration",
   denitrifilter: "filtration", baf: "biological",
   aao: "biological", msbr: "biological", mbbr: "biological",
   "coke-ao": "biological", anaerobic: "biological", mbr: "membraneLoose",

@@ -429,6 +429,56 @@ export const TEMPLATES: Template[] = [
       ),
   },
   {
+    key: "seawater-swro-batam",
+    name: "Seawater RO — Batam data centre (UF + SWRO + partial 2nd pass)",
+    category: "Desalination",
+    description:
+      "In-line coagulation onto a multimedia filter, self-cleaning screen, UF and cartridge ahead of a SWRO first pass with energy recovery. Half the permeate goes through a brackish-water second pass with caustic to pH 10 ahead of it, and its concentrate returns to the UF filtrate; the other half bypasses. Remineralisation with lime and CO2, NaOCl to the product tank. Drainage pit and brine to sea. Sized product-driven on 300 L/s and checked against CCEPC Grade S. On new membranes at 25 °C the 50 % split meets Grade S; at 30 °C on three-year-old elements it needs about 70 %, and Grade D about 90 %. Antiscalant and SBS are dosed at the cartridge inlet but booked on the SWRO block, which also carries the HP pump and the ERD.",
+    make: () =>
+      build(
+        [
+          { type: "intake", label: "Seawater Intake + Screening", params: { cl2Dose: 0, headM: 25 }, x: 0, y: 200 },
+          // No sedimentation: in-line coagulation with a light PAC dose straight onto the filter.
+          { type: "coagfloc", label: "Coagulation & Flocculation", params: { coagDose: 10 }, x: 200, y: 200 },
+          { type: "mmf", label: "Multimedia Filter", params: { backwashPct: 4 }, x: 400, y: 200 },
+          { type: "selfclean", label: "Self-cleaning Filter", x: 600, y: 200 },
+          { type: "uf", label: "UF", x: 800, y: 200 },
+          { type: "cartridge", label: "Cartridge Filter (antiscalant + SBS)", x: 1000, y: 340 },
+          {
+            type: "swro", label: "SWRO 1st pass (HP pump + ERD)",
+            params: { recovery: 45, erd: true, antiscalantDose: 3, smbsDose: 2 }, x: 800, y: 340,
+          },
+          { type: "splitter", label: "Permeate split (A = 2nd pass, B = bypass)", params: { fractionA: 50 }, x: 600, y: 340 },
+          // Caustic to pH 10: the CO2 and the boron are then ions, and the second pass rejects them.
+          { type: "phadjust", label: "NaOH to pH 10", params: { targetPH: 10, reagentUp: "naoh", codCoPrecipPct: 0, hrtMin: 2 }, x: 500, y: 460 },
+          { type: "ro", label: "2nd Pass RO (BWRO)", params: { recovery: 90, erd: false, antiscalantDose: 0 }, x: 400, y: 340 },
+          {
+            type: "remin", label: "Remineralization (lime + CO2)",
+            params: { method: "lime", hardnessAdd: 90, targetPH: 8.1, co2ExcessPct: 5 }, x: 200, y: 340,
+          },
+          { type: "disinfection", label: "NaOCl dosing", params: { method: "naocl", dose: 1.0, contactMin: 30 }, x: 100, y: 460 },
+          { type: "producttank", label: "Product water tank", x: 0, y: 340 },
+          { type: "product", label: "Product water to data centre", params: { name: "process" }, x: -200, y: 340 },
+          { type: "eqtank", label: "Drainage collection pit", params: { hrtH: 4 }, x: 400, y: 40 },
+          // A waste outlet, not an outfall: an outfall counts as product in the balance.
+          { type: "waste", label: "Discharge to sea", params: { name: "reject" }, x: 700, y: 40 },
+        ],
+        [
+          [0, "out", 1], [1, "out", 2], [2, "out", 3], [3, "out", 4], [4, "out", 5], [5, "out", 6],
+          [6, "permeate", 7], [7, "a", 8], [8, "out", 9], [7, "b", 10], [9, "permeate", 10],
+          [9, "concentrate", 5],
+          [10, "out", 11], [11, "out", 12], [12, "out", 13],
+          [2, "backwash", 14], [3, "flush", 14], [4, "backwash", 14], [14, "out", 15],
+          [6, "concentrate", 15],
+        ],
+        feedPreset("seawater-batam"),
+        {
+          standard: "dc-s", productSpecKey: "process",
+          designMode: "product-driven", targetProductFlow: 300 * 3.6,
+        },
+      ),
+  },
+  {
     key: "municipal-wwtp",
     name: "Municipal WWTP — AAO + tertiary",
     category: "Wastewater",
