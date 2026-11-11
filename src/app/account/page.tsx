@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { KeyRound, Lock, LockOpen, Users, FolderOpen, ShieldCheck, Trash2, X } from "lucide-react";
+import { Bot, KeyRound, Lock, LockOpen, Users, FolderOpen, ShieldCheck, Trash2, X } from "lucide-react";
 import {
-  AdminView, adminView, changePassword, getAccess, leaveWorkspace, openWorkspace, resetMemberPassword,
+  AdminView, adminView, ApiToken, changePassword, listTokens, revokeToken, getAccess, leaveWorkspace, openWorkspace, resetMemberPassword,
   revokeViewer, setAccessPassword, setInviteCode, SharedWorkspace, sharedWorkspaces, useAuth, WorkspaceAccess,
 } from "@/lib/store/auth";
 
@@ -32,6 +32,7 @@ export default function AccountPage() {
       </div>
       <WorkspacePassword />
       <OtherWorkspaces />
+      <ConnectedMachines />
       <ChangePassword />
       {me.isAdmin && <Admin />}
     </div>
@@ -186,6 +187,44 @@ function OtherWorkspaces() {
             </div>
           ))}
         </div>
+      )}
+    </Section>
+  );
+}
+
+/* ------------------------------------------------------- connected machines */
+
+function ConnectedMachines() {
+  const [tokens, setTokens] = useState<ApiToken[]>([]);
+  const load = useCallback(() => listTokens().then(setTokens).catch(() => setTokens([])), []);
+  useEffect(() => { void load(); }, [load]);
+  return (
+    <Section icon={Bot} title="Claude Code and scripts">
+      <p className="text-[0.75rem] leading-relaxed text-ink-500">
+        Claude Code sessions connected with the HydroDesk skill. They can read your projects, run
+        simulations and save runs; they cannot delete, share, change passwords or open workspaces.
+        Connect a new one by asking Claude Code to log in to HydroDesk and approving the link it gives you.
+      </p>
+      {tokens.length === 0 ? (
+        <p className="mt-2 text-[0.72rem] text-ink-500">Nothing connected.</p>
+      ) : (
+        <table className="data mt-2">
+          <thead><tr><th>Name</th><th>Connected</th><th>Last used</th><th></th></tr></thead>
+          <tbody>
+            {tokens.map((t) => (
+              <tr key={t.id}>
+                <td>{t.label}</td>
+                <td>{when(t.createdAt)}</td>
+                <td>{t.lastUsedAt ? new Date(t.lastUsedAt).toLocaleString("en-GB") : "never"}</td>
+                <td className="text-right">
+                  <button className="btn btn-ghost !py-0.5 !text-[0.7rem]" onClick={async () => { await revokeToken(t.id); await load(); }}>
+                    <X className="h-3 w-3" /> Disconnect
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </Section>
   );

@@ -26,6 +26,9 @@ export interface SessionUser {
   username: string;
   displayName: string;
   isAdmin: boolean;
+  /** Signed in with an API token (Claude Code, scripts) rather than a browser session. */
+  viaToken?: boolean;
+  tokenId?: string;
 }
 
 export class HttpError extends Error {
@@ -81,6 +84,30 @@ export async function ensureAuthSchema(): Promise<void> {
     )
   `;
   await q`create table if not exists app_settings (key text primary key, value text not null)`;
+  // API tokens for Claude Code and scripts. Only the hash is stored; the token
+  // itself is generated on the user's machine and never sent anywhere but here.
+  await q`
+    create table if not exists api_tokens (
+      id           text primary key,
+      user_id      text not null references users(id) on delete cascade,
+      token_hash   text not null unique,
+      label        text not null default '',
+      created_at   timestamptz not null default now(),
+      last_used_at timestamptz
+    )
+  `;
+  // A pending "connect this machine" request: the machine holds the token and
+  // sends its hash; a signed-in user approves the short code in the browser.
+  await q`
+    create table if not exists cli_requests (
+      code        text primary key,
+      token_hash  text not null,
+      label       text not null default '',
+      created_at  timestamptz not null default now(),
+      expires_at  timestamptz not null,
+      approved_by text
+    )
+  `;
   await q`alter table projects add column if not exists owner_id text`;
   await q`create index if not exists projects_owner_idx on projects (owner_id, updated_at desc)`;
   authReady = true;
@@ -205,10 +232,24 @@ export async function endSession(): Promise<void> {
 
 export async function currentUser(): Promise<SessionUser | null> {
   await ensureAuthSchema();
+  const q = db();
+  // An API token in the Authorization header, from Claude Code or a script.
+  const auth = (await headers()).get("authorization") ?? "";
+  if (auth.toLowerCase().startsWith("bearer ")) {
+    const raw = auth.slice(7).trim();
+    const rows = (await q`
+      select t.id as token_id, u.id, u.username, u.display_name, u.is_admin
+        from api_tokens t join users u on u.id = t.user_id
+       where t.token_hash = ${sha256(raw)}
+    `) as { token_id: string; id: string; username: string; display_name: string; is_admin: boolean }[];
+    const r = rows[0];
+    if (!r) return null;
+    await q`update api_tokens set last_used_at = now() where id = ${r.token_id}`;
+    return { id: r.id, username: r.username, displayName: r.display_name, isAdmin: r.is_admin, viaToken: true, tokenId: r.token_id };
+  }
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value;
   if (!token) return null;
-  const q = db();
   const rows = (await q`
     select u.id, u.username, u.display_name, u.is_admin
       from sessions s join users u on u.id = s.user_id
@@ -218,11 +259,27 @@ export async function currentUser(): Promise<SessionUser | null> {
   return r ? { id: r.id, username: r.username, displayName: r.display_name, isAdmin: r.is_admin } : null;
 }
 
-/** The signed-in user, or a 401 that tells the client whether setup is still to do. */
-export async function requireUser(): Promise<SessionUser> {
+/**
+ * The signed-in user, or a 401 that tells the client whether setup is still to do.
+ *
+ * An API token is accepted only where a route says so. Reading projects,
+ * simulating and saving a run are open to Claude Code; deleting, sharing,
+ * passwords, workspace access and administration stay with a person in a
+ * browser, so a token on a laptop can never do more damage than overwrite its
+ * owner's own runs.
+ */
+export async function requireUser(opts: { allowToken?: boolean } = {}): Promise<SessionUser> {
   const u = await currentUser();
+  if (u && u.viaToken && !opts.allowToken) {
+    throw new HttpError(403, "Not available to API tokens. Do this in HydroDesk in the browser.");
+  }
   if (u) return u;
   throw new HttpError(401, "Sign in required.", { needsSetup: await needsSetup() });
+}
+
+/** sha256 hex of a token, as stored. */
+export function tokenHash(raw: string): string {
+  return sha256(raw);
 }
 
 export async function needsSetup(): Promise<boolean> {

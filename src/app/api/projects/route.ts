@@ -16,7 +16,7 @@ function notConfigured() {
 export async function GET(req: NextRequest) {
   if (!isConfigured()) return notConfigured();
   try {
-    const me = await requireUser();
+    const me = await requireUser({ allowToken: true });
     const owner = req.nextUrl.searchParams.get("owner") || me.id;
     if (!(await canView(me.id, owner))) {
       throw new HttpError(403, "This workspace is not open to you. Ask its owner for the workspace password.");
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   if (!isConfigured()) return notConfigured();
   try {
-    const me = await requireUser();
+    const me = await requireUser({ allowToken: true });
     const body = (await req.json()) as Project;
     if (!body?.id) return NextResponse.json({ error: "Project id is required" }, { status: 400 });
     const saved = await saveProjectDb(body, me.id);

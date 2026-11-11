@@ -10,7 +10,7 @@ export async function GET(_req: Request, ctx: Ctx) {
   if (!isConfigured()) return NextResponse.json({ error: "DATABASE_URL is not set" }, { status: 503 });
   const { id } = await ctx.params;
   try {
-    const me = await requireUser();
+    const me = await requireUser({ allowToken: true });
     const p = await getProjectDb(id);
     // Someone else's project the viewer has no grant for reads as not found, so
     // the API does not confirm which ids exist in other workspaces.

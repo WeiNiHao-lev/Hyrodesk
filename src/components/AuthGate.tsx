@@ -24,7 +24,9 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   const blocked = loaded && cloud && !me && !isPublic;
   useEffect(() => {
     if (!blocked) return;
-    router.replace(needsSetup ? "/setup" : `/login?next=${encodeURIComponent(path)}`);
+    // Keep the query: /connect?code=… must still carry its code after signing in.
+    const here = path + (typeof window !== "undefined" ? window.location.search : "");
+    router.replace(needsSetup ? "/setup" : `/login?next=${encodeURIComponent(here)}`);
   }, [blocked, needsSetup, path, router]);
 
   if (isPublic) return <>{children}</>;

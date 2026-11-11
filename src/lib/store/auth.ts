@@ -77,6 +77,15 @@ export const setInviteCode = (code: string | null) => call<{ ok: true; registrat
 export const resetMemberPassword = (username: string, password: string) =>
   call<{ ok: true }>("/api/auth/admin", "POST", { action: "reset", username, password });
 
+export interface ApiToken { id: string; label: string; createdAt: string; lastUsedAt: string | null }
+export interface CliRequest { code: string; label: string; createdAt: string; status: "pending" | "approved" | "expired" }
+
+export const listTokens = () => call<ApiToken[]>("/api/tokens");
+export const revokeToken = (id: string) => call<{ ok: true }>(`/api/tokens?id=${encodeURIComponent(id)}`, "DELETE");
+export const getCliRequest = (code: string) => call<CliRequest>(`/api/cli/request?code=${encodeURIComponent(code)}`);
+export const answerCliRequest = (code: string, approve: boolean) =>
+  call<{ ok: true; status: string }>("/api/cli/approve", "POST", { code, approve });
+
 /** Who is signed in, shared by the navigation bar and the sign-in gate. */
 interface AuthState {
   loaded: boolean;

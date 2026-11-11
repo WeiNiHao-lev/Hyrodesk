@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   if (!isConfigured()) return NextResponse.json({ error: "DATABASE_URL is not set" }, { status: 503 });
   try {
-    const me = await requireUser();
+    const me = await requireUser({ allowToken: true });
     const q = db();
     const rows = (await q`
       select u.id, u.username, u.display_name, g.created_at,
