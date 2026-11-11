@@ -216,6 +216,12 @@ function describe(fs: Flowsheet, sol: ReturnType<typeof solve>) {
       : `${gradeName(std)} terpenuhi untuk semua parameter yang dimodelkan`;
   });
   const tds180 = checkCompliance(p, "dc-s").find((r) => r.label.startsWith("TDS"))!.actual;
+  // The discharge to sea, against the domestic effluent standard as a reference.
+  const sea = sol.result.wasteStreams.find((w) => /sea/i.test(w.label))!.stream;
+  const seaFails = checkedRows(checkCompliance(sea, "permenlh11-air-50")).filter((r) => !r.pass);
+  const chemUSDy = s.chemicals.reduce((a, c) => a + c.usdPerY, 0);
+  const top = [...s.chemicals].sort((a, b) => b.usdPerY - a.usdPerY).slice(0, 3)
+    .map((c) => `${c.name} ${fmt((c.usdPerY / chemUSDy) * 100)} %`).join(", ");
   return `Produk ${fmt(s.productFlow)} m3/jam (300 L/s) dari air laut ${fmt(sol.feedFlow)} m3/jam, recovery keseluruhan ${fmt(s.recoveryPct, 1)} %. `
     + `Permeat SWRO: Cl ${fmt(perm.c.Cl)} mg/L, jumlah ion ${fmt(perm.c.TDS)} mg/L. `
     + `Produk: pH ${fmt(p.pH, 2)}, TDS (180 °C) ${fmt(tds180)}, Cl ${fmt(p.c.Cl, 1)}, konduktivitas ${fmt(conductivityFromIons(p))} µS/cm, `
@@ -225,7 +231,9 @@ function describe(fs: Flowsheet, sol: ReturnType<typeof solve>) {
     + `Indicative CAPEX USD ${fmt(capex.totalUSD / 1e6, 1)} juta = Rp ${fmt((capex.totalUSD * FX) / 1e9, 0)} miliar `
     + `(rentang ${fmt(capex.lowUSD / 1e6, 1)}–${fmt(capex.highUSD / 1e6, 1)} juta USD; ${fmt(capex.usdPerM3d)} USD per m3/hari; `
     + `${fmt(capex.overallFactor, 2)} × peralatan proses USD ${fmt(capex.equipmentUSD / 1e6, 1)} juta). `
-    + `OPEX Rp ${fmt(s.opexUSDPerM3 * FX)}/m3. `
+    + `OPEX Rp ${fmt(s.opexUSDPerM3 * FX)}/m3, di dalamnya bahan kimia Rp ${fmt((chemUSDy / (s.productFlow * 8400)) * FX)}/m3 (harga daftar CCEPC; terbesar: ${top}). `
+    + `Buangan ke laut ${fmt(sea.flow)} m3/jam, TDS ${fmt(sea.c.TDS)} mg/L, TSS ${fmt(sea.c.TSS)} mg/L; terhadap Permen LH 11/2025 (> 50 m3/hari) sebagai acuan: `
+    + (seaFails.length ? `melewati ${seaFails.map((f) => `${f.label} ${f.actualText}`).join(", ")}. ` : "semua parameter yang dimodelkan memenuhi. ")
     + `Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk ${fmt(boron(0.9), 2)}–${fmt(boron(0.85), 2)} mg/L, batas 1,0), klor bebas di titik serah, dan bakteri.`;
 }
 

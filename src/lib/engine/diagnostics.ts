@@ -238,7 +238,7 @@ export interface StructuredLimit {
   /** Component key, or a derived metric name. */
   key:
     | Component | "hardness" | "alkalinity" | "conductivity" | "turbidity" | "pH" | "NO3asN"
-    | "NH4asN" | "ECions" | "LSI" | "TDS180" | "none";
+    | "NH4asN" | "ECions" | "LSI" | "TDS180" | "coliform" | "none";
   op: "<=" | ">=" | "range";
   value: number;
   max?: number;
@@ -254,6 +254,53 @@ export interface StructuredLimit {
    */
   notModelled?: boolean;
   note?: string;
+}
+
+/* ---- Permen LH 11/2025 helpers -------------------------------------------- */
+
+const PH_6_9: StructuredLimit = { label: "pH", key: "pH", op: "range", value: 6, max: 9, unit: "-" };
+
+function lim(g: { bod?: number; cod?: number; tss?: number; nh3n?: number; oil?: number }): StructuredLimit[] {
+  const out: StructuredLimit[] = [];
+  if (g.bod != null) out.push({ label: "BOD", key: "BOD", op: "<=", value: g.bod, unit: "mg/L" });
+  if (g.cod != null) out.push({ label: "COD", key: "COD", op: "<=", value: g.cod, unit: "mg/L" });
+  if (g.tss != null) out.push({ label: "TSS", key: "TSS", op: "<=", value: g.tss, unit: "mg/L" });
+  // Written on the nitrogen; the model carries the ammonium ion.
+  if (g.nh3n != null) out.push({ label: "Ammonia (NH3-N)", key: "NH4asN", op: "<=", value: g.nh3n, unit: "mg/L" });
+  if (g.oil != null) out.push({ label: "Oil and grease", key: "Oil", op: "<=", value: g.oil, unit: "mg/L" });
+  return out;
+}
+
+function fecal(value: number): StructuredLimit {
+  return {
+    label: "Fecal coliform", key: "coliform", op: "<=", value, unit: "MPN/100 mL",
+    note: "Checked on the model's total coliform, which is never below the fecal count, so a pass here is a safe pass. Reads zero if the feed's coliform was not entered.",
+  };
+}
+
+function chlorineRow(when: string): StructuredLimit {
+  return {
+    label: "Residual chlorine", key: "none", op: "<=", value: 1, unit: "mg/L", notModelled: true,
+    note: `${when} Measured at the compliance point; the model does not carry free chlorine.`,
+  };
+}
+
+/** Lampiran I A.2: non-sanitary or combined domestic wastewater discharged to a water body. */
+function domesticEffluent(g: {
+  bod: number; cod?: number; tss?: number; nh3n?: number; oil: number; detergent?: number; chlorine?: boolean;
+}): StructuredLimit[] {
+  const rows: StructuredLimit[] = [PH_6_9, ...lim(g)];
+  if (g.detergent != null) {
+    rows.push({
+      label: "Total detergent (MBAS)", key: "none", op: "<=", value: g.detergent, unit: "mg/L", notModelled: true,
+      note: "Applies only to activities that do washing or laundry. Not carried by the model.",
+    });
+  }
+  rows.push(g.chlorine
+    ? chlorineRow("All plants in this class.")
+    : chlorineRow("In this class only for health-care facilities."));
+  rows.push(fecal(1000));
+  return rows;
 }
 
 /**
@@ -371,6 +418,20 @@ export const STANDARD_LIMITS: Record<string, StructuredLimit[]> = {
     { label: "Oil", key: "Oil", op: "<=", value: 1.0, unit: "mg/L" },
     { label: "Silica", key: "SiO2", op: "<=", value: 150, unit: "mg/L" },
   ],
+  // Permen LH No. 11 Tahun 2025, baku mutu air limbah domestik, Lampiran I.
+  // A.2 is graded by the volume of domestic wastewater generated per day.
+  "permenlh11-air-50": domesticEffluent({ bod: 30, cod: 100, tss: 30, nh3n: 10, oil: 5, detergent: 5, chlorine: true }),
+  "permenlh11-air-3-50": domesticEffluent({ bod: 50, cod: 100, tss: 50, nh3n: 20, oil: 10, detergent: 10 }),
+  "permenlh11-air-3": domesticEffluent({ bod: 75, oil: 10 }),
+  "permenlh11-drain": [
+    PH_6_9, ...lim({ bod: 12, cod: 80, tss: 30 }),
+    fecal(200), chlorineRow("Where the treatment uses chlorination."),
+  ],
+  "permenlh11-recharge": [
+    PH_6_9, ...lim({ bod: 6, cod: 40, tss: 20 }), fecal(200),
+    { label: "Nitrate (as N)", key: "NO3asN", op: "<=", value: 10, unit: "mg/L" },
+  ],
+  "permenlh11-iplt": [PH_6_9, ...lim({ bod: 150, cod: 300, tss: 100, nh3n: 50 }), fecal(1000)],
   "dc-s": dataCentreGrade({ tds: 250, ec: 600, cl: 100, hard: [60, 120], alk: [60, 100], so4: 100 }),
   "dc-d": dataCentreGrade({ tds: 150, ec: 350, cl: 40, hard: [40, 80], alk: [40, 80], so4: 50 }),
 };
@@ -434,6 +495,7 @@ function metricOf(s: Stream, key: StructuredLimit["key"]): number {
     // The same for ammonia: NH3-N limits against the ammonium ion the model carries.
     case "NH4asN": return s.c.NH4 * (14.007 / 18.039);
     case "ECions": return conductivityFromIons(s);
+    case "coliform": return s.extras.coliform;
     // Residue at 180 °C: 2 HCO3- leave as CO3 2- + CO2 + H2O, so 60.01/122.03
     // of the bicarbonate mass stays (Standard Methods 1030 E, "0.6 x alkalinity").
     case "TDS180": return Math.max(s.c.TDS, tdsFromIons(s)) - s.c.HCO3 * (1 - 60.01 / 122.03);

@@ -8,6 +8,7 @@ import {
   streamResidual,
 } from "./stream";
 import { alkToBicarbonate, hardnessToCaMg } from "./feedprofiles";
+import { CCEPC_PRICE_LIST, usdPerTActive } from "./chemprices";
 
 const MAX_ITER = 300;
 const TOL = 1e-5;
@@ -29,27 +30,20 @@ interface EdgeKey {
  * name any unit model can emit must appear here; the self test enforces it.
  */
 export const CHEM_PRICES_USD_PER_T: Record<string, number> = {
-  "Poly-aluminium chloride": 350, "Polymer flocculant": 3500,
-  "Polymer (dewatering)": 3500, Antiscalant: 4500, "Sodium metabisulphite": 900,
-  // Alkali, priced as 100 % NaOH however it is delivered.
-  "Caustic soda (pH correction)": 600, "Caustic soda (softening)": 600,
-  "Caustic soda (regeneration)": 600, "Caustic soda NaOH": 600,
-  "Caustic soda (CIP)": 600,
-  "Hydrated lime Ca(OH)2": 180, "Sodium carbonate": 420,
+  // Not on the CCEPC price list: indicative figures, to be replaced by quotations.
+  "Hydrated lime Ca(OH)2": 180,
   "Seed sand (pellet softening)": 90,
   // Remineralisation: bulk liquid CO2, and calcite media consumed as it dissolves.
   "Carbon dioxide": 200, "Calcite CaCO3 (remineralisation)": 300,
-  // Acid.
-  "Sulphuric acid H2SO4": 150, "Hydrochloric acid HCl": 300,
-  "Hydrochloric acid (UF CEB)": 300, "Hydrochloric acid (regeneration)": 300,
-  "Citric acid (CIP)": 1600,
-  // Oxidants and reductants.
-  "Sodium hypochlorite (as Cl2)": 500, "Sodium hypochlorite (UF CEB)": 500,
-  "Sodium hypochlorite (CIP)": 500, "Hydrogen peroxide H2O2": 900,
+  "Sulphuric acid H2SO4": 150,
+  "Hydrogen peroxide H2O2": 900,
   "Oxygen (LOX or PSA)": 180,
-  // Coagulant salts, carbon source, regenerant.
   "Ferrous sulphate FeSO4": 260, "Sodium chloride (regeneration)": 110,
   "Methanol (external carbon)": 480, "External carbon source": 480,
+  // Everything on the CCEPC price list, converted to the active basis the units
+  // dose (see chemprices.ts). These replace the earlier generic figures, which
+  // priced hypochlorite, caustic and acid at roughly the price of the solution.
+  ...Object.fromEntries(CCEPC_PRICE_LIST.flatMap((p) => p.names.map((nm) => [nm, usdPerTActive(p)]))),
 };
 
 /** Applied when a name is not in the table above. Deliberately expensive: an

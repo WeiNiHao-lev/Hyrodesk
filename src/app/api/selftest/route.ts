@@ -7,6 +7,7 @@ import { knowledgeFor } from "@/lib/engine/knowledge";
 import { calcRowsFor } from "@/lib/report/calcsheets";
 import { inhibitionFindings, TRACE_BY_KEY, traceBalance } from "@/lib/engine/compliance";
 import { indicativeCapex } from "@/lib/engine/capex";
+import { CCEPC_PRICE_LIST, PRICE_BASIS_BY_NAME, usdPerTActive } from "@/lib/engine/chemprices";
 import { analysePrepare, numbersIn } from "@/lib/engine/prepareAnalysis";
 import {
   DOCUMENTS, TYPE_GUIDES, SITE_CONDITIONS, UNIVERSAL,
@@ -182,6 +183,9 @@ async function runChecks() {
 
   /* --- the Batam seawater preset --- */
   const batamPreset = checkBatamPreset();
+
+  /* --- CCEPC chemical prices and Permen LH 11/2025 --- */
+  const pricesEffluent = checkPricesAndEffluent();
 
   /* --- the site-visit analyser, against answers with known defects --- */
   const prepare = checkPrepareAnalysis();
@@ -373,9 +377,9 @@ async function runChecks() {
       ok: allClosed && allConverged && diagnosticsOk && productDrivenOk
         && xlsx.ok === true && docx.ok === true && diagrams.ok === true
         && leachate.ok && coverage.ok && markers.ok && prepare.ok && canvas.ok
-        && tankSplit.ok && dataCentre.ok && batamPreset.ok,
+        && tankSplit.ok && dataCentre.ok && batamPreset.ok && pricesEffluent.ok,
       allConverged, allClosed, diagnosticsOk, productDrivenOk,
-      coverage, leachate, markers, dataCentre, batamPreset, prepare, canvas, tankSplit, xlsx, docx, diagrams,
+      coverage, leachate, markers, dataCentre, batamPreset, pricesEffluent, prepare, canvas, tankSplit, xlsx, docx, diagrams,
       productDriven: pdTests,
       diagnostics: {
         fixture: KNOWN_BAD_FEED.name,
@@ -784,6 +788,39 @@ function checkBatamPreset() {
     converged: r.converged,
     secKWhPerM3: round(r.summary.secKWhPerM3, 2),
     findings: findings.map((f) => `${f.severity}: ${f.title}`),
+  };
+}
+
+/**
+ * The CCEPC chemical price list and the Permen LH 11/2025 effluent standards.
+ * Prices are delivered product, so each one must arrive in the solver divided
+ * by its active content: 10 % hypochlorite at CNY 2,556/t is USD 3,759 per
+ * tonne of chlorine, not USD 376. And the effluent limits must reach a real
+ * treated sewage with the numbers the regulation prints.
+ */
+function checkPricesAndEffluent() {
+  const naocl = CHEM_PRICES_USD_PER_T["Sodium hypochlorite (as Cl2)"];
+  const naoh = CHEM_PRICES_USD_PER_T["Caustic soda NaOH"];
+  const smbs = CHEM_PRICES_USD_PER_T["Sodium metabisulphite"];
+  const mismatched = CCEPC_PRICE_LIST.flatMap((p) => p.names)
+    .filter((nm) => Math.abs((CHEM_PRICES_USD_PER_T[nm] ?? 0) - usdPerTActive(PRICE_BASIS_BY_NAME[nm])) > 1e-6);
+
+  const wwtp = TEMPLATES.find((t) => t.key === "municipal-wwtp")!.make();
+  const res = simulate(wwtp);
+  const eff = res.productStreams[0].stream;
+  const rows = checkCompliance(eff, "permenlh11-air-50");
+  const limitOf = (label: string) => rows.find((r) => r.label === label)?.limitText;
+  const effluentOk = limitOf("BOD") === "≤ 30 mg/L" && limitOf("COD") === "≤ 100 mg/L"
+    && limitOf("TSS") === "≤ 30 mg/L" && limitOf("Ammonia (NH3-N)") === "≤ 10 mg/L"
+    && limitOf("Fecal coliform") === "≤ 1000 MPN/100 mL"
+    && rows.filter((r) => r.notModelled).length === 2;
+
+  return {
+    ok: Math.abs(naocl - 2556 / 6.8 / 0.1) < 0.01 && Math.abs(naoh - 3342 / 6.8 / 0.32) < 0.01
+      && Math.abs(smbs - 1018) < 1 && mismatched.length === 0 && effluentOk,
+    usdPerTActive: { naocl: round(naocl, 0), naoh: round(naoh, 0), hcl: round(CHEM_PRICES_USD_PER_T["Hydrochloric acid HCl"], 0), smbs: round(smbs, 0), antiscalant: round(CHEM_PRICES_USD_PER_T["Antiscalant"], 0) },
+    mismatched,
+    municipalEffluentVsPermenLH11: rows.map((r) => ({ p: r.label, limit: r.limitText, value: r.actualText, status: r.notModelled ? "verify" : r.pass ? "pass" : "fail" })),
   };
 }
 

@@ -5,6 +5,7 @@ import { feedStream } from "../engine/solver";
 import { UNIT_BY_TYPE } from "../engine/units";
 import { STANDARDS } from "../engine/templates";
 import { DEFAULT_CAPEX_FACTORS, IDR_PER_USD, indicativeCapex } from "../engine/capex";
+import { CNY_PER_USD, PRICE_BASIS_BY_NAME, PRICE_LIST_SOURCE, PriceBasis } from "../engine/chemprices";
 import { calcRowsFor, CalcRow } from "./calcsheets";
 import { ArrowSpec, injectArrows } from "./xlsxArrows";
 
@@ -1059,17 +1060,27 @@ function sheetEnergyChem(
 
   hdr(["Chemical (100 % active)", "kg/h", "t/y", "USD/t", "USD/y", "Note"]);
   const firstChem = r;
+  // Rows whose price comes from the CCEPC list get a formula into the price
+  // basis table below, written once the table's rows are known.
+  const linkPrice: { row: number; basis: PriceBasis }[] = [];
   for (const c of s.chemicals) {
     const row = ws.getRow(r);
+    const pb = PRICE_BASIS_BY_NAME[c.name];
     row.getCell(1).value = c.name;
     row.getCell(2).value = Number(c.kgPerH.toFixed(5));
     row.getCell(2).fill = { type: "pattern", pattern: "solid", fgColor: { argb: CALC } };
     row.getCell(3).value = { formula: `B${r}*${refs.hours}/1000` };
-    row.getCell(4).value = Number((c.tPerY > 0 ? c.usdPerY / c.tPerY : 0).toFixed(0));
-    row.getCell(4).fill = { type: "pattern", pattern: "solid", fgColor: { argb: INPUT } };
+    if (pb) {
+      linkPrice.push({ row: r, basis: pb });
+      row.getCell(4).fill = { type: "pattern", pattern: "solid", fgColor: { argb: CALC } };
+      row.getCell(6).value = "Priced from the CCEPC list below.";
+    } else {
+      row.getCell(4).value = Number((c.tPerY > 0 ? c.usdPerY / c.tPerY : 0).toFixed(0));
+      row.getCell(4).fill = { type: "pattern", pattern: "solid", fgColor: { argb: INPUT } };
+      row.getCell(6).value = "Not on the CCEPC list: indicative, replace with a quotation.";
+    }
     row.getCell(5).value = { formula: `C${r}*D${r}` };
     for (let i = 2; i <= 5; i++) row.getCell(i).numFmt = "0.###";
-    row.getCell(6).value = "Unit rate is indicative — replace with a quotation.";
     row.getCell(6).font = { size: 9, name: "Calibri" };
     r++;
   }
@@ -1081,6 +1092,40 @@ function sheetEnergyChem(
     for (let i = 1; i <= 5; i++) {
       cr.getCell(i).font = { bold: true, name: "Calibri" };
       cr.getCell(i).fill = { type: "pattern", pattern: "solid", fgColor: { argb: OKBG } };
+    }
+  }
+
+  // Price basis: the delivered price, the active content and the exchange rate
+  // as inputs, the price per tonne of active substance as a formula.
+  const bases = [...new Set(linkPrice.map((x) => x.basis))];
+  if (bases.length > 0) {
+    r += 2;
+    ws.getCell(r, 1).value = "CNY per USD";
+    ws.getCell(r, 2).value = CNY_PER_USD;
+    ws.getCell(r, 2).fill = { type: "pattern", pattern: "solid", fgColor: { argb: INPUT } };
+    ws.getCell(r, 6).value = PRICE_LIST_SOURCE;
+    ws.getCell(r, 6).font = { size: 9, italic: true, name: "Calibri" };
+    const fx = `$B$${r}`;
+    r++;
+    hdr(["Price basis (as delivered)", "CNY/t delivered", "Active t per t", "", "USD/t active", "Delivered as · active basis"]);
+    const cellOf = new Map<PriceBasis, string>();
+    for (const pb of bases) {
+      const row = ws.getRow(r);
+      row.getCell(1).value = pb.product;
+      row.getCell(2).value = pb.cnyPerT;
+      row.getCell(2).numFmt = "#,##0";
+      row.getCell(3).value = Number(pb.activeFraction.toFixed(4));
+      row.getCell(3).numFmt = "0.####";
+      for (const i of [2, 3]) row.getCell(i).fill = { type: "pattern", pattern: "solid", fgColor: { argb: INPUT } };
+      row.getCell(5).value = { formula: `B${r}/${fx}/C${r}` };
+      row.getCell(5).numFmt = "#,##0";
+      row.getCell(6).value = `${pb.form} · ${pb.activeBasis}${pb.standard ? ` · ${pb.standard}` : ""}`;
+      row.getCell(6).font = { size: 9, name: "Calibri" };
+      cellOf.set(pb, `$E$${r}`);
+      r++;
+    }
+    for (const { row, basis } of linkPrice) {
+      ws.getCell(row, 4).value = { formula: cellOf.get(basis)! };
     }
   }
   ws.views = [{ state: "frozen", ySplit: 3 }];

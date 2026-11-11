@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "exportedAt": "2026-11-05T04:48:40.988Z",
+  "exportedAt": "2026-11-11T03:32:59.230Z",
   "projects": [
     {
-      "id": "batam-mw32feal",
+      "id": "batam-mwbkd5um",
       "name": "Batam SWRO — data centre 300 L/s (Grade S & D)",
       "client": "Data centre, Batam",
       "location": "Batam",
@@ -11,14 +11,14 @@
       "status": "simulation",
       "capacityNote": "300 L/s produk (25.920 m³/hari) · air laut Batam · CCEPC Grade S dan Grade D di titik serah",
       "marketingContact": "",
-      "createdAt": "2026-11-05T04:48:40.988Z",
-      "updatedAt": "2026-11-05T04:48:40.988Z",
+      "createdAt": "2026-11-11T03:32:59.230Z",
+      "updatedAt": "2026-11-11T03:32:59.230Z",
       "notes": "Air baku: preset \"Seawater — Batam\". Yang terukur hanya pH 7,78, Cl 18.994, F 1,72, COD 79,9 dan NH3-N 0,36 mg/L (Appendix 1 §10.2.3); ion mayor lainnya diskalakan dari Cl dengan komposisi air laut referensi. Turbiditas, TSS, TOC, silika, besi dan boron belum dianalisis; TSS 100 mg/L adalah batas atas asumsi spesifikasi.\n\nProses mengikuti diagram: intake + screening → koagulasi-flokulasi → MMF → self-cleaning filter → UF → cartridge (antiskalan + SBS) → HP pump + ERD → SWRO pass 1 → sebagian ke pass 2 (BWRO, NaOH di depannya), sisanya bypass → remineralisasi → tangki produk (NaOCl). Konsentrat pass 2 kembali ke air produk UF. Drainage pit dan brine ke laut.\n\nPass kedua memakai BWRO, bukan SWRO: umpannya permeat SWRO (~330 mg/L, tekanan osmotik ~0,25 bar), jadi elemen brackish pada 8–15 bar dan flux 25–35 LMH sudah cukup; elemen SWRO hanya menambah tekanan dan energi.\n\nKasus desain membran: salt passage 1,6 × nominal (parameter Salt passage factor), kira-kira 1,3 untuk 30 °C terhadap 25 °C dikali 1,25 untuk elemen umur 3 tahun. Porsi pass kedua harus dikonfirmasi dengan proyeksi vendor (ROSA/WAVE/IMSDesign) pada kondisi yang sama.\n\nDiagram tidak punya sedimentasi: koagulasi langsung ke MMF (filtrasi langsung). Ini wajar hanya untuk air laut yang jernih (kekeruhan di bawah ~10 NTU, TSS beberapa mg/L). Dengan TSS 100 mg/L — angka asumsi spesifikasi — MMF akan dicuci terus-menerus. Turbiditas/TSS terukur menentukan perlu tidaknya sedimentasi atau DAF.\n\nRisiko terbuka: boron (≤ 1,0 mg/L) tidak dimodelkan; perkiraan ada di catatan tiap run. NaOH ke pH 10 di depan pass kedua penting untuk boron. Klor bebas di titik serah (0,2–0,5 mg/L) dan bakteri dibuktikan dengan desain dosing dan sampling.",
       "runs": [
         {
-          "id": "batam-mw32fe6w-0",
+          "id": "batam-mwbkd5r7-0",
           "name": "A. Sesuai diagram (bypass 50 %) — membran nominal",
-          "createdAt": "2026-11-05T04:48:40.856Z",
+          "createdAt": "2026-11-11T03:32:59.107Z",
           "flowsheet": {
             "nodes": [
               {
@@ -3341,7 +3341,7 @@
                   "name": "Antiscalant",
                   "kgPerH": 7.578972679322654,
                   "tPerY": 63.663370506310294,
-                  "usdPerY": 286485.1672783963
+                  "usdPerY": 212778.6447403419
                 },
                 {
                   "name": "Carbon dioxide",
@@ -3356,46 +3356,46 @@
                   "usdPerY": 108789.80690404584
                 },
                 {
+                  "name": "Caustic soda NaOH",
+                  "kgPerH": 4.782517894457224,
+                  "tPerY": 40.17315031344068,
+                  "usdPerY": 61699.75567441119
+                },
+                {
                   "name": "Poly-aluminium chloride",
                   "kgPerH": 27.213723416253575,
                   "tPerY": 228.59527669653002,
-                  "usdPerY": 80008.3468437855
-                },
-                {
-                  "name": "Polymer flocculant",
-                  "kgPerH": 1.3606861708126787,
-                  "tPerY": 11.4297638348265,
-                  "usdPerY": 40004.17342189275
+                  "usdPerY": 46256.926578591956
                 },
                 {
                   "name": "Sodium metabisulphite",
                   "kgPerH": 5.05264845288177,
                   "tPerY": 42.44224700420687,
-                  "usdPerY": 38198.02230378618
-                },
-                {
-                  "name": "Caustic soda NaOH",
-                  "kgPerH": 4.782517894457224,
-                  "tPerY": 40.17315031344068,
-                  "usdPerY": 24103.890188064408
+                  "usdPerY": 43203.383542887896
                 },
                 {
                   "name": "Sodium hypochlorite (as Cl2)",
                   "kgPerH": 1.0800025912816678,
                   "tPerY": 9.072021766766008,
-                  "usdPerY": 4536.0108833830045
+                  "usdPerY": 34100.12887625576
+                },
+                {
+                  "name": "Polymer flocculant",
+                  "kgPerH": 1.3606861708126787,
+                  "tPerY": 11.4297638348265,
+                  "usdPerY": 23133.505832164283
                 },
                 {
                   "name": "Sodium hypochlorite (UF CEB)",
                   "kgPerH": 0.15,
                   "tPerY": 1.26,
-                  "usdPerY": 630
+                  "usdPerY": 4736.117647058823
                 },
                 {
                   "name": "Hydrochloric acid (UF CEB)",
                   "kgPerH": 0.1,
                   "tPerY": 0.84,
-                  "usdPerY": 252
+                  "usdPerY": 924.4781783681213
                 }
               ],
               "drySolidsKgH": 0,
@@ -3478,8 +3478,8 @@
                 }
               ],
               "capexUSD": 8864294.469052088,
-              "opexUSDPerY": 3807593.1089549824,
-              "opexUSDPerM3": 0.4197082351140855,
+              "opexUSDPerY": 3760208.439105754,
+              "opexUSDPerM3": 0.41448505722065204,
               "hrtTotalH": 12.891666666666666,
               "warnings": [
                 "Ca balance shows 3.4 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error."
@@ -3487,12 +3487,12 @@
             }
           },
           "verdict": "conditional",
-          "engineerNote": "Diagram apa adanya, 50 % permeat SWRO lewat pass kedua (BWRO, recovery 90 %, NaOH ke pH 10), 50 % bypass. Membran baru pada 25 °C. remineralisasi kapur + CO2 menambah kesadahan 90 mg/L CaCO3, CO2 berlebih 5 %, trim NaOH ke pH 8.1. Produk 1.080 m3/jam (300 L/s) dari air laut 2.721 m3/jam, recovery keseluruhan 39,7 %. Permeat SWRO: Cl 124 mg/L, jumlah ion 208 mg/L. Produk: pH 8,10, TDS (180 °C) 207, Cl 67,3, konduktivitas 419 µS/cm, kesadahan 98, alkalinitas 95 mg/L CaCO3, LSI 0,21. Grade S terpenuhi untuk semua parameter yang dimodelkan; Grade D GAGAL pada TDS (dried at 180 °C) 206.9, Conductivity (25 °C) 419.5, Chloride 67.3, Total hardness 98.5, Total alkalinity 95.5. Daya 3.544 kW (3,28 kWh/m3). Indicative CAPEX USD 28,1 juta = Rp 459 miliar (rentang 19,7–42,2 juta USD; 1.085 USD per m3/hari; 3,17 × peralatan proses USD 8,9 juta). OPEX Rp 6.841/m3. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,32–0,47 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
+          "engineerNote": "Diagram apa adanya, 50 % permeat SWRO lewat pass kedua (BWRO, recovery 90 %, NaOH ke pH 10), 50 % bypass. Membran baru pada 25 °C. remineralisasi kapur + CO2 menambah kesadahan 90 mg/L CaCO3, CO2 berlebih 5 %, trim NaOH ke pH 8.1. Produk 1.080 m3/jam (300 L/s) dari air laut 2.721 m3/jam, recovery keseluruhan 39,7 %. Permeat SWRO: Cl 124 mg/L, jumlah ion 208 mg/L. Produk: pH 8,10, TDS (180 °C) 207, Cl 67,3, konduktivitas 419 µS/cm, kesadahan 98, alkalinitas 95 mg/L CaCO3, LSI 0,21. Grade S terpenuhi untuk semua parameter yang dimodelkan; Grade D GAGAL pada TDS (dried at 180 °C) 206.9, Conductivity (25 °C) 419.5, Chloride 67.3, Total hardness 98.5, Total alkalinity 95.5. Daya 3.544 kW (3,28 kWh/m3). Indicative CAPEX USD 28,1 juta = Rp 459 miliar (rentang 19,7–42,2 juta USD; 1.085 USD per m3/hari; 3,17 × peralatan proses USD 8,9 juta). OPEX Rp 6.756/m3, di dalamnya bahan kimia Rp 1.233/m3 (harga daftar CCEPC; terbesar: Antiscalant 31 %, Carbon dioxide 22 %, Hydrated lime Ca(OH)2 16 %). Buangan ke laut 1.641 m3/jam, TDS 57.163 mg/L, TSS 168 mg/L; terhadap Permen LH 11/2025 (> 50 m3/hari) sebagai acuan: melewati COD 131.1, TSS 168.2. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,32–0,47 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
         },
         {
-          "id": "batam-mw32fe9c-1",
+          "id": "batam-mwbkd5su-1",
           "name": "B. Sesuai diagram (bypass 50 %) — kasus desain 30 °C, 3 tahun",
-          "createdAt": "2026-11-05T04:48:40.944Z",
+          "createdAt": "2026-11-11T03:32:59.166Z",
           "flowsheet": {
             "nodes": [
               {
@@ -6815,7 +6815,7 @@
                   "name": "Antiscalant",
                   "kgPerH": 7.578972679322654,
                   "tPerY": 63.663370506310294,
-                  "usdPerY": 286485.1672783963
+                  "usdPerY": 212778.6447403419
                 },
                 {
                   "name": "Carbon dioxide",
@@ -6833,43 +6833,43 @@
                   "name": "Poly-aluminium chloride",
                   "kgPerH": 27.213723416253575,
                   "tPerY": 228.59527669653002,
-                  "usdPerY": 80008.3468437855
-                },
-                {
-                  "name": "Polymer flocculant",
-                  "kgPerH": 1.3606861708126787,
-                  "tPerY": 11.4297638348265,
-                  "usdPerY": 40004.17342189275
+                  "usdPerY": 46256.926578591956
                 },
                 {
                   "name": "Sodium metabisulphite",
                   "kgPerH": 5.05264845288177,
                   "tPerY": 42.44224700420687,
-                  "usdPerY": 38198.02230378618
-                },
-                {
-                  "name": "Caustic soda NaOH",
-                  "kgPerH": 2.620188549716687,
-                  "tPerY": 22.00958381762017,
-                  "usdPerY": 13205.750290572103
+                  "usdPerY": 43203.383542887896
                 },
                 {
                   "name": "Sodium hypochlorite (as Cl2)",
                   "kgPerH": 1.0800025912816678,
                   "tPerY": 9.072021766766008,
-                  "usdPerY": 4536.0108833830045
+                  "usdPerY": 34100.12887625576
+                },
+                {
+                  "name": "Caustic soda NaOH",
+                  "kgPerH": 2.620188549716687,
+                  "tPerY": 22.00958381762017,
+                  "usdPerY": 33803.322205186865
+                },
+                {
+                  "name": "Polymer flocculant",
+                  "kgPerH": 1.3606861708126787,
+                  "tPerY": 11.4297638348265,
+                  "usdPerY": 23133.505832164283
                 },
                 {
                   "name": "Sodium hypochlorite (UF CEB)",
                   "kgPerH": 0.15,
                   "tPerY": 1.26,
-                  "usdPerY": 630
+                  "usdPerY": 4736.117647058823
                 },
                 {
                   "name": "Hydrochloric acid (UF CEB)",
                   "kgPerH": 0.1,
                   "tPerY": 0.84,
-                  "usdPerY": 252
+                  "usdPerY": 924.4781783681213
                 }
               ],
               "drySolidsKgH": 0,
@@ -6952,8 +6952,8 @@
                 }
               ],
               "capexUSD": 8864294.469052088,
-              "opexUSDPerY": 3782735.1611136585,
-              "opexUSDPerM3": 0.4169681614984193,
+              "opexUSDPerY": 3718352.197692698,
+              "opexUSDPerM3": 0.40987127399610884,
               "hrtTotalH": 12.891666666666666,
               "warnings": [
                 "Ca balance shows 3.2 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error."
@@ -6961,12 +6961,12 @@
             }
           },
           "verdict": "not-feasible",
-          "engineerNote": "Diagram yang sama pada kasus desain: salt passage 1,6 × nominal (30 °C, elemen umur 3 tahun). remineralisasi kapur + CO2 menambah kesadahan 85 mg/L CaCO3, CO2 berlebih 0 %, trim NaOH ke pH 8.15. Produk 1.080 m3/jam (300 L/s) dari air laut 2.721 m3/jam, recovery keseluruhan 39,7 %. Permeat SWRO: Cl 198 mg/L, jumlah ion 333 mg/L. Produk: pH 8,15, TDS (180 °C) 269, Cl 109,8, konduktivitas 555 µS/cm, kesadahan 99, alkalinitas 88 mg/L CaCO3, LSI 0,19. Grade S GAGAL pada TDS (dried at 180 °C) 269.3, Chloride 109.8, COD 3.76; Grade D GAGAL pada TDS (dried at 180 °C) 269.3, Conductivity (25 °C) 555.5, Chloride 109.8, Total hardness 98.7, Total alkalinity 88.1, COD 3.76. Daya 3.554 kW (3,29 kWh/m3). Indicative CAPEX USD 28,1 juta = Rp 459 miliar (rentang 19,7–42,2 juta USD; 1.085 USD per m3/hari; 3,17 × peralatan proses USD 8,9 juta). OPEX Rp 6.797/m3. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,32–0,47 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
+          "engineerNote": "Diagram yang sama pada kasus desain: salt passage 1,6 × nominal (30 °C, elemen umur 3 tahun). remineralisasi kapur + CO2 menambah kesadahan 85 mg/L CaCO3, CO2 berlebih 0 %, trim NaOH ke pH 8.15. Produk 1.080 m3/jam (300 L/s) dari air laut 2.721 m3/jam, recovery keseluruhan 39,7 %. Permeat SWRO: Cl 198 mg/L, jumlah ion 333 mg/L. Produk: pH 8,15, TDS (180 °C) 269, Cl 109,8, konduktivitas 555 µS/cm, kesadahan 99, alkalinitas 88 mg/L CaCO3, LSI 0,19. Grade S GAGAL pada TDS (dried at 180 °C) 269.3, Chloride 109.8, COD 3.76; Grade D GAGAL pada TDS (dried at 180 °C) 269.3, Conductivity (25 °C) 555.5, Chloride 109.8, Total hardness 98.7, Total alkalinity 88.1, COD 3.76. Daya 3.554 kW (3,29 kWh/m3). Indicative CAPEX USD 28,1 juta = Rp 459 miliar (rentang 19,7–42,2 juta USD; 1.085 USD per m3/hari; 3,17 × peralatan proses USD 8,9 juta). OPEX Rp 6.681/m3, di dalamnya bahan kimia Rp 1.145/m3 (harga daftar CCEPC; terbesar: Antiscalant 33 %, Carbon dioxide 21 %, Hydrated lime Ca(OH)2 16 %). Buangan ke laut 1.641 m3/jam, TDS 57.116 mg/L, TSS 168 mg/L; terhadap Permen LH 11/2025 (> 50 m3/hari) sebagai acuan: melewati COD 130.0, TSS 168.2. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,32–0,47 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
         },
         {
-          "id": "batam-mw32fe9w-2",
+          "id": "batam-mwbkd5tl-2",
           "name": "C. Grade S — pass 2 70 % (bypass 30 %)",
-          "createdAt": "2026-11-05T04:48:40.964Z",
+          "createdAt": "2026-11-11T03:32:59.193Z",
           "flowsheet": {
             "nodes": [
               {
@@ -10289,7 +10289,7 @@
                   "name": "Antiscalant",
                   "kgPerH": 7.7419647117923995,
                   "tPerY": 65.03250357905615,
-                  "usdPerY": 292646.2661057527
+                  "usdPerY": 217354.62426155133
                 },
                 {
                   "name": "Carbon dioxide",
@@ -10304,46 +10304,46 @@
                   "usdPerY": 108789.83654493555
                 },
                 {
+                  "name": "Caustic soda NaOH",
+                  "kgPerH": 6.284160874098587,
+                  "tPerY": 52.78695134242813,
+                  "usdPerY": 81072.60633565938
+                },
+                {
                   "name": "Poly-aluminium chloride",
                   "kgPerH": 27.54302799434202,
                   "tPerY": 231.36143515247295,
-                  "usdPerY": 80976.50230336553
-                },
-                {
-                  "name": "Polymer flocculant",
-                  "kgPerH": 1.377151399717101,
-                  "tPerY": 11.568071757623647,
-                  "usdPerY": 40488.251151682765
+                  "usdPerY": 46816.66687791217
                 },
                 {
                   "name": "Sodium metabisulphite",
                   "kgPerH": 5.161309807861599,
                   "tPerY": 43.355002386037434,
-                  "usdPerY": 39019.50214743369
-                },
-                {
-                  "name": "Caustic soda NaOH",
-                  "kgPerH": 6.284160874098587,
-                  "tPerY": 52.78695134242813,
-                  "usdPerY": 31672.17080545688
+                  "usdPerY": 44132.507791143464
                 },
                 {
                   "name": "Sodium hypochlorite (as Cl2)",
                   "kgPerH": 1.080002796894241,
                   "tPerY": 9.072023493911624,
-                  "usdPerY": 4536.011746955812
+                  "usdPerY": 34100.13536829134
+                },
+                {
+                  "name": "Polymer flocculant",
+                  "kgPerH": 1.377151399717101,
+                  "tPerY": 11.568071757623647,
+                  "usdPerY": 23413.437000025628
                 },
                 {
                   "name": "Sodium hypochlorite (UF CEB)",
                   "kgPerH": 0.15,
                   "tPerY": 1.26,
-                  "usdPerY": 630
+                  "usdPerY": 4736.117647058823
                 },
                 {
                   "name": "Hydrochloric acid (UF CEB)",
                   "kgPerH": 0.1,
                   "tPerY": 0.84,
-                  "usdPerY": 252
+                  "usdPerY": 924.4781783681213
                 }
               ],
               "drySolidsKgH": 0,
@@ -10426,8 +10426,8 @@
                 }
               ],
               "capexUSD": 9515775.618251778,
-              "opexUSDPerY": 3928422.342731528,
-              "opexUSDPerM3": 0.43302715418116483,
+              "opexUSDPerY": 3890752.2119308906,
+              "opexUSDPerM3": 0.42887480290243496,
               "hrtTotalH": 12.891666666666666,
               "warnings": [
                 "Ca balance shows 3.4 % more leaving than entering. Dosed chemicals add ions that the feed does not contain and that the balance does not count as an input — check the acid and caustic doses before treating this as an error."
@@ -10435,12 +10435,12 @@
             }
           },
           "verdict": "conditional",
-          "engineerNote": "Porsi pass kedua terkecil yang memenuhi Grade S dengan margin pada kasus desain (Cl ≤ 85 %, TDS dan konduktivitas ≤ 90 % batas, LSI 0,05–0,45); pada membran nominal cukup 40 %. remineralisasi kapur + CO2 menambah kesadahan 90 mg/L CaCO3, CO2 berlebih 5 %, trim NaOH ke pH 8.1. Produk 1.080 m3/jam (300 L/s) dari air laut 2.754 m3/jam, recovery keseluruhan 39,2 %. Permeat SWRO: Cl 196 mg/L, jumlah ion 330 mg/L. Produk: pH 8,10, TDS (180 °C) 214, Cl 71,4, konduktivitas 434 µS/cm, kesadahan 99, alkalinitas 96 mg/L CaCO3, LSI 0,21. Grade S terpenuhi untuk semua parameter yang dimodelkan; Grade D GAGAL pada TDS (dried at 180 °C) 213.7, Conductivity (25 °C) 433.8, Chloride 71.4, Total hardness 98.5, Total alkalinity 95.6. Daya 3.648 kW (3,38 kWh/m3). Indicative CAPEX USD 30,2 juta = Rp 492 miliar (rentang 21,1–45,3 juta USD; 1.165 USD per m3/hari; 3,17 × peralatan proses USD 9,5 juta). OPEX Rp 7.058/m3. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,21–0,31 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
+          "engineerNote": "Porsi pass kedua terkecil yang memenuhi Grade S dengan margin pada kasus desain (Cl ≤ 85 %, TDS dan konduktivitas ≤ 90 % batas, LSI 0,05–0,45); pada membran nominal cukup 40 %. remineralisasi kapur + CO2 menambah kesadahan 90 mg/L CaCO3, CO2 berlebih 5 %, trim NaOH ke pH 8.1. Produk 1.080 m3/jam (300 L/s) dari air laut 2.754 m3/jam, recovery keseluruhan 39,2 %. Permeat SWRO: Cl 196 mg/L, jumlah ion 330 mg/L. Produk: pH 8,10, TDS (180 °C) 214, Cl 71,4, konduktivitas 434 µS/cm, kesadahan 99, alkalinitas 96 mg/L CaCO3, LSI 0,21. Grade S terpenuhi untuk semua parameter yang dimodelkan; Grade D GAGAL pada TDS (dried at 180 °C) 213.7, Conductivity (25 °C) 433.8, Chloride 71.4, Total hardness 98.5, Total alkalinity 95.6. Daya 3.648 kW (3,38 kWh/m3). Indicative CAPEX USD 30,2 juta = Rp 492 miliar (rentang 21,1–45,3 juta USD; 1.165 USD per m3/hari; 3,17 × peralatan proses USD 9,5 juta). OPEX Rp 6.991/m3, di dalamnya bahan kimia Rp 1.280/m3 (harga daftar CCEPC; terbesar: Antiscalant 31 %, Carbon dioxide 21 %, Hydrated lime Ca(OH)2 15 %). Buangan ke laut 1.674 m3/jam, TDS 56.714 mg/L, TSS 167 mg/L; terhadap Permen LH 11/2025 (> 50 m3/hari) sebagai acuan: melewati COD 129.6, TSS 166.9. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,21–0,31 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
         },
         {
-          "id": "batam-mw32feai-3",
+          "id": "batam-mwbkd5ug-3",
           "name": "D. Grade D — pass 2 90 % (bypass 10 %)",
-          "createdAt": "2026-11-05T04:48:40.986Z",
+          "createdAt": "2026-11-11T03:32:59.224Z",
           "flowsheet": {
             "nodes": [
               {
@@ -13763,7 +13763,7 @@
                   "name": "Antiscalant",
                   "kgPerH": 7.912118468467912,
                   "tPerY": 66.46179513513047,
-                  "usdPerY": 299078.0781080871
+                  "usdPerY": 222131.66823238795
                 },
                 {
                   "name": "Carbon dioxide",
@@ -13778,46 +13778,46 @@
                   "usdPerY": 87031.86748970438
                 },
                 {
+                  "name": "Caustic soda NaOH",
+                  "kgPerH": 6.292388616573206,
+                  "tPerY": 52.85606437921493,
+                  "usdPerY": 81178.75328829793
+                },
+                {
                   "name": "Poly-aluminium chloride",
                   "kgPerH": 27.886797257051867,
                   "tPerY": 234.2490969592357,
-                  "usdPerY": 81987.1839357325
-                },
-                {
-                  "name": "Polymer flocculant",
-                  "kgPerH": 1.3943398628525934,
-                  "tPerY": 11.712454847961784,
-                  "usdPerY": 40993.59196786624
+                  "usdPerY": 47400.99373763357
                 },
                 {
                   "name": "Sodium metabisulphite",
                   "kgPerH": 5.274745645645274,
                   "tPerY": 44.30786342342031,
-                  "usdPerY": 39877.07708107828
-                },
-                {
-                  "name": "Caustic soda NaOH",
-                  "kgPerH": 6.292388616573206,
-                  "tPerY": 52.85606437921493,
-                  "usdPerY": 31713.638627528955
+                  "usdPerY": 45102.45692830969
                 },
                 {
                   "name": "Sodium hypochlorite (as Cl2)",
                   "kgPerH": 1.080002745688989,
                   "tPerY": 9.072023063787507,
-                  "usdPerY": 4536.011531893753
+                  "usdPerY": 34100.13375153068
+                },
+                {
+                  "name": "Polymer flocculant",
+                  "kgPerH": 1.3943398628525934,
+                  "tPerY": 11.712454847961784,
+                  "usdPerY": 23705.664128308534
                 },
                 {
                   "name": "Sodium hypochlorite (UF CEB)",
                   "kgPerH": 0.15,
                   "tPerY": 1.26,
-                  "usdPerY": 630
+                  "usdPerY": 4736.117647058823
                 },
                 {
                   "name": "Hydrochloric acid (UF CEB)",
                   "kgPerH": 0.1,
                   "tPerY": 0.84,
-                  "usdPerY": 252
+                  "usdPerY": 924.4781783681213
                 }
               ],
               "drySolidsKgH": 0,
@@ -13900,14 +13900,14 @@
                 }
               ],
               "capexUSD": 10168692.567085588,
-              "opexUSDPerY": 3985958.4980339883,
-              "opexUSDPerM3": 0.43936932297552783,
+              "opexUSDPerY": 3946171.182673697,
+              "opexUSDPerM3": 0.43498359597373204,
               "hrtTotalH": 12.891666666666666,
               "warnings": []
             }
           },
           "verdict": "conditional",
-          "engineerNote": "Porsi pass kedua terkecil yang memenuhi Grade D dengan margin pada kasus desain; pada membran nominal cukup 80 %. remineralisasi kapur + CO2 menambah kesadahan 72 mg/L CaCO3, CO2 berlebih 5 %, trim NaOH ke pH 8.15. Produk 1.080 m3/jam (300 L/s) dari air laut 2.789 m3/jam, recovery keseluruhan 38,7 %. Permeat SWRO: Cl 194 mg/L, jumlah ion 327 mg/L. Produk: pH 8,15, TDS (180 °C) 129, Cl 32,0, konduktivitas 257 µS/cm, kesadahan 75, alkalinitas 76 mg/L CaCO3, LSI 0,08. Grade S terpenuhi untuk semua parameter yang dimodelkan; Grade D terpenuhi untuk semua parameter yang dimodelkan. Daya 3.747 kW (3,47 kWh/m3). Indicative CAPEX USD 32,3 juta = Rp 526 miliar (rentang 22,6–48,4 juta USD; 1.245 USD per m3/hari; 3,17 × peralatan proses USD 10,2 juta). OPEX Rp 7.162/m3. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,10–0,15 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
+          "engineerNote": "Porsi pass kedua terkecil yang memenuhi Grade D dengan margin pada kasus desain; pada membran nominal cukup 80 %. remineralisasi kapur + CO2 menambah kesadahan 72 mg/L CaCO3, CO2 berlebih 5 %, trim NaOH ke pH 8.15. Produk 1.080 m3/jam (300 L/s) dari air laut 2.789 m3/jam, recovery keseluruhan 38,7 %. Permeat SWRO: Cl 194 mg/L, jumlah ion 327 mg/L. Produk: pH 8,15, TDS (180 °C) 129, Cl 32,0, konduktivitas 257 µS/cm, kesadahan 75, alkalinitas 76 mg/L CaCO3, LSI 0,08. Grade S terpenuhi untuk semua parameter yang dimodelkan; Grade D terpenuhi untuk semua parameter yang dimodelkan. Daya 3.747 kW (3,47 kWh/m3). Indicative CAPEX USD 32,3 juta = Rp 526 miliar (rentang 22,6–48,4 juta USD; 1.245 USD per m3/hari; 3,17 × peralatan proses USD 10,2 juta). OPEX Rp 7.090/m3, di dalamnya bahan kimia Rp 1.198/m3 (harga daftar CCEPC; terbesar: Antiscalant 33 %, Carbon dioxide 18 %, Hydrated lime Ca(OH)2 13 %). Buangan ke laut 1.709 m3/jam, TDS 56.309 mg/L, TSS 166 mg/L; terhadap Permen LH 11/2025 (> 50 m3/hari) sebagai acuan: melewati COD 129.1, TSS 165.6. Belum dimodelkan, harus dibuktikan terpisah: boron (umpan ~4,4 mg/L; perkiraan di produk 0,10–0,15 mg/L, batas 1,0), klor bebas di titik serah, dan bakteri."
         }
       ]
     }

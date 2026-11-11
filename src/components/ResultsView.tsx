@@ -8,6 +8,7 @@ import { buildReport } from "@/lib/report/docx";
 import { checkCompliance, checkedRows, STANDARD_LIMITS } from "@/lib/engine/diagnostics";
 import { inhibitionFindings, traceBalance } from "@/lib/engine/compliance";
 import { IDR_PER_USD, indicativeCapex } from "@/lib/engine/capex";
+import { CNY_PER_USD, PRICE_BASIS_BY_NAME } from "@/lib/engine/chemprices";
 import { STANDARDS } from "@/lib/engine/templates";
 import { sweep, sweepCandidates, SweepResult } from "@/lib/engine/sensitivity";
 import {
@@ -380,20 +381,31 @@ function Energy({ result, flowsheet }: { result: SimulationResult; flowsheet: Fl
               <th>Chemical (100 % active)</th>
               <th className="num">kg/h</th>
               <th className="num">t/y</th>
+              <th className="num">USD/t active</th>
               <th className="num">USD/y</th>
+              <th>Price basis</th>
             </tr>
           </thead>
           <tbody>
-            {s.chemicals.map((c) => (
-              <tr key={c.name}>
-                <td className="font-semibold">{c.name}</td>
-                <td className="num">{c.kgPerH.toFixed(3)}</td>
-                <td className="num">{c.tPerY.toFixed(2)}</td>
-                <td className="num">{Math.round(c.usdPerY).toLocaleString()}</td>
-              </tr>
-            ))}
+            {s.chemicals.map((c) => {
+              const pb = PRICE_BASIS_BY_NAME[c.name];
+              return (
+                <tr key={c.name}>
+                  <td className="font-semibold">{c.name}</td>
+                  <td className="num">{c.kgPerH.toFixed(3)}</td>
+                  <td className="num">{c.tPerY.toFixed(2)}</td>
+                  <td className="num">{c.tPerY > 0 ? Math.round(c.usdPerY / c.tPerY).toLocaleString() : "-"}</td>
+                  <td className="num">{Math.round(c.usdPerY).toLocaleString()}</td>
+                  <td className="text-[0.66rem] text-ink-500">
+                    {pb
+                      ? `CCEPC list: ${pb.form}, CNY ${pb.cnyPerT.toLocaleString("en-US")}/t ÷ ${CNY_PER_USD}${pb.activeFraction !== 1 ? ` ÷ ${+pb.activeFraction.toFixed(3)} (${pb.activeBasis})` : ""}`
+                      : "indicative, not on the CCEPC list"}
+                  </td>
+                </tr>
+              );
+            })}
             {s.chemicals.length === 0 && (
-              <tr><td colSpan={4} className="text-center text-ink-300">No chemical dosing configured.</td></tr>
+              <tr><td colSpan={6} className="text-center text-ink-300">No chemical dosing configured.</td></tr>
             )}
           </tbody>
         </table>
@@ -516,7 +528,13 @@ function IndicativeCapex({ result, flowsheet }: { result: SimulationResult; flow
 }
 
 function Compliance({ result, flowsheet }: { result: SimulationResult; flowsheet: Flowsheet }) {
-  const products = result.productStreams;
+  // Discharges are checked too: an effluent standard is about what leaves the
+  // plant to the environment, which on a desalination or water plant is a waste
+  // outlet (brine, drainage), not the product.
+  const products = [
+    ...result.productStreams.map((p) => ({ ...p, kind: "product" as const })),
+    ...result.wasteStreams.filter((w) => w.stream.flow > 1e-6).map((w) => ({ ...w, kind: "discharge" as const })),
+  ];
   const [sel, setSel] = useState(0);
   const [std, setStd] = useState(flowsheet.basis.standard);
   const stream = products[sel]?.stream;
@@ -527,7 +545,7 @@ function Compliance({ result, flowsheet }: { result: SimulationResult; flowsheet
   const toVerify = rows.filter((r) => r.notModelled);
 
   if (products.length === 0) {
-    return <p className="py-8 text-center text-[0.8rem] text-ink-300">No product outlet connected.</p>;
+    return <p className="py-8 text-center text-[0.8rem] text-ink-300">No product or discharge outlet connected.</p>;
   }
   if (!STANDARD_LIMITS[std]) {
     return (
@@ -545,10 +563,12 @@ function Compliance({ result, flowsheet }: { result: SimulationResult; flowsheet
     <div>
       <div className="mb-3 flex flex-wrap items-end gap-3">
         <div>
-          <label className="label">Product stream</label>
+          <label className="label">Stream to check</label>
           <select className="field mt-1 !w-auto" value={sel} onChange={(e) => setSel(Number(e.target.value))}>
             {products.map((p, i) => (
-              <option key={p.id} value={i}>{p.label} — {p.stream.flow.toFixed(2)} m³/h</option>
+              <option key={`${p.kind}-${p.id}`} value={i}>
+                {p.kind === "discharge" ? "Discharge: " : "Product: "}{p.label} — {p.stream.flow.toFixed(2)} m³/h
+              </option>
             ))}
           </select>
         </div>
