@@ -120,6 +120,8 @@ function PrepareInner({ fixedId }: { fixedId?: string }) {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(payload as Saved)); } catch { /* full */ }
       return;
     }
+    // Someone else's project, opened view only: answers stay on this screen.
+    if (p.access === "viewer") return;
     setSaveState("saving");
     // Re-read the project rather than trusting a closure: it may have been
     // renamed or had a run added on another page since this one loaded.

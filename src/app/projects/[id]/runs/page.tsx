@@ -23,7 +23,7 @@ const VERDICT_LABEL: Record<string, string> = {
 
 /** Every run saved to this project, and the results of the one selected. */
 export default function ProjectRuns() {
-  const { id, base, project, reload } = useWorkspace();
+  const { id, base, project, reload, readOnly } = useWorkspace();
   const router = useRouter();
   const { setFlowsheet, setStudyName, run } = useStudy();
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -94,6 +94,7 @@ export default function ProjectRuns() {
               <div className="flex items-start justify-between gap-2">
                 <InlineName
                   value={r.name}
+                  readOnly={readOnly}
                   onSave={(n) => renameRun(r.id, n)}
                   className="text-[0.82rem] font-semibold text-ink-900"
                   title="Rename this run"
@@ -124,6 +125,7 @@ export default function ProjectRuns() {
                   <h2 className="flex text-[1.05rem] font-bold text-ink-900">
                     <InlineName
                       key={activeRun.id}
+                      readOnly={readOnly}
                       value={activeRun.name}
                       onSave={(n) => renameRun(activeRun.id, n)}
                       className="text-[1.05rem] font-bold text-ink-900"
@@ -138,9 +140,11 @@ export default function ProjectRuns() {
                   <button className="btn btn-primary" onClick={() => openInSimulator(activeRun)}>
                     <Workflow className="h-3.5 w-3.5" /> Open in simulator
                   </button>
-                  <button className="btn btn-danger" onClick={() => deleteRun(activeRun.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                  {!readOnly && (
+                    <button className="btn btn-danger" onClick={() => deleteRun(activeRun.id)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
               <ResultsView

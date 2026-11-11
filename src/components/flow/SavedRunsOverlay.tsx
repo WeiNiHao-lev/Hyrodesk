@@ -108,6 +108,7 @@ export function SavedRunsOverlay() {
                   <div className="flex min-w-0">
                     <InlineName
                       value={r.name}
+                      readOnly={project.access === "viewer"}
                       onSave={(n) => rename(r.id, n)}
                       className="text-[0.8rem] font-semibold text-ink-900"
                       title="Rename this run"

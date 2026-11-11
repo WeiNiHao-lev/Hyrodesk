@@ -23,7 +23,6 @@ export async function GET() {
     storage: p.ok ? "cloud" : "local",
     configured: true,
     ok: p.ok,
-    projects: p.projects,
     error: p.ok ? undefined : `Database configured but unreachable: ${p.error}`,
   };
   return NextResponse.json(body, { headers: { "cache-control": "no-store" } });

@@ -11,15 +11,44 @@ import { Project, ProjectSummary, RunSummary } from "../store/types";
  * environment variable.
  */
 
+/**
+ * DATABASE_URL=pglite:memory runs cloud mode against an in-memory Postgres, so
+ * accounts, sessions and workspace access can be exercised on a developer's
+ * machine without touching the real database. Refused in production.
+ */
+const isPglite = (url: string | undefined) =>
+  !!url && url.startsWith("pglite:") && process.env.NODE_ENV !== "production";
+
 export function isConfigured(): boolean {
-  return !!process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith("post");
+  const url = process.env.DATABASE_URL;
+  return (!!url && url.startsWith("post")) || isPglite(url);
 }
 
-function sql() {
+type SqlTag = (strings: TemplateStringsArray, ...values: unknown[]) => Promise<Record<string, unknown>[]>;
+
+export function db(): SqlTag {
+  return sql();
+}
+
+function sql(): SqlTag {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not set");
-  return neon(url);
+  if (isPglite(url)) return pgliteTag;
+  return neon(url) as unknown as SqlTag;
 }
+
+/** The same tagged-template interface as neon(), over PGlite. One instance per process. */
+const pgliteTag: SqlTag = async (strings, ...values) => {
+  const g = globalThis as unknown as { __hdPglite?: Promise<{ query: (t: string, p: unknown[]) => Promise<{ rows: Record<string, unknown>[] }> }> };
+  // pglite:memory for a throwaway database; pglite:<folder> to keep one on disk.
+  const where = (process.env.DATABASE_URL ?? "").slice("pglite:".length);
+  g.__hdPglite ??= import("@electric-sql/pglite").then((m) =>
+    where && where !== "memory" ? m.PGlite.create(where) : m.PGlite.create());
+  const pg = await g.__hdPglite;
+  let text = strings[0];
+  values.forEach((_, i) => { text += `$${i + 1}${strings[i + 1]}`; });
+  return (await pg.query(text, values)).rows;
+};
 
 let schemaReady = false;
 
@@ -56,6 +85,9 @@ export async function ensureSchema(): Promise<void> {
   // loss only appeared on the next reload. Added in place so an existing
   // database gains the column on its next request without a manual migration.
   await q`alter table projects add column if not exists prepare jsonb`;
+  // Every project belongs to an account; rows from before accounts existed are
+  // given to the first administrator when one is created.
+  await q`alter table projects add column if not exists owner_id text`;
   schemaReady = true;
 }
 
@@ -64,6 +96,8 @@ type Row = {
   status: string; capacity_note: string; marketing_contact: string; notes: string;
   created_at: Date | string; updated_at: Date | string; runs: unknown; share_token: string | null;
   prepare?: unknown;
+  owner_id?: string | null;
+  owner_name?: string | null;
 };
 
 function toProject(r: Row): Project {
@@ -82,13 +116,15 @@ function toProject(r: Row): Project {
     runs: (Array.isArray(r.runs) ? r.runs : []) as Project["runs"],
     prepare: (r.prepare && typeof r.prepare === "object" ? r.prepare : undefined) as Project["prepare"],
     shareToken: r.share_token ?? undefined,
+    ownerId: r.owner_id ?? undefined,
+    ownerName: r.owner_name ?? undefined,
   };
 }
 
-export async function listProjectsDb(): Promise<Project[]> {
+export async function listProjectsDb(ownerId: string): Promise<Project[]> {
   await ensureSchema();
   const q = sql();
-  const rows = (await q`select * from projects order by updated_at desc`) as unknown as Row[];
+  const rows = (await q`select * from projects where owner_id = ${ownerId} order by updated_at desc`) as unknown as Row[];
   return rows.map(toProject);
 }
 
@@ -102,7 +138,7 @@ export async function listProjectsDb(): Promise<Project[]> {
  * that show a name, a status and three numbers. The summary is built inside the
  * database so the bulk never leaves it.
  */
-export async function listProjectSummariesDb(): Promise<ProjectSummary[]> {
+export async function listProjectSummariesDb(ownerId: string): Promise<ProjectSummary[]> {
   await ensureSchema();
   const q = sql();
   const rows = (await q`
@@ -121,6 +157,7 @@ export async function listProjectSummariesDb(): Promise<ProjectSummary[]> {
              from jsonb_array_elements(runs) with ordinality as t(r, ord)
            ), '[]'::jsonb) as runs
       from projects
+     where owner_id = ${ownerId}
      order by updated_at desc
   `) as unknown as Row[];
   return rows.map((r) => ({
@@ -133,7 +170,11 @@ export async function listProjectSummariesDb(): Promise<ProjectSummary[]> {
 export async function getProjectDb(id: string): Promise<Project | null> {
   await ensureSchema();
   const q = sql();
-  const rows = (await q`select * from projects where id = ${id}`) as unknown as Row[];
+  const rows = (await q`
+    select p.*, u.display_name as owner_name
+      from projects p left join users u on u.id = p.owner_id
+     where p.id = ${id}
+  `) as unknown as Row[];
   return rows[0] ? toProject(rows[0]) : null;
 }
 
@@ -144,7 +185,13 @@ export async function getProjectByTokenDb(token: string): Promise<Project | null
   return rows[0] ? toProject(rows[0]) : null;
 }
 
-export async function saveProjectDb(p: Project): Promise<Project> {
+/**
+ * Insert or update, as the given owner. An update only goes through where the
+ * stored row belongs to that owner, so a save carrying another account's
+ * project id — an import, or a stale tab — cannot overwrite their work: it
+ * returns null and the caller refuses it.
+ */
+export async function saveProjectDb(p: Project, ownerId: string): Promise<Project | null> {
   await ensureSchema();
   const q = sql();
   const runs = JSON.stringify(p.runs ?? []);
@@ -155,11 +202,11 @@ export async function saveProjectDb(p: Project): Promise<Project> {
   const rows = (await q`
     insert into projects (
       id, name, client, location, kind, status, capacity_note,
-      marketing_contact, notes, created_at, updated_at, runs, share_token, prepare
+      marketing_contact, notes, created_at, updated_at, runs, share_token, prepare, owner_id
     ) values (
       ${p.id}, ${p.name}, ${p.client}, ${p.location}, ${p.kind}, ${p.status}, ${p.capacityNote},
       ${p.marketingContact}, ${p.notes}, ${p.createdAt}, now(), ${runs}::jsonb, ${p.shareToken ?? null},
-      ${prepare}::jsonb
+      ${prepare}::jsonb, ${ownerId}
     )
     on conflict (id) do update set
       name = excluded.name,
@@ -174,30 +221,40 @@ export async function saveProjectDb(p: Project): Promise<Project> {
       runs = excluded.runs,
       share_token = coalesce(excluded.share_token, projects.share_token),
       prepare = coalesce(excluded.prepare, projects.prepare)
+    where projects.owner_id = excluded.owner_id
     returning *
   `) as unknown as Row[];
-  return toProject(rows[0]);
+  return rows[0] ? toProject(rows[0]) : null;
 }
 
-export async function deleteProjectDb(id: string): Promise<void> {
+export async function deleteProjectDb(id: string, ownerId: string): Promise<boolean> {
   await ensureSchema();
   const q = sql();
-  await q`delete from projects where id = ${id}`;
+  const rows = (await q`delete from projects where id = ${id} and owner_id = ${ownerId} returning id`) as unknown[];
+  return rows.length > 0;
 }
 
-export async function setShareTokenDb(id: string, token: string | null): Promise<void> {
+export async function setShareTokenDb(id: string, token: string | null, ownerId: string): Promise<boolean> {
   await ensureSchema();
   const q = sql();
-  await q`update projects set share_token = ${token}, updated_at = now() where id = ${id}`;
+  const rows = (await q`
+    update projects set share_token = ${token}, updated_at = now()
+     where id = ${id} and owner_id = ${ownerId} returning id
+  `) as unknown[];
+  return rows.length > 0;
 }
 
-/** Connectivity probe used by /api/health. */
-export async function ping(): Promise<{ ok: boolean; error?: string; projects?: number }> {
+/**
+ * Connectivity probe used by /api/health. It no longer reports how many
+ * projects the database holds: the health endpoint is public, and the count was
+ * the one thing about everyone's work it told a stranger.
+ */
+export async function ping(): Promise<{ ok: boolean; error?: string }> {
   try {
     await ensureSchema();
     const q = sql();
-    const rows = (await q`select count(*)::int as n from projects`) as unknown as { n: number }[];
-    return { ok: true, projects: rows[0]?.n ?? 0 };
+    await q`select 1`;
+    return { ok: true };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }

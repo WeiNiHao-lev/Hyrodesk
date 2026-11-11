@@ -23,6 +23,11 @@ interface Workspace {
   project: Project | null;
   notFound: boolean;
   saving: boolean;
+  /**
+   * Opened through another account's workspace password. Every write is
+   * refused by the server; the pages use this to hide what would be refused.
+   */
+  readOnly: boolean;
   /** Re-read from storage. Tabs that show runs call it on arrival. */
   reload: () => Promise<void>;
   /** Change project fields. Debounced, and merged into a fresh copy before saving. */
@@ -108,12 +113,15 @@ export function WorkspaceProvider({ id, children }: { id: string; children: Reac
     setSaving(false);
   }, [id, setFromProject]);
 
+  const readOnly = project?.access === "viewer";
+
   const patch = useCallback((fields: Partial<Project>) => {
+    if (readOnly) return;
     pending.current = { ...pending.current, ...fields };
     setProject((p) => (p ? { ...p, ...fields } : p));
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => { void flush(); }, 600);
-  }, [flush]);
+  }, [flush, readOnly]);
 
   useEffect(() => {
     const out = () => { void flush(); };
@@ -122,8 +130,8 @@ export function WorkspaceProvider({ id, children }: { id: string; children: Reac
   }, [flush]);
 
   const value = useMemo<Workspace>(() => ({
-    id, base: `/projects/${id}`, project, notFound, saving, reload, patch,
-  }), [id, project, notFound, saving, reload, patch]);
+    id, base: `/projects/${id}`, project, notFound, saving, readOnly, reload, patch,
+  }), [id, project, notFound, saving, readOnly, reload, patch]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

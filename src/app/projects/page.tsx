@@ -1,20 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   deleteProject, emptyProject, exportAll, importAll, listProjectSummaries, Project, ProjectSummary,
   ProjectKind, ProjectStatus, saveProject, STATUS_LABEL, STATUS_TONE, downloadText,
 } from "@/lib/store/db";
 import { Modal } from "@/components/Modal";
 import { StorageBadge } from "@/components/StorageBadge";
+import { SharedWorkspace, sharedWorkspaces, useAuth } from "@/lib/store/auth";
 import {
-  Plus, Download, Upload, Trash2, Search, FolderKanban, ArrowRight,
+  Plus, Download, Upload, Trash2, Search, FolderKanban, ArrowRight, Eye,
 } from "lucide-react";
 
 const KINDS: ProjectKind[] = ["WTP", "WWTP", "Desalination", "Demineralisation", "ZLD / MLD", "Reuse"];
 
 export default function ProjectsPage() {
+  return (
+    <Suspense fallback={null}>
+      <ProjectsList />
+    </Suspense>
+  );
+}
+
+function ProjectsList() {
+  const params = useSearchParams();
+  const { cloud, me } = useAuth();
+  // ?owner= shows another account's workspace, opened with its password.
+  const owner = params.get("owner") || undefined;
+  const readOnly = !!owner && owner !== me?.id;
+  const [shared, setShared] = useState<SharedWorkspace[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [projects, setProjects] = useState<ProjectSummary[]>([]);
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -22,8 +39,14 @@ export default function ProjectsPage() {
   const [draft, setDraft] = useState<Project>(emptyProject());
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const reload = () => listProjectSummaries().then(setProjects);
-  useEffect(() => { reload(); }, []);
+  const reload = useCallback(() => listProjectSummaries(readOnly ? owner : undefined)
+    .then((r) => { setProjects(r); setLoadError(null); })
+    .catch((e: Error) => { setProjects([]); setLoadError(e.message); }), [owner, readOnly]);
+  useEffect(() => { void reload(); }, [reload]);
+  useEffect(() => {
+    if (cloud && me) sharedWorkspaces().then(setShared).catch(() => setShared([]));
+  }, [cloud, me]);
+  const viewing = shared.find((w) => w.id === owner);
 
   const filtered = projects.filter((p) => {
     if (statusFilter !== "all" && p.status !== statusFilter) return false;
@@ -51,12 +74,16 @@ export default function ProjectsPage() {
     <div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6">
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-[1.4rem] font-bold tracking-tight text-ink-900">Project tracker</h1>
+          <h1 className="text-[1.4rem] font-bold tracking-tight text-ink-900">
+            {readOnly ? `${viewing?.displayName ?? "Teammate"}'s projects` : "Project tracker"}
+          </h1>
           <p className="text-[0.8rem] text-ink-500">
-            Every study you run, stored with its flowsheet and results so you can reopen it later.
+            {readOnly
+              ? "View only. Opened with the workspace password its owner gave you; nothing here can be changed or deleted."
+              : "Every study you run, stored with its flowsheet and results so you can reopen it later."}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        {!readOnly && <div className="flex flex-wrap gap-2">
           <button className="btn btn-primary" onClick={() => { setDraft(emptyProject()); setShowNew(true); }}>
             <Plus className="h-3.5 w-3.5" /> New project
           </button>
@@ -84,8 +111,29 @@ export default function ProjectsPage() {
               e.target.value = "";
             }}
           />
-        </div>
+        </div>}
       </div>
+
+      {cloud && (shared.length > 0 || readOnly) && (
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          <Link href="/projects" className={`chip !px-3 !py-1 ${!readOnly ? "bg-aqua-100 text-aqua-700" : "bg-ink-900/5 text-ink-500 hover:text-ink-900"}`}>
+            My projects
+          </Link>
+          {shared.map((w) => (
+            <Link key={w.id} href={`/projects?owner=${encodeURIComponent(w.id)}`}
+              className={`chip !px-3 !py-1 ${owner === w.id ? "bg-violet-100 text-violet-700" : "bg-ink-900/5 text-ink-500 hover:text-ink-900"}`}>
+              <Eye className="h-3 w-3" /> {w.displayName}
+            </Link>
+          ))}
+          <Link href="/account" className="chip !px-3 !py-1 bg-transparent text-aqua-700 hover:underline">
+            Open a teammate&apos;s workspace…
+          </Link>
+        </div>
+      )}
+
+      {loadError && (
+        <div className="mb-4 rounded-lg bg-coral-100 px-3 py-2 text-[0.78rem] text-coral-700">{loadError}</div>
+      )}
 
       <div className="mb-4">
         <StorageBadge full />
@@ -111,7 +159,7 @@ export default function ProjectsPage() {
         <div className="card flex flex-col items-center gap-2 px-4 py-16 text-center">
           <FolderKanban className="h-8 w-8 text-ink-300" />
           <h2 className="text-[0.95rem] font-bold text-ink-900">
-            {projects.length === 0 ? "No projects yet" : "Nothing matches that filter"}
+            {projects.length === 0 ? (readOnly ? "No projects in this workspace" : "No projects yet") : "Nothing matches that filter"}
           </h2>
           <p className="max-w-md text-[0.8rem] text-ink-500">
             {projects.length === 0
@@ -132,9 +180,11 @@ export default function ProjectsPage() {
                       {[p.client, p.location].filter(Boolean).join(" · ") || "No client recorded"}
                     </p>
                   </div>
-                  <button className="btn btn-danger !px-1.5 !py-1" onClick={() => remove(p.id, p.name)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
+                  {!readOnly && (
+                    <button className="btn btn-danger !px-1.5 !py-1" onClick={() => remove(p.id, p.name)}>
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
 
                 <div className="mt-2.5 flex flex-wrap gap-1.5">

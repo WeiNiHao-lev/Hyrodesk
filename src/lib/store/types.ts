@@ -114,6 +114,14 @@ export interface Project {
   prepare?: PrepareRecord;
   /** Present when the project has a read-only share link. */
   shareToken?: string;
+  /** Cloud mode: the account the project belongs to. */
+  ownerId?: string;
+  ownerName?: string;
+  /**
+   * Cloud mode: what the signed-in account may do with it. "viewer" when it was
+   * opened through another owner's workspace password: readable, never saved.
+   */
+  access?: "owner" | "viewer";
 }
 
 export type StorageMode = "cloud" | "local";

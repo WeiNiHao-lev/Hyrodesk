@@ -23,7 +23,7 @@ const VERDICT_LABEL: Record<string, string> = {
 
 /** The project itself: who it is for, where it stands, and what has been done. */
 export default function ProjectOverview() {
-  const { base, project, saving, patch, reload } = useWorkspace();
+  const { base, project, saving, patch, reload, readOnly } = useWorkspace();
   const [cloud, setCloud] = useState(false);
   // The link follows the stored token, except just after it is created or
   // revoked here, when the local answer is newer than the stored copy.
@@ -52,19 +52,21 @@ export default function ProjectOverview() {
             <input
               className="mt-0.5 w-full border-0 bg-transparent p-0 text-[1.3rem] font-bold tracking-tight text-ink-900 outline-none"
               value={project.name}
+              disabled={readOnly}
               onChange={(e) => patch({ name: e.target.value })}
             />
             <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-              <Inline label="Client" value={project.client} onChange={(v) => patch({ client: v })} />
-              <Inline label="Location" value={project.location} onChange={(v) => patch({ location: v })} />
-              <Inline label="Capacity" value={project.capacityNote} onChange={(v) => patch({ capacityNote: v })} />
-              <Inline label="Marketing" value={project.marketingContact} onChange={(v) => patch({ marketingContact: v })} />
+              <Inline label="Client" value={project.client} disabled={readOnly} onChange={(v) => patch({ client: v })} />
+              <Inline label="Location" value={project.location} disabled={readOnly} onChange={(v) => patch({ location: v })} />
+              <Inline label="Capacity" value={project.capacityNote} disabled={readOnly} onChange={(v) => patch({ capacityNote: v })} />
+              <Inline label="Marketing" value={project.marketingContact} disabled={readOnly} onChange={(v) => patch({ marketingContact: v })} />
             </div>
           </div>
           <div className="flex flex-col items-end gap-2">
             <select
               className={`field !w-auto font-semibold ${STATUS_TONE[project.status]}`}
               value={project.status}
+              disabled={readOnly}
               onChange={(e) => patch({ status: e.target.value as ProjectStatus })}
             >
               {Object.entries(STATUS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
@@ -72,7 +74,7 @@ export default function ProjectOverview() {
             <span className="text-[0.65rem] text-ink-300">
               {saving ? "Saving…" : `Updated ${new Date(project.updatedAt).toLocaleString("en-GB")}`}
             </span>
-            {cloud && (
+            {cloud && !readOnly && (
               <button
                 className="btn btn-ghost"
                 disabled={sharing}
@@ -129,6 +131,7 @@ export default function ProjectOverview() {
           <textarea
             className="field mt-1 min-h-[110px] resize-y"
             value={project.notes}
+            disabled={readOnly}
             placeholder="What the client asked for, what data is still missing, who is chasing it."
             onChange={(e) => patch({ notes: e.target.value })}
           />
@@ -187,14 +190,15 @@ export default function ProjectOverview() {
 }
 
 function Inline({
-  label, value, onChange,
-}: { label: string; value: string; onChange: (v: string) => void }) {
+  label, value, onChange, disabled,
+}: { label: string; value: string; onChange: (v: string) => void; disabled?: boolean }) {
   return (
     <div>
       <label className="label">{label}</label>
       <input
         className="field mt-0.5 !py-1 !text-[0.78rem]"
         value={value}
+        disabled={disabled}
         placeholder="—"
         onChange={(e) => onChange(e.target.value)}
       />

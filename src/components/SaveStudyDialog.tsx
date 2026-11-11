@@ -83,7 +83,7 @@ export function SaveStudyDialog({ onClose }: { onClose: () => void }) {
       footer={
         <>
           <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
-          <button className="btn btn-primary" onClick={submit} disabled={busy || !result}>
+          <button className="btn btn-primary" onClick={submit} disabled={busy || !result || !!ws?.readOnly}>
             <Save className="h-3.5 w-3.5" /> {busy ? "Saving…" : "Save run"}
           </button>
         </>
@@ -94,7 +94,9 @@ export function SaveStudyDialog({ onClose }: { onClose: () => void }) {
           <div className="flex items-center gap-2 rounded-xl bg-violet-50 px-3 py-2.5">
             <FolderKanban className="h-4 w-4 text-violet-600" />
             <span className="text-[0.78rem] text-ink-700">
-              Saving to <strong>{ws.project?.name || "this project"}</strong>
+              {ws.readOnly
+                ? <>This project is <strong>view only</strong>: it belongs to {ws.project?.ownerName ?? "another account"}, so a run cannot be saved into it. Export it instead, or redraw it in one of your own projects.</>
+                : <>Saving to <strong>{ws.project?.name || "this project"}</strong></>}
             </span>
           </div>
         ) : (

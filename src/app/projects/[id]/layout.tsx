@@ -5,7 +5,7 @@ import { useParams, usePathname } from "next/navigation";
 import { WorkspaceProvider, useWorkspace } from "@/components/workspace/WorkspaceContext";
 import { STATUS_LABEL, STATUS_TONE } from "@/lib/store/db";
 import {
-  ArrowLeft, LayoutDashboard, ClipboardList, Compass, Workflow, BarChart3, History,
+  ArrowLeft, LayoutDashboard, ClipboardList, Compass, Workflow, BarChart3, History, Eye,
 } from "lucide-react";
 
 /**
@@ -35,7 +35,7 @@ const TABS = [
 ] as const;
 
 function Shell({ children }: { children: React.ReactNode }) {
-  const { base, project, notFound } = useWorkspace();
+  const { base, project, notFound, readOnly } = useWorkspace();
   const path = usePathname();
 
   if (notFound) {
@@ -54,7 +54,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       <div className="shrink-0 border-b border-ink-900/8 bg-white/80 px-4 pt-2.5 backdrop-blur sm:px-6">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <Link
-            href="/projects"
+            href={readOnly && project?.ownerId ? `/projects?owner=${encodeURIComponent(project.ownerId)}` : "/projects"}
             className="inline-flex items-center gap-1 text-[0.72rem] font-semibold text-ink-500 hover:text-ink-900"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> All projects
@@ -68,6 +68,11 @@ function Shell({ children }: { children: React.ReactNode }) {
               {project.client && <span className="text-[0.75rem] text-ink-500">{project.client}</span>}
               <span className="chip bg-aqua-50 text-aqua-700">{project.kind}</span>
               <span className={`chip ring-1 ${STATUS_TONE[project.status]}`}>{STATUS_LABEL[project.status]}</span>
+              {readOnly && (
+                <span className="chip bg-violet-100 text-violet-700" title="Opened with its owner's workspace password. Nothing here can be saved.">
+                  <Eye className="h-3 w-3" /> View only · {project.ownerName ?? "another account"}
+                </span>
+              )}
             </>
           ) : (
             <span className="h-5 w-56 animate-pulse rounded bg-ink-900/5" />

@@ -4,6 +4,7 @@ import "./globals.css";
 import "@xyflow/react/dist/style.css";
 import { NavBar } from "@/components/NavBar";
 import { StudyAutosave } from "@/components/StudyAutosave";
+import { AuthGate } from "@/components/AuthGate";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -21,7 +22,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <StudyAutosave />
         <NavBar />
-        <main className="flex-1 flex flex-col">{children}</main>
+        <main className="flex-1 flex flex-col"><AuthGate>{children}</AuthGate></main>
       </body>
     </html>
   );

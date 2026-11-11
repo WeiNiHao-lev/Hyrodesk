@@ -43,15 +43,41 @@ async function mode(): Promise<StorageMode> {
   return modePromise;
 }
 
+/** An HTTP error from the API, with the server's own message and status. */
+export class ApiError extends Error {
+  constructor(public status: number, message: string, public body: Record<string, unknown> = {}) {
+    super(message);
+  }
+}
+
+/** Pages a signed-out visitor may stay on. */
+const PUBLIC_PATHS = ["/login", "/setup", "/share"];
+
 async function api<T>(path: string, init?: RequestInit): Promise<T> {
   const r = await fetch(path, {
     ...init,
     cache: "no-store",
     headers: { "content-type": "application/json", ...(init?.headers ?? {}) },
   });
-  if (!r.ok) throw new Error(`${init?.method ?? "GET"} ${path} failed: ${r.status}`);
+  if (!r.ok) {
+    const body = (await r.json().catch(() => ({}))) as Record<string, unknown>;
+    // Signed out (or the session expired): go and sign in, then come back here.
+    if (r.status === 401 && typeof window !== "undefined"
+      && !PUBLIC_PATHS.some((x) => window.location.pathname.startsWith(x))) {
+      const next = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.assign(body.needsSetup ? "/setup" : `/login?next=${next}`);
+    }
+    throw new ApiError(r.status, String(body.error ?? `${init?.method ?? "GET"} ${path} failed: ${r.status}`), body);
+  }
   return (await r.json()) as T;
 }
+
+/**
+ * A network failure, as opposed to the server answering with an error. Only
+ * this kind falls back to the browser's copy: falling back on a 401 or 403
+ * would quietly show stale local data in place of a refusal.
+ */
+const isNetworkError = (e: unknown) => !(e instanceof ApiError);
 
 /* ------------------------------------------------------------------ local */
 
@@ -66,11 +92,12 @@ async function listLocal(): Promise<Project[]> {
 
 /* ------------------------------------------------------------------ public */
 
-export async function listProjects(): Promise<Project[]> {
+export async function listProjects(owner?: string): Promise<Project[]> {
   if ((await mode()) === "cloud") {
     try {
-      return await api<Project[]>("/api/projects");
-    } catch {
+      return await api<Project[]>(`/api/projects${owner ? `?owner=${encodeURIComponent(owner)}` : ""}`);
+    } catch (e) {
+      if (!isNetworkError(e)) throw e;
       return listLocal();
     }
   }
@@ -94,11 +121,12 @@ function summariseRun(r: Project["runs"][number]): RunSummary {
  * the runs inside never cross the network. Use listProjects only where the
  * runs themselves are wanted — export, and importing a feed from a saved run.
  */
-export async function listProjectSummaries(): Promise<ProjectSummary[]> {
+export async function listProjectSummaries(owner?: string): Promise<ProjectSummary[]> {
   if ((await mode()) === "cloud") {
     try {
-      return await api<ProjectSummary[]>("/api/projects?summary=1");
-    } catch {
+      return await api<ProjectSummary[]>(`/api/projects?summary=1${owner ? `&owner=${encodeURIComponent(owner)}` : ""}`);
+    } catch (e) {
+      if (!isNetworkError(e)) throw e;
       /* fall through to the local copy */
     }
   }
@@ -114,7 +142,8 @@ export async function getProject(id: string): Promise<Project | undefined> {
   if ((await mode()) === "cloud") {
     try {
       return await api<Project>(`/api/projects/${encodeURIComponent(id)}`);
-    } catch {
+    } catch (e) {
+      if (!isNetworkError(e)) return undefined;
       return get<Project>(PREFIX + id);
     }
   }
@@ -122,6 +151,9 @@ export async function getProject(id: string): Promise<Project | undefined> {
 }
 
 export async function saveProject(p: Project): Promise<void> {
+  // Opened through someone else's workspace password: readable, never written.
+  // The server refuses it too; stopping here gives the reason instead of a 403.
+  if (p.access === "viewer") throw new ApiError(403, "This project is view only: it belongs to another account.");
   p.updatedAt = new Date().toISOString();
   if ((await mode()) === "cloud") {
     await api<Project>("/api/projects", { method: "POST", body: JSON.stringify(p) });
@@ -164,7 +196,20 @@ export async function importAll(json: string): Promise<number> {
   }
   for (const p of data.projects) {
     if (!p.id) p.id = newId();
-    await saveProject(p);
+    // An imported project is mine, whatever account exported it.
+    delete p.access;
+    delete p.ownerId;
+    delete p.ownerName;
+    delete p.shareToken;
+    try {
+      await saveProject(p);
+    } catch (e) {
+      // Its id belongs to a project in another account: import it as a copy
+      // under a new id rather than refuse it, and never write over theirs.
+      if (!(e instanceof ApiError && e.body.conflict)) throw e;
+      p.id = newId();
+      await saveProject(p);
+    }
   }
   return data.projects.length;
 }

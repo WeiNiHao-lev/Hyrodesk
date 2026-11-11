@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Droplets, FolderKanban, BookOpen } from "lucide-react";
+import { Droplets, FolderKanban, BookOpen, LogOut, UserRound } from "lucide-react";
 import { StorageBadge } from "./StorageBadge";
+import { logout, useAuth } from "@/lib/store/auth";
+import { resetHealthCache } from "@/lib/store/db";
 
 // Two places only. Everything that belongs to a project — preparation,
 // simulation, results, saved runs — is reached from inside that project, so
@@ -54,8 +56,34 @@ export function NavBar() {
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
           <span className="hidden sm:flex"><StorageBadge /></span>
+          <AccountMenu />
         </div>
       </div>
     </header>
+  );
+}
+
+/** Who is signed in, a way to the account page, and a way out. Cloud mode only. */
+function AccountMenu() {
+  const { cloud, me, refresh } = useAuth();
+  if (!cloud || !me) return null;
+  return (
+    <div className="flex items-center gap-1">
+      <Link href="/account" className="flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[0.78rem] font-semibold text-ink-700 hover:bg-white" title="Account, workspace password and team">
+        <UserRound className="h-3.5 w-3.5" /> {me.displayName}
+      </Link>
+      <button
+        className="rounded-lg p-1.5 text-ink-500 hover:bg-white hover:text-ink-900"
+        title="Sign out"
+        onClick={async () => {
+          await logout();
+          resetHealthCache();
+          await refresh();
+          window.location.assign("/login");
+        }}
+      >
+        <LogOut className="h-3.5 w-3.5" />
+      </button>
+    </div>
   );
 }

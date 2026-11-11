@@ -16,13 +16,15 @@ import { Pencil, Check, X } from "lucide-react";
  * because a blank entry in a list is worse than the old one.
  */
 export function InlineName({
-  value, onSave, className = "", placeholder = "Untitled", title = "Rename",
+  value, onSave, className = "", placeholder = "Untitled", title = "Rename", readOnly = false,
 }: {
   value: string;
   onSave: (next: string) => void | Promise<void>;
   className?: string;
   placeholder?: string;
   title?: string;
+  /** Someone else's project, opened view only: the name is shown, not editable. */
+  readOnly?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
@@ -46,6 +48,10 @@ export function InlineName({
     setEditing(false);
     if (next && next !== value) await onSave(next);
   };
+
+  if (readOnly) {
+    return <span className={`min-w-0 truncate ${className}`}>{value || placeholder}</span>;
+  }
 
   if (editing) {
     return (
