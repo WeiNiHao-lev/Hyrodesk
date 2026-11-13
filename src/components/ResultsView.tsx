@@ -7,7 +7,8 @@ import { downloadText, downloadBlob } from "@/lib/store/db";
 import { buildReport } from "@/lib/report/docx";
 import { checkCompliance, checkedRows, STANDARD_LIMITS } from "@/lib/engine/diagnostics";
 import { inhibitionFindings, traceBalance } from "@/lib/engine/compliance";
-import { IDR_PER_USD, indicativeCapex } from "@/lib/engine/capex";
+import { DEFAULT_CAPEX_FACTORS, IDR_PER_USD, indicativeCapex } from "@/lib/engine/capex";
+import { CCEPC_SWRO, swroBenchmark } from "@/lib/engine/benchmarks";
 import { CNY_PER_USD, PRICE_BASIS_BY_NAME } from "@/lib/engine/chemprices";
 import { STANDARDS } from "@/lib/engine/templates";
 import { sweep, sweepCandidates, SweepResult } from "@/lib/engine/sensitivity";
@@ -451,7 +452,102 @@ function Energy({ result, flowsheet }: { result: SimulationResult; flowsheet: Fl
         </p>
       </div>
 
+      <SwroBenchmarkPanel result={result} flowsheet={flowsheet} />
       <IndicativeCapex result={result} flowsheet={flowsheet} />
+    </div>
+  );
+}
+
+const rng = (r: { low: number; high: number }, dp = 0, scale = 1) =>
+  Math.abs(r.high - r.low) < 1e-9 * Math.max(1, Math.abs(r.low))
+    ? (r.low / scale).toLocaleString("en-US", { maximumFractionDigits: dp })
+    : `${(r.low / scale).toLocaleString("en-US", { maximumFractionDigits: dp })}–${Number.isFinite(r.high) ? (r.high / scale).toLocaleString("en-US", { maximumFractionDigits: dp }) : "∞"}`;
+
+/**
+ * CCEPC's own SWRO reference figures applied to this plant. Shown first for any
+ * flowsheet with an SWRO block: it is what CCEPC quotes from its projects; the
+ * factored estimate below stays as the cross-check.
+ */
+function SwroBenchmarkPanel({ result, flowsheet }: { result: SimulationResult; flowsheet: Flowsheet }) {
+  const b = useMemo(() => swroBenchmark(flowsheet, result), [flowsheet, result]);
+  const cx = useMemo(() => indicativeCapex(flowsheet, result), [flowsheet, result]);
+  if (!b) return null;
+  const B = CCEPC_SWRO;
+  // The factored total without the marine works, which the benchmark leaves out too.
+  const factoredNoMarine = indicativeCapex(flowsheet, result, { ...DEFAULT_CAPEX_FACTORS, marine: 0 }).totalUSD;
+  const dc = flowsheet.basis.standard?.startsWith("dc-");
+  return (
+    <div>
+      <h3 className="mb-1 text-[0.85rem] font-bold text-ink-900">
+        CCEPC SWRO benchmark — CAPEX USD {rng(b.capexUSD, 1, 1e6)} M (Rp {rng({ low: b.capexUSD.low * IDR_PER_USD, high: b.capexUSD.high * IDR_PER_USD }, 0, 1e9)} miliar)
+      </h3>
+      <p className="mb-2 text-[0.7rem] text-ink-500">
+        {B.source}, applied to {Math.round(b.capacityM3d).toLocaleString("en-US")} m³/d of product capacity
+        and {Math.round(b.annualM3).toLocaleString("en-US")} m³/y ({flowsheet.basis.operatingHoursPerYear} h/y).
+      </p>
+      <table className="data">
+        <thead><tr><th>Item</th><th>CCEPC benchmark</th><th>This plant</th><th>Basis</th></tr></thead>
+        <tbody>
+          <tr>
+            <td className="font-semibold">CAPEX</td>
+            <td>RMB {B.capexRmbPerM3d[0].toLocaleString("en-US")}–{B.capexRmbPerM3d[1].toLocaleString("en-US")} per m³/d (USD {Math.round(B.capexRmbPerM3d[0] / B.rmbPerUsd)}–{Math.round(B.capexRmbPerM3d[1] / B.rmbPerUsd)} at {B.rmbPerUsd})</td>
+            <td className="font-bold">USD {rng(b.capexUSD, 1, 1e6)} M</td>
+            <td className="text-[0.68rem] text-ink-500">Excludes {B.capexExcludes}.</td>
+          </tr>
+          <tr>
+            <td className="font-semibold">OPEX</td>
+            <td>USD {B.opexUsdPerM3[0].toFixed(2)}–{B.opexUsdPerM3[1].toFixed(2)}/m³</td>
+            <td>
+              <span className="font-bold">USD {rng(b.opexUSDPerYear, 2, 1e6)} M/y</span>
+              <div className="text-[0.68rem] text-ink-500">Model, itemised: USD {b.modelOpexUSDPerM3.toFixed(3)}/m³ (Rp {Math.round(b.modelOpexUSDPerM3 * IDR_PER_USD).toLocaleString("id-ID")})</div>
+            </td>
+            <td className="text-[0.68rem] text-ink-500">Covers {B.opexCovers}.</td>
+          </tr>
+          <tr>
+            <td className="font-semibold">Land</td>
+            <td>{B.landM2PerM3d} m² per m³/d</td>
+            <td>{rng(b.landM2, 0)} m² (≈ {(b.landM2.low / 1e4).toFixed(2)} ha)</td>
+            <td className="text-[0.68rem] text-ink-500">Excludes {B.landExcludes}.</td>
+          </tr>
+          <tr>
+            <td className="font-semibold">Break-even water price</td>
+            <td>USD {B.reference.breakEvenUsdPerM3.toFixed(2)}/m³ (reference plant)</td>
+            <td className="font-bold">USD {rng(b.breakEvenUSDPerM3, 2)}/m³</td>
+            <td className="text-[0.68rem] text-ink-500">OPEX + CAPEX × CRF({Math.round(B.discountRate * 100)} %, {B.horizonYears} y) ÷ annual volume, low and high ends.</td>
+          </tr>
+          {b.payback.map((p) => {
+            const ref = B.reference.cases.find((c) => Math.abs(c.tariff - p.tariff) < 1e-9);
+            return (
+              <tr key={p.tariff}>
+                <td className="font-semibold">Payback at USD {p.tariff.toFixed(2)}/m³</td>
+                <td>{ref ? `${ref.paybackYears} years, IRR ${ref.irr} (reference plant)` : "—"}</td>
+                <td className="font-bold">{p.years ? `${rng(p.years, 1)} years` : "never: tariff below OPEX"}</td>
+                <td className="text-[0.68rem] text-ink-500">Simple payback, CAPEX ÷ ((tariff − OPEX) × annual volume). IRR quoted from CCEPC, which includes tax and financing.</td>
+              </tr>
+            );
+          })}
+          <tr>
+            <td className="font-semibold">EPC schedule</td>
+            <td>{B.epcMonths[0]}–{B.epcMonths[1]} months</td>
+            <td>{B.epcMonths[0]}–{B.epcMonths[1]} months</td>
+            <td className="text-[0.68rem] text-ink-500">Excludes {B.epcExcludes}; scale, site and logistics move it.</td>
+          </tr>
+          {dc && (
+            <tr>
+              <td className="font-semibold">Data-centre cooling</td>
+              <td>{B.coolingM3hPerMwIt[0]}–{B.coolingM3hPerMwIt[1]} m³/h per MW IT</td>
+              <td>Supports ≈ {rng(b.supportsMwIt, 0)} MW IT</td>
+              <td className="text-[0.68rem] text-ink-500">Open cooling towers at 5 cycles of concentration (WUE 1.8–2.2 L/kWh).</td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+      <p className="mt-2 text-[0.66rem] leading-snug text-ink-500">
+        The benchmark is a standard {B.referenceCapacityM3d.toLocaleString("en-US")} m³/d plant; larger plants usually
+        come in lower per m³/d, and a second pass or remineralisation adds to it. Cross-check: the factored estimate
+        below is USD {(cx.totalUSD / 1e6).toFixed(1)} M, or USD {(factoredNoMarine / 1e6).toFixed(1)} M without the
+        marine works the benchmark leaves out.
+      </p>
     </div>
   );
 }

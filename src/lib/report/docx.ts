@@ -11,6 +11,7 @@ import { UNIT_BY_TYPE } from "../engine/units";
 import { STANDARDS } from "../engine/templates";
 import { inhibitionFindings, traceBalance } from "../engine/compliance";
 import { indicativeCapex } from "../engine/capex";
+import { swroBenchmark } from "../engine/benchmarks";
 
 const NAVY = "0F2942";
 const GREY = "4A7694";
@@ -96,6 +97,7 @@ export async function buildReport(
 ): Promise<Blob> {
   const s = result.summary;
   const capex = indicativeCapex(fs, result);
+  const bench = swroBenchmark(fs, result);
   const std = STANDARDS.find((x) => x.key === fs.basis.standard);
   // Use the same conversion the solver uses, so alkalinity and hardness entered
   // as CaCO3 are reflected in the report exactly as they are in the balance.
@@ -177,6 +179,15 @@ export async function buildReport(
         { v: `Factored, -30 % / +50 %; ${num(capex.overallFactor, 2)} × equipment, ${Math.round(capex.usdPerM3d).toLocaleString()} USD per m³/d`, bg: OK },
       ],
       ["Indicative OPEX", `${Math.round(s.opexUSDPerY).toLocaleString()} USD/y`, `${num(s.opexUSDPerM3, 3)} USD/m³`],
+      ...(bench ? [
+        [
+          { v: "CCEPC SWRO benchmark CAPEX", bg: OK },
+          { v: `${num(bench.capexUSD.low / 1e6, 1)}–${num(bench.capexUSD.high / 1e6, 1)} M USD`, bg: OK },
+          { v: `RMB 6,000–7,000 per m³/d at 6.7; excludes intake/discharge works and piling`, bg: OK },
+        ],
+        ["CCEPC SWRO benchmark OPEX", "0.60–0.70 USD/m³", "Power, membranes, chemicals, O&M labour"],
+        ["Break-even water price", `${num(bench.breakEvenUSDPerM3.low, 2)}–${num(bench.breakEvenUSDPerM3.high, 2)} USD/m³`, "8 %, 20 years; CCEPC reference plant 0.95"],
+      ] : []),
     ],
     [3000, 2600, 3760],
   ));

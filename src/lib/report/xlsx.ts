@@ -5,6 +5,7 @@ import { feedStream } from "../engine/solver";
 import { UNIT_BY_TYPE } from "../engine/units";
 import { STANDARDS } from "../engine/templates";
 import { DEFAULT_CAPEX_FACTORS, IDR_PER_USD, indicativeCapex } from "../engine/capex";
+import { CCEPC_SWRO } from "../engine/benchmarks";
 import { CNY_PER_USD, PRICE_BASIS_BY_NAME, PRICE_LIST_SOURCE, PriceBasis } from "../engine/chemprices";
 import { calcRowsFor, CalcRow } from "./calcsheets";
 import { ArrowSpec, injectArrows } from "./xlsxArrows";
@@ -1258,6 +1259,54 @@ function sheetCapex(wb: ExcelJS.Workbook, fs: Flowsheet, result: SimulationResul
     ws.getCell(r, 1).value = `• ${x}`;
     ws.getCell(r, 1).font = { size: 9, name: "Calibri" };
     r++;
+  }
+
+  // 4. CCEPC's own SWRO reference figures, for a flowsheet with an SWRO block.
+  if (fs.nodes.some((n) => n.type === "swro")) {
+    const B = CCEPC_SWRO;
+    r++;
+    hdr(["CCEPC SWRO benchmark", "Input", "", "", "Value", "Formula / basis"]);
+    const inp = (label: string, v: number, fmt: string, note = "") => {
+      ws.getCell(r, 1).value = label;
+      ws.getCell(r, 2).value = v;
+      ws.getCell(r, 2).numFmt = fmt;
+      input(ws.getCell(r, 2));
+      ws.getCell(r, 6).value = note;
+      ws.getCell(r, 6).font = { size: 9, name: "Calibri" };
+      return `$B$${r++}`;
+    };
+    const calc = (label: string, formula: string, fmt: string, note: string, bold = false) => {
+      ws.getCell(r, 1).value = label;
+      ws.getCell(r, 5).value = { formula };
+      ws.getCell(r, 5).numFmt = fmt;
+      ws.getCell(r, 6).value = note;
+      ws.getCell(r, 6).font = { size: 9, name: "Calibri" };
+      if (bold) strong(ws.getRow(r), 5);
+      return `$E$${r++}`;
+    };
+    const cap = calc("Product capacity, m³/d", `${refs.targetProduct}*24`, "#,##0", "Product flow × 24.");
+    const vol = calc("Product per year, m³", `${refs.targetProduct}*${refs.hours}`, "#,##0", "Product flow × operating hours.");
+    const rLo = inp("CAPEX, RMB per m³/d (low)", B.capexRmbPerM3d[0], "#,##0", B.source);
+    const rHi = inp("CAPEX, RMB per m³/d (high)", B.capexRmbPerM3d[1], "#,##0", `Excludes ${B.capexExcludes}.`);
+    const fx = inp("RMB per USD", B.rmbPerUsd, "0.0", "Rate used in the CCEPC sheet.");
+    const cLo = calc("Benchmark CAPEX, USD (low)", `${cap}*${rLo}/${fx}`, "#,##0", "Capacity × RMB per m³/d ÷ rate.", true);
+    const cHi = calc("Benchmark CAPEX, USD (high)", `${cap}*${rHi}/${fx}`, "#,##0", "", true);
+    const oLo = inp("OPEX, USD/m³ (low)", B.opexUsdPerM3[0], "0.00", `Covers ${B.opexCovers}.`);
+    const oHi = inp("OPEX, USD/m³ (high)", B.opexUsdPerM3[1], "0.00", "");
+    calc("Benchmark OPEX, USD/y (low)", `${oLo}*${vol}`, "#,##0", "OPEX × annual volume.");
+    calc("Benchmark OPEX, USD/y (high)", `${oHi}*${vol}`, "#,##0", "");
+    const land = inp("Land, m² per m³/d", B.landM2PerM3d, "0.00", `Excludes ${B.landExcludes}.`);
+    calc("Land, m²", `${cap}*${land}`, "#,##0", "Capacity × land per m³/d.");
+    const rate = inp("Discount rate", B.discountRate, "0%", "8 % over 20 years brackets CCEPC's 0.95 break-even.");
+    const yrs = inp("Horizon, years", B.horizonYears, "0", "");
+    const crfCell = calc("Capital recovery factor", `${rate}*(1+${rate})^${yrs}/((1+${rate})^${yrs}-1)`, "0.0000", "CRF = r(1+r)^n / ((1+r)^n − 1)");
+    calc("Break-even price, USD/m³ (low)", `${oLo}+${cLo}*${crfCell}/${vol}`, "0.000", `OPEX + CAPEX × CRF ÷ volume. CCEPC reference plant: ${B.reference.breakEvenUsdPerM3}.`, true);
+    calc("Break-even price, USD/m³ (high)", `${oHi}+${cHi}*${crfCell}/${vol}`, "0.000", "", true);
+    for (const c of B.reference.cases) {
+      const t = inp(`Tariff, USD/m³`, c.tariff, "0.00", `CCEPC reference: payback ${c.paybackYears} y, IRR ${c.irr} (with tax and financing).`);
+      calc(`Simple payback at that tariff, years (low)`, `IF(${t}>${oLo},${cLo}/((${t}-${oLo})*${vol}),"never")`, "0.0", "CAPEX ÷ ((tariff − OPEX) × volume).");
+      calc(`Simple payback at that tariff, years (high)`, `IF(${t}>${oHi},${cHi}/((${t}-${oHi})*${vol}),"never")`, "0.0", "");
+    }
   }
   ws.views = [{ state: "frozen", ySplit: 3 }];
 }

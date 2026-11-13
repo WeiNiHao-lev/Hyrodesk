@@ -234,7 +234,15 @@ function summarise(sim, opt = {}) {
   console.log(`Converged: ${sim.converged ? "yes" : "NO"}   Feed ${f(sim.flowsheet.feed.flow)} m3/h   Product ${f(s.productFlow)} m3/h   Recovery ${f(s.recoveryPct)} %`);
   console.log(`Power ${f(s.totalPowerKW, 0)} kW   SEC ${f(s.secKWhPerM3, 3)} kWh/m3   OPEX ${f(s.opexUSDPerM3, 3)} USD/m3 (Rp ${f(s.opexUSDPerM3 * IDR_PER_USD, 0)}/m3)`);
   const cx = sim.capex;
-  console.log(`Indicative CAPEX USD ${f(cx.totalUSD / 1e6, 2)} M (Rp ${f(cx.totalUSD * IDR_PER_USD / 1e9, 1)} miliar), range ${f(cx.lowUSD / 1e6, 1)}-${f(cx.highUSD / 1e6, 1)} M; process equipment USD ${f(cx.equipmentUSD / 1e6, 2)} M; ${f(cx.usdPerM3d, 0)} USD per m3/d`);
+  const b = sim.benchmark;
+  if (b) {
+    // For SWRO plants CCEPC's own reference figures come first; the factored estimate is the cross-check.
+    console.log(`CCEPC SWRO benchmark: CAPEX USD ${f(b.capexUSD.low / 1e6, 1)}-${f(b.capexUSD.high / 1e6, 1)} M (Rp ${f(b.capexUSD.low * IDR_PER_USD / 1e9, 0)}-${f(b.capexUSD.high * IDR_PER_USD / 1e9, 0)} miliar; RMB 6,000-7,000 per m3/d, excl. intake/discharge works and piling); OPEX USD 0.60-0.70/m3 (model itemised ${f(b.modelOpexUSDPerM3, 3)})`);
+    console.log(`  land ${f(b.landM2.low, 0)} m2; break-even USD ${f(b.breakEvenUSDPerM3.low, 2)}-${f(b.breakEvenUSDPerM3.high, 2)}/m3 (8 %, 20 y); ` +
+      b.payback.map((p) => `payback at ${f(p.tariff, 2)}: ${p.years ? `${f(p.years.low, 1)}-${f(p.years.high, 1)} y` : "never"}`).join("; ") +
+      `; EPC ${b.epcMonths[0]}-${b.epcMonths[1]} months; supports ~${f(b.supportsMwIt.low, 0)}-${f(b.supportsMwIt.high, 0)} MW IT if used as cooling make-up`);
+  }
+  console.log(`${b ? "Factored cross-check" : "Indicative CAPEX"}: USD ${f(cx.totalUSD / 1e6, 2)} M (Rp ${f(cx.totalUSD * IDR_PER_USD / 1e9, 1)} miliar), range ${f(cx.lowUSD / 1e6, 1)}-${f(cx.highUSD / 1e6, 1)} M; process equipment USD ${f(cx.equipmentUSD / 1e6, 2)} M; ${f(cx.usdPerM3d, 0)} USD per m3/d`);
   for (const p of r.productStreams) {
     const st = p.stream;
     console.log(`Product "${p.label}": ${f(st.flow)} m3/h, TDS ${f(st.c.TDS)} mg/L, pH ${f(st.pH, 2)}, Cl ${f(st.c.Cl)}, Na ${f(st.c.Na)}, Ca ${f(st.c.Ca)}, HCO3 ${f(st.c.HCO3)}, TSS ${f(st.c.TSS, 2)}, ${f(st.extras.turbidityNTU, 2)} NTU`);

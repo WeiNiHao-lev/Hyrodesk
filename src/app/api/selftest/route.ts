@@ -7,6 +7,7 @@ import { knowledgeFor } from "@/lib/engine/knowledge";
 import { calcRowsFor } from "@/lib/report/calcsheets";
 import { inhibitionFindings, TRACE_BY_KEY, traceBalance } from "@/lib/engine/compliance";
 import { indicativeCapex } from "@/lib/engine/capex";
+import { swroBenchmark } from "@/lib/engine/benchmarks";
 import { CCEPC_PRICE_LIST, PRICE_BASIS_BY_NAME, usdPerTActive } from "@/lib/engine/chemprices";
 import { analysePrepare, numbersIn } from "@/lib/engine/prepareAnalysis";
 import {
@@ -740,6 +741,19 @@ function checkBatamPreset() {
   const fresh = TEMPLATES.find((t) => t.key === "wtp-sagara-split")!.make();
   const cxFresh = indicativeCapex(fresh, simulate(fresh));
   const line = (k: string) => cxSea.lines.find((l) => l.key === k)!.usd;
+  // CCEPC's SWRO benchmark, on its own reference plant: 10,000 m3/d all year.
+  // The low-to-high ranges must bracket the figures CCEPC quotes for it.
+  const refFs = { nodes: [{ type: "swro" }], basis: { operatingHoursPerYear: 8760 } } as unknown as Parameters<typeof swroBenchmark>[0];
+  const refRes = { summary: { productFlow: 10000 / 24, opexUSDPerM3: 0 } } as unknown as Parameters<typeof swroBenchmark>[1];
+  const bm = swroBenchmark(refFs, refRes)!;
+  const inside = (r: { low: number; high: number } | null, v: number) => !!r && r.low <= v && v <= r.high;
+  const benchmarkOk = Math.abs(bm.capexUSD.low - 10000 * 6000 / 6.7) < 1
+    && inside(bm.breakEvenUSDPerM3, 0.95)
+    && inside(bm.payback.find((p) => p.tariff === 1.2)!.years, 5.4)
+    && inside(bm.payback.find((p) => p.tariff === 1.0)!.years, 8.4)
+    && Math.abs(bm.landM2.low - 7000) < 1e-6
+    && swroBenchmark(fresh, simulate(fresh)) === null
+    && swroBenchmark(tpl, tr.result) !== null;
   const capexOk = Math.abs(cxSea.overallFactor - 3.1734) < 0.001
     && Math.abs(cxFresh.overallFactor - 2.8782) < 0.001
     && !cxFresh.lines.some((l) => l.key === "marine")
@@ -767,7 +781,14 @@ function checkBatamPreset() {
 
   return {
     ok: findings.some((f) => f.title === codFlag) && flaggedElsewhere.length === 0
-      && Math.abs(balance) < 1 && r.converged && tplOk && reminOk && passageOk && capexOk,
+      && Math.abs(balance) < 1 && r.converged && tplOk && reminOk && passageOk && capexOk && benchmarkOk,
+    ccepcSwroBenchmark: {
+      ok: benchmarkOk,
+      referencePlant: {
+        breakEven: [round(bm.breakEvenUSDPerM3.low, 3), round(bm.breakEvenUSDPerM3.high, 3)],
+        payback: bm.payback.map((p) => ({ tariff: p.tariff, years: p.years ? [round(p.years.low, 1), round(p.years.high, 1)] : null })),
+      },
+    },
     indicativeCapex: {
       ok: capexOk,
       seawaterFactor: round(cxSea.overallFactor, 4), freshwaterFactor: round(cxFresh.overallFactor, 4),

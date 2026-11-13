@@ -72,6 +72,11 @@ jelas. Untuk sapuan yang sangat besar (ratusan run), lebih cepat memakai engine 
   sendiri bila perlu salinan.
 - **Biaya** di HydroDesk adalah angka screening (CAPEX metode faktor AACE kelas 5, OPEX dengan harga daftar
   CCEPC). Sebut begitu saat melaporkan.
+- **SWRO: benchmark CCEPC dulu.** Untuk flowsheet yang berisi blok `swro`, ringkasan simulasi mencetak
+  "CCEPC SWRO benchmark": CAPEX RMB 6.000–7.000 per m³/hari (kurs 6,7, tanpa intake/outfall dan tiang pancang),
+  OPEX USD 0,60–0,70/m³ (listrik, membran, kimia, tenaga O&M), lahan 0,7 m² per m³/hari, break-even dan payback
+  (8 %, 20 tahun), jadwal EPC 12–15 bulan. Laporkan angka benchmark ini sebagai acuan utama CAPEX/OPEX SWRO,
+  dan estimasi metode faktor sebagai pembanding.
 - **Bahasa.** Jawab Daffa dalam Bahasa Indonesia yang ringkas; nama unit dan parameter di HydroDesk berbahasa
   Inggris.
 

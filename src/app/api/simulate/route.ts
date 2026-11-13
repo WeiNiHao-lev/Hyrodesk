@@ -4,6 +4,7 @@ import { errorResponse, HttpError, requireUser } from "@/lib/server/auth";
 import { simulate, simulateForProduct } from "@/lib/engine/solver";
 import { checkCompliance, checkedRows } from "@/lib/engine/diagnostics";
 import { indicativeCapex } from "@/lib/engine/capex";
+import { swroBenchmark } from "@/lib/engine/benchmarks";
 import { UNIT_BY_TYPE } from "@/lib/engine/units";
 import { Flowsheet } from "@/lib/engine/types";
 
@@ -67,6 +68,8 @@ export async function POST(req: Request) {
       compliance,
       discharge,
       capex: indicativeCapex(fs, result),
+      // CCEPC's SWRO reference figures, when the flowsheet has an SWRO block.
+      benchmark: swroBenchmark(fs, result),
     }, { headers: { "cache-control": "no-store" } });
   } catch (e) {
     return errorResponse(e);
