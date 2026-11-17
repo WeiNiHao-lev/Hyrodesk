@@ -287,6 +287,20 @@ async function simulate(file, opt) {
   return sim;
 }
 
+// The run as one self-contained web page (中 / EN / ID): for the showcase
+// library of a workbench, which shows uploaded .html pages offline.
+async function workbench(file, opt) {
+  if (!file || !opt.out || opt.out === true) fail("Usage: workbench <flowsheet.json> --out page.html [--title T] [--note T]");
+  const flowsheet = readJson(file);
+  const title = opt.title && opt.title !== true ? String(opt.title) : "HydroDesk run";
+  const body = { flowsheet, workbench: { title, note: opt.note && opt.note !== true ? String(opt.note) : undefined } };
+  const sim = await api("/api/simulate", { method: "POST", body });
+  if (!sim.workbenchHtml) fail("This HydroDesk does not build workbench pages yet (deploy the latest version).");
+  writeFileSync(String(opt.out), sim.workbenchHtml);
+  summarise(sim, { quiet: true });
+  console.log(`Workbench page written to ${opt.out} (${Math.round(sim.workbenchHtml.length / 1024)} kB, no external links).`);
+}
+
 async function saveRun(projectId, file, opt) {
   if (!opt.name) fail("--name is required.");
   const flowsheet = readJson(file);
@@ -338,7 +352,8 @@ const HELP = `HydroDesk CLI — config ${CONFIG}
   run <projectId> <index|runId> [--out f] [--full]   a saved run's flowsheet
   new-project --name N [--client C] [--location L] [--kind K] [--capacity T] [--notes T]
   simulate <flowsheet.json> [--check std1,std2] [--discharge std] [--out sim.json] [--save-flowsheet f] [--quiet] [--json]
-  save-run <projectId> <flowsheet.json> --name N [--note T] [--verdict feasible|conditional|not-feasible] [--check ..] [--discharge std]`;
+  save-run <projectId> <flowsheet.json> --name N [--note T] [--verdict feasible|conditional|not-feasible] [--check ..] [--discharge std]
+  workbench <flowsheet.json> --out page.html [--title T] [--note T]   the run as one offline page (中/EN/ID) for a workbench`;
 
 const [cmd, ...rest] = process.argv.slice(2);
 const { pos, opt } = parseArgs(rest);
@@ -349,6 +364,7 @@ const commands = {
   projects: () => projects(opt), workspaces, project: () => project(pos[0], opt),
   run: () => run(pos[0], pos[1], opt), "new-project": () => newProject(opt),
   simulate: () => simulate(pos[0], opt), "save-run": () => saveRun(pos[0], pos[1], opt),
+  workbench: () => workbench(pos[0], opt),
   help: () => console.log(HELP),
 };
 if (!cmd || !commands[cmd]) { console.log(HELP); process.exit(cmd ? 1 : 0); }

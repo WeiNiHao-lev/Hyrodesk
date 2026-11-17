@@ -8,6 +8,7 @@ import { calcRowsFor } from "@/lib/report/calcsheets";
 import { inhibitionFindings, TRACE_BY_KEY, traceBalance } from "@/lib/engine/compliance";
 import { indicativeCapex } from "@/lib/engine/capex";
 import { swroBenchmark } from "@/lib/engine/benchmarks";
+import { buildWorkbenchPage } from "@/lib/report/workbench";
 import { CCEPC_PRICE_LIST, PRICE_BASIS_BY_NAME, usdPerTActive } from "@/lib/engine/chemprices";
 import { analysePrepare, numbersIn } from "@/lib/engine/prepareAnalysis";
 import {
@@ -187,6 +188,9 @@ async function runChecks() {
 
   /* --- CCEPC chemical prices and Permen LH 11/2025 --- */
   const pricesEffluent = checkPricesAndEffluent();
+
+  /* --- the workbench page: self-contained, three languages, escaped --- */
+  const workbench = checkWorkbenchPage();
 
   /* --- the site-visit analyser, against answers with known defects --- */
   const prepare = checkPrepareAnalysis();
@@ -378,9 +382,9 @@ async function runChecks() {
       ok: allClosed && allConverged && diagnosticsOk && productDrivenOk
         && xlsx.ok === true && docx.ok === true && diagrams.ok === true
         && leachate.ok && coverage.ok && markers.ok && prepare.ok && canvas.ok
-        && tankSplit.ok && dataCentre.ok && batamPreset.ok && pricesEffluent.ok,
+        && tankSplit.ok && dataCentre.ok && batamPreset.ok && pricesEffluent.ok && workbench.ok,
       allConverged, allClosed, diagnosticsOk, productDrivenOk,
-      coverage, leachate, markers, dataCentre, batamPreset, pricesEffluent, prepare, canvas, tankSplit, xlsx, docx, diagrams,
+      coverage, leachate, markers, dataCentre, batamPreset, pricesEffluent, workbench, prepare, canvas, tankSplit, xlsx, docx, diagrams,
       productDriven: pdTests,
       diagnostics: {
         fixture: KNOWN_BAD_FEED.name,
@@ -819,6 +823,30 @@ function checkBatamPreset() {
  * tonne of chlorine, not USD 376. And the effluent limits must reach a real
  * treated sewage with the numbers the regulation prints.
  */
+/**
+ * The workbench page goes into a frame with no network: anything it would fetch
+ * is simply missing there. Every template must give a page that loads nothing,
+ * carries all three languages, has its diagram, and escapes what users typed.
+ */
+function checkWorkbenchPage() {
+  const problems: string[] = [];
+  const outside = /(https?:)?\/\/(?!www\.w3\.org\/2000\/svg)[a-z0-9-]+\.[a-z]|\b(src|href)\s*=|@import|url\((?!#ah[ms]\))|fetch\(|XMLHttpRequest|WebSocket/i;
+  for (const t of TEMPLATES) {
+    try {
+      const fs = t.make();
+      const html = buildWorkbenchPage(fs, simulate(fs), { title: `${t.name} <script>alert(1)</script>`, note: "a & b < c" });
+      if (outside.test(html)) problems.push(`${t.key}: refers to something outside the page (${html.match(outside)?.[0]})`);
+      if (html.includes("<script>alert(1)")) problems.push(`${t.key}: title not escaped`);
+      if (!html.includes("a &amp; b &lt; c")) problems.push(`${t.key}: note not escaped`);
+      for (const l of ["zh", "en", "id"]) if (!html.includes(`data-l="${l}"`)) problems.push(`${t.key}: no ${l} text`);
+      if (!html.includes("<svg")) problems.push(`${t.key}: no diagram`);
+    } catch (e) {
+      problems.push(`${t.key}: ${(e as Error).message}`);
+    }
+  }
+  return { ok: problems.length === 0, templates: TEMPLATES.length, problems };
+}
+
 function checkPricesAndEffluent() {
   const naocl = CHEM_PRICES_USD_PER_T["Sodium hypochlorite (as Cl2)"];
   const naoh = CHEM_PRICES_USD_PER_T["Caustic soda NaOH"];

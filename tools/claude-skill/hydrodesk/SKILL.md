@@ -48,6 +48,11 @@ dan fungsi admin sengaja tidak bisa lewat token: arahkan Daffa ke web untuk itu.
 5. **Simpan** setelah hasilnya layak ditunjukkan: `hd save-run <projectId> fs.json --name "..." --note "..."`.
    Proyek baru: `hd new-project --name "..." --client "..." --location "..." --kind Desalination`. CLI mencetak
    link ke halaman Runs. Berikan link itu ke Daffa.
+6. **Halaman workbench** (bila diminta untuk workbench atasan / 高端咨询室工作台, atau "versi HTML untuk dipamerkan"):
+   `hd workbench fs.json --out hasil.html --title "..." [--note "..."]`. Hasilnya satu file HTML mandiri
+   (中 / EN / ID, diagram proses, KPI, kualitas vs baku mutu, benchmark SWRO, bahan kimia) yang tidak memuat
+   apa pun dari luar, jadi bisa diunggah ke Showcase Library workbench. Untuk run tersimpan, ambil dulu
+   flowsheet-nya dengan `hd run <projectId> <index> --out fs.json`. Unggahnya dilakukan Daffa sendiri.
 
 Untuk studi banyak varian (sapuan parameter, mencari porsi pass kedua, dsb.), jalankan `simulate` berulang
 dengan file yang berbeda, lalu simpan hanya varian yang bermakna, masing-masing dengan nama dan catatan yang

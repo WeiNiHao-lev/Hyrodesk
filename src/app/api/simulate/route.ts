@@ -6,6 +6,7 @@ import { checkCompliance, checkedRows } from "@/lib/engine/diagnostics";
 import { indicativeCapex } from "@/lib/engine/capex";
 import { swroBenchmark } from "@/lib/engine/benchmarks";
 import { UNIT_BY_TYPE } from "@/lib/engine/units";
+import { buildWorkbenchPage } from "@/lib/report/workbench";
 import { Flowsheet } from "@/lib/engine/types";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +15,10 @@ export const dynamic = "force-dynamic";
  * Solves a flowsheet with the same engine the web app runs, so a run made by
  * Claude Code is the run the browser would have made.
  *
- * Body: { flowsheet, check?: string[], dischargeCheck?: string }.
+ * Body: { flowsheet, check?: string[], dischargeCheck?: string,
+ *         workbench?: { title?: string, note?: string } }.
+ * With `workbench`, the answer also carries `workbenchHtml`: the run as one
+ * self-contained page (中 / EN / ID) for a workbench showcase library.
  * Product-driven flowsheets (basis.designMode "product-driven" with a
  * targetProductFlow) are solved backwards for the intake; the flowsheet that
  * comes back carries the solved feed flow, ready to save as a run.
@@ -22,7 +26,10 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   try {
     if (isConfigured()) await requireUser({ allowToken: true });
-    const b = (await req.json()) as { flowsheet?: Flowsheet; check?: string[]; dischargeCheck?: string };
+    const b = (await req.json()) as {
+      flowsheet?: Flowsheet; check?: string[]; dischargeCheck?: string;
+      workbench?: { title?: string; note?: string };
+    };
     const fs = b.flowsheet;
     if (!fs || !Array.isArray(fs.nodes) || !Array.isArray(fs.edges) || !fs.feed || !fs.basis) {
       throw new HttpError(400, "Body must be { flowsheet: { nodes, edges, feed, basis } }.");
@@ -70,6 +77,12 @@ export async function POST(req: Request) {
       capex: indicativeCapex(fs, result),
       // CCEPC's SWRO reference figures, when the flowsheet has an SWRO block.
       benchmark: swroBenchmark(fs, result),
+      ...(b.workbench ? {
+        workbenchHtml: buildWorkbenchPage(fs, result, {
+          title: String(b.workbench.title || "HydroDesk run").slice(0, 160),
+          note: b.workbench.note ? String(b.workbench.note).slice(0, 4000) : undefined,
+        }),
+      } : {}),
     }, { headers: { "cache-control": "no-store" } });
   } catch (e) {
     return errorResponse(e);

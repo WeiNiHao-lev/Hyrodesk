@@ -14,7 +14,7 @@ import { STANDARDS } from "@/lib/engine/templates";
 import { sweep, sweepCandidates, SweepResult } from "@/lib/engine/sensitivity";
 import {
   Droplets, Zap, FlaskConical, Recycle, AlertTriangle, Download, FileText, Sigma, Boxes,
-  CheckCircle2, XCircle, TrendingUp, GraduationCap, Table2,
+  CheckCircle2, XCircle, TrendingUp, GraduationCap, Table2, Globe,
 } from "lucide-react";
 
 const ION_COLS: Component[] = ["TDS", "Na", "Ca", "Mg", "Cl", "SO4", "HCO3", "SiO2"];
@@ -75,6 +75,15 @@ export function ResultsView({
     } finally { setBusy(null); }
   };
 
+  const exportWorkbench = async () => {
+    setBusy("page");
+    try {
+      const { buildWorkbenchPage } = await import("@/lib/report/workbench");
+      const html = buildWorkbenchPage(flowsheet, result, { title: studyName });
+      downloadText(`${slug(studyName)}-workbench.html`, html, "text/html");
+    } finally { setBusy(null); }
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {/* KPI strip */}
@@ -106,6 +115,11 @@ export function ResultsView({
         </button>
         <button className="btn btn-ghost" onClick={exportCsv} disabled={!!busy}>
           <Download className="h-3.5 w-3.5" /> Stream table (.csv)
+        </button>
+        <button className="btn btn-ghost" onClick={exportWorkbench} disabled={!!busy}
+          title="One self-contained web page (中 / EN / ID) with the process diagram, key figures, product quality against the standard and costs, for the showcase library of a workbench. Works offline, fetches nothing">
+          <Globe className="h-3.5 w-3.5" />
+          {busy === "page" ? "Building…" : "Workbench page (.html)"}
         </button>
         <div className="ml-auto flex items-center gap-2 text-[0.7rem] text-ink-500">
           <span className={`chip ${result.converged ? "bg-mint-100 text-mint-700" : "bg-sun-100 text-sun-700"}`}>
