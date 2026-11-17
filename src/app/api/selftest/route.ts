@@ -839,7 +839,7 @@ function checkWorkbenchPage() {
       if (html.includes("<script>alert(1)")) problems.push(`${t.key}: title not escaped`);
       if (!html.includes("a &amp; b &lt; c")) problems.push(`${t.key}: note not escaped`);
       for (const l of ["zh", "en", "id"]) if (!html.includes(`data-l="${l}"`)) problems.push(`${t.key}: no ${l} text`);
-      if (!html.includes("<svg")) problems.push(`${t.key}: no diagram`);
+      if (fs.nodes.length > 0 && !html.includes("<svg")) problems.push(`${t.key}: no diagram`);
     } catch (e) {
       problems.push(`${t.key}: ${(e as Error).message}`);
     }
