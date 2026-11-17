@@ -103,6 +103,12 @@ function LoginForm() {
       <p className="mt-3 text-center text-[0.68rem] text-ink-500">
         Each account sees only its own projects. Someone else&apos;s work opens only with the workspace password its owner sets.
       </p>
+      {tab === "login" && (
+        <p className="mt-2 text-center text-[0.68rem] text-ink-500">
+          Forgot your password? Ask the HydroDesk administrator to reset it from their account page.
+          An administrator who is locked out resets it from the database with <span className="font-mono">tools/admin-recovery.mjs</span>.
+        </p>
+      )}
     </div>
   );
 }
