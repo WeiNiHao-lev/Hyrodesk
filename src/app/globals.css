@@ -239,3 +239,137 @@ table.data th.num {
   background: rgba(15, 41, 66, 0.3);
   background-clip: content-box;
 }
+
+/* ---------------------------------------------------------- dark theme
+ * Set by Settings → Theme (data-theme on <html>). The palette tokens are
+ * swapped rather than every component restyled: the ink scale turns light,
+ * the tinted backgrounds (-50/-100) turn deep and their text (-700) turns
+ * bright, and "white" becomes the surface colour. Text that must stay white
+ * on a coloured button is pinned back below.
+ */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-white: #132331;
+
+  --color-ink-900: #e3edf5;
+  --color-ink-700: #b7cbdb;
+  --color-ink-500: #8aa5ba;
+  --color-ink-300: #5a7489;
+
+  --color-aqua-50: #0e2533;
+  --color-aqua-100: #103446;
+  --color-aqua-200: #15506b;
+  --color-aqua-300: #1f7fa8;
+  --color-aqua-700: #7fd5fa;
+
+  --color-mint-100: #0f3b2d;
+  --color-mint-700: #63e0b2;
+  --color-sun-100: #3b2d0c;
+  --color-sun-700: #f5c76a;
+  --color-coral-100: #471b22;
+  --color-coral-700: #ff9ca5;
+
+  --color-violet-50: #1f1838;
+  --color-violet-100: #2a2050;
+  --color-violet-200: #3c2f70;
+  --color-violet-600: #b7a3ff;
+  --color-violet-700: #c6b6ff;
+  --color-violet-800: #d7cbff;
+
+  --color-slate-50: #18232e;
+  --color-stone-100: #26221f;
+  --color-teal-50: #0d2a2a;
+  --color-slate-200: #34414f;
+  --color-stone-200: #3f3934;
+  --color-stone-300: #544c45;
+  --color-sky-200: #1d4a66;
+  --color-rose-200: #5c2333;
+  --color-emerald-200: #1d4d3c;
+  --color-amber-200: #5a4214;
+  --color-teal-200: #1b4d4b;
+  --color-orange-200: #5c3317;
+  --color-fuchsia-200: #55204f;
+  --color-cyan-200: #164c56;
+  --color-violet-300: #4d3d8a;
+  --color-slate-700: #c3cfdb;
+  --color-stone-700: #d6cec6;
+  --color-sky-800: #9fd8fb;
+  --color-rose-800: #ffb3c1;
+  --color-emerald-800: #8ee8c4;
+  --color-amber-800: #f8d48a;
+  --color-teal-800: #8fe3dc;
+  --color-orange-800: #ffc39a;
+  --color-fuchsia-800: #f6b2ee;
+  --color-cyan-800: #95e4f2;
+
+  /* Tinted backgrounds of the status chips and block categories. */
+  --color-slate-100: #1e2a36;
+  --color-stone-50: #211e1b;
+  --color-amber-50: #2a210c;
+  --color-amber-100: #36290d;
+  --color-cyan-50: #0b2a30;
+  --color-emerald-50: #0c2a20;
+  --color-emerald-100: #0f3528;
+  --color-fuchsia-50: #2a1029;
+  --color-orange-50: #2c1a0c;
+  --color-rose-50: #2d1219;
+  --color-rose-100: #3a1620;
+  --color-sky-50: #0c2333;
+  --color-sky-100: #0f2d42;
+}
+:root[data-theme="dark"] .react-flow { --xy-background-color: transparent; }
+
+:root[data-theme="dark"] body {
+  background:
+    radial-gradient(1200px 600px at 12% -8%, #0f2a3b 0%, transparent 60%),
+    radial-gradient(1000px 520px at 92% 4%, #0e2a24 0%, transparent 55%),
+    #0b1620;
+}
+:root[data-theme="dark"] .text-white { color: #fff; }
+:root[data-theme="dark"] .card {
+  background: rgba(19, 35, 49, 0.88);
+  border-color: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+}
+:root[data-theme="dark"] .card-flat {
+  background: #132331;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+:root[data-theme="dark"] .field {
+  background: #0e1b26;
+  border-color: rgba(255, 255, 255, 0.14);
+}
+:root[data-theme="dark"] .field:disabled {
+  background: #15212b;
+  color: #6b8193;
+}
+:root[data-theme="dark"] .field::placeholder { color: #5f788c; }
+:root[data-theme="dark"] .btn-ghost {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+:root[data-theme="dark"] .btn-ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+:root[data-theme="dark"] .btn-danger {
+  background: transparent;
+  border-color: #5b2530;
+}
+:root[data-theme="dark"] table.data thead th {
+  background: linear-gradient(180deg, #172a39, #142534);
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+:root[data-theme="dark"] table.data tbody td { border-bottom-color: rgba(255, 255, 255, 0.06); }
+:root[data-theme="dark"] table.data tbody tr:hover td { background: rgba(127, 213, 250, 0.06); }
+:root[data-theme="dark"] .react-flow__handle { background: #132331; }
+:root[data-theme="dark"] .react-flow__edge-path { stroke: #4f87a6; }
+:root[data-theme="dark"] .react-flow__controls-button {
+  background: #132331;
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  fill: #b7cbdb;
+}
+:root[data-theme="dark"] .react-flow__controls-button:hover { background: #1a3043; }
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.16); }
+:root[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background-color: rgba(255, 255, 255, 0.28); }
+:root[data-theme="dark"] select.field option { background: #0e1b26; color: #e3edf5; }

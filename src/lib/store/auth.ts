@@ -51,6 +51,21 @@ async function call<T>(path: string, method = "GET", body?: unknown): Promise<T>
 }
 
 export const fetchMe = () => call<MeResponse>("/api/auth/me");
+
+export interface Profile {
+  username: string;
+  displayName: string;
+  isAdmin: boolean;
+  createdAt: string;
+  projects: number;
+  viewers: number;
+  workspacesOpenToMe: number;
+  machines: number;
+  workspaceOpen: boolean;
+}
+export const fetchProfile = () => call<Profile>("/api/auth/profile");
+export const updateDisplayName = (displayName: string) =>
+  call<{ ok: true; displayName: string }>("/api/auth/profile", "PATCH", { displayName });
 export const login = (username: string, password: string) => call<{ ok: true }>("/api/auth/login", "POST", { username, password });
 export const register = (b: { username: string; password: string; displayName: string; inviteCode: string }) =>
   call<{ ok: true }>("/api/auth/register", "POST", b);

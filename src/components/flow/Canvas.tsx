@@ -8,6 +8,7 @@ import {
 import { useStudy } from "@/lib/store/useStudy";
 import { outletsOf } from "@/lib/engine/units";
 import { UnitNode } from "./UnitNode";
+import { resolvedTheme, usePrefs } from "@/lib/prefs";
 
 const nodeTypes = { unit: UnitNode };
 
@@ -18,6 +19,8 @@ function CanvasInner() {
   } = useStudy();
   const wrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
+  const { snapToGrid, minimap, edgeLabels, theme } = usePrefs();
+  const dark = resolvedTheme(theme) === "dark";
 
   const nodes: Node[] = useMemo(
     () =>
@@ -57,14 +60,14 @@ function CanvasInner() {
           type: "smoothstep",
           animated: (row?.stream.flow ?? 0) > 0,
           markerEnd: { type: MarkerType.ArrowClosed, color: "#7fb4d1", width: 16, height: 16 },
-          label: row ? `${row.stream.flow.toFixed(1)}` : undefined,
-          labelStyle: { fontSize: 10, fontWeight: 700, fill: "#24506f" },
-          labelBgStyle: { fill: "#ffffff", fillOpacity: 0.85 },
+          label: row && edgeLabels ? `${row.stream.flow.toFixed(1)}` : undefined,
+          labelStyle: { fontSize: 10, fontWeight: 700, fill: "var(--color-ink-700)" },
+          labelBgStyle: { fill: "var(--color-white)", fillOpacity: 0.85 },
           labelBgPadding: [3, 1] as [number, number],
           labelBgBorderRadius: 4,
         } as Edge;
       }),
-    [flowsheet.edges, result],
+    [flowsheet.edges, result, edgeLabels],
   );
 
   const onNodesChange = useCallback(
@@ -134,19 +137,24 @@ function CanvasInner() {
         defaultEdgeOptions={{ type: "smoothstep" }}
         minZoom={0.15}
         maxZoom={2}
+        snapToGrid={snapToGrid}
+        snapGrid={[20, 20]}
+        colorMode={dark ? "dark" : "light"}
       >
-        <Background variant={BackgroundVariant.Dots} gap={18} size={1} color="#c3dcea" />
+        <Background variant={BackgroundVariant.Dots} gap={18} size={1} color={dark ? "#2a4256" : "#c3dcea"} />
         <Controls
           showInteractive={false}
           className="!rounded-lg !border !border-ink-900/10 !bg-white/90 !shadow-sm"
         />
-        <MiniMap
-          pannable
-          zoomable
-          className="!rounded-lg !border !border-ink-900/10 !bg-white/85"
-          nodeColor={() => "#74d7fb"}
-          maskColor="rgba(246, 251, 254, 0.7)"
-        />
+        {minimap && (
+          <MiniMap
+            pannable
+            zoomable
+            className="!rounded-lg !border !border-ink-900/10 !bg-white/85"
+            nodeColor={() => (dark ? "#1f7fa8" : "#74d7fb")}
+            maskColor={dark ? "rgba(11, 22, 32, 0.7)" : "rgba(246, 251, 254, 0.7)"}
+          />
+        )}
       </ReactFlow>
     </div>
   );

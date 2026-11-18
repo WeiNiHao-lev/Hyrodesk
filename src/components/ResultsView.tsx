@@ -16,6 +16,7 @@ import {
   Droplets, Zap, FlaskConical, Recycle, AlertTriangle, Download, FileText, Sigma, Boxes,
   CheckCircle2, XCircle, TrendingUp, GraduationCap, Table2, Globe,
 } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 const ION_COLS: Component[] = ["TDS", "Na", "Ca", "Mg", "Cl", "SO4", "HCO3", "SiO2"];
 const BIO_COLS: Component[] = ["TSS", "BOD", "COD", "TOC", "TN", "TP", "NH4"];
@@ -27,6 +28,7 @@ export function ResultsView({
 }: { flowsheet: Flowsheet; result: SimulationResult; studyName: string }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [busy, setBusy] = useState<string | null>(null);
+  const t = useT();
   const s = result.summary;
 
   const exportCsv = () => {
@@ -88,13 +90,13 @@ export function ResultsView({
     <div className="flex flex-col gap-4">
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <Kpi icon={Droplets} label="Feed" value={s.feedFlow.toFixed(1)} unit="m³/h" tone="aqua" />
-        <Kpi icon={Droplets} label="Product" value={s.productFlow.toFixed(1)} unit="m³/h" tone="aqua" />
-        <Kpi icon={Recycle} label="Recovery" value={s.recoveryPct.toFixed(2)} unit="%"
+        <Kpi icon={Droplets} label={t("Feed")} value={s.feedFlow.toFixed(1)} unit="m³/h" tone="aqua" />
+        <Kpi icon={Droplets} label={t("Product")} value={s.productFlow.toFixed(1)} unit="m³/h" tone="aqua" />
+        <Kpi icon={Recycle} label={t("Recovery")} value={s.recoveryPct.toFixed(2)} unit="%"
           tone={s.recoveryPct >= 90 ? "mint" : s.recoveryPct >= 75 ? "sun" : "coral"} />
-        <Kpi icon={Zap} label="Specific energy" value={s.secKWhPerM3.toFixed(3)} unit="kWh/m³" tone="sun" />
-        <Kpi icon={FlaskConical} label="Chemicals" value={s.chemicals.length.toString()} unit="dosed" tone="violet" />
-        <Kpi icon={Sigma} label="Effluent" value={s.wasteFlow.toFixed(1)} unit="m³/h" tone="ink" />
+        <Kpi icon={Zap} label={t("Specific energy")} value={s.secKWhPerM3.toFixed(3)} unit="kWh/m³" tone="sun" />
+        <Kpi icon={FlaskConical} label={t("Chemicals")} value={s.chemicals.length.toString()} unit={t("dosed")} tone="violet" />
+        <Kpi icon={Sigma} label={t("Effluent")} value={s.wasteFlow.toFixed(1)} unit="m³/h" tone="ink" />
       </div>
 
       {/* actions */}
@@ -102,28 +104,28 @@ export function ResultsView({
         <button className="btn btn-mint" onClick={exportForMe} disabled={!!busy}
           title="A full written explanation of every process: what it is, why it is here, when it is the right or wrong choice, which parameters govern it and why, and the sizing calculation walked through with the real numbers substituted">
           <GraduationCap className="h-3.5 w-3.5" />
-          {busy === "learn" ? "Writing…" : "Export for me (.docx)"}
+          {busy === "learn" ? t("Writing…") : t("Export for me (.docx)")}
         </button>
         <button className="btn btn-primary" onClick={exportXlsx} disabled={!!busy}
           title="Calculation workbook where every derived cell is a live Excel formula, plus a water balance diagram with flow arrows, a derivations column and a glossary — change an input and the whole workbook answers">
           <Table2 className="h-3.5 w-3.5" />
-          {busy === "xlsx" ? "Building…" : "Calculations (.xlsx)"}
+          {busy === "xlsx" ? t("Building…") : t("Calculations (.xlsx)")}
         </button>
         <button className="btn btn-ghost" onClick={exportDocx} disabled={!!busy}>
           <FileText className="h-3.5 w-3.5" />
-          {busy === "docx" ? "Building…" : "Report (.docx)"}
+          {busy === "docx" ? t("Building…") : t("Report (.docx)")}
         </button>
         <button className="btn btn-ghost" onClick={exportCsv} disabled={!!busy}>
-          <Download className="h-3.5 w-3.5" /> Stream table (.csv)
+          <Download className="h-3.5 w-3.5" /> {t("Stream table (.csv)")}
         </button>
         <button className="btn btn-ghost" onClick={exportWorkbench} disabled={!!busy}
           title="One self-contained web page (中 / EN / ID) with the process diagram, key figures, product quality against the standard and costs, for the showcase library of a workbench. Works offline, fetches nothing">
           <Globe className="h-3.5 w-3.5" />
-          {busy === "page" ? "Building…" : "Workbench page (.html)"}
+          {busy === "page" ? t("Building…") : t("Workbench page (.html)")}
         </button>
         <div className="ml-auto flex items-center gap-2 text-[0.7rem] text-ink-500">
           <span className={`chip ${result.converged ? "bg-mint-100 text-mint-700" : "bg-sun-100 text-sun-700"}`}>
-            {result.converged ? "Converged" : "Not converged"} · {result.iterations} iterations
+            {result.converged ? t("Converged") : t("Not converged")} · {t("{n} iterations", { n: result.iterations })}
           </span>
         </div>
       </div>
@@ -133,7 +135,7 @@ export function ResultsView({
           <div className="mb-2 flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-sun-500" />
             <h3 className="text-[0.85rem] font-bold text-ink-900">
-              Engineering notes ({s.warnings.length})
+              {t("Engineering notes")} ({s.warnings.length})
             </h3>
           </div>
           <ul className="space-y-1.5">
@@ -168,7 +170,7 @@ export function ResultsView({
                 tab === k ? "border-b-2 border-aqua-500 text-aqua-700" : "text-ink-500 hover:text-ink-900"
               }`}
             >
-              {lbl}
+              {t(lbl)}
             </button>
           ))}
         </div>
@@ -950,7 +952,7 @@ function Sensitivity({ flowsheet }: { flowsheet: Flowsheet }) {
               {res.points.map((p, i) => {
                 const isBase = Math.abs(p.value - res.baseValue) < 1e-9;
                 return (
-                  <tr key={i} style={isBase ? { background: "rgba(214,242,254,0.6)" } : undefined}>
+                  <tr key={i} className={isBase ? "bg-aqua-100/60" : undefined}>
                     <td className="num font-semibold">
                       {p.value.toFixed(2)}{isBase && <span className="ml-1 text-[0.6rem] text-aqua-700">current</span>}
                     </td>

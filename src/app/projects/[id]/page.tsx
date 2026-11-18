@@ -9,6 +9,7 @@ import { useWorkspace } from "@/components/workspace/WorkspaceContext";
 import {
   Workflow, Share2, Copy, Check, XCircle, ClipboardList, History, ArrowRight,
 } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 const VERDICT_TONE: Record<string, string> = {
   feasible: "bg-mint-100 text-mint-700",
@@ -24,6 +25,7 @@ const VERDICT_LABEL: Record<string, string> = {
 /** The project itself: who it is for, where it stands, and what has been done. */
 export default function ProjectOverview() {
   const { base, project, saving, patch, reload, readOnly } = useWorkspace();
+  const t = useT();
   const [cloud, setCloud] = useState(false);
   // The link follows the stored token, except just after it is created or
   // revoked here, when the local answer is newer than the stored copy.
@@ -142,31 +144,31 @@ export default function ProjectOverview() {
       <div className="mt-4 grid gap-3 md:grid-cols-3">
         <Link href={`${base}/prepare`} className="card group p-4 transition hover:shadow-md">
           <div className="flex items-center gap-2 text-[0.8rem] font-bold text-ink-900">
-            <ClipboardList className="h-4 w-4 text-violet-600" /> Site visit
+            <ClipboardList className="h-4 w-4 text-violet-600" /> {t("Site visit")}
           </div>
           <p className="mt-1.5 text-[0.75rem] text-ink-500">
-            {prep ? `${answered} item${answered === 1 ? "" : "s"} answered` : "Not started"}
+            {prep ? t(answered === 1 ? "1 item answered" : "{n} items answered", { n: answered }) : t("Not started")}
           </p>
           <span className="mt-2 inline-flex items-center gap-1 text-[0.72rem] font-semibold text-aqua-700 group-hover:underline">
-            Open checklist <ArrowRight className="h-3 w-3" />
+            {t("Open checklist")} <ArrowRight className="h-3 w-3" />
           </span>
         </Link>
 
         <Link href={`${base}/simulate`} className="card group p-4 transition hover:shadow-md">
           <div className="flex items-center gap-2 text-[0.8rem] font-bold text-ink-900">
-            <Workflow className="h-4 w-4 text-aqua-600" /> Simulation
+            <Workflow className="h-4 w-4 text-aqua-600" /> {t("Simulation")}
           </div>
           <p className="mt-1.5 text-[0.75rem] text-ink-500">
-            {project.runs.length === 0 ? "No runs saved yet" : `${project.runs.length} run${project.runs.length === 1 ? "" : "s"} saved`}
+            {project.runs.length === 0 ? t("No runs saved yet") : t(project.runs.length === 1 ? "1 run saved" : "{n} runs saved", { n: project.runs.length })}
           </p>
           <span className="mt-2 inline-flex items-center gap-1 text-[0.72rem] font-semibold text-aqua-700 group-hover:underline">
-            Open the canvas <ArrowRight className="h-3 w-3" />
+            {t("Open the canvas")} <ArrowRight className="h-3 w-3" />
           </span>
         </Link>
 
         <Link href={`${base}/runs`} className="card group p-4 transition hover:shadow-md">
           <div className="flex items-center gap-2 text-[0.8rem] font-bold text-ink-900">
-            <History className="h-4 w-4 text-mint-600" /> Latest run
+            <History className="h-4 w-4 text-mint-600" /> {t("Latest run")}
           </div>
           {latest ? (
             <>

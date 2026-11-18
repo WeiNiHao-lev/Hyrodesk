@@ -6,9 +6,11 @@ import { STANDARDS } from "@/lib/engine/templates";
 import { UnitCategory } from "@/lib/engine/types";
 import { CATEGORY_STYLE } from "@/components/flow/UnitNode";
 import { Search, BookOpen, ScrollText } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export default function LibraryPage() {
   const [q, setQ] = useState("");
+  const t = useT();
   const [tab, setTab] = useState<"units" | "standards">("units");
   const term = q.trim().toLowerCase();
 
@@ -25,9 +27,9 @@ export default function LibraryPage() {
   return (
     <div className="mx-auto w-full max-w-[1200px] px-4 py-6 sm:px-6">
       <div className="mb-4">
-        <h1 className="text-[1.4rem] font-bold tracking-tight text-ink-900">Library</h1>
+        <h1 className="text-[1.4rem] font-bold tracking-tight text-ink-900">{t("Library")}</h1>
         <p className="text-[0.8rem] text-ink-500">
-          What each block models, which parameters drive it, and how far CCEPC has deployed it.
+          {t("What each block models, which parameters drive it, and how far CCEPC has deployed it.")}
         </p>
       </div>
 
@@ -55,7 +57,7 @@ export default function LibraryPage() {
           <div className="relative min-w-[220px] flex-1">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-300" />
             <input
-              className="field pl-8"
+              className="field !pl-8"
               placeholder="Search unit operations…"
               value={q}
               onChange={(e) => setQ(e.target.value)}

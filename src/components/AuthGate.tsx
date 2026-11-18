@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/store/auth";
+import { useT } from "@/lib/i18n";
 
 const PUBLIC = ["/login", "/setup", "/share"];
 
@@ -17,6 +18,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   const { loaded, cloud, me, needsSetup, refresh } = useAuth();
   const path = usePathname();
   const router = useRouter();
+  const t = useT();
   const isPublic = PUBLIC.some((p) => path.startsWith(p));
 
   useEffect(() => { void refresh(); }, [refresh]);
@@ -31,7 +33,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
 
   if (isPublic) return <>{children}</>;
   if (!loaded || blocked) {
-    return <div className="p-10 text-center text-[0.8rem] text-ink-300">Checking sign-in…</div>;
+    return <div className="p-10 text-center text-[0.8rem] text-ink-300">{t("Checking sign-in…")}</div>;
   }
   return <>{children}</>;
 }

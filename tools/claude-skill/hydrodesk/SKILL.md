@@ -1,14 +1,15 @@
 ---
 name: hydrodesk
-description: Membaca proyek, membuat dan menjalankan simulasi, mengecek baku mutu, dan menyimpan run ke HydroDesk (simulator WTP/WWTP/SWRO/ZLD milik Daffa di hyrodesk-6gi9.vercel.app) lewat CLI dan API-nya, memakai engine yang sama dengan web. Gunakan skill ini setiap kali pengguna menyebut HydroDesk, "simulasikan di HydroDesk", "buat run/flowsheet", "simpan ke proyek", "cek proyek X di HydroDesk", "bandingkan run", atau meminta simulasi proses pengolahan air (WTP, SWRO, desalinasi, demin, IPAL, lindi, softening, remineralisasi) yang hasilnya harus muncul di HydroDesk, walaupun kata "skill" tidak disebut. Also use for English requests like "run this in HydroDesk", "save a run to my HydroDesk project", "check project X in HydroDesk".
+description: Membaca proyek, membuat dan menjalankan simulasi, mengecek baku mutu, dan menyimpan run ke HydroDesk (simulator WTP/WWTP/SWRO/ZLD tim CCEPC Indonesia di hyrodesk-6gi9.vercel.app) lewat CLI dan API-nya, memakai engine yang sama dengan web. Gunakan skill ini setiap kali pengguna menyebut HydroDesk, "simulasikan di HydroDesk", "buat run/flowsheet", "simpan ke proyek", "cek proyek X di HydroDesk", "bandingkan run", atau meminta simulasi proses pengolahan air (WTP, SWRO, desalinasi, demin, IPAL, lindi, softening, remineralisasi) yang hasilnya harus muncul di HydroDesk, walaupun kata "skill" tidak disebut. Also use for English requests like "run this in HydroDesk", "save a run to my HydroDesk project", "check project X in HydroDesk".
 ---
 
 # HydroDesk dari Claude Code
 
-HydroDesk adalah simulator proses air milik Daffa (CCEPC Indonesia R&D). Web: https://hyrodesk-6gi9.vercel.app.
-Kode sumber: `C:\Users\dkhsn\Documents\wtp-simulator`. Skill ini memberi akses ke akun HydroDesk Daffa dari sesi
-Claude Code mana pun: membaca proyek, mensimulasikan flowsheet di server (engine yang sama dengan web), mengecek
-baku mutu, dan menyimpan run sehingga langsung terlihat di web.
+HydroDesk adalah simulator proses air tim CCEPC Indonesia R&D. Web: https://hyrodesk-6gi9.vercel.app.
+Skill ini memberi akses ke akun HydroDesk **pengguna komputer ini** dari sesi Claude Code mana pun: membaca
+proyeknya, mensimulasikan flowsheet di server (engine yang sama dengan web), mengecek baku mutu, dan menyimpan
+run sehingga langsung terlihat di web. Setiap anggota tim menghubungkan Claude Code-nya sendiri ke akunnya
+sendiri (HydroDesk → Settings → Claude Code).
 
 Semua perintah lewat satu CLI tanpa dependensi:
 
@@ -22,20 +23,20 @@ Di bawah ini ditulis `hd <perintah>` sebagai singkatan. `hd help` menampilkan se
 
 1. `hd whoami`. Kalau sudah terhubung, lanjut ke langkah 2.
 2. Kalau belum: jalankan `hd login --no-wait`. CLI mencetak link `.../connect?code=XXXX-XXXX` dan kodenya.
-   Berikan link dan kode itu ke Daffa, minta dia membukanya di browser (dalam keadaan login) dan klik **Approve**
+   Berikan link dan kode itu ke pengguna, minta dia membukanya di browser (dalam keadaan login) dan klik **Approve**
    kalau kodenya sama. Setelah itu jalankan `hd wait`, yang menunggu sampai disetujui (maks. 10 menit).
 3. Token tersimpan di `~/.hydrodesk/config.json`. **Jangan pernah membaca, menampilkan, atau menyalin isi file itu**,
    dan jangan meminta password atau token di chat. CLI yang memakainya.
 4. Kalau API menjawab token ditolak, ulangi langkah 2. `hd logout` mencabut token mesin ini.
 
-Token ini hanya bisa membaca proyek (milik Daffa dan workspace yang dibuka untuknya), mensimulasikan, membuat
+Token ini hanya bisa membaca proyek (miliknya dan workspace yang dibuka untuknya), mensimulasikan, membuat
 proyek, dan menyimpan run. Menghapus proyek, membuat link share, mengubah password, membuka workspace orang lain,
-dan fungsi admin sengaja tidak bisa lewat token: arahkan Daffa ke web untuk itu.
+dan fungsi admin sengaja tidak bisa lewat token: arahkan pengguna ke web untuk itu.
 
 ## 2. Alur kerja
 
 1. **Pahami permintaan dan datanya.** `hd projects`, `hd project <id>` (ringkasan, catatan, daftar run), dan
-   `hd workspaces` untuk proyek rekan yang dibuka untuk Daffa (lihat saja).
+   `hd workspaces` untuk proyek rekan yang dibuka untuknya (lihat saja).
 2. **Mulai dari yang sudah ada, jangan dari nol:**
    - run yang sudah tersimpan: `hd run <projectId> <index> --out fs.json`;
    - template: `hd catalog templates` lalu `hd template <key> --out fs.json`;
@@ -47,12 +48,12 @@ dan fungsi admin sengaja tidak bisa lewat token: arahkan Daffa ke web untuk itu.
    dan tabel unit per unit. Ulangi edit dan simulasi sampai masuk akal.
 5. **Simpan** setelah hasilnya layak ditunjukkan: `hd save-run <projectId> fs.json --name "..." --note "..."`.
    Proyek baru: `hd new-project --name "..." --client "..." --location "..." --kind Desalination`. CLI mencetak
-   link ke halaman Runs. Berikan link itu ke Daffa.
+   link ke halaman Runs. Berikan link itu ke pengguna.
 6. **Halaman workbench** (bila diminta untuk workbench atasan / 高端咨询室工作台, atau "versi HTML untuk dipamerkan"):
    `hd workbench fs.json --out hasil.html --title "..." [--note "..."]`. Hasilnya satu file HTML mandiri
    (中 / EN / ID, diagram proses, KPI, kualitas vs baku mutu, benchmark SWRO, bahan kimia) yang tidak memuat
    apa pun dari luar, jadi bisa diunggah ke Showcase Library workbench. Untuk run tersimpan, ambil dulu
-   flowsheet-nya dengan `hd run <projectId> <index> --out fs.json`. Unggahnya dilakukan Daffa sendiri.
+   flowsheet-nya dengan `hd run <projectId> <index> --out fs.json`. Unggahnya dilakukan pengguna sendiri.
 
 Untuk studi banyak varian (sapuan parameter, mencari porsi pass kedua, dsb.), jalankan `simulate` berulang
 dengan file yang berbeda, lalu simpan hanya varian yang bermakna, masing-masing dengan nama dan catatan yang
@@ -73,7 +74,7 @@ jelas. Untuk sapuan yang sangat besar (ratusan run), lebih cepat memakai engine 
 - **Baku mutu.** `hd catalog standards`. Grade S/D (`dc-s`, `dc-d`) untuk data centre, `permenkes` air minum,
   `permenlh11-*` efluen domestik, `permen59` lindi. Baris "not modelled" (boron, klor bebas, bakteri) harus
   dibuktikan terpisah, jangan dianggap lulus.
-- **Proyek orang lain** (`[view only]`) hanya dibaca. Jangan mencoba menyimpan ke sana; simpan ke proyek Daffa
+- **Proyek orang lain** (`[view only]`) hanya dibaca. Jangan mencoba menyimpan ke sana; simpan ke proyek pengguna
   sendiri bila perlu salinan.
 - **Biaya** di HydroDesk adalah angka screening (CAPEX metode faktor AACE kelas 5, OPEX dengan harga daftar
   CCEPC). Sebut begitu saat melaporkan.
@@ -82,10 +83,10 @@ jelas. Untuk sapuan yang sangat besar (ratusan run), lebih cepat memakai engine 
   OPEX USD 0,60–0,70/m³ (listrik, membran, kimia, tenaga O&M), lahan 0,7 m² per m³/hari, break-even dan payback
   (8 %, 20 tahun), jadwal EPC 12–15 bulan. Laporkan angka benchmark ini sebagai acuan utama CAPEX/OPEX SWRO,
   dan estimasi metode faktor sebagai pembanding.
-- **Bahasa.** Jawab Daffa dalam Bahasa Indonesia yang ringkas; nama unit dan parameter di HydroDesk berbahasa
-  Inggris.
+- **Bahasa.** Jawab dalam bahasa yang dipakai pengguna (Indonesia, English, atau 中文), ringkas; nama unit dan
+  parameter di HydroDesk berbahasa Inggris.
 
-## 4. Laporan ke Daffa
+## 4. Laporan ke pengguna
 
 Setelah menyimpan run, laporkan: apa yang disimulasikan dan kenapa, angka kunci (produk, recovery, SEC, OPEX,
 CAPEX indikatif), hasil cek baku mutu termasuk yang belum dimodelkan, asumsi penting, dan link run-nya. Kalau

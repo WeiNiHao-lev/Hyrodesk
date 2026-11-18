@@ -9,6 +9,7 @@ import { useWorkspace } from "@/components/workspace/WorkspaceContext";
 import { ResultsView } from "@/components/ResultsView";
 import { InlineName } from "@/components/InlineName";
 import { Workflow, Trash2, Save, ChevronRight } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 const VERDICT_TONE: Record<string, string> = {
   feasible: "bg-mint-100 text-mint-700",
@@ -25,6 +26,7 @@ const VERDICT_LABEL: Record<string, string> = {
 export default function ProjectRuns() {
   const { id, base, project, reload, readOnly } = useWorkspace();
   const router = useRouter();
+  const t = useT();
   const { setFlowsheet, setStudyName, run } = useStudy();
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -66,13 +68,12 @@ export default function ProjectRuns() {
     return (
       <div className="mx-auto flex max-w-xl flex-col items-center gap-2 px-4 py-20 text-center">
         <Save className="h-8 w-8 text-ink-300" />
-        <h2 className="text-[1rem] font-bold text-ink-900">No runs saved yet</h2>
+        <h2 className="text-[1rem] font-bold text-ink-900">{t("No runs saved yet")}</h2>
         <p className="text-[0.8rem] text-ink-500">
-          Draw a flowsheet in the Simulate tab, run it, and use Save to project. Every saved run
-          appears here with its flowsheet and results.
+          {t("Draw a flowsheet in the Simulate tab, run it, and use Save to project. Every saved run appears here with its flowsheet and results.")}
         </p>
         <Link href={`${base}/simulate`} className="btn btn-primary mt-2">
-          <Workflow className="h-4 w-4" /> Open the canvas
+          <Workflow className="h-4 w-4" /> {t("Open the canvas")}
         </Link>
       </div>
     );
@@ -111,7 +112,7 @@ export default function ProjectRuns() {
                 className="mt-2 inline-flex items-center gap-1 text-[0.7rem] font-semibold text-aqua-700 hover:underline"
                 onClick={(e) => { e.stopPropagation(); openInSimulator(r); }}
               >
-                <Workflow className="h-3 w-3" /> Open in simulator
+                <Workflow className="h-3 w-3" /> {t("Open in simulator")}
               </button>
             </div>
           ))}
@@ -138,7 +139,7 @@ export default function ProjectRuns() {
                 </div>
                 <div className="flex gap-2">
                   <button className="btn btn-primary" onClick={() => openInSimulator(activeRun)}>
-                    <Workflow className="h-3.5 w-3.5" /> Open in simulator
+                    <Workflow className="h-3.5 w-3.5" /> {t("Open in simulator")}
                   </button>
                   {!readOnly && (
                     <button className="btn btn-danger" onClick={() => deleteRun(activeRun.id)}>

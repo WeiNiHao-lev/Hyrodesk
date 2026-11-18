@@ -1,6 +1,7 @@
 "use client";
 
 import { get, set, del, keys } from "idb-keyval";
+import { saveFile } from "../savefile";
 import {
   emptyProject, HealthReport, newId, Project, ProjectSummary, RunSummary, StorageMode,
 } from "./types";
@@ -225,23 +226,13 @@ export async function migrateLocalToCloud(): Promise<number> {
   return local.length;
 }
 
+/** Exports go where Settings say: downloads folder, a save dialog, or a chosen folder. */
 export function downloadText(filename: string, text: string, mime = "application/json") {
-  const blob = new Blob([text], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+  void saveFile(filename, new Blob([text], { type: mime }));
 }
 
 export function downloadBlob(filename: string, blob: Blob) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+  void saveFile(filename, blob);
 }
 
 export { emptyProject };

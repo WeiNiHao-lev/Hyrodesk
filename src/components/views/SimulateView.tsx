@@ -19,6 +19,7 @@ import {
   Play, Sparkles, Save, LayoutTemplate, AlertTriangle, CheckCircle2,
   FilePlus, RotateCcw, Eraser, Cloud,
 } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 type Tab = "block" | "learn" | "feed" | "basis";
 
@@ -38,6 +39,7 @@ export function SimulateView() {
 
 function SimulateInner() {
   const router = useRouter();
+  const tr = useT();
   const ws = useOptionalWorkspace();
   const base = ws?.base ?? "";
   const params = useSearchParams();
@@ -111,7 +113,7 @@ function SimulateInner() {
             value=""
             onChange={(e) => e.target.value && loadTemplate(e.target.value)}
           >
-            <option value="">Load template…</option>
+            <option value="">{tr("Load template…")}</option>
             {TEMPLATES.map((t) => (
               <option key={t.key} value={t.key}>{t.name}</option>
             ))}
@@ -120,52 +122,52 @@ function SimulateInner() {
 
         <button
           className="btn btn-ghost !px-2 !text-[0.72rem]"
-          title="Start a completely blank study — no blocks, no feed data"
+          title={tr("Start a completely blank study — no blocks, no feed data")}
           onClick={() => {
-            if (confirm("Start a new blank study? Any unsaved work is lost.")) newStudy();
+            if (confirm(tr("Start a new blank study? Any unsaved work is lost."))) newStudy();
           }}
         >
-          <FilePlus className="h-3.5 w-3.5" /> New
+          <FilePlus className="h-3.5 w-3.5" /> {tr("New")}
         </button>
 
         <div className="h-5 w-px bg-ink-900/10" />
 
         <button
           className="btn btn-ghost !px-2 !text-[0.72rem]"
-          title="Restore every block to its default parameters, keeping the flowsheet"
+          title={tr("Restore every block to its default parameters, keeping the flowsheet")}
           onClick={() => {
-            if (confirm("Restore every block to its default parameters? The flowsheet layout is kept.")) resetAllParams();
+            if (confirm(tr("Restore every block to its default parameters? The flowsheet layout is kept."))) resetAllParams();
           }}
           disabled={flowsheet.nodes.length === 0}
         >
-          <RotateCcw className="h-3.5 w-3.5" /> Reset params
+          <RotateCcw className="h-3.5 w-3.5" /> {tr("Reset params")}
         </button>
         <button
           className="btn btn-ghost !px-2 !text-[0.72rem]"
-          title="Remove every block and connection, keeping the feed and design basis"
+          title={tr("Remove every block and connection, keeping the feed and design basis")}
           onClick={() => {
-            if (confirm("Remove every block and connection? The feed water and design basis are kept.")) clearCanvas();
+            if (confirm(tr("Remove every block and connection? The feed water and design basis are kept."))) clearCanvas();
           }}
           disabled={flowsheet.nodes.length === 0}
         >
-          <Eraser className="h-3.5 w-3.5" /> Clear canvas
+          <Eraser className="h-3.5 w-3.5" /> {tr("Clear canvas")}
         </button>
 
         <div className="h-5 w-px bg-ink-900/10" />
 
         <button className="btn btn-primary" onClick={run}>
-          <Play className="h-3.5 w-3.5" /> Run simulation
+          <Play className="h-3.5 w-3.5" /> {tr("Run simulation")}
         </button>
         <button className="btn btn-mint" onClick={() => setShowOpt(true)}>
-          <Sparkles className="h-3.5 w-3.5" /> Optimise
+          <Sparkles className="h-3.5 w-3.5" /> {tr("Optimise")}
         </button>
         <button className="btn btn-ghost" onClick={() => setShowSave(true)} disabled={!result}>
-          <Save className="h-3.5 w-3.5" /> Save to project
+          <Save className="h-3.5 w-3.5" /> {tr("Save to project")}
         </button>
 
         <div className="ml-auto flex flex-wrap items-center gap-3">
           {dirty && (
-            <span className="chip bg-sun-100 text-sun-700">Edited — re-run to update</span>
+            <span className="chip bg-sun-100 text-sun-700">{tr("Edited — re-run to update")}</span>
           )}
           {s && (
             <>

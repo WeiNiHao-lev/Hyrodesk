@@ -13,6 +13,7 @@ import { SharedWorkspace, sharedWorkspaces, useAuth } from "@/lib/store/auth";
 import {
   Plus, Download, Upload, Trash2, Search, FolderKanban, ArrowRight, Eye,
 } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 const KINDS: ProjectKind[] = ["WTP", "WWTP", "Desalination", "Demineralisation", "ZLD / MLD", "Reuse"];
 
@@ -27,6 +28,7 @@ export default function ProjectsPage() {
 function ProjectsList() {
   const params = useSearchParams();
   const { cloud, me } = useAuth();
+  const t = useT();
   // ?owner= shows another account's workspace, opened with its password.
   const owner = params.get("owner") || undefined;
   const readOnly = !!owner && owner !== me?.id;
@@ -57,7 +59,7 @@ function ProjectsList() {
 
   const create = async () => {
     const p = { ...draft };
-    if (!p.name) p.name = "Untitled project";
+    if (!p.name) p.name = t("Untitled project");
     await saveProject(p);
     setShowNew(false);
     setDraft(emptyProject());
@@ -65,7 +67,7 @@ function ProjectsList() {
   };
 
   const remove = async (id: string, name: string) => {
-    if (!confirm(`Delete “${name}” and all of its saved runs? This cannot be undone.`)) return;
+    if (!confirm(t("Delete “{name}” and all of its saved runs? This cannot be undone.", { name }))) return;
     await deleteProject(id);
     reload();
   };
@@ -75,26 +77,26 @@ function ProjectsList() {
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-[1.4rem] font-bold tracking-tight text-ink-900">
-            {readOnly ? `${viewing?.displayName ?? "Teammate"}'s projects` : "Project tracker"}
+            {readOnly ? t("{name}'s projects", { name: viewing?.displayName ?? t("Teammate") }) : t("Project tracker")}
           </h1>
           <p className="text-[0.8rem] text-ink-500">
             {readOnly
-              ? "View only. Opened with the workspace password its owner gave you; nothing here can be changed or deleted."
-              : "Every study you run, stored with its flowsheet and results so you can reopen it later."}
+              ? t("View only. Opened with the workspace password its owner gave you; nothing here can be changed or deleted.")
+              : t("Every study you run, stored with its flowsheet and results so you can reopen it later.")}
           </p>
         </div>
         {!readOnly && <div className="flex flex-wrap gap-2">
           <button className="btn btn-primary" onClick={() => { setDraft(emptyProject()); setShowNew(true); }}>
-            <Plus className="h-3.5 w-3.5" /> New project
+            <Plus className="h-3.5 w-3.5" /> {t("New project")}
           </button>
           <button
             className="btn btn-ghost"
             onClick={async () => downloadText(`hydrodesk-backup-${new Date().toISOString().slice(0, 10)}.json`, await exportAll())}
           >
-            <Download className="h-3.5 w-3.5" /> Export all
+            <Download className="h-3.5 w-3.5" /> {t("Export all")}
           </button>
           <button className="btn btn-ghost" onClick={() => fileRef.current?.click()}>
-            <Upload className="h-3.5 w-3.5" /> Import
+            <Upload className="h-3.5 w-3.5" /> {t("Import")}
           </button>
           <input
             ref={fileRef} type="file" accept="application/json" className="hidden"
@@ -103,10 +105,10 @@ function ProjectsList() {
               if (!f) return;
               try {
                 const count = await importAll(await f.text());
-                alert(`Imported ${count} project${count === 1 ? "" : "s"}.`);
+                alert(t(count === 1 ? "Imported 1 project." : "Imported {n} projects.", { n: count }));
                 reload();
               } catch (err) {
-                alert(`Import failed: ${(err as Error).message}`);
+                alert(t("Import failed: {msg}", { msg: (err as Error).message }));
               }
               e.target.value = "";
             }}
@@ -117,7 +119,7 @@ function ProjectsList() {
       {cloud && (shared.length > 0 || readOnly) && (
         <div className="mb-3 flex flex-wrap gap-1.5">
           <Link href="/projects" className={`chip !px-3 !py-1 ${!readOnly ? "bg-aqua-100 text-aqua-700" : "bg-ink-900/5 text-ink-500 hover:text-ink-900"}`}>
-            My projects
+            {t("My projects")}
           </Link>
           {shared.map((w) => (
             <Link key={w.id} href={`/projects?owner=${encodeURIComponent(w.id)}`}
@@ -125,8 +127,8 @@ function ProjectsList() {
               <Eye className="h-3 w-3" /> {w.displayName}
             </Link>
           ))}
-          <Link href="/account" className="chip !px-3 !py-1 bg-transparent text-aqua-700 hover:underline">
-            Open a teammate&apos;s workspace…
+          <Link href="/profile/workspaces" className="chip !px-3 !py-1 bg-transparent text-aqua-700 hover:underline">
+            {t("Open a teammate's workspace…")}
           </Link>
         </div>
       )}
@@ -143,15 +145,15 @@ function ProjectsList() {
         <div className="relative min-w-[200px] flex-1">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-300" />
           <input
-            className="field pl-8"
-            placeholder="Search by project, client, location…"
+            className="field !pl-8"
+            placeholder={t("Search by project, client, location…")}
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
         </div>
         <select className="field !w-auto" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-          <option value="all">All statuses</option>
-          {Object.entries(STATUS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+          <option value="all">{t("All statuses")}</option>
+          {Object.entries(STATUS_LABEL).map(([k, v]) => <option key={k} value={k}>{t(v)}</option>)}
         </select>
       </div>
 
@@ -159,12 +161,12 @@ function ProjectsList() {
         <div className="card flex flex-col items-center gap-2 px-4 py-16 text-center">
           <FolderKanban className="h-8 w-8 text-ink-300" />
           <h2 className="text-[0.95rem] font-bold text-ink-900">
-            {projects.length === 0 ? (readOnly ? "No projects in this workspace" : "No projects yet") : "Nothing matches that filter"}
+            {projects.length === 0 ? (readOnly ? t("No projects in this workspace") : t("No projects yet")) : t("Nothing matches that filter")}
           </h2>
           <p className="max-w-md text-[0.8rem] text-ink-500">
             {projects.length === 0
-              ? "Create a project here, or run a simulation and save it — the save dialog can create the project for you."
-              : "Try clearing the search or status filter."}
+              ? t("Create a project here, or run a simulation and save it — the save dialog can create the project for you.")
+              : t("Try clearing the search or status filter.")}
           </p>
         </div>
       ) : (
@@ -175,9 +177,9 @@ function ProjectsList() {
               <div key={p.id} className="card flex flex-col p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <h3 className="truncate text-[0.95rem] font-bold text-ink-900">{p.name || "Untitled"}</h3>
+                    <h3 className="truncate text-[0.95rem] font-bold text-ink-900">{p.name || t("Untitled")}</h3>
                     <p className="truncate text-[0.75rem] text-ink-500">
-                      {[p.client, p.location].filter(Boolean).join(" · ") || "No client recorded"}
+                      {[p.client, p.location].filter(Boolean).join(" · ") || t("No client recorded")}
                     </p>
                   </div>
                   {!readOnly && (
@@ -188,18 +190,18 @@ function ProjectsList() {
                 </div>
 
                 <div className="mt-2.5 flex flex-wrap gap-1.5">
-                  <span className={`chip ring-1 ${STATUS_TONE[p.status]}`}>{STATUS_LABEL[p.status]}</span>
+                  <span className={`chip ring-1 ${STATUS_TONE[p.status]}`}>{t(STATUS_LABEL[p.status])}</span>
                   <span className="chip bg-aqua-50 text-aqua-700">{p.kind}</span>
                   <span className="chip bg-ink-900/5 text-ink-500">
-                    {p.runs.length} run{p.runs.length === 1 ? "" : "s"}
+                    {t(p.runs.length === 1 ? "1 run" : "{n} runs", { n: p.runs.length })}
                   </span>
                 </div>
 
                 {last && (
                   <dl className="mt-3 grid grid-cols-3 gap-2 rounded-lg bg-aqua-50/70 p-2.5">
-                    <Mini k="Recovery" v={`${last.recoveryPct.toFixed(1)}%`} />
+                    <Mini k={t("Recovery")} v={`${last.recoveryPct.toFixed(1)}%`} />
                     <Mini k="SEC" v={`${last.secKWhPerM3.toFixed(2)}`} />
-                    <Mini k="Product" v={`${last.productFlow.toFixed(0)}`} />
+                    <Mini k={t("Product")} v={`${last.productFlow.toFixed(0)}`} />
                   </dl>
                 )}
 
@@ -207,7 +209,7 @@ function ProjectsList() {
                   href={`/projects/${p.id}`}
                   className="mt-3 flex items-center gap-1 text-[0.78rem] font-semibold text-aqua-700 hover:underline"
                 >
-                  Open project <ArrowRight className="h-3.5 w-3.5" />
+                  {t("Open project")} <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
             );
@@ -217,25 +219,25 @@ function ProjectsList() {
 
       {showNew && (
         <Modal
-          title="New project"
-          subtitle="You can also create a project directly from the save dialog after a run."
+          title={t("New project")}
+          subtitle={t("You can also create a project directly from the save dialog after a run.")}
           onClose={() => setShowNew(false)}
           footer={
             <>
-              <button className="btn btn-ghost" onClick={() => setShowNew(false)}>Cancel</button>
-              <button className="btn btn-primary" onClick={create}>Create project</button>
+              <button className="btn btn-ghost" onClick={() => setShowNew(false)}>{t("Cancel")}</button>
+              <button className="btn btn-primary" onClick={create}>{t("Create project")}</button>
             </>
           }
         >
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-2">
-              <Fld label="Project name" value={draft.name} onChange={(v) => setDraft({ ...draft, name: v })} />
-              <Fld label="Client" value={draft.client} onChange={(v) => setDraft({ ...draft, client: v })} />
+              <Fld label={t("Project name")} value={draft.name} onChange={(v) => setDraft({ ...draft, name: v })} />
+              <Fld label={t("Client")} value={draft.client} onChange={(v) => setDraft({ ...draft, client: v })} />
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Fld label="Location" value={draft.location} onChange={(v) => setDraft({ ...draft, location: v })} />
+              <Fld label={t("Location")} value={draft.location} onChange={(v) => setDraft({ ...draft, location: v })} />
               <div>
-                <label className="label">Type</label>
+                <label className="label">{t("Type")}</label>
                 <select className="field mt-1" value={draft.kind}
                   onChange={(e) => setDraft({ ...draft, kind: e.target.value as ProjectKind })}>
                   {KINDS.map((k) => <option key={k} value={k}>{k}</option>)}
@@ -243,24 +245,24 @@ function ProjectsList() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Fld label="Marketing contact" value={draft.marketingContact}
+              <Fld label={t("Marketing contact")} value={draft.marketingContact}
                 onChange={(v) => setDraft({ ...draft, marketingContact: v })} />
               <div>
-                <label className="label">Status</label>
+                <label className="label">{t("Status")}</label>
                 <select className="field mt-1" value={draft.status}
                   onChange={(e) => setDraft({ ...draft, status: e.target.value as ProjectStatus })}>
-                  {Object.entries(STATUS_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                  {Object.entries(STATUS_LABEL).map(([k, v]) => <option key={k} value={k}>{t(v)}</option>)}
                 </select>
               </div>
             </div>
-            <Fld label="Capacity note" value={draft.capacityNote}
+            <Fld label={t("Capacity note")} value={draft.capacityNote}
               onChange={(v) => setDraft({ ...draft, capacityNote: v })}
-              placeholder="e.g. 52 L/s product, seawater feed" />
+              placeholder={t("e.g. 52 L/s product, seawater feed")} />
             <div>
-              <label className="label">Notes</label>
+              <label className="label">{t("Notes")}</label>
               <textarea className="field mt-1 min-h-[70px] resize-y" value={draft.notes}
                 onChange={(e) => setDraft({ ...draft, notes: e.target.value })}
-                placeholder="What the client asked for, what data is still missing, who is chasing it." />
+                placeholder={t("What the client asked for, what data is still missing, who is chasing it.")} />
             </div>
           </div>
         </Modal>

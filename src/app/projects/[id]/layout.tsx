@@ -7,6 +7,7 @@ import { STATUS_LABEL, STATUS_TONE } from "@/lib/store/db";
 import {
   ArrowLeft, LayoutDashboard, ClipboardList, Compass, Workflow, BarChart3, History, Eye,
 } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 /**
  * Everything inside a project lives under its address.
@@ -37,13 +38,14 @@ const TABS = [
 function Shell({ children }: { children: React.ReactNode }) {
   const { base, project, notFound, readOnly } = useWorkspace();
   const path = usePathname();
+  const t = useT();
 
   if (notFound) {
     return (
       <div className="mx-auto w-full max-w-3xl px-4 py-16 text-center">
-        <p className="text-[0.9rem] text-ink-500">This project could not be found.</p>
+        <p className="text-[0.9rem] text-ink-500">{t("This project could not be found.")}</p>
         <Link href="/projects" className="btn btn-ghost mt-4">
-          <ArrowLeft className="h-3.5 w-3.5" /> All projects
+          <ArrowLeft className="h-3.5 w-3.5" /> {t("All projects")}
         </Link>
       </div>
     );
@@ -57,20 +59,20 @@ function Shell({ children }: { children: React.ReactNode }) {
             href={readOnly && project?.ownerId ? `/projects?owner=${encodeURIComponent(project.ownerId)}` : "/projects"}
             className="inline-flex items-center gap-1 text-[0.72rem] font-semibold text-ink-500 hover:text-ink-900"
           >
-            <ArrowLeft className="h-3.5 w-3.5" /> All projects
+            <ArrowLeft className="h-3.5 w-3.5" /> {t("All projects")}
           </Link>
           <span className="h-4 w-px bg-ink-900/10" />
           {project ? (
             <>
               <h1 className="truncate text-[1rem] font-bold tracking-tight text-ink-900">
-                {project.name || "Untitled project"}
+                {project.name || t("Untitled project")}
               </h1>
               {project.client && <span className="text-[0.75rem] text-ink-500">{project.client}</span>}
               <span className="chip bg-aqua-50 text-aqua-700">{project.kind}</span>
-              <span className={`chip ring-1 ${STATUS_TONE[project.status]}`}>{STATUS_LABEL[project.status]}</span>
+              <span className={`chip ring-1 ${STATUS_TONE[project.status]}`}>{t(STATUS_LABEL[project.status])}</span>
               {readOnly && (
-                <span className="chip bg-violet-100 text-violet-700" title="Opened with its owner's workspace password. Nothing here can be saved.">
-                  <Eye className="h-3 w-3" /> View only · {project.ownerName ?? "another account"}
+                <span className="chip bg-violet-100 text-violet-700" title={t("Opened with its owner's workspace password. Nothing here can be saved.")}>
+                  <Eye className="h-3 w-3" /> {t("View only")} · {project.ownerName ?? t("another account")}
                 </span>
               )}
             </>
@@ -95,7 +97,7 @@ function Shell({ children }: { children: React.ReactNode }) {
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
-                {label}
+                {t(label)}
                 {count != null && (
                   <span className="rounded-full bg-ink-900/5 px-1.5 text-[0.62rem] text-ink-500">{count}</span>
                 )}
