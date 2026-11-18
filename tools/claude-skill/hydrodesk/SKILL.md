@@ -19,6 +19,13 @@ node ~/.claude/skills/hydrodesk/scripts/hydrodesk.mjs <perintah>
 
 Di bawah ini ditulis `hd <perintah>` sebagai singkatan. `hd help` menampilkan semua perintah.
 
+**Simulasi berjalan di komputer ini.** `simulate`, `save-run`, dan `workbench` memakai mesin simulasi HydroDesk
+yang diunduh otomatis ke `~/.hydrodesk/engine/` (kode yang sama persis dengan web dan server, jadi hasilnya
+identik). Server hanya dipakai untuk membaca dan menyimpan proyek, sehingga simulasi tidak membebani kuota
+HydroDesk. Versi mesin dicek otomatis (paling lama tiap 10 menit, dan selalu sebelum `save-run`); kalau HydroDesk
+diperbarui, mesin baru diunduh sendiri. `hd engine` menampilkan versinya. `--server` memaksa simulasi di server,
+hanya untuk keadaan khusus (misalnya membandingkan hasil).
+
 ## 1. Koneksi (sekali per komputer)
 
 1. `hd whoami`. Kalau sudah terhubung, lanjut ke langkah 2.
@@ -68,8 +75,8 @@ dan fungsi admin sengaja tidak bisa lewat token: arahkan pengguna ke web untuk i
 
 Untuk studi banyak varian (sapuan parameter, mencari porsi pass kedua, dsb.), jalankan `simulate` berulang
 dengan file yang berbeda, lalu simpan hanya varian yang bermakna, masing-masing dengan nama dan catatan yang
-jelas. Untuk sapuan yang sangat besar (ratusan run), lebih cepat memakai engine lokal di repo seperti
-`scripts/batam.project.ts`.
+jelas. Karena simulasi berjalan di komputer ini, sapuan ratusan variasi pun cepat (milidetik per run) dan tidak
+membebani server; tetap simpan hanya run yang bermakna.
 
 ## 3. Aturan yang harus dijaga
 

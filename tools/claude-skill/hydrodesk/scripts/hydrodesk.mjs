@@ -9,9 +9,10 @@
  * Node 18+, no dependencies. Run `node hydrodesk.mjs help` for the commands.
  */
 import { createHash, randomBytes } from "node:crypto";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { homedir, hostname } from "node:os";
 import { dirname, join } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const DEFAULT_URL = "https://hyrodesk-6gi9.vercel.app";
 const CONFIG = process.env.HYDRODESK_CONFIG || join(homedir(), ".hydrodesk", "config.json");
@@ -133,9 +134,100 @@ async function whoami() {
 async function logout() {
   const c = readConfig();
   if (c.token) await api("/api/tokens?self=1", { method: "DELETE" }).catch(() => {});
-  delete c.token; delete c.pending; delete c.label;
+  delete c.token; delete c.pending; delete c.label; delete c.engine;
+  rmSync(ENGINE_DIR, { recursive: true, force: true });
   writeConfig(c);
   console.log("Disconnected: token revoked and forgotten.");
+}
+
+/* ------------------------------------------------------------------ engine */
+
+// Simulations run on this machine with HydroDesk's own engine, downloaded from
+// the server and identical to what the web and the server run. The server is
+// only asked which version is current (a static file, no database), and the
+// engine is downloaded again whenever that changes.
+const ENGINE_DIR = join(dirname(CONFIG), "engine");
+const CHECK_EVERY_MS = 10 * 60 * 1000;
+const engineFile = (v) => join(ENGINE_DIR, `hydrodesk-engine-${v}.mjs`);
+
+async function currentEngineVersion() {
+  try {
+    const r = await fetch(`${baseUrl()}/engine-version.json`, { cache: "no-store" });
+    if (!r.ok) return null;
+    return (await r.json()).version ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** The engine module, up to date. `fresh` always asks the server for the current version. */
+async function loadEngine({ fresh = false } = {}) {
+  const c = readConfig();
+  let version = c.engine?.version;
+  const due = fresh || !version || !c.engine?.checkedAt || Date.now() - c.engine.checkedAt > CHECK_EVERY_MS;
+  if (due) {
+    const current = await currentEngineVersion();
+    if (!current) {
+      if (fresh || !version || !existsSync(engineFile(version))) throw new Error(`cannot reach ${baseUrl(c)} to check the engine version`);
+      console.error("note: offline, using the engine downloaded earlier.");
+    } else {
+      if (current !== version || !existsSync(engineFile(current))) {
+        if (!c.token) fail("Not connected. Run: node hydrodesk.mjs login");
+        const r = await fetch(`${baseUrl(c)}/api/engine`, { headers: { authorization: `Bearer ${c.token}` } });
+        if (!r.ok) throw new Error(`engine download refused (${r.status})`);
+        const code = await r.text();
+        const got = r.headers.get("x-engine-version") || current;
+        mkdirSync(ENGINE_DIR, { recursive: true });
+        writeFileSync(engineFile(got), code);
+        for (const f of readdirSync(ENGINE_DIR)) {
+          if (f.startsWith("hydrodesk-engine-") && f !== `hydrodesk-engine-${got}.mjs`) rmSync(join(ENGINE_DIR, f), { force: true });
+        }
+        if (version) console.error(`note: HydroDesk was updated; engine ${version} -> ${got}.`);
+        version = got;
+      }
+      writeConfig({ ...readConfig(), engine: { version, checkedAt: Date.now() } });
+    }
+  }
+  return import(pathToFileURL(engineFile(version)).href);
+}
+
+/**
+ * One simulation: on this machine, or on the server with --server (or when
+ * the engine cannot be had). The answer has the same shape either way.
+ */
+async function runSim(body, opt, { fresh = false } = {}) {
+  if (!opt.server) {
+    let eng = null;
+    try {
+      eng = await loadEngine({ fresh });
+    } catch (e) {
+      if (fresh) fail(`Cannot get the current engine: ${e.message}. Nothing saved.`);
+      console.error(`note: local engine unavailable (${e.message}); simulating on the server.`);
+    }
+    if (eng) {
+      let r;
+      try {
+        r = eng.runSimulation(structuredClone(body));
+      } catch (e) {
+        if (e instanceof eng.RunError) fail(e.message);
+        throw e;
+      }
+      // Through JSON, exactly as the server would have sent it.
+      return { ...JSON.parse(JSON.stringify(r)), engine: { where: "this machine", version: eng.ENGINE_VERSION } };
+    }
+  }
+  return { ...(await api("/api/simulate", { method: "POST", body })), engine: { where: "server" } };
+}
+
+async function engine() {
+  const c = readConfig();
+  const current = await currentEngineVersion();
+  console.log(`Engine on this machine: ${c.engine?.version ?? "none yet"}${c.engine?.version && existsSync(engineFile(c.engine.version)) ? "" : " (not downloaded)"}`);
+  console.log(`Current at ${baseUrl(c)}: ${current ?? "unreachable"}`);
+  if (current && c.token) {
+    const m = await loadEngine({ fresh: true });
+    console.log(`Ready: ${m.ENGINE_VERSION} (${engineFile(m.ENGINE_VERSION)})`);
+  }
 }
 
 /* ------------------------------------------------------------------ catalog */
@@ -231,6 +323,7 @@ async function newProject(opt) {
 function summarise(sim, opt = {}) {
   const r = sim.result;
   const s = r.summary;
+  if (sim.engine && !opt.quiet) console.log(`Simulated on ${sim.engine.where}${sim.engine.version ? ` (engine ${sim.engine.version})` : ""}.`);
   console.log(`Converged: ${sim.converged ? "yes" : "NO"}   Feed ${f(sim.flowsheet.feed.flow)} m3/h   Product ${f(s.productFlow)} m3/h   Recovery ${f(s.recoveryPct)} %`);
   console.log(`Power ${f(s.totalPowerKW, 0)} kW   SEC ${f(s.secKWhPerM3, 3)} kWh/m3   OPEX ${f(s.opexUSDPerM3, 3)} USD/m3 (Rp ${f(s.opexUSDPerM3 * IDR_PER_USD, 0)}/m3)`);
   const cx = sim.capex;
@@ -279,7 +372,7 @@ async function simulate(file, opt) {
   const body = { flowsheet };
   if (opt.check) body.check = String(opt.check).split(",");
   if (opt.discharge) body.dischargeCheck = String(opt.discharge);
-  const sim = await api("/api/simulate", { method: "POST", body });
+  const sim = await runSim(body, opt);
   if (opt.out) out(sim, opt.out);
   if (opt["save-flowsheet"]) out(sim.flowsheet, opt["save-flowsheet"]);
   if (opt.json && !opt.out) return out(sim);
@@ -305,7 +398,7 @@ async function workbench(file, opt) {
       autoGaps: !opt["no-auto-gaps"],
     },
   };
-  const sim = await api("/api/simulate", { method: "POST", body });
+  const sim = await runSim(body, opt);
   if (!sim.workbenchHtml) fail("This HydroDesk does not build workbench pages yet (deploy the latest version).");
   writeFileSync(String(opt.out), sim.workbenchHtml);
   summarise(sim, { quiet: true });
@@ -318,7 +411,9 @@ async function saveRun(projectId, file, opt) {
   const body = { flowsheet };
   if (opt.check) body.check = String(opt.check).split(",");
   if (opt.discharge) body.dischargeCheck = String(opt.discharge);
-  const sim = await api("/api/simulate", { method: "POST", body });
+  // Always with the engine the server runs today, so a saved run never comes
+  // from an outdated copy.
+  const sim = await runSim(body, opt, { fresh: true });
   const p = await api(`/api/projects/${encodeURIComponent(projectId)}`);
   if (p.access === "viewer") fail(`"${p.name}" belongs to ${p.ownerName}: view only, a run cannot be saved into it.`);
   const anyFail = sim.compliance.some((c) => c.products.some((x) => x.failed.length));
@@ -362,7 +457,9 @@ const HELP = `HydroDesk CLI — config ${CONFIG}
   project <id> [--json]                          details and runs
   run <projectId> <index|runId> [--out f] [--full]   a saved run's flowsheet
   new-project --name N [--client C] [--location L] [--kind K] [--capacity T] [--notes T]
-  simulate <flowsheet.json> [--check std1,std2] [--discharge std] [--out sim.json] [--save-flowsheet f] [--quiet] [--json]
+  simulate <flowsheet.json> [--check std1,std2] [--discharge std] [--out sim.json] [--save-flowsheet f] [--quiet] [--json] [--server]
+                                                 runs on this machine; --server runs it on HydroDesk instead
+  engine                                         engine version here and on the server; updates it
   save-run <projectId> <flowsheet.json> --name N [--note T] [--verdict feasible|conditional|not-feasible] [--check ..] [--discharge std]
   workbench <flowsheet.json> --out page.html [--title T] [--notes notes.json] [--no-auto-gaps]
                                                  the run as one offline page (中/EN/ID) for a workbench`;
@@ -376,7 +473,7 @@ const commands = {
   projects: () => projects(opt), workspaces, project: () => project(pos[0], opt),
   run: () => run(pos[0], pos[1], opt), "new-project": () => newProject(opt),
   simulate: () => simulate(pos[0], opt), "save-run": () => saveRun(pos[0], pos[1], opt),
-  workbench: () => workbench(pos[0], opt),
+  workbench: () => workbench(pos[0], opt), engine,
   help: () => console.log(HELP),
 };
 if (!cmd || !commands[cmd]) { console.log(HELP); process.exit(cmd ? 1 : 0); }

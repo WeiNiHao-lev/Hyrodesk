@@ -192,6 +192,9 @@ async function runChecks() {
   /* --- the workbench page: self-contained, three languages, escaped --- */
   const workbench = checkWorkbenchPage();
 
+  /* --- the engine bundle Claude Code downloads is deployed and current --- */
+  const engineBundle = await checkEngineBundle();
+
   /* --- the site-visit analyser, against answers with known defects --- */
   const prepare = checkPrepareAnalysis();
 
@@ -382,9 +385,9 @@ async function runChecks() {
       ok: allClosed && allConverged && diagnosticsOk && productDrivenOk
         && xlsx.ok === true && docx.ok === true && diagrams.ok === true
         && leachate.ok && coverage.ok && markers.ok && prepare.ok && canvas.ok
-        && tankSplit.ok && dataCentre.ok && batamPreset.ok && pricesEffluent.ok && workbench.ok,
+        && tankSplit.ok && dataCentre.ok && batamPreset.ok && pricesEffluent.ok && workbench.ok && engineBundle.ok,
       allConverged, allClosed, diagnosticsOk, productDrivenOk,
-      coverage, leachate, markers, dataCentre, batamPreset, pricesEffluent, workbench, prepare, canvas, tankSplit, xlsx, docx, diagrams,
+      coverage, leachate, markers, dataCentre, batamPreset, pricesEffluent, workbench, engineBundle, prepare, canvas, tankSplit, xlsx, docx, diagrams,
       productDriven: pdTests,
       diagnostics: {
         fixture: KNOWN_BAD_FEED.name,
@@ -823,6 +826,25 @@ function checkBatamPreset() {
  * tonne of chlorine, not USD 376. And the effluent limits must reach a real
  * treated sewage with the numbers the regulation prints.
  */
+/**
+ * Claude Code simulates with the bundle from /api/engine, checking
+ * /engine-version.json for updates. Both must be deployed, agree with each
+ * other, and the bundle must answer as the engine here does.
+ */
+async function checkEngineBundle() {
+  try {
+    const { readFile } = await import("node:fs/promises");
+    const { join } = await import("node:path");
+    const code = await readFile(join(process.cwd(), "engine-dist", "hydrodesk-engine.mjs"), "utf8");
+    const published = JSON.parse(await readFile(join(process.cwd(), "public", "engine-version.json"), "utf8")).version;
+    const version = /^export const ENGINE_VERSION = "([0-9a-f]+)"/m.exec(code)?.[1];
+    const ok = !!version && version === published;
+    return { ok, version, published, kB: Math.round(code.length / 1024) };
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+}
+
 /**
  * The workbench page goes into a frame with no network: anything it would fetch
  * is simply missing there. Every template must give a page that loads nothing,
