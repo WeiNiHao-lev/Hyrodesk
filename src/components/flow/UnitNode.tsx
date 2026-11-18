@@ -37,7 +37,7 @@ export function UnitNode({ data, selected }: NodeProps) {
 
   return (
     <div
-      className={`min-w-[168px] rounded-xl border bg-white/95 px-3 py-2.5 shadow-sm ring-1 transition ${
+      className={`hd-node min-w-[168px] rounded-xl border bg-white/95 px-3 py-2.5 shadow-sm ring-1 transition ${
         selected
           ? "border-aqua-500 ring-aqua-300 shadow-md"
           : `border-transparent ${style.ring}`

@@ -8,7 +8,7 @@ import { calcRowsFor } from "@/lib/report/calcsheets";
 import { inhibitionFindings, TRACE_BY_KEY, traceBalance } from "@/lib/engine/compliance";
 import { indicativeCapex } from "@/lib/engine/capex";
 import { swroBenchmark } from "@/lib/engine/benchmarks";
-import { buildWorkbenchPage } from "@/lib/report/workbench";
+import { buildWorkbenchPage, routeEdges, suggestDataNeeded } from "@/lib/report/workbench";
 import { CCEPC_PRICE_LIST, PRICE_BASIS_BY_NAME, usdPerTActive } from "@/lib/engine/chemprices";
 import { analysePrepare, numbersIn } from "@/lib/engine/prepareAnalysis";
 import {
@@ -834,7 +834,18 @@ function checkWorkbenchPage() {
   for (const t of TEMPLATES) {
     try {
       const fs = t.make();
-      const html = buildWorkbenchPage(fs, simulate(fs), { title: `${t.name} <script>alert(1)</script>`, note: "a & b < c" });
+      const res = simulate(fs);
+      const html = buildWorkbenchPage(fs, res, {
+        title: `${t.name} <script>alert(1)</script>`, stage: "simulation", verdict: "conditional",
+        gaps: suggestDataNeeded(fs, res, { answered: 3, total: 10, criticalOpen: 2 }),
+        notes: { source: "id", comments: { id: "a & b < c" }, dataNeeded: { id: "<b>x</b>\ny" } },
+      });
+      // No line of the process diagram may run through or along a block.
+      const crossing = routeEdges(fs, res).drawn.filter((d) => d.crossings > 0).map((d) => d.id);
+      if (crossing.length) problems.push(`${t.key}: lines crossing blocks: ${crossing.join(", ")}`);
+      if (html.includes("<b>x</b>")) problems.push(`${t.key}: data-needed list not escaped`);
+      // Written in Indonesian only: the Chinese and English views mark it as the original.
+      if (!html.includes("原文 · 印尼语") || !html.includes("Original · Indonesian")) problems.push(`${t.key}: untranslated note not marked as original`);
       if (outside.test(html)) problems.push(`${t.key}: refers to something outside the page (${html.match(outside)?.[0]})`);
       if (html.includes("<script>alert(1)")) problems.push(`${t.key}: title not escaped`);
       if (!html.includes("a &amp; b &lt; c")) problems.push(`${t.key}: note not escaped`);

@@ -289,11 +289,22 @@ async function simulate(file, opt) {
 
 // The run as one self-contained web page (中 / EN / ID): for the showcase
 // library of a workbench, which shows uploaded .html pages offline.
+// --notes notes.json: { "stage": "simulation", "verdict": "conditional",
+//   "notes": { "source": "id", "comments": { "id": "...", "en": "...", "zh": "..." },
+//              "dataNeeded": { "id": "line\nline", "en": "...", "zh": "..." } } }
 async function workbench(file, opt) {
-  if (!file || !opt.out || opt.out === true) fail("Usage: workbench <flowsheet.json> --out page.html [--title T] [--note T]");
+  if (!file || !opt.out || opt.out === true) fail("Usage: workbench <flowsheet.json> --out page.html [--title T] [--notes notes.json] [--no-auto-gaps]");
   const flowsheet = readJson(file);
   const title = opt.title && opt.title !== true ? String(opt.title) : "HydroDesk run";
-  const body = { flowsheet, workbench: { title, note: opt.note && opt.note !== true ? String(opt.note) : undefined } };
+  const extra = opt.notes && opt.notes !== true ? readJson(String(opt.notes)) : {};
+  const body = {
+    flowsheet,
+    workbench: {
+      title, ...extra,
+      note: opt.note && opt.note !== true ? String(opt.note) : undefined,
+      autoGaps: !opt["no-auto-gaps"],
+    },
+  };
   const sim = await api("/api/simulate", { method: "POST", body });
   if (!sim.workbenchHtml) fail("This HydroDesk does not build workbench pages yet (deploy the latest version).");
   writeFileSync(String(opt.out), sim.workbenchHtml);
@@ -353,7 +364,8 @@ const HELP = `HydroDesk CLI — config ${CONFIG}
   new-project --name N [--client C] [--location L] [--kind K] [--capacity T] [--notes T]
   simulate <flowsheet.json> [--check std1,std2] [--discharge std] [--out sim.json] [--save-flowsheet f] [--quiet] [--json]
   save-run <projectId> <flowsheet.json> --name N [--note T] [--verdict feasible|conditional|not-feasible] [--check ..] [--discharge std]
-  workbench <flowsheet.json> --out page.html [--title T] [--note T]   the run as one offline page (中/EN/ID) for a workbench`;
+  workbench <flowsheet.json> --out page.html [--title T] [--notes notes.json] [--no-auto-gaps]
+                                                 the run as one offline page (中/EN/ID) for a workbench`;
 
 const [cmd, ...rest] = process.argv.slice(2);
 const { pos, opt } = parseArgs(rest);

@@ -319,6 +319,22 @@ table.data th.num {
   --color-sky-100: #0f2d42;
 }
 :root[data-theme="dark"] .react-flow { --xy-background-color: transparent; }
+/* Blocks on the dark canvas: a clearly lighter card with a soft light rim, so
+   they stand out from the background and from the lines between them. */
+:root[data-theme="dark"] .hd-node {
+  background: #2a4660;
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 0 16px rgba(170, 220, 255, 0.22),
+    0 8px 18px rgba(0, 0, 0, 0.5);
+}
+:root[data-theme="dark"] .hd-node .text-ink-900 { color: #ffffff; }
+:root[data-theme="dark"] .hd-node .text-ink-500 { color: #c3d6e4; }
+:root[data-theme="dark"] .react-flow__node.selected .hd-node {
+  box-shadow: 0 0 0 2px var(--color-aqua-400), 0 0 22px rgba(47, 192, 242, 0.45);
+}
+:root[data-theme="dark"] .react-flow__edge-path { stroke: #8cc4e3; }
 
 :root[data-theme="dark"] body {
   background:
@@ -363,7 +379,6 @@ table.data th.num {
 :root[data-theme="dark"] table.data tbody td { border-bottom-color: rgba(255, 255, 255, 0.06); }
 :root[data-theme="dark"] table.data tbody tr:hover td { background: rgba(127, 213, 250, 0.06); }
 :root[data-theme="dark"] .react-flow__handle { background: #132331; }
-:root[data-theme="dark"] .react-flow__edge-path { stroke: #4f87a6; }
 :root[data-theme="dark"] .react-flow__controls-button {
   background: #132331;
   border-bottom-color: rgba(255, 255, 255, 0.08);

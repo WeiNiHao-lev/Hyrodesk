@@ -152,6 +152,7 @@ export default function ProjectRuns() {
                 flowsheet={activeRun.flowsheet}
                 result={activeRun.result}
                 studyName={`${project.name} — ${activeRun.name}`}
+                runVerdict={activeRun.verdict}
               />
             </>
           )}

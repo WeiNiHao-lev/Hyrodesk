@@ -50,9 +50,20 @@ dan fungsi admin sengaja tidak bisa lewat token: arahkan pengguna ke web untuk i
    Proyek baru: `hd new-project --name "..." --client "..." --location "..." --kind Desalination`. CLI mencetak
    link ke halaman Runs. Berikan link itu ke pengguna.
 6. **Halaman workbench** (bila diminta untuk workbench atasan / 高端咨询室工作台, atau "versi HTML untuk dipamerkan"):
-   `hd workbench fs.json --out hasil.html --title "..." [--note "..."]`. Hasilnya satu file HTML mandiri
-   (中 / EN / ID, diagram proses, KPI, kualitas vs baku mutu, benchmark SWRO, bahan kimia) yang tidak memuat
-   apa pun dari luar, jadi bisa diunggah ke Showcase Library workbench. Untuk run tersimpan, ambil dulu
+   `hd workbench fs.json --out hasil.html --title "..." --notes notes.json`. Hasilnya satu file HTML mandiri
+   (中 / EN / ID: diagram proses, KPI, kualitas vs baku mutu, benchmark SWRO, catatan per unit, bahan kimia, lalu
+   catatan proyek di akhir) yang tidak memuat apa pun dari luar, jadi bisa diunggah ke Showcase Library workbench.
+   `notes.json` berisi tahap proyek, kelayakan, data yang masih diperlukan, dan komentar pengguna. **Terjemahkan
+   sendiri** komentar dan daftar data itu ke tiga bahasa (zh, en, id) dan isi ketiganya; jangan biarkan kosong:
+   ```json
+   { "stage": "simulation", "verdict": "conditional",
+     "notes": { "source": "id",
+       "comments":   { "id": "Owner menawarkan FS ke kita.", "en": "The owner has offered us the FS.", "zh": "业主邀请我们承担可研。" },
+       "dataNeeded": { "id": "Data pasang surut\nTarif listrik", "en": "Tide data\nPower tariff", "zh": "潮位资料\n电价" } } }
+   ```
+   `stage`: lead, data-collection, simulation, pre-approval, approved, on-hold, rejected. `verdict`: feasible,
+   conditional, not-feasible. HydroDesk menambahkan sendiri data yang kurang yang bisa ia deteksi (analisis air
+   baku, parameter yang harus dibuktikan terpisah); `--no-auto-gaps` mematikannya. Untuk run tersimpan, ambil dulu
    flowsheet-nya dengan `hd run <projectId> <index> --out fs.json`. Unggahnya dilakukan pengguna sendiri.
 
 Untuk studi banyak varian (sapuan parameter, mencari porsi pass kedua, dsb.), jalankan `simulate` berulang

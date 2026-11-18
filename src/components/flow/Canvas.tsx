@@ -59,15 +59,15 @@ function CanvasInner() {
           targetHandle: "in",
           type: "smoothstep",
           animated: (row?.stream.flow ?? 0) > 0,
-          markerEnd: { type: MarkerType.ArrowClosed, color: "#7fb4d1", width: 16, height: 16 },
+          markerEnd: { type: MarkerType.ArrowClosed, color: dark ? "#8cc4e3" : "#7fb4d1", width: 16, height: 16 },
           label: row && edgeLabels ? `${row.stream.flow.toFixed(1)}` : undefined,
-          labelStyle: { fontSize: 10, fontWeight: 700, fill: "var(--color-ink-700)" },
-          labelBgStyle: { fill: "var(--color-white)", fillOpacity: 0.85 },
+          labelStyle: { fontSize: 10, fontWeight: 700, fill: dark ? "#e6f3fb" : "var(--color-ink-700)" },
+          labelBgStyle: { fill: dark ? "#1b3448" : "#ffffff", fillOpacity: 0.92 },
           labelBgPadding: [3, 1] as [number, number],
           labelBgBorderRadius: 4,
         } as Edge;
       }),
-    [flowsheet.edges, result, edgeLabels],
+    [flowsheet.edges, result, edgeLabels, dark],
   );
 
   const onNodesChange = useCallback(

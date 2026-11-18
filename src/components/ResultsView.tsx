@@ -11,6 +11,9 @@ import { DEFAULT_CAPEX_FACTORS, IDR_PER_USD, indicativeCapex } from "@/lib/engin
 import { CCEPC_SWRO, swroBenchmark } from "@/lib/engine/benchmarks";
 import { CNY_PER_USD, PRICE_BASIS_BY_NAME } from "@/lib/engine/chemprices";
 import { STANDARDS } from "@/lib/engine/templates";
+import { buildWorkbenchPage, Verdict, WorkbenchOptions } from "@/lib/report/workbench";
+import { WorkbenchDialog } from "./WorkbenchDialog";
+import { useOptionalWorkspace } from "./workspace/WorkspaceContext";
 import { sweep, sweepCandidates, SweepResult } from "@/lib/engine/sensitivity";
 import {
   Droplets, Zap, FlaskConical, Recycle, AlertTriangle, Download, FileText, Sigma, Boxes,
@@ -24,8 +27,8 @@ const BIO_COLS: Component[] = ["TSS", "BOD", "COD", "TOC", "TN", "TP", "NH4"];
 type Tab = "overview" | "streams" | "salt" | "bio" | "energy" | "equipment" | "compliance" | "sensitivity";
 
 export function ResultsView({
-  flowsheet, result, studyName,
-}: { flowsheet: Flowsheet; result: SimulationResult; studyName: string }) {
+  flowsheet, result, studyName, runVerdict,
+}: { flowsheet: Flowsheet; result: SimulationResult; studyName: string; runVerdict?: Verdict }) {
   const [tab, setTab] = useState<Tab>("overview");
   const [busy, setBusy] = useState<string | null>(null);
   const t = useT();
@@ -77,17 +80,22 @@ export function ResultsView({
     } finally { setBusy(null); }
   };
 
-  const exportWorkbench = async () => {
-    setBusy("page");
-    try {
-      const { buildWorkbenchPage } = await import("@/lib/report/workbench");
-      const html = buildWorkbenchPage(flowsheet, result, { title: studyName });
-      downloadText(`${slug(studyName)}-workbench.html`, html, "text/html");
-    } finally { setBusy(null); }
+  // The workbench page asks for the project notes first (WorkbenchDialog).
+  const ws = useOptionalWorkspace();
+  const [showWb, setShowWb] = useState(false);
+  const exportWorkbench = () => setShowWb(true);
+  const buildWorkbench = (o: Omit<WorkbenchOptions, "title">) => {
+    setShowWb(false);
+    const html = buildWorkbenchPage(flowsheet, result, { title: studyName, ...o });
+    downloadText(`${slug(studyName)}-workbench.html`, html, "text/html");
   };
 
   return (
     <div className="flex flex-col gap-4">
+      {showWb && (
+        <WorkbenchDialog flowsheet={flowsheet} result={result} studyName={studyName}
+          project={ws?.project} runVerdict={runVerdict} onClose={() => setShowWb(false)} onBuild={buildWorkbench} />
+      )}
       {/* KPI strip */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         <Kpi icon={Droplets} label={t("Feed")} value={s.feedFlow.toFixed(1)} unit="m³/h" tone="aqua" />
